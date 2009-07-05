@@ -1,0 +1,14 @@
+Release: 35a4 (alpha4)
+URL: http://cfg-loader.googlecode.com/files/cfg35a4.dol
+* Integrated CoverFlow GUI mode
+* On-disc alt. dol support
+* Updated cover mirror list
+* For more details go to forum...
+
+Release: 34 (release)
+URL: http://cfg-loader.googlecode.com/files/cfg34.dol
+* Improved cover downloading
+* Themable GUI resources
+* External ehcmodule support
+* For more details go to forum...
+

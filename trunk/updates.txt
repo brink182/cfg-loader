@@ -1,3 +1,9 @@
+release = 35t1 (test1)
+url = http://cfg-loader.googlecode.com/files/cfg35t1.dol
+Testing possible fix for the crash
+Please report if it helps or not
+Based on 35b
+
 release = 35b (beta)
 url = http://cfg-loader.googlecode.com/files/cfg35b.dol
 Save global settings: theme and device

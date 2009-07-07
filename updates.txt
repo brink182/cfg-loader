@@ -1,3 +1,8 @@
+release = 35b (beta)
+url = http://cfg-loader.googlecode.com/files/cfg35b.dol
+Save global settings: theme and device
+Save selected alt.dol from disc
+
 release = 35a6 (alpha6)
 url = http://cfg-loader.googlecode.com/files/cfg35a6.dol
 Integrated CoverFlow GUI mode
@@ -10,4 +15,4 @@ url = http://cfg-loader.googlecode.com/files/cfg34.dol
 Improved cover downloading
 Themable GUI resources
 External ehcmodule support
-
+[No Online Updates!]

@@ -1,3 +1,11 @@
+release = 35rc (release candidate)
+url = http://cfg-loader.googlecode.com/files/cfg35rc.dol
+Stability improvements
+Added coverflow modes to gui_style
+Save gui style and rows settings
+Online update: improved detection
+  of boot.dol location
+
 release = 35t1 (test1)
 url = http://cfg-loader.googlecode.com/files/cfg35t1.dol
 Testing possible fix for the crash

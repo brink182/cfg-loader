@@ -1,3 +1,11 @@
+release = 35 (release)
+url = http://cfg-loader.googlecode.com/files/cfg35.dol
+Force video mode fixes
+Online update: progress indicator,
+  fixed crash, compact display
+Reduced size of embedded graphics
+Minor cleanups
+
 release = 35rc (release candidate)
 url = http://cfg-loader.googlecode.com/files/cfg35rc.dol
 Stability improvements
@@ -6,23 +14,10 @@ Save gui style and rows settings
 Online update: improved detection
   of boot.dol location
 
-release = 35t1 (test1)
-url = http://cfg-loader.googlecode.com/files/cfg35t1.dol
-Testing possible fix for the crash
-Please report if it helps or not
-Based on 35b
-
 release = 35b (beta)
 url = http://cfg-loader.googlecode.com/files/cfg35b.dol
 Save global settings: theme and device
 Save selected alt.dol from disc
-
-release = 35a6 (alpha6)
-url = http://cfg-loader.googlecode.com/files/cfg35a6.dol
-Integrated CoverFlow GUI mode
-On-disc alt. dol support
-Updated cover mirror list
-Online Updates
 
 release = 34 (release)
 url = http://cfg-loader.googlecode.com/files/cfg34.dol

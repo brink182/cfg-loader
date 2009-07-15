@@ -1,3 +1,10 @@
+release = 35c (bugfix release)
+url = http://cfg-loader.googlecode.com/files/cfg35c.dol
+Stability improvements for games
+that require alt.dol. Fixes freezes
+and glitches in MOH2, FIFA08
+(maybe others as well)
+
 release = 35 (release)
 url = http://cfg-loader.googlecode.com/files/cfg35.dol
 Force video mode fixes

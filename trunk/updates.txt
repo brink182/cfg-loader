@@ -1,4 +1,5 @@
 release = 35c (bugfix release)
+size = 867424
 url = http://cfg-loader.googlecode.com/files/cfg35c.dol
 Stability improvements for games
 that require alt.dol. Fixes freezes
@@ -6,6 +7,7 @@ and glitches in MOH2, FIFA08
 (maybe others as well)
 
 release = 35 (release)
+size = 867168
 url = http://cfg-loader.googlecode.com/files/cfg35.dol
 Force video mode fixes
 Online update: progress indicator,
@@ -14,6 +16,7 @@ Reduced size of embedded graphics
 Minor cleanups
 
 release = 35rc (release candidate)
+size = 990176
 url = http://cfg-loader.googlecode.com/files/cfg35rc.dol
 Stability improvements
 Added coverflow modes to gui_style
@@ -22,13 +25,16 @@ Online update: improved detection
   of boot.dol location
 
 release = 35b (beta)
+size = 994432
 url = http://cfg-loader.googlecode.com/files/cfg35b.dol
 Save global settings: theme and device
 Save selected alt.dol from disc
 
 release = 34 (release)
+size = 888864
 url = http://cfg-loader.googlecode.com/files/cfg34.dol
 Improved cover downloading
 Themable GUI resources
 External ehcmodule support
 [No Online Updates!]
+

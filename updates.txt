@@ -1,4 +1,9 @@
-release = 35c (bugfix release)
+release = 35d (bugfix)
+size = 867712
+url = http://cfg-loader.googlecode.com/files/cfg35d.dol
+Fixed crash after installing a game
+
+release = 35c (bugfix)
 size = 867424
 url = http://cfg-loader.googlecode.com/files/cfg35c.dol
 Stability improvements for games
@@ -14,21 +19,6 @@ Online update: progress indicator,
   fixed crash, compact display
 Reduced size of embedded graphics
 Minor cleanups
-
-release = 35rc (release candidate)
-size = 990176
-url = http://cfg-loader.googlecode.com/files/cfg35rc.dol
-Stability improvements
-Added coverflow modes to gui_style
-Save gui style and rows settings
-Online update: improved detection
-  of boot.dol location
-
-release = 35b (beta)
-size = 994432
-url = http://cfg-loader.googlecode.com/files/cfg35b.dol
-Save global settings: theme and device
-Save selected alt.dol from disc
 
 release = 34 (release)
 size = 888864

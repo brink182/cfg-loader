@@ -1,3 +1,9 @@
+release = 36 (release)
+size = 874656
+url = http://cfg-loader.googlecode.com/files/cfg36.dol
+Cleanup of Cheat Code Manager
+Added {CC} url tag
+
 release = 36b (beta)
 size = 874624
 url = http://cfg-loader.googlecode.com/files/cfg36b.dol

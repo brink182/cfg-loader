@@ -1,3 +1,9 @@
+release = 36b (beta)
+size = 874624
+url = http://cfg-loader.googlecode.com/files/cfg36b.dol
+Ocarina TXT (Cheat Code Manager)
+Loadstructor support
+
 release = 35d (bugfix)
 size = 867712
 url = http://cfg-loader.googlecode.com/files/cfg35d.dol

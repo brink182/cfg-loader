@@ -1,3 +1,10 @@
+release = 36c (bugfix)
+size = 874784
+url = http://cfg-loader.googlecode.com/files/cfg36c.dol
+Fixed url {CC} tag for US region
+Added option: download_cc_pal
+Changed default urls to wiitdb.com site.
+
 release = 36 (release)
 size = 874656
 url = http://cfg-loader.googlecode.com/files/cfg36.dol
@@ -31,12 +38,4 @@ Online update: progress indicator,
   fixed crash, compact display
 Reduced size of embedded graphics
 Minor cleanups
-
-release = 34 (release)
-size = 888864
-url = http://cfg-loader.googlecode.com/files/cfg34.dol
-Improved cover downloading
-Themable GUI resources
-External ehcmodule support
-[No Online Updates!]
 

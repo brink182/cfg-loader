@@ -1,3 +1,11 @@
+release = 36d (bugfix)
+size = 874880
+url = http://cfg-loader.googlecode.com/files/cfg36d.dol
+Fixed error when accessing network
+ and after that using IOS 222-mload
+Improved tag {CC} : IT, ES and NL
+Changed default urls to use {ID6}
+
 release = 36c (bugfix)
 size = 874784
 url = http://cfg-loader.googlecode.com/files/cfg36c.dol
@@ -10,12 +18,6 @@ size = 874656
 url = http://cfg-loader.googlecode.com/files/cfg36.dol
 Cleanup of Cheat Code Manager
 Added {CC} url tag
-
-release = 36b (beta)
-size = 874624
-url = http://cfg-loader.googlecode.com/files/cfg36b.dol
-Ocarina TXT (Cheat Code Manager)
-Loadstructor support
 
 release = 35d (bugfix)
 size = 867712

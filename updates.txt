@@ -1,3 +1,11 @@
+release = 37a (alpha)
+size = 904224
+url = http://cfg-loader.googlecode.com/files/cfg37a.dol
+Full cover support in coverflow
+Full cover downloads 
+ (place in usb-loader/covers/full)
+Mouseover updates in coverflow
+
 release = 36d (bugfix)
 size = 874880
 url = http://cfg-loader.googlecode.com/files/cfg36d.dol
@@ -31,13 +39,4 @@ Stability improvements for games
 that require alt.dol. Fixes freezes
 and glitches in MOH2, FIFA08
 (maybe others as well)
-
-release = 35 (release)
-size = 867168
-url = http://cfg-loader.googlecode.com/files/cfg35.dol
-Force video mode fixes
-Online update: progress indicator,
-  fixed crash, compact display
-Reduced size of embedded graphics
-Minor cleanups
 

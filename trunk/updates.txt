@@ -1,3 +1,11 @@
+release = 37b (beta)
+size = 906080
+url = http://cfg-loader.googlecode.com/files/cfg37b.dol
+Improved covers loading speed
+ fixed the issues with usb hdd fat 
+ partition in v37ax
+Cover downloading improvements
+
 release = 37a (alpha)
 size = 904224
 url = http://cfg-loader.googlecode.com/files/cfg37a.dol
@@ -31,12 +39,4 @@ release = 35d (bugfix)
 size = 867712
 url = http://cfg-loader.googlecode.com/files/cfg35d.dol
 Fixed crash after installing a game
-
-release = 35c (bugfix)
-size = 867424
-url = http://cfg-loader.googlecode.com/files/cfg35c.dol
-Stability improvements for games
-that require alt.dol. Fixes freezes
-and glitches in MOH2, FIFA08
-(maybe others as well)
 

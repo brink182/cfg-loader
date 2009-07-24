@@ -1,10 +1,10 @@
-release = 37b (beta)
-size = 906080
-url = http://cfg-loader.googlecode.com/files/cfg37b.dol
-Improved covers loading speed
- fixed the issues with usb hdd fat 
- partition in v37ax
-Cover downloading improvements
+release = 37b2 (beta 2)
+size = 893536
+url = http://cfg-loader.googlecode.com/files/cfg37b2.dol
+Fixed the remaining issues with 
+ the new libfat
+Display already present covers 
+ for a single game
 
 release = 37a (alpha)
 size = 904224

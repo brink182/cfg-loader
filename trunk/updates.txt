@@ -4,7 +4,8 @@ url = http://cfg-loader.googlecode.com/files/cfg37b2.dol
 Fixed the remaining issues with 
  the new libfat
 Display already present covers 
- for a single game
+ for a single game when
+ downloading covers
 
 release = 37a (alpha)
 size = 904224

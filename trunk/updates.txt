@@ -1,3 +1,10 @@
+release = 37 (release)
+size = 893472
+url = http://cfg-loader.googlecode.com/files/cfg37.dol
+Fixed USB FAT detection on drives
+  larger than 1TB
+Fixed covers in favorites mode
+
 release = 37b2 (beta 2)
 size = 893536
 url = http://cfg-loader.googlecode.com/files/cfg37b2.dol
@@ -6,14 +13,6 @@ Fixed the remaining issues with
 Display already present covers 
  for a single game when
  downloading covers
-
-release = 37a (alpha)
-size = 904224
-url = http://cfg-loader.googlecode.com/files/cfg37a.dol
-Full cover support in coverflow
-Full cover downloads 
- (place in usb-loader/covers/full)
-Mouseover updates in coverflow
 
 release = 36d (bugfix)
 size = 874880
@@ -28,7 +27,7 @@ size = 874784
 url = http://cfg-loader.googlecode.com/files/cfg36c.dol
 Fixed url {CC} tag for US region
 Added option: download_cc_pal
-Changed default urls to wiitdb.com site.
+Changed default urls to wiitdb.com site
 
 release = 36 (release)
 size = 874656

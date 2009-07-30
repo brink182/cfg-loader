@@ -1,18 +1,18 @@
+release = 38b (beta)
+size = 897216
+url = http://cfg-loader.googlecode.com/files/cfg38b.dol
+Pointer scrolling in coverflow mode
+Random music playing
+Pause music while installing
+Changed download_cc_pal to [AUTO]
+msdos and utf8 ocarina TXT
+
 release = 37 (release)
 size = 893472
 url = http://cfg-loader.googlecode.com/files/cfg37.dol
 Fixed USB FAT detection on drives
   larger than 1TB
 Fixed covers in favorites mode
-
-release = 37b2 (beta 2)
-size = 893536
-url = http://cfg-loader.googlecode.com/files/cfg37b2.dol
-Fixed the remaining issues with 
- the new libfat
-Display already present covers 
- for a single game when
- downloading covers
 
 release = 36d (bugfix)
 size = 874880

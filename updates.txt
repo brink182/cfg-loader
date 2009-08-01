@@ -1,3 +1,12 @@
+release = 38 (release)
+size = 894048
+url = http://cfg-loader.googlecode.com/files/cfg38.dol
+Fixed searching for .mp3 files
+Tuned pointer scrolling in coverflow
+Bigger default gui font
+option: gui_text_outline
+option: gui_text_shadow
+
 release = 38b (beta)
 size = 897216
 url = http://cfg-loader.googlecode.com/files/cfg38b.dol
@@ -21,13 +30,6 @@ Fixed error when accessing network
  and after that using IOS 222-mload
 Improved tag {CC} : IT, ES and NL
 Changed default urls to use {ID6}
-
-release = 36c (bugfix)
-size = 874784
-url = http://cfg-loader.googlecode.com/files/cfg36c.dol
-Fixed url {CC} tag for US region
-Added option: download_cc_pal
-Changed default urls to wiitdb.com site
 
 release = 36 (release)
 size = 874656

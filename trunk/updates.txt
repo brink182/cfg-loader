@@ -1,8 +1,14 @@
+release = 39 (release)
+size = 911904
+url = http://cfg-loader.googlecode.com/files/cfg39.dol
+Fixed running games from SDHC
+GUI Text improvements
+
 release = 39b (beta)
 size = 911840
 url = http://cfg-loader.googlecode.com/files/cfg39b.dol
 Improved the covers reflection
-GUI Text improvments
+GUI Text improvements
 options: gui_lock, gui_title_top
 max length in titles.txt to 64
 tag CC:ZH For W region (Taiwan)
@@ -30,12 +36,6 @@ Fixed error when accessing network
  and after that using IOS 222-mload
 Improved tag {CC} : IT, ES and NL
 Changed default urls to use {ID6}
-
-release = 36 (release)
-size = 874656
-url = http://cfg-loader.googlecode.com/files/cfg36.dol
-Cleanup of Cheat Code Manager
-Added {CC} url tag
 
 release = 35d (bugfix)
 size = 867712

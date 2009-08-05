@@ -5,7 +5,7 @@ Improved the covers reflection
 GUI Text improvments
 options: gui_lock, gui_title_top
 max length in titles.txt to 64
-tag CC=ZH For W region (Taiwan)
+tag CC:ZH For W region (Taiwan)
 
 release = 38 (release)
 size = 894048

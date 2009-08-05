@@ -1,3 +1,12 @@
+release = 39b (beta)
+size = 911840
+url = http://cfg-loader.googlecode.com/files/cfg39b.dol
+Improved the covers reflection
+GUI Text improvments
+options: gui_lock, gui_title_top
+max length in titles.txt to 64
+tag CC=ZH For W region (Taiwan)
+
 release = 38 (release)
 size = 894048
 url = http://cfg-loader.googlecode.com/files/cfg38.dol
@@ -6,15 +15,6 @@ Tuned pointer scrolling in coverflow
 Bigger default gui font
 option: gui_text_outline
 option: gui_text_shadow
-
-release = 38b (beta)
-size = 897216
-url = http://cfg-loader.googlecode.com/files/cfg38b.dol
-Pointer scrolling in coverflow mode
-Random music playing
-Pause music while installing
-Changed download_cc_pal to [AUTO]
-msdos and utf8 ocarina TXT
 
 release = 37 (release)
 size = 893472

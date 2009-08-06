@@ -1,17 +1,15 @@
+release = 39c (bugfix)
+size = 911968
+url = http://cfg-loader.googlecode.com/files/cfg39c.dol
+Updated cheats url: geckocodes.org
+Fixed SD card access in games
+GUI page number alignment
+
 release = 39 (release)
 size = 911904
 url = http://cfg-loader.googlecode.com/files/cfg39.dol
 Fixed running games from SDHC
 GUI Text improvements
-
-release = 39b (beta)
-size = 911840
-url = http://cfg-loader.googlecode.com/files/cfg39b.dol
-Improved the covers reflection
-GUI Text improvements
-options: gui_lock, gui_title_top
-max length in titles.txt to 64
-tag CC:ZH For W region (Taiwan)
 
 release = 38 (release)
 size = 894048

@@ -1,8 +1,9 @@
-release = 40b2 (beta)
-size = 915456
-url = http://cfg-loader.googlecode.com/files/cfg40b2.dol
+release = 40b3 (beta3)
+size = 942048
+url = http://cfg-loader.googlecode.com/files/cfg40b3.dol
+uLoader cIOS 222/223 rev3 support
 Minor GUI speed optimizations of 
-rendering and cover loading
+  rendering and cover loading
 Admin unlock by password
 Hide games from settings screen
 

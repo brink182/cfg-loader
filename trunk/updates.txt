@@ -1,3 +1,11 @@
+release = 40b2 (beta)
+size = 915456
+url = http://cfg-loader.googlecode.com/files/cfg40b2.dol
+Minor GUI speed optimizations of rendering 
+ and cover loading
+Admin unlock by password
+Hide games from settings screen
+
 release = 39c (bugfix)
 size = 911968
 url = http://cfg-loader.googlecode.com/files/cfg39c.dol

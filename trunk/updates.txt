@@ -1,3 +1,11 @@
+release = 40b (beta)
+size = 942016
+url = http://cfg-loader.googlecode.com/files/cfg40b.dol
+uLoader cIOS 222/223 rev3 support
+Minor GUI speed optimizations
+Admin unlock by password
+Hide games from settings screen
+
 release = 39c (bugfix)
 size = 911968
 url = http://cfg-loader.googlecode.com/files/cfg39c.dol
@@ -34,9 +42,4 @@ Fixed error when accessing network
  and after that using IOS 222-mload
 Improved tag {CC} : IT, ES and NL
 Changed default urls to use {ID6}
-
-release = 35d (bugfix)
-size = 867712
-url = http://cfg-loader.googlecode.com/files/cfg35d.dol
-Fixed crash after installing a game
 

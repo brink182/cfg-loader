@@ -1,3 +1,11 @@
+release = 41b (beta)
+size = 944640
+url = http://cfg-loader.googlecode.com/files/cfg41b.dol
+Streamlined game install screen
+Fixed green screen when starting game
+Improved theming:
+  background overlay and resize
+
 release = 40 (release)
 size = 942048
 url = http://cfg-loader.googlecode.com/files/cfg40.dol
@@ -5,15 +13,6 @@ Admin unlock changes:
 - Increased timeout to 30 seconds
 - Renamed admin_lock to admin_unlock
 - Fixed option unlock_password
-
-release = 40b3 (beta3)
-size = 942048
-url = http://cfg-loader.googlecode.com/files/cfg40b3.dol
-uLoader cIOS 222/223 rev3 support
-Minor GUI speed optimizations of 
-  rendering and cover loading
-Admin unlock by password
-Hide games from settings screen
 
 release = 39c (bugfix)
 size = 911968

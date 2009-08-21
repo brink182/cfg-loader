@@ -1,3 +1,10 @@
+release = 41 (release)
+size = 944768
+url = http://cfg-loader.googlecode.com/files/cfg41.dol
+Increased hide game limit to 500
+Fixed minor glitch with resized
+  overlays
+
 release = 41b (beta)
 size = 944640
 url = http://cfg-loader.googlecode.com/files/cfg41b.dol
@@ -36,12 +43,4 @@ url = http://cfg-loader.googlecode.com/files/cfg37.dol
 Fixed USB FAT detection on drives
   larger than 1TB
 Fixed covers in favorites mode
-
-release = 36d (bugfix)
-size = 874880
-url = http://cfg-loader.googlecode.com/files/cfg36d.dol
-Fixed error when accessing network
- and after that using IOS 222-mload
-Improved tag {CC} : IT, ES and NL
-Changed default urls to use {ID6}
 

@@ -1,17 +1,17 @@
+release = 42a (alpha)
+size = 945600
+url = http://cfg-loader.googlecode.com/files/cfg42a.dol
+* Force progressive mode with new
+  option: video_patch All
+* Allow wiird to work if ocarina is
+  enabled and no codes are found.
+
 release = 41 (release)
 size = 944768
 url = http://cfg-loader.googlecode.com/files/cfg41.dol
 Increased hide game limit to 500
 Fixed minor glitch with resized
   overlays
-
-release = 41b (beta)
-size = 944640
-url = http://cfg-loader.googlecode.com/files/cfg41b.dol
-Streamlined game install screen
-Fixed green screen when starting game
-Improved theming:
-  background overlay and resize
 
 release = 40 (release)
 size = 942048

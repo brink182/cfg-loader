@@ -1,3 +1,12 @@
+release = 42b (beta)
+size = 986240
+url = http://cfg-loader.googlecode.com/files/cfg42b.dol
+Antialiasing in CoverFlow GUI modes
+cios 222/223 rev4 support
+url tag CC value PO to PT
+Show 6 letter ID in game options
+Minor fixes and other changes
+
 release = 42a (alpha)
 size = 945600
 url = http://cfg-loader.googlecode.com/files/cfg42a.dol
@@ -36,11 +45,4 @@ Tuned pointer scrolling in coverflow
 Bigger default gui font
 option: gui_text_outline
 option: gui_text_shadow
-
-release = 37 (release)
-size = 893472
-url = http://cfg-loader.googlecode.com/files/cfg37.dol
-Fixed USB FAT detection on drives
-  larger than 1TB
-Fixed covers in favorites mode
 

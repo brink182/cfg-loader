@@ -1,3 +1,11 @@
+release = 42b2 (beta2)
+size = 1044160
+url = http://cfg-loader.googlecode.com/files/cfg42b2.dol
+Fixed coverflow antialiasing in
+  PAL 576i (50Hz) mode
+Fixed occasional flashing in options
+Intro screen (thanks to Milcoi)
+
 release = 42b (beta)
 size = 986240
 url = http://cfg-loader.googlecode.com/files/cfg42b.dol
@@ -37,12 +45,4 @@ Updated cheats url: geckocodes.org
 Fixed SD card access in games
 GUI page number alignment
 
-release = 38 (release)
-size = 894048
-url = http://cfg-loader.googlecode.com/files/cfg38.dol
-Fixed searching for .mp3 files
-Tuned pointer scrolling in coverflow
-Bigger default gui font
-option: gui_text_outline
-option: gui_text_shadow
 

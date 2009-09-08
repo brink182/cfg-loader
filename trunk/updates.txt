@@ -1,3 +1,12 @@
+release = 42 (release)
+size = 1003136
+url = http://cfg-loader.googlecode.com/files/cfg42.dol
+Fixed minor scrolling glitch in
+  options screen with themes that
+  have small console size
+Modified intro screen
+  (based on Milcoi design)
+
 release = 42b2 (beta2)
 size = 1044160
 url = http://cfg-loader.googlecode.com/files/cfg42b2.dol
@@ -14,14 +23,6 @@ cios 222/223 rev4 support
 url tag CC value PO to PT
 Show 6 letter ID in game options
 Minor fixes and other changes
-
-release = 42a (alpha)
-size = 945600
-url = http://cfg-loader.googlecode.com/files/cfg42a.dol
-* Force progressive mode with new
-  option: video_patch All
-* Allow wiird to work if ocarina is
-  enabled and no codes are found.
 
 release = 41 (release)
 size = 944768

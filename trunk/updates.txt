@@ -1,3 +1,9 @@
+release = 42c (bugfix)
+size = 1003264
+url = http://cfg-loader.googlecode.com/files/cfg42c.dol
+Fixed green bar when loading game
+  with a different cios (222...)
+
 release = 42 (release)
 size = 1003136
 url = http://cfg-loader.googlecode.com/files/cfg42.dol
@@ -14,15 +20,6 @@ Fixed coverflow antialiasing in
   PAL 576i (50Hz) mode
 Fixed occasional flashing in options
 Intro screen (thanks to Milcoi)
-
-release = 42b (beta)
-size = 986240
-url = http://cfg-loader.googlecode.com/files/cfg42b.dol
-Antialiasing in CoverFlow GUI modes
-cios 222/223 rev4 support
-url tag CC value PO to PT
-Show 6 letter ID in game options
-Minor fixes and other changes
 
 release = 41 (release)
 size = 944768

@@ -4,8 +4,8 @@ url = http://cfg-loader.googlecode.com/files/cfg43b.dol
 Improved antialiasing in coverflow
 Reorganized game options screen
  - Allow to change saved options
- - Unsaved changes are private per-game, not global
- - Moved alt.dol selection to options menu
+ - Unsaved changes are private per-game
+ - Moved alt.dol selection to options
 
 release = 42c (bugfix)
 size = 1003264

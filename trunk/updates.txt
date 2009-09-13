@@ -1,3 +1,12 @@
+release = 43b (beta)
+size = 1003392
+url = http://cfg-loader.googlecode.com/files/cfg43b.dol
+Improved antialiasing in coverflow
+Reorganized game options screen
+ - Allow to change saved options
+ - Unsaved changes are private per-game, not global
+ - Moved alt.dol selection to options menu
+
 release = 42c (bugfix)
 size = 1003264
 url = http://cfg-loader.googlecode.com/files/cfg42c.dol
@@ -12,14 +21,6 @@ Fixed minor scrolling glitch in
   have small console size
 Modified intro screen
   (based on Milcoi design)
-
-release = 42b2 (beta2)
-size = 1044160
-url = http://cfg-loader.googlecode.com/files/cfg42b2.dol
-Fixed coverflow antialiasing in
-  PAL 576i (50Hz) mode
-Fixed occasional flashing in options
-Intro screen (thanks to Milcoi)
 
 release = 41 (release)
 size = 944768

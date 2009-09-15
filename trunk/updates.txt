@@ -1,3 +1,8 @@
+release = 43 (release)
+size = 1003232
+url = http://cfg-loader.googlecode.com/files/cfg43.dol
+Minor cleanups
+
 release = 43b (beta)
 size = 1003392
 url = http://cfg-loader.googlecode.com/files/cfg43b.dol
@@ -36,12 +41,4 @@ Admin unlock changes:
 - Increased timeout to 30 seconds
 - Renamed admin_lock to admin_unlock
 - Fixed option unlock_password
-
-release = 39c (bugfix)
-size = 911968
-url = http://cfg-loader.googlecode.com/files/cfg39c.dol
-Updated cheats url: geckocodes.org
-Fixed SD card access in games
-GUI page number alignment
-
 

@@ -1,31 +1,22 @@
+release = 44a (alpha)
+size = 1035904
+url = http://cfg-loader.googlecode.com/files/cfg44a.dol
+Improved coverflow transitions
+Latin unicode support for titles.txt
+parse cmd for ios=... before reload
+Changed message for device init error
+Scale intro to fullscreen in 576i mode
+
 release = 43 (release)
 size = 1003232
 url = http://cfg-loader.googlecode.com/files/cfg43.dol
 Minor cleanups
-
-release = 43b (beta)
-size = 1003392
-url = http://cfg-loader.googlecode.com/files/cfg43b.dol
-Improved antialiasing in coverflow
-Reorganized game options screen
- - Allow to change saved options
- - Unsaved changes are private per-game
- - Moved alt.dol selection to options
 
 release = 42c (bugfix)
 size = 1003264
 url = http://cfg-loader.googlecode.com/files/cfg42c.dol
 Fixed green bar when loading game
   with a different cios (222...)
-
-release = 42 (release)
-size = 1003136
-url = http://cfg-loader.googlecode.com/files/cfg42.dol
-Fixed minor scrolling glitch in
-  options screen with themes that
-  have small console size
-Modified intro screen
-  (based on Milcoi design)
 
 release = 41 (release)
 size = 944768

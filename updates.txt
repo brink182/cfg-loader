@@ -1,3 +1,12 @@
+release = 44b (beta)
+size = 1037312
+url = http://cfg-loader.googlecode.com/files/cfg44b.dol
+Updated ehcmodule to uloader 3.0C
+Fixed ios argument from forwarder
+Option: sort_ignore=A,An,The
+Show clock in GUI mode
+Other minor fixes
+
 release = 44a (alpha)
 size = 1035904
 url = http://cfg-loader.googlecode.com/files/cfg44a.dol

@@ -1,3 +1,10 @@
+release = 44b2 (beta2)
+size = 1051072
+url = http://cfg-loader.googlecode.com/files/cfg44b2.dol
+Play banner sound in the game start
+  confirmation screen
+option: clock_style=[24],12,12am,0
+
 release = 44b (beta)
 size = 1037312
 url = http://cfg-loader.googlecode.com/files/cfg44b.dol
@@ -33,12 +40,4 @@ url = http://cfg-loader.googlecode.com/files/cfg41.dol
 Increased hide game limit to 500
 Fixed minor glitch with resized
   overlays
-
-release = 40 (release)
-size = 942048
-url = http://cfg-loader.googlecode.com/files/cfg40.dol
-Admin unlock changes:
-- Increased timeout to 30 seconds
-- Renamed admin_lock to admin_unlock
-- Fixed option unlock_password
 

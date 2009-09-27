@@ -1,3 +1,8 @@
+release = 44b3 (beta3)
+size = 1052000
+url = http://cfg-loader.googlecode.com/files/cfg44b3.dol
+Banner sound fixes
+
 release = 44b2 (beta2)
 size = 1051072
 url = http://cfg-loader.googlecode.com/files/cfg44b2.dol
@@ -13,15 +18,6 @@ Fixed ios argument from forwarder
 Option: sort_ignore=A,An,The
 Show clock in GUI mode
 Other minor fixes
-
-release = 44a (alpha)
-size = 1035904
-url = http://cfg-loader.googlecode.com/files/cfg44a.dol
-Improved coverflow transitions
-Latin unicode support for titles.txt
-parse cmd for ios=... before reload
-Changed message for device init error
-Scale intro to fullscreen in 576i mode
 
 release = 43 (release)
 size = 1003232

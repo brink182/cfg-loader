@@ -1,3 +1,11 @@
+release = 44b4 (beta4)
+size = 1052992
+url = http://cfg-loader.googlecode.com/files/cfg44b4.dol
+More banner sound fixes
+  (all 3 audio formats are implemented)
+Clock font themable: font_clock.png
+  (either from theme or base dir)
+
 release = 44b3 (beta3)
 size = 1052000
 url = http://cfg-loader.googlecode.com/files/cfg44b3.dol
@@ -9,15 +17,6 @@ url = http://cfg-loader.googlecode.com/files/cfg44b2.dol
 Play banner sound in the game start
   confirmation screen
 option: clock_style=[24],12,12am,0
-
-release = 44b (beta)
-size = 1037312
-url = http://cfg-loader.googlecode.com/files/cfg44b.dol
-Updated ehcmodule to uloader 3.0C
-Fixed ios argument from forwarder
-Option: sort_ignore=A,An,The
-Show clock in GUI mode
-Other minor fixes
 
 release = 43 (release)
 size = 1003232

@@ -1,3 +1,8 @@
+release = 44b6 (beta6)
+size = 1055424
+url = http://cfg-loader.googlecode.com/files/cfg44b6.dol
+More banner sound fixes ... again :)
+
 release = 44b5 (beta5)
 size = 1053440
 url = http://cfg-loader.googlecode.com/files/cfg44b5.dol
@@ -10,13 +15,6 @@ More banner sound fixes
   (all 3 audio formats are implemented)
 Clock font themable: font_clock.png
   (either from theme or base dir)
-
-release = 44b2 (beta2)
-size = 1051072
-url = http://cfg-loader.googlecode.com/files/cfg44b2.dol
-Play banner sound in the game start
-  confirmation screen
-option: clock_style=[24],12,12am,0
 
 release = 43 (release)
 size = 1003232

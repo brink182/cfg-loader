@@ -1,12 +1,13 @@
+release = 44 (release)
+size = 1055424
+url = http://cfg-loader.googlecode.com/files/cfg44.dol
+Updated full package
+No code changes (only version)
+
 release = 44b6 (beta6)
 size = 1055424
 url = http://cfg-loader.googlecode.com/files/cfg44b6.dol
 More banner sound fixes ... again :)
-
-release = 44b5 (beta5)
-size = 1053440
-url = http://cfg-loader.googlecode.com/files/cfg44b5.dol
-More banner sound fixes
 
 release = 44b4 (beta4)
 size = 1052992

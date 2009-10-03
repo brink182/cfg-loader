@@ -4,19 +4,6 @@ url = http://cfg-loader.googlecode.com/files/cfg44.dol
 Updated full package
 No code changes (only version)
 
-release = 44b6 (beta6)
-size = 1055424
-url = http://cfg-loader.googlecode.com/files/cfg44b6.dol
-More banner sound fixes ... again :)
-
-release = 44b4 (beta4)
-size = 1052992
-url = http://cfg-loader.googlecode.com/files/cfg44b4.dol
-More banner sound fixes
-  (all 3 audio formats are implemented)
-Clock font themable: font_clock.png
-  (either from theme or base dir)
-
 release = 43 (release)
 size = 1003232
 url = http://cfg-loader.googlecode.com/files/cfg43.dol

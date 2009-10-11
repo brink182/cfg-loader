@@ -1,3 +1,11 @@
+release = 45a (alpha)
+size = 1053888
+url = http://cfg-loader.googlecode.com/files/cfg45a.dol
+Multiple WBFS partitions
+Install screen improvements
+Stability, CIOS related warnings
+gamelist.txt, home=hbc, new intro
+
 release = 44 (release)
 size = 1055424
 url = http://cfg-loader.googlecode.com/files/cfg44.dol

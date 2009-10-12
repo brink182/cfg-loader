@@ -1,3 +1,11 @@
+release = 45b2 (beta2)
+size = 1054848
+url = http://cfg-loader.googlecode.com/files/cfg45b2.dol
+Fixed multiple WBFS partition support
+  for drives larger than 1TB
+Fixed "DVD in drive check" by
+  patching the game
+
 release = 45b (beta)
 size = 1054688
 url = http://cfg-loader.googlecode.com/files/cfg45b.dol
@@ -6,14 +14,6 @@ Fixed disable_format option
 More IOS related warning notes
 Partition selection improvements
 Show version on intro screen
-
-release = 45a (alpha)
-size = 1053888
-url = http://cfg-loader.googlecode.com/files/cfg45a.dol
-Multiple WBFS partitions
-Install screen improvements
-Stability, CIOS related warnings
-gamelist.txt, home=hbc, new intro
 
 release = 44 (release)
 size = 1055424

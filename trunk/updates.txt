@@ -1,3 +1,11 @@
+release = 45 (release)
+size = 1054848
+url = http://cfg-loader.googlecode.com/files/cfg45.dol
+no changes since 45b2 (version only)
+changes since 44:
+Multiple WBFS partition support
+Updated ehcmodule from uLoader 3.1
+
 release = 45b2 (beta2)
 size = 1054848
 url = http://cfg-loader.googlecode.com/files/cfg45b2.dol
@@ -5,15 +13,6 @@ Fixed multiple WBFS partition support
   for drives larger than 1TB
 Fixed "DVD in drive check" by
   patching the game
-
-release = 45b (beta)
-size = 1054688
-url = http://cfg-loader.googlecode.com/files/cfg45b.dol
-Updated ehcmodule from uLoader 3.1
-Fixed disable_format option
-More IOS related warning notes
-Partition selection improvements
-Show version on intro screen
 
 release = 44 (release)
 size = 1055424

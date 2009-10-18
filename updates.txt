@@ -6,14 +6,6 @@ changes since 44:
 Multiple WBFS partition support
 Updated ehcmodule from uLoader 3.1
 
-release = 45b2 (beta2)
-size = 1054848
-url = http://cfg-loader.googlecode.com/files/cfg45b2.dol
-Fixed multiple WBFS partition support
-  for drives larger than 1TB
-Fixed "DVD in drive check" by
-  patching the game
-
 release = 44 (release)
 size = 1055424
 url = http://cfg-loader.googlecode.com/files/cfg44.dol

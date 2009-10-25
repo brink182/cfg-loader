@@ -1,3 +1,8 @@
+release = 46a (alpha)
+size = 1269280
+url = http://cfg-loader.googlecode.com/files/cfg46a.dol
+Games on FAT32, woo!
+
 release = 45 (release)
 size = 1054848
 url = http://cfg-loader.googlecode.com/files/cfg45.dol

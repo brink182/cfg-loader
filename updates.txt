@@ -3,7 +3,7 @@ size = 1124320
 url = http://cfg-loader.googlecode.com/files/cfg46a2.dol
 Faster loading of game list from fat
 Add game info file after install
-Mixed message when no WBFS partition
+Fixed message when no WBFS partition
 Minor cleanups in partition selection
 
 release = 46a (alpha)

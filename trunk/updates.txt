@@ -1,7 +1,15 @@
+release = 46a2 (alpha2)
+size = 1124320
+url = http://cfg-loader.googlecode.com/files/cfg46a2.dol
+Faster loading of game list from fat
+Add game info file after install
+Mixed message when no WBFS partition
+Minor cleanups in partition selection
+
 release = 46a (alpha)
 size = 1269280
 url = http://cfg-loader.googlecode.com/files/cfg46a.dol
-Games on FAT32, woo!
+Games on FAT32
 
 release = 45 (release)
 size = 1054848
@@ -27,11 +35,4 @@ size = 1003264
 url = http://cfg-loader.googlecode.com/files/cfg42c.dol
 Fixed green bar when loading game
   with a different cios (222...)
-
-release = 41 (release)
-size = 944768
-url = http://cfg-loader.googlecode.com/files/cfg41.dol
-Increased hide game limit to 500
-Fixed minor glitch with resized
-  overlays
 

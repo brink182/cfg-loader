@@ -1,3 +1,18 @@
+release = 46 (release)
+size = 1124928
+url = http://cfg-loader.googlecode.com/files/cfg46.dol
+Support for direct launching of games
+from fat (loadstructor channels)
+Switch to ios222 if starting from fat
+Improved speed in coverflow gui modes
+Cleanups
+
+release = 46-fat (release)
+size = 1124928
+url = http://cfg-loader.googlecode.com/files/cfg46-fat.dol
+Same as 46 but with different default
+options: ios=222-mload partition=FAT1
+
 release = 46b (beta)
 size = 1126560
 url = http://cfg-loader.googlecode.com/files/cfg46b.dol
@@ -6,14 +21,6 @@ Saving settings include partition
 Increased fat cache size in IOS
 Optional early FAT module load
 Indication if [FAT] module is loaded
-
-release = 46a2 (alpha2)
-size = 1124320
-url = http://cfg-loader.googlecode.com/files/cfg46a2.dol
-Faster loading of game list from fat
-Add game info file after install
-Fixed message when no WBFS partition
-Minor cleanups in partition selection
 
 release = 45 (release)
 size = 1054848
@@ -33,10 +40,4 @@ release = 43 (release)
 size = 1003232
 url = http://cfg-loader.googlecode.com/files/cfg43.dol
 Minor cleanups
-
-release = 42c (bugfix)
-size = 1003264
-url = http://cfg-loader.googlecode.com/files/cfg42c.dol
-Fixed green bar when loading game
-  with a different cios (222...)
 

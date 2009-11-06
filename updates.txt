@@ -1,3 +1,11 @@
+release = 47a (alpha)
+size = 1126080
+url = http://cfg-loader.googlecode.com/files/cfg47a.dol
+Better support for some unusual
+partition setups:
+ - WBFS on RAW disk
+ - WBFS on EXTENDED partition
+
 release = 46 (release)
 size = 1124928
 url = http://cfg-loader.googlecode.com/files/cfg46.dol
@@ -12,15 +20,6 @@ size = 1124928
 url = http://cfg-loader.googlecode.com/files/cfg46-fat.dol
 Same as 46 but with different default
 options: ios=222-mload partition=FAT1
-
-release = 46b (beta)
-size = 1126560
-url = http://cfg-loader.googlecode.com/files/cfg46b.dol
-option: partition=[WBFS1], FAT1,...
-Saving settings include partition
-Increased fat cache size in IOS
-Optional early FAT module load
-Indication if [FAT] module is loaded
 
 release = 45 (release)
 size = 1054848

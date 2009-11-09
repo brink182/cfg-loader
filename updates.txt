@@ -1,3 +1,18 @@
+release = 47b (beta)
+size = 1130624
+url = http://cfg-loader.googlecode.com/files/cfg47b.dol
+GC, classic and nunchuk controller
+option: install_partitions = 1:1
+Fixed banner sounds with games
+  that have upper case OPENING.BNR
+Cleanups
+
+release = 47b-fat (beta)
+size = 1130624
+url = http://cfg-loader.googlecode.com/files/cfg47b-fat.dol
+Same as 47b but with different default
+options: ios=222-mload partition=FAT1
+
 release = 47a (alpha)
 size = 1126080
 url = http://cfg-loader.googlecode.com/files/cfg47a.dol
@@ -28,15 +43,4 @@ no changes since 45b2 (version only)
 changes since 44:
 Multiple WBFS partition support
 Updated ehcmodule from uLoader 3.1
-
-release = 44 (release)
-size = 1055424
-url = http://cfg-loader.googlecode.com/files/cfg44.dol
-Updated full package
-No code changes (only version)
-
-release = 43 (release)
-size = 1003232
-url = http://cfg-loader.googlecode.com/files/cfg43.dol
-Minor cleanups
 

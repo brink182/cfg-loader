@@ -1,3 +1,15 @@
+release = 47b2 (beta2)
+size = 1130880
+url = http://cfg-loader.googlecode.com/files/cfg47b2.dol
+NSMB main.dol patch by WiiPower
+minor coverflow gui fixes
+
+release = 47b2-fat (beta2)
+size = 1130880
+url = http://cfg-loader.googlecode.com/files/cfg47b2-fat.dol
+Same as 47b2 but with different default
+options: ios=222-mload partition=FAT1
+
 release = 47b (beta)
 size = 1130624
 url = http://cfg-loader.googlecode.com/files/cfg47b.dol
@@ -13,14 +25,6 @@ url = http://cfg-loader.googlecode.com/files/cfg47b-fat.dol
 Same as 47b but with different default
 options: ios=222-mload partition=FAT1
 
-release = 47a (alpha)
-size = 1126080
-url = http://cfg-loader.googlecode.com/files/cfg47a.dol
-Better support for some unusual
-partition setups:
- - WBFS on RAW disk
- - WBFS on EXTENDED partition
-
 release = 46 (release)
 size = 1124928
 url = http://cfg-loader.googlecode.com/files/cfg46.dol
@@ -35,12 +39,4 @@ size = 1124928
 url = http://cfg-loader.googlecode.com/files/cfg46-fat.dol
 Same as 46 but with different default
 options: ios=222-mload partition=FAT1
-
-release = 45 (release)
-size = 1054848
-url = http://cfg-loader.googlecode.com/files/cfg45.dol
-no changes since 45b2 (version only)
-changes since 44:
-Multiple WBFS partition support
-Updated ehcmodule from uLoader 3.1
 

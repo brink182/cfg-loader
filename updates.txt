@@ -40,3 +40,17 @@ url = http://cfg-loader.googlecode.com/files/cfg46-fat.dol
 Same as 46 but with different default
 options: ios=222-mload partition=FAT1
 
+release = 45 (release)
+size = 1054848
+url = http://cfg-loader.googlecode.com/files/cfg45.dol
+no changes since 45b2 (version only)
+changes since 44:
+Multiple WBFS partition support
+Updated ehcmodule from uLoader 3.1
+
+release = 44 (release)
+size = 1055424
+url = http://cfg-loader.googlecode.com/files/cfg44.dol
+Updated full package
+No code changes (only version)
+

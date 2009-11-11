@@ -1,12 +1,18 @@
 release = 47b3 (beta3)
 size = 1131072
 url = http://cfg-loader.googlecode.com/files/cfg47b3.dol
+Support for guitar controller
+More banner sound fixes (case)
+4GB partition offset fixes
+Increased updates list length to 8
+Minor coverflow fixes
 
 release = 47b3-fat (beta3)
 size = 1131072
 url = http://cfg-loader.googlecode.com/files/cfg47b3-fat.dol
 Same as 47b3 but different default
 options: ios=222-mload partition=FAT1
+hide_hddinfo=1
 
 release = 47b2 (beta2)
 size = 1130880

@@ -1,3 +1,13 @@
+release = 47b3 (beta3)
+size = 1131072
+url = http://cfg-loader.googlecode.com/files/cfg47b3.dol
+
+release = 47b3-fat (beta3)
+size = 1131072
+url = http://cfg-loader.googlecode.com/files/cfg47b3-fat.dol
+Same as 47b3 but different default
+options: ios=222-mload partition=FAT1
+
 release = 47b2 (beta2)
 size = 1130880
 url = http://cfg-loader.googlecode.com/files/cfg47b2.dol
@@ -8,21 +18,6 @@ release = 47b2-fat (beta2)
 size = 1130880
 url = http://cfg-loader.googlecode.com/files/cfg47b2-fat.dol
 Same as 47b2 but with different default
-options: ios=222-mload partition=FAT1
-
-release = 47b (beta)
-size = 1130624
-url = http://cfg-loader.googlecode.com/files/cfg47b.dol
-GC, classic and nunchuk controller
-option: install_partitions = 1:1
-Fixed banner sounds with games
-  that have upper case OPENING.BNR
-Cleanups
-
-release = 47b-fat (beta)
-size = 1130624
-url = http://cfg-loader.googlecode.com/files/cfg47b-fat.dol
-Same as 47b but with different default
 options: ios=222-mload partition=FAT1
 
 release = 46 (release)

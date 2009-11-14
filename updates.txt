@@ -2,15 +2,16 @@ release = 47 (release)
 size = 1131776
 url = http://cfg-loader.googlecode.com/files/cfg47.dol
 Minor coverflow gui fixes
-Since 46: GC controller, NSMB patch,
+Since v46: NSMB patch,
+GC controller, 
 weird partition support,
 banner sound fixes,...
 
 release = 47-fat (release)
 size = 1131776
 url = http://cfg-loader.googlecode.com/files/cfg47-fat.dol
-Same as 47 but with different default
-options:
+Same as 47 but with different
+default options:
   ios=222-mload
   partition=FAT1
   hide_hddinfo=1

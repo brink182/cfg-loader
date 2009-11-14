@@ -1,3 +1,20 @@
+release = 47 (release)
+size = 1131776
+url = http://cfg-loader.googlecode.com/files/cfg47.dol
+Minor coverflow gui fixes
+Since 46: GC controller, NSMB patch,
+weird partition support,
+banner sound fixes,...
+
+release = 47-fat (release)
+size = 1131776
+url = http://cfg-loader.googlecode.com/files/cfg47-fat.dol
+Same as 47 but with different default
+options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 47b3 (beta3)
 size = 1131072
 url = http://cfg-loader.googlecode.com/files/cfg47b3.dol
@@ -13,18 +30,6 @@ url = http://cfg-loader.googlecode.com/files/cfg47b3-fat.dol
 Same as 47b3 but different default
 options: ios=222-mload partition=FAT1
 hide_hddinfo=1
-
-release = 47b2 (beta2)
-size = 1130880
-url = http://cfg-loader.googlecode.com/files/cfg47b2.dol
-NSMB main.dol patch by WiiPower
-minor coverflow gui fixes
-
-release = 47b2-fat (beta2)
-size = 1130880
-url = http://cfg-loader.googlecode.com/files/cfg47b2-fat.dol
-Same as 47b2 but with different default
-options: ios=222-mload partition=FAT1
 
 release = 46 (release)
 size = 1124928

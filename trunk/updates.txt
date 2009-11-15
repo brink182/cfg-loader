@@ -68,11 +68,11 @@ date = 2009-10-01
 url = http://cfg-loader.googlecode.com/files/cfg44.dol
 Updated full package
 No code changes (only version)
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
 metaxml=<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 metaxml=<app version="1">
 metaxml=	<name>Configurable USB Loader</name>

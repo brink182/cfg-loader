@@ -1,3 +1,18 @@
+metaxml=<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+metaxml=<app version="1">
+metaxml=	<name>Configurable USB Loader</name>
+metaxml=	<version>{VERSION}</version>
+metaxml=	<release_date>{DATE}</release_date>
+metaxml=	<coder>oggzee, usptactical, ...</coder>
+metaxml=	<short_description>Play from USB drive</short_description>
+metaxml=	<long_description>
+metaxml=Play Wii Backups from USB harddrive
+metaxml=Waninkoko cIOS 249 is required!
+metaxml=Hermes cIOS 222/223 is supported.
+metaxml=USE AT YOUR OWN RISK!
+metaxml=</long_description>
+metaxml=</app>
+
 release = 47 (release)
 size = 1131776
 date = 2009-11-14
@@ -68,20 +83,5 @@ date = 2009-10-01
 url = http://cfg-loader.googlecode.com/files/cfg44.dol
 Updated full package
 No code changes (only version)
- 
-release = meta
-metaxml=<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-metaxml=<app version="1">
-metaxml=	<name>Configurable USB Loader</name>
-metaxml=	<version>{VERSION}</version>
-metaxml=	<release_date>{DATE}</release_date>
-metaxml=	<coder>oggzee, usptactical, ...</coder>
-metaxml=	<short_description>Play from USB drive</short_description>
-metaxml=	<long_description>
-metaxml=Play Wii Backups from USB harddrive
-metaxml=Waninkoko cIOS 249 is required!
-metaxml=Hermes cIOS 222/223 is supported.
-metaxml=USE AT YOUR OWN RISK!
-metaxml=</long_description>
-metaxml=</app>
+
 

@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 48a (alpha)
+size = 1134528
+date = 2009-11-15
+url = http://cfg-loader.googlecode.com/files/cfg48a.dol
+Profiles / multiple favorite groups
+Update /apps/.../meta.xml when
+  downloading an update.
+Update titles.txt from loader
+Minor fix to favorites switching
+
+release = 48a-fat (alpha)
+size = 1134528
+date = 2009-11-15
+url = http://cfg-loader.googlecode.com/files/cfg48a-fat.dol
+Same as 48a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 47 (release)
 size = 1131776
 date = 2009-11-14
@@ -32,24 +52,6 @@ default options:
   ios=222-mload
   partition=FAT1
   hide_hddinfo=1
-
-release = 47b3 (beta3)
-size = 1131072
-date = 2009-11-12
-url = http://cfg-loader.googlecode.com/files/cfg47b3.dol
-Support for guitar controller
-More banner sound fixes (case)
-4GB partition offset fixes
-Increased updates list length to 8
-Minor coverflow fixes
-
-release = 47b3-fat (beta3)
-size = 1131072
-date = 2009-11-12
-url = http://cfg-loader.googlecode.com/files/cfg47b3-fat.dol
-Same as 47b3 but different default
-options: ios=222-mload partition=FAT1
-hide_hddinfo=1
 
 release = 46 (release)
 size = 1124928

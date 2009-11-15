@@ -1,5 +1,6 @@
 release = 47 (release)
 size = 1131776
+date = 2009-11-14
 url = http://cfg-loader.googlecode.com/files/cfg47.dol
 Minor coverflow gui fixes
 Since v46: NSMB patch,
@@ -9,6 +10,7 @@ banner sound fixes,...
 
 release = 47-fat (release)
 size = 1131776
+date = 2009-11-14
 url = http://cfg-loader.googlecode.com/files/cfg47-fat.dol
 Same as 47 but with different
 default options:
@@ -18,6 +20,7 @@ default options:
 
 release = 47b3 (beta3)
 size = 1131072
+date = 2009-11-12
 url = http://cfg-loader.googlecode.com/files/cfg47b3.dol
 Support for guitar controller
 More banner sound fixes (case)
@@ -27,6 +30,7 @@ Minor coverflow fixes
 
 release = 47b3-fat (beta3)
 size = 1131072
+date = 2009-11-12
 url = http://cfg-loader.googlecode.com/files/cfg47b3-fat.dol
 Same as 47b3 but different default
 options: ios=222-mload partition=FAT1
@@ -34,6 +38,7 @@ hide_hddinfo=1
 
 release = 46 (release)
 size = 1124928
+date = 2009-10-31
 url = http://cfg-loader.googlecode.com/files/cfg46.dol
 Support for direct launching of games
 from fat (loadstructor channels)
@@ -43,12 +48,14 @@ Cleanups
 
 release = 46-fat (release)
 size = 1124928
+date = 2009-10-31
 url = http://cfg-loader.googlecode.com/files/cfg46-fat.dol
 Same as 46 but with different default
 options: ios=222-mload partition=FAT1
 
 release = 45 (release)
 size = 1054848
+date = 2009-10-15
 url = http://cfg-loader.googlecode.com/files/cfg45.dol
 no changes since 45b2 (version only)
 changes since 44:
@@ -57,7 +64,27 @@ Updated ehcmodule from uLoader 3.1
 
 release = 44 (release)
 size = 1055424
+date = 2009-10-01
 url = http://cfg-loader.googlecode.com/files/cfg44.dol
 Updated full package
 No code changes (only version)
+
+
+
+
+
+metaxml=<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+metaxml=<app version="1">
+metaxml=	<name>Configurable USB Loader</name>
+metaxml=	<version>{VERSION}</version>
+metaxml=	<release_date>{DATE}</release_date>
+metaxml=	<coder>oggzee, usptactical, ...</coder>
+metaxml=	<short_description>Play from USB drive</short_description>
+metaxml=	<long_description>
+metaxml=Play Wii Backups from USB harddrive
+metaxml=Waninkoko cIOS 249 is required!
+metaxml=Hermes cIOS 222/223 is supported.
+metaxml=USE AT YOUR OWN RISK!
+metaxml=</long_description>
+metaxml=</app>
 

@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 48b (beta)
+size = 1134816
+date = 2009-11-16
+url = http://cfg-loader.googlecode.com/files/cfg48b.dol
+NSMB NTSC patch
+Updating meta.xml skipped by button 1
+{CC} tag in titles_url
+
+release = 48b-fat (beta)
+size = 1134816
+date = 2009-11-16
+url = http://cfg-loader.googlecode.com/files/cfg48b-fat.dol
+Same as 48b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 48a (alpha)
 size = 1134528
 date = 2009-11-15

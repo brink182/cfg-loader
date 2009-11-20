@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 48b2 (beta2)
+size = 1138976
+date = 2009-11-20
+url = http://cfg-loader.googlecode.com/files/cfg48b2.dol
+FAT speed optimisations, 4GB support
+Changed split size to 4gb-32kb
+Option: fat_split_size = [4], 2
+Benchmark mode with debug = 8
+space in profile, max fav. 100
+
+release = 48b2-fat (beta2)
+size = 1138976
+date = 2009-11-20
+url = http://cfg-loader.googlecode.com/files/cfg48b2-fat.dol
+Same as 48b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 48b (beta)
 size = 1134816
 date = 2009-11-16
@@ -26,26 +46,6 @@ size = 1134816
 date = 2009-11-16
 url = http://cfg-loader.googlecode.com/files/cfg48b-fat.dol
 Same as 48b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 48a (alpha)
-size = 1134528
-date = 2009-11-15
-url = http://cfg-loader.googlecode.com/files/cfg48a.dol
-Profiles / multiple favorite groups
-Update /apps/.../meta.xml when
-  downloading an update.
-Update titles.txt from loader
-Minor fix to favorites switching
-
-release = 48a-fat (alpha)
-size = 1134528
-date = 2009-11-15
-url = http://cfg-loader.googlecode.com/files/cfg48a-fat.dol
-Same as 48a but with different
 default options:
   ios=222-mload
   partition=FAT1

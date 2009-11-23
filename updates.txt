@@ -32,26 +32,6 @@ default options:
   partition=FAT1
   hide_hddinfo=1
 
-release = 48b2 (beta2)
-size = 1138976
-date = 2009-11-20
-url = http://cfg-loader.googlecode.com/files/cfg48b2.dol
-FAT speed optimisations, 4GB support
-Changed split size to 4gb-32kb
-Option: fat_split_size = [4], 2
-Benchmark mode with debug = 8
-space in profile, max fav. 100
-
-release = 48b2-fat (beta2)
-size = 1138976
-date = 2009-11-20
-url = http://cfg-loader.googlecode.com/files/cfg48b2-fat.dol
-Same as 48b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
 release = 47 (release)
 size = 1131776
 date = 2009-11-14

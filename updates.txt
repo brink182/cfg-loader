@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 49a (alpha)
+size = 1149888
+date = 2009-12-01
+url = http://cfg-loader.googlecode.com/files/cfg49a.dol
+SDHC with IOS 222/223 for FAT/WBFS
+subdirs: /wbfs/ID_TITLE/ID.wbfs
+direct loading intro=0 option
+.wip, .bca
+WiiRD, Ocarina url fix
+
+release = 49a-fat (alpha)
+size = 1149888
+date = 2009-12-01
+url = http://cfg-loader.googlecode.com/files/cfg49a-fat.dol
+Same as 49a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 48 (release)
 size = 1139200
 date = 2009-11-21

@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 49b (beta)
+size = 1151072
+date = 2009-12-03
+url = http://cfg-loader.googlecode.com/files/cfg49b.dol
+BCA dump from install menu
+
+release = 49b-fat (beta)
+size = 1151072
+date = 2009-12-03
+url = http://cfg-loader.googlecode.com/files/cfg49b-fat.dol
+Same as 49b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 49a (alpha)
 size = 1149888
 date = 2009-12-01

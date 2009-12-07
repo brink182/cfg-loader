@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 49b2 (beta2)
+size = 1151680
+date = 2009-12-07
+url = http://cfg-loader.googlecode.com/files/cfg49b2.dol
+Improved speed game list on FAT
+Changed default: fat_install_dir=1
+Force EN titles.txt when CC=JA or KO
+Accept alt_dol=name with direct start
+Override theme options in config.txt
+
+release = 49b2-fat (beta2)
+size = 1151680
+date = 2009-12-07
+url = http://cfg-loader.googlecode.com/files/cfg49b2-fat.dol
+Same as 49b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 49b (beta)
 size = 1151072
 date = 2009-12-03
@@ -24,26 +44,6 @@ size = 1151072
 date = 2009-12-03
 url = http://cfg-loader.googlecode.com/files/cfg49b-fat.dol
 Same as 49b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 49a (alpha)
-size = 1149888
-date = 2009-12-01
-url = http://cfg-loader.googlecode.com/files/cfg49a.dol
-SDHC with IOS 222/223 for FAT/WBFS
-subdirs: /wbfs/ID_TITLE/ID.wbfs
-direct loading intro=0 option
-.wip, .bca
-WiiRD, Ocarina url fix
-
-release = 49a-fat (alpha)
-size = 1149888
-date = 2009-12-01
-url = http://cfg-loader.googlecode.com/files/cfg49a-fat.dol
-Same as 49a but with different
 default options:
   ios=222-mload
   partition=FAT1

@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 49 (release)
+size = 1151808
+date = 2009-12-08
+url = http://cfg-loader.googlecode.com/files/cfg49.dol
+Fixed install game on SD/FAT
+Override [w]covers_size by config.txt
+simple=0 doesn't unset hide_hddinfo
+Only one "#GAMEID" string in binary
+
+release = 49-fat (release)
+size = 1151872
+date = 2009-12-08
+url = http://cfg-loader.googlecode.com/files/cfg49-fat.dol
+Same as 49 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 49b2 (beta2)
 size = 1151680
 date = 2009-12-07
@@ -28,22 +47,6 @@ size = 1151680
 date = 2009-12-07
 url = http://cfg-loader.googlecode.com/files/cfg49b2-fat.dol
 Same as 49b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 49b (beta)
-size = 1151072
-date = 2009-12-03
-url = http://cfg-loader.googlecode.com/files/cfg49b.dol
-BCA dump from install menu
-
-release = 49b-fat (beta)
-size = 1151072
-date = 2009-12-03
-url = http://cfg-loader.googlecode.com/files/cfg49b-fat.dol
-Same as 49b but with different
 default options:
   ios=222-mload
   partition=FAT1

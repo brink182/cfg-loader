@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 50a (alpha)
+size = 1430496
+date = 2009-12-12
+url = http://cfg-loader.googlecode.com/files/cfg50a.dol
+Fix for PeppaPig
+Rewritten FAT support in ehcmodule
+
+release = 50a-fat (alpha)
+size = 1430496
+date = 2009-12-12
+url = http://cfg-loader.googlecode.com/files/cfg50a-fat.dol
+Same as 50a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 50x (experimental)
 size = 1429760
 date = 2009-12-12

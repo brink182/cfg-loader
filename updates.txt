@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 50b (beta)
+size = 1431456
+date = 2009-12-14
+url = http://cfg-loader.googlecode.com/files/cfg50b.dol
+.iso files on NTFS support
+Fixes and cleanups for NTFS support
+option: partition=ntfs1 accepted
+
+release = 50b-fat (beta)
+size = 1431456
+date = 2009-12-14
+url = http://cfg-loader.googlecode.com/files/cfg50b-fat.dol
+Same as 50b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 50a (alpha)
 size = 1430496
 date = 2009-12-12
@@ -25,26 +43,6 @@ size = 1430496
 date = 2009-12-12
 url = http://cfg-loader.googlecode.com/files/cfg50a-fat.dol
 Same as 50a but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 50x (experimental)
-size = 1429760
-date = 2009-12-12
-url = http://cfg-loader.googlecode.com/files/cfg50x.dol
-OMFG#50
-Improved gui speed with many games
-Print on intro if the ios is reloaded
-Changed install read error to a warning.
-Default install_partition=only_game
-
-release = 50x-fat (experimental)
-size = 1429760
-date = 2009-12-12
-url = http://cfg-loader.googlecode.com/files/cfg50x-fat.dol
-Same as 50x but with different
 default options:
   ios=222-mload
   partition=FAT1

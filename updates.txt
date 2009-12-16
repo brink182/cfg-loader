@@ -34,7 +34,7 @@ release = 50b2 (beta2)
 size = 1357408
 date = 2009-12-15
 url = http://cfg-loader.googlecode.com/files/cfg50b2.dol
-Fixes and cleanups
+Fixes and cleanups of NTFS support
 
 release = 50b2-fat (beta2)
 size = 1357408

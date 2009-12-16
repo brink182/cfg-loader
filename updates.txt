@@ -13,51 +13,34 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 50 (release)
+size = 1357696
+date = 2009-12-16
+url = http://cfg-loader.googlecode.com/files/cfg50.dol
+Optimizations for highly fragmented
+  files on FAT or NTFS
+
+release = 50-fat (release)
+size = 1357696
+date = 2009-12-16
+url = http://cfg-loader.googlecode.com/files/cfg50-fat.dol
+Same as 50 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 50b2 (beta2)
 size = 1357408
 date = 2009-12-15
 url = http://cfg-loader.googlecode.com/files/cfg50b2.dol
+Fixes and cleanups
 
 release = 50b2-fat (beta2)
 size = 1357408
 date = 2009-12-15
 url = http://cfg-loader.googlecode.com/files/cfg50b2-fat.dol
 Same as 50b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 50b (beta)
-size = 1431456
-date = 2009-12-14
-url = http://cfg-loader.googlecode.com/files/cfg50b.dol
-.iso files on NTFS support
-Fixes and cleanups for NTFS support
-option: partition=ntfs1 accepted
-
-release = 50b-fat (beta)
-size = 1431456
-date = 2009-12-14
-url = http://cfg-loader.googlecode.com/files/cfg50b-fat.dol
-Same as 50b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 50a (alpha)
-size = 1430496
-date = 2009-12-12
-url = http://cfg-loader.googlecode.com/files/cfg50a.dol
-Fix for PeppaPig
-Rewritten FAT support in ehcmodule
-
-release = 50a-fat (alpha)
-size = 1430496
-date = 2009-12-12
-url = http://cfg-loader.googlecode.com/files/cfg50a-fat.dol
-Same as 50a but with different
 default options:
   ios=222-mload
   partition=FAT1

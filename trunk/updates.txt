@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 50c (bugfix)
+size = 1357856
+date = 2009-12-21
+url = http://cfg-loader.googlecode.com/files/cfg50c.dol
+Fixed starting games from SD Card
+  with FAT or NTFS
+
+release = 50c-fat (bugfix)
+size = 1357856
+date = 2009-12-21
+url = http://cfg-loader.googlecode.com/files/cfg50c-fat.dol
+Same as 50c but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 50 (release)
 size = 1357696
 date = 2009-12-16
@@ -25,22 +42,6 @@ size = 1357696
 date = 2009-12-16
 url = http://cfg-loader.googlecode.com/files/cfg50-fat.dol
 Same as 50 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 50b2 (beta2)
-size = 1357408
-date = 2009-12-15
-url = http://cfg-loader.googlecode.com/files/cfg50b2.dol
-Fixes and cleanups of NTFS support
-
-release = 50b2-fat (beta2)
-size = 1357408
-date = 2009-12-15
-url = http://cfg-loader.googlecode.com/files/cfg50b2-fat.dol
-Same as 50b2 but with different
 default options:
   ios=222-mload
   partition=FAT1

@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 51a
+size = 1404160
+date = 2010-1-9
+url = http://cfg-loader.googlecode.com/files/cfg51a.dol
+Wiitdb support.
+Game sorting & filtering.
+Disc loading.
+Gameplay history.
+New main menu.
+
+release = 51a-fat
+size = 1404160
+date = 2010-1-9
+url = http://cfg-loader.googlecode.com/files/cfg51a-fat.dol
+Same as 51a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 50c (bugfix)
 size = 1357856
 date = 2009-12-21

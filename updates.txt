@@ -13,7 +13,7 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
-release = 51a
+release = 51a (alpha)
 size = 1404160
 date = 2010-1-9
 url = http://cfg-loader.googlecode.com/files/cfg51a.dol
@@ -23,7 +23,7 @@ Disc loading.
 Gameplay history.
 New main menu.
 
-release = 51a-fat
+release = 51a-fat (alpha)
 size = 1404160
 date = 2010-1-9
 url = http://cfg-loader.googlecode.com/files/cfg51a-fat.dol

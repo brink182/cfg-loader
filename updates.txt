@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 51b (beta)
+size = 1404512
+date = 2010-1-9
+url = http://cfg-loader.googlecode.com/files/cfg51b.dol
+Minor bugfixes from 51a.
+More directory layouts with FAT / NTFS
+/wbfs/TITLE_[GAMEID]/GAMEID.wbfs
+/wbfs/TITLE [GAMEID]/GAMEID.wbfs
+/wbfs/TITLE[GAMEID]/GAMEID.wbfs
+
+release = 51b-fat (beta)
+size = 1404512
+date = 2010-1-9
+url = http://cfg-loader.googlecode.com/files/cfg51b-fat.dol
+Same as 51b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 51a (alpha)
 size = 1404160
 date = 2010-1-9

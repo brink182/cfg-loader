@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 51b2 (beta2)
+size = 1404320
+date = 2010-1-11
+url = http://cfg-loader.googlecode.com/files/cfg51b2.dol
+Fixed crashing when no database found
+Accented characters show in synopsis
+Synopsis display improved
+Main menu will respect disable_options
+sort=play_count works properly
+
+release = 51b2-fat (beta2)
+size = 1404320
+date = 2010-1-11
+url = http://cfg-loader.googlecode.com/files/cfg51b2-fat.dol
+Same as 51b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 51b (beta)
 size = 1404512
 date = 2010-1-9

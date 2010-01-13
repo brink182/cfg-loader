@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 51b3 (beta3)
+size = 1403616
+date = 2010-1-12
+url = http://cfg-loader.googlecode.com/files/cfg51b3.dol
+New menus have been cleaned / changed
+Install menu shows game cover if found
+option fat_install_dir = 2:
+  use (TITLE [ID]) when installing
+
+release = 51b3-fat (beta3)
+size = 1403616
+date = 2010-1-12
+url = http://cfg-loader.googlecode.com/files/cfg51b3-fat.dol
+Same as 51b3 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 51b2 (beta2)
 size = 1404320
 date = 2010-1-11

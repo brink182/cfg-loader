@@ -13,18 +13,19 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
-release = 52a (alpha)
-size = 1411648
+release = 52a2 (alpha 2)
+size = 1411552
 date = 2010-1-23
-url = http://cfg-loader.googlecode.com/files/cfg52a.dol
+url = http://cfg-loader.googlecode.com/files/cfg52a2.dol
 Translation files now supported.
+Fixed a duplicate option in 52a1.
 One disc loading bug fixed.
 
-release = 52a-fat (alpha)
-size = 1411648
+release = 52a2-fat (alpha)
+size = 1411552
 date = 2010-1-23
-url = http://cfg-loader.googlecode.com/files/cfg52a-fat.dol
-Same as 52a but with different
+url = http://cfg-loader.googlecode.com/files/cfg52a2-fat.dol
+Same as 52a2 but with different
 default options:
   ios=222-mload
   partition=FAT1

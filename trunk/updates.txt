@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+
+release = 52b (beta)
+size = 1411040
+date = 2010-1-30
+url = http://cfg-loader.googlecode.com/files/cfg52b.dol
+Original Gamecube disc loading
+Wii disc loading now uses disc IOS
+Console font fix
+Updated Cover URLs
+
+release = 52b-fat (beta)
+size = 1411040
+date = 2010-1-30
+url = http://cfg-loader.googlecode.com/files/cfg52b-fat.dol
+Same as 52b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 52a2 (alpha 2)
 size = 1411552
 date = 2010-1-23
@@ -46,25 +66,6 @@ size = 1404256
 date = 2010-1-17
 url = http://cfg-loader.googlecode.com/files/cfg51-fat.dol
 Same as 51 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 51b3 (beta3)
-size = 1403616
-date = 2010-1-12
-url = http://cfg-loader.googlecode.com/files/cfg51b3.dol
-New menus have been cleaned / changed
-Install menu shows game cover if found
-option fat_install_dir = 2:
-  use (TITLE [ID]) when installing
-
-release = 51b3-fat (beta3)
-size = 1403616
-date = 2010-1-12
-url = http://cfg-loader.googlecode.com/files/cfg51b3-fat.dol
-Same as 51b3 but with different
 default options:
   ios=222-mload
   partition=FAT1
@@ -161,22 +162,5 @@ default options:
   ios=222-mload
   partition=FAT1
   hide_hddinfo=1
-
-release = 46 (release)
-size = 1124928
-date = 2009-10-31
-url = http://cfg-loader.googlecode.com/files/cfg46.dol
-Support for direct launching of games
-from fat (loadstructor channels)
-Switch to ios222 if starting from fat
-Improved speed in coverflow gui modes
-Cleanups
-
-release = 46-fat (release)
-size = 1124928
-date = 2009-10-31
-url = http://cfg-loader.googlecode.com/files/cfg46-fat.dol
-Same as 46 but with different default
-options: ios=222-mload partition=FAT1
 
 

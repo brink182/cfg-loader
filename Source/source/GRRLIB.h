@@ -7,6 +7,9 @@
 Download and Help Forum : http://grrlib.santo.fr
 ===========================================*/
 
+// Modified by oggzee
+
+
 #ifndef __GXHDR__
 #define __GXHDR__
 
@@ -17,6 +20,7 @@ Download and Help Forum : http://grrlib.santo.fr
 
 #include <gccore.h>
 #include <ogc/conf.h>
+#include "util.h"
 
 #ifdef __cplusplus
    extern "C" {
@@ -84,7 +88,9 @@ void GRRLIB_FreeBMF(GRRLIB_bytemapFont bmf);
 void GRRLIB_InitTileSet(struct GRRLIB_texImg *tex, unsigned int tilew, unsigned int tileh, unsigned int tilestart);
 
 inline void GRRLIB_DrawImg(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees, float scaleX, f32 scaleY, u32 color );
+extern void GRRLIB_DrawImgQuad(Vector pos[4], struct GRRLIB_texImg *tex, u32 color);
 inline void GRRLIB_DrawTile(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees, float scaleX, f32 scaleY, u32 color, int frame);
+extern void GRRLIB_DrawTileQuad(Vector pos[4], struct GRRLIB_texImg *tex, u32 color,int frame);
 
 void GRRLIB_Printf(f32 xpos, f32 ypos, GRRLIB_texImg tex, u32 color, f32 zoom, const char *text, ...);
 void GRRLIB_PrintBMF(f32 xpos, f32 ypos, GRRLIB_bytemapFont bmf, f32 zoom, const char *text, ...);
@@ -108,6 +114,15 @@ void GRRLIB_BMFX_Pixelate(GRRLIB_texImg texsrc, GRRLIB_texImg texdest, int facto
 
 void GRRLIB_GXEngine(Vector v[], u32 color, long count, u8 fmt);
 
+void GRRLIB_FreeTexture(struct GRRLIB_texImg *tex);
+GRRLIB_texImg GRRLIB_Screen2Texture();
+void GRRLIB_Screen2Texture_buf(GRRLIB_texImg *tx);
+
+GRRLIB_texImg GRRLIB_AAScreen2Texture();
+void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx);
+void GRRLIB_prepareAAPass(int, int);
+void GRRLIB_drawAAScene(int, GRRLIB_texImg *texAABuffer);
+void GRRLIB_ResetVideo(void);
 
 void GRRLIB_Init();
 
@@ -115,7 +130,30 @@ void GRRLIB_Render();
 
 void GRRLIB_Exit();
 
+void GRRLIB_GetPixelFromFB(int x, int y, u8 *R1, u8 *G1, u8 *B1, u8 *R2, u8 *G2, u8 *B2 );
+u8 GRRLIB_ClampVar8(float Value);
+
+u32 GRRLIB_GetColor(u8 r, u8 g, u8 b, u8 a);
+
 bool GRRLIB_ScrShot(const char*);
+
+//
+void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, u32 outline, u32 shadow, const char *text);
+void GRRLIB_Print(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, const char *text);
+
+extern int GRRLIB_Init_VMode(GXRModeObj *a_rmode, void *fb0, void *fb1);
+extern void GRRLIB_DrawSlice2(f32 xpos, f32 ypos, GRRLIB_texImg tex,
+		float degrees, float scaleX, f32 scaleY, u32 color1, u32 color2,
+		float x, float y, float w, float h);
+extern void GRRLIB_DrawSlice(f32 xpos, f32 ypos, GRRLIB_texImg tex,
+		float degrees, float scaleX, f32 scaleY, u32 color,
+		float x, float y, float w, float h);
+extern void** _GRRLIB_GetXFB(int *cur_fb);
+extern void _GRRLIB_SetFB(int cur_fb);
+extern void _GRRLIB_Render();
+extern void _GRRLIB_VSync();
+extern void _GRRLIB_Exit();
+
 
 #ifdef __cplusplus
    }

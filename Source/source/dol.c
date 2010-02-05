@@ -2,75 +2,83 @@
 
 #include <stdio.h>
 #include <string.h>
+
 #include <gccore.h>
 #include <ogcsys.h>
 
-#include "cfg.h"
+#include "dol.h"
 
-typedef struct _dolheader {
-	u32 text_pos[7];
-	u32 data_pos[11];
-	u32 text_start[7];
-	u32 data_start[11];
-	u32 text_size[7];
-	u32 data_size[11];
-	u32 bss_start;
-	u32 bss_size;
-	u32 entry_point;
-} dolheader;
 
-u32 load_dol_image (void *dolstart, bool clear_bss) {
-	u32 i;
-	dolheader *dolfile;
+static dolheader *dolfile;
+static int i;
+static int phase;
 
-	if (dolstart) {
-		dolfile = (dolheader *) dolstart;
+u32 load_dol_start(void *dolstart)
+{
+	if (dolstart)
+	{
+		dolfile = (dolheader *)dolstart;
+        return dolfile->entry_point;
+	} else
+	{
+		return 0;
+	}
+	
+    memset((void *)dolfile->bss_start, 0, dolfile->bss_size);
+    DCFlushRange((void *)dolfile->bss_start, dolfile->bss_size);
+	
+	phase = 0;
+	i = 0;
+}
 
-		dbg_printf ("bss     0x%08x [%8x] 0x%08x\n",
-			dolfile->bss_start, dolfile->bss_size,
-			dolfile->bss_start + dolfile->bss_size);
-
-		if (clear_bss)
+bool load_dol_image(void **offset, u32 *pos, u32 *len) 
+{
+	if (phase == 0)
+	{
+		if (i == 7)
 		{
-			memset ((void *) dolfile->bss_start, 0, dolfile->bss_size);
-			DCFlushRange((void *) dolfile->bss_start, dolfile->bss_size);
+			phase = 1;
+			i = 0;
+		} else
+		{
+			if ((!dolfile->text_size[i]) || (dolfile->text_start[i] < 0x100))
+			{
+				*offset = 0;
+				*pos = 0;
+				*len = 0;
+			} else
+			{
+				*offset = (void *)dolfile->text_start[i];
+				*pos = dolfile->text_pos[i];
+				*len = dolfile->text_size[i];
+			}
+			i++;
+			return true;
 		}
-
-		for (i = 0; i < 7; i++) {
-			if ((!dolfile->text_size[i]) ||
-                            (dolfile->text_start[i] < 0x100))
-                                continue;
-
-			dbg_printf ("text[%u] 0x%08x [%8x] 0x%08x\n", i,
-				dolfile->text_start[i], dolfile->text_size[i],
-				dolfile->text_start[i] + dolfile->text_size[i]);
-
-			ICInvalidateRange ((void *) dolfile->text_start[i],
-                                                    dolfile->text_size[i]);
-			memmove ((void *) dolfile->text_start[i],
-                                 dolstart+dolfile->text_pos[i],
-                                 dolfile->text_size[i]);
-		}
-
-		for(i = 0; i < 11; i++) {
-			if ((!dolfile->data_size[i]) ||
-                            (dolfile->data_start[i] < 0x100))
-                                continue;
-
-			dbg_printf ("data[%u] 0x%08x [%8x] 0x%08x\n", i,
-				dolfile->data_start[i], dolfile->data_size[i],
-				dolfile->data_start[i] + dolfile->data_size[i]);
-
-			memmove ((void*) dolfile->data_start[i],
-                                 dolstart+dolfile->data_pos[i],
-                                 dolfile->data_size[i]);
-			DCFlushRangeNoSync ((void *) dolfile->data_start[i],
-                                            dolfile->data_size[i]);
-		}
-
-		return dolfile->entry_point;
 	}
 
-	return 0;
+	if (phase == 1)
+	{
+		if (i == 11)
+		{
+			phase = 2;
+			return false;
+		}	
+		
+		if ((!dolfile->data_size[i]) || (dolfile->data_start[i] < 0x100))
+		{
+			*offset = 0;
+			*pos = 0;
+			*len = 0;
+		} else
+		{
+			*offset = (void *)dolfile->data_start[i];
+			*pos = dolfile->data_pos[i];
+			*len = dolfile->data_size[i];
+		}
+		i++;
+		return true;
+	}
+	return false;
 }
 

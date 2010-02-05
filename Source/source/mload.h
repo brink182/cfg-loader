@@ -41,6 +41,13 @@
 
 #define MLOAD_SET_ES_IOCTLV		0x4D4C44B0
 
+#define MLOAD_GETW				0x4D4C44C0
+#define MLOAD_GETH				0x4D4C44C1
+#define MLOAD_GETB				0x4D4C44C2
+#define MLOAD_SETW				0x4D4C44C3
+#define MLOAD_SETH				0x4D4C44C4
+#define MLOAD_SETB				0x4D4C44C5
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -184,7 +191,13 @@ int mload_set_ES_ioctlv_vector(void *starlet_addr);
 
 /*--------------------------------------------------------------------------------------------------------------*/
 
+int mload_getw(const void * addr, u32 *dat);
+int mload_geth(const void * addr, u16 *dat);
+int mload_getb(const void * addr, u8 *dat);
 
+int mload_setw(const void * addr, u32 dat);
+int mload_seth(const void * addr, u16 dat);
+int mload_setb(const void * addr, u8 dat);
 
 #ifdef __cplusplus
   }

@@ -12,6 +12,13 @@
 #include "fst.h"
 #include "cfg.h"
 #include "music.h"
+#include "restart.h"
+#include "net.h"
+#include "wbfs.h"
+#include "fat.h"
+#include "usbstorage.h"
+#include "sdhc.h"
+#include "sys.h"
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000
@@ -21,7 +28,7 @@
 static u32 *buffer = (u32 *)0x93000000;
 static u8  *diskid = (u8  *)0x80000000;
 
-int yal_OpenPartition(u32 Offset);
+int yal_OpenPartition(u64 Offset);
 int yal_Identify();
 
 #define        Sys_Magic		((u32*) 0x80000020)
@@ -37,6 +44,7 @@ void __Disc_SetLowMem(void)
 	*(vu32 *)0x80000060 = 0x38A00040;
 	*(vu32 *)0x800000E4 = 0x80431A80;
 	*(vu32 *)0x800000EC = 0x81800000; // Dev Debugger Monitor Address
+	*(vu32 *)0x800000F0 = 0x81800000; // Dev Debugger Monitor Address
 	*(vu32 *)0x800000F4 = 0x817E5480;
 	*(vu32 *)0x800000F8 = 0x0E7BE2C0; // bus speed
 	*(vu32 *)0x800000FC = 0x2B73A840; // cpu speed
@@ -65,35 +73,44 @@ void __Disc_SetLowMem(void)
 	DCFlushRange((void *)0x80000000, 0x3F00);
 }
 
-void __Disc_SetVMode(void)
+GXRModeObj *disc_vmode = NULL;
+u32 vmode_reg = 0;
+
+void __Disc_SelectVMode(void)
 {
 	GXRModeObj *vmode = NULL;
 
-	u32 progressive, tvmode, vmode_reg = 0;
+	u32 progressive, tvmode;
+	
+	vmode_reg = 0;
 
 	__console_flush(0);
 
 	/* Get video mode configuration */
 	progressive = (CONF_GetProgressiveScan() > 0) && VIDEO_HaveComponentCable();
-	tvmode      =  CONF_GetVideo();
+	tvmode      = CONF_GetVideo();
+	vmode		= VIDEO_GetPreferredMode(NULL);
+
+	// note: TVEurgb60Hz480Prog crashes libogc, so we use TVNtsc480Prog
 
 	/* Select video mode register */
 	switch (tvmode) {
 	case CONF_VIDEO_PAL:
 		if (CONF_GetEuRGB60() > 0) {
-			vmode_reg = 5;
+			vmode_reg = 5; // VI_EURGB60
 			vmode     = (progressive) ? &TVNtsc480Prog : &TVEurgb60Hz480IntDf;
 		} else
-			vmode_reg = 1;
+			vmode_reg = 1; // VI_PAL
 
 		break;
 
 	case CONF_VIDEO_MPAL:
-		vmode_reg = 4;
+		//vmode_reg = 4; // 4=VI_DEBUG_PAL?? 2=VI_MPAL
+		vmode_reg = VI_MPAL;
 		break;
 
 	case CONF_VIDEO_NTSC:
-		vmode_reg = 0;
+		vmode_reg = 0; // VI_NTSC
 		break;
 	}
 
@@ -117,6 +134,7 @@ void __Disc_SetVMode(void)
 	/* NTSC or unknown */
 	case 'E':
 	case 'J':
+	default:
 		if (tvmode != CONF_VIDEO_NTSC) {
 			vmode_reg = 0;
 			vmode     = (progressive) ? &TVNtsc480Prog : &TVEurgb60Hz480IntDf;
@@ -125,13 +143,38 @@ void __Disc_SetVMode(void)
 		break;
 	}
 	}
+	else if (CFG.game.video == CFG_VIDEO_PAL50)
+	{
+        vmode     =  &TVPal528IntDf;
+        vmode_reg = (vmode->viTVMode) >> 2;
+	}
+	else if (CFG.game.video == CFG_VIDEO_PAL60)
+	{
+        vmode     = (progressive) ? &TVNtsc480Prog : &TVEurgb60Hz480IntDf;
+        vmode_reg = (vmode->viTVMode) >> 2;
+		if (progressive) vmode_reg = TVEurgb60Hz480Prog.viTVMode >> 2;
+	}
+	else if (CFG.game.video == CFG_VIDEO_NTSC)
+	{
+        vmode     = (progressive) ? &TVNtsc480Prog : &TVNtsc480IntDf;
+        vmode_reg = (vmode->viTVMode) >> 2;
+	}
+	else if (CFG.game.video == CFG_VIDEO_SYS)
+	{
+		// do nothing.
+	}
 
+	disc_vmode = vmode;
+}
+
+void __Disc_SetVMode(void)
+{
 	/* Set video mode register */
 	*(vu32 *)0x800000CC = vmode_reg;
 
 	/* Set video mode */
-	if (vmode)
-		Video_Configure(vmode);
+	if (disc_vmode)
+		Video_Configure(disc_vmode);
 
 	/* Clear screen */
 	Video_Clear(COLOR_BLACK);
@@ -173,7 +216,7 @@ s32 __Disc_FindPartition(u64 *outbuf)
 
 		/* Game partition */
 		if(!type)
-			offset = buffer[cnt * 2] << 2;
+			offset = ((u64)buffer[cnt * 2]) << 2;
 	}
 
 	/* No game partition found */
@@ -225,11 +268,30 @@ s32 Disc_Wait(void)
 s32 Disc_SetWBFS(u32 mode, u8 *id)
 {
 	if (CFG.ios_mload) {
-		//extern int _wbfs_cur_part;
-		//return MLOAD_SetWBFSMode(id, _wbfs_cur_part);
-		// wbfs part has to be the index of wbfs part
-		// not index in mbr 
-		return MLOAD_SetWBFSMode(id, 0);
+		u32 part = 0;
+		if (wbfs_part_fs) {
+			part = wbfs_part_lba;
+		} else {
+			part = wbfs_part_idx ? wbfs_part_idx - 1 : 0;
+		}
+		if (id && *id) {
+			Fat_UnmountWBFS();
+			// if game on sd and ios222, we must close sd now
+			if (wbfsDev == WBFS_DEVICE_SDHC) {
+				int ret;
+				Fat_UnmountSDHC();
+				SDHC_Close();
+				ret = USBStorage_WBFS_SetDevice(1);
+				if (ret) {
+					printf("ERROR: Setting SD mode\n");
+					//usb_debug_dump(0);
+				}
+			}
+		}
+		//if (CFG.direct_launch) {
+		//	part = CFG.current_partition;
+		//}
+		return MLOAD_SetWBFSMode(id, part);
 	}
 	if (CFG.ios_yal) {
 		return YAL_Enable_WBFS(id);
@@ -280,26 +342,36 @@ s32 Disc_BootPartition(u64 offset)
 		return ret;
 	}
 
+	insert_bca_data();
+
+	util_clear();
+
 	// OCARINA STUFF - FISHEARS
 	if (CFG.game.ocarina) {
-		char gameid[8];
-		memset(gameid, 0, 8);
-		//memcpy(gameid, (char*)0x80000000, 6);
-		memcpy(gameid, (char*)diskid, 6);
-		// if not found or not confirmed, disable hooks
-		CFG.game.ocarina = do_sd_code(gameid);
-		printf("\n");
+		ocarina_do_code();
 	}
 
 	/* Setup low memory */
 	__Disc_SetLowMem();
 
+	// Select an appropiate video mode
+	__Disc_SelectVMode();
+	
+	if (CFG.ios_yal) {
+		printf("    Loading .");
+	}
 	/* Run apploader */
 	ret = Apploader_Run(&p_entry);
 	if (ret < 0) {
 		printf("ERROR: Apploader %d\n", ret);
+		Restart_Wait();
 		return ret;
 	}
+
+	/* Close subsystems */
+	__console_flush(0);
+	Net_Close(1);
+	Subsystem_Close();
 
 	/* Set an appropiate video mode */
 	__Disc_SetVMode();
@@ -307,13 +379,20 @@ s32 Disc_BootPartition(u64 offset)
 	/* Set time */
 	__Disc_SetTime();
 	
-	/* Close subsystems */
-	Subsystem_Close();
-
 	if (CFG.ios_yal) yal_Identify();
 
+	// Anti-green screen fix
+	VIDEO_SetBlack(TRUE);
+	VIDEO_Flush();
+	VIDEO_WaitVSync();
+
 	/* Shutdown IOS */
- 	SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
+ 	//SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
+	// fix for PeppaPig (from NeoGamma)
+	extern void __exception_closeall();
+	IRQ_Disable();
+	__IOS_ShutdownSubsystems();
+	__exception_closeall();
 
 	/* Jump to entry point */
 	p_entry();
@@ -385,18 +464,18 @@ s32 yal_GetCerts(signed_blob** Certs, u32* Length)
 	return 0;
 }
 
-int yal_OpenPartition(u32 Offset)
+int yal_OpenPartition(u64 Offset)
 {
 	int ret = -1;
 	// Offset = Partition_Info.Offset << 2
 	u32 Partition_Info_Offset = Offset >> 2;
 
-	printf("    Loading .");
+	//printf("    Loading .");
 	
     //DI_Set_OffsetBase(Offset);
     ret = YAL_Set_OffsetBase(Offset);
 	if (ret < 0) {
-		printf("\nERROR: Offset(0x%x) %d\n", Offset, ret);
+		printf("\nERROR: Offset(0x%llx) %d\n", Offset, ret);
 		return ret; 
 	}
 
@@ -421,7 +500,7 @@ int yal_OpenPartition(u32 Offset)
 	Tmd = (signed_blob*)(Tmd_Buffer);
 	MD_Length = SIGNED_TMD_SIZE(Tmd);
 
-	printf(".");
+	//printf(".");
 	return 0;
 }
 
@@ -438,6 +517,4 @@ int yal_Identify()
 	}
 	return 0;
 }
-
-
 

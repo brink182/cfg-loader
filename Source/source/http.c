@@ -1,5 +1,7 @@
 #include "http.h"
 
+int http_progress = 0;
+
 /**
  * Emptyblock is a statically defined variable for functions to return if they are unable
  * to complete a request
@@ -73,6 +75,7 @@ struct block read_message(s32 connection)
 	struct block buffer;
 	buffer.data = malloc(HTTP_BUFFER_SIZE);
 	buffer.size = HTTP_BUFFER_SIZE;
+	int progress_count = 0;
 
 	if(buffer.data == NULL) {
 		return emptyblock;
@@ -102,7 +105,7 @@ struct block read_message(s32 connection)
 		}
 		
 		offset += bytes_read;
-		
+
 		//Check if we have enough buffer left over,
 		//if not expand it with an additional HTTP_BUFFER_GROWTH worth of bytes
 		if(offset >= buffer.size)
@@ -113,6 +116,14 @@ struct block read_message(s32 connection)
 			if(buffer.data == NULL)
 			{
 				return emptyblock;
+			}
+		}
+
+		// display progress
+		if (http_progress) {
+			while (offset / 102400 > progress_count) {
+				printf(".");
+				progress_count++;
 			}
 		}
 	}
@@ -180,9 +191,10 @@ struct block downloadfile(const char *url)
 	}
 	
 	//Form a nice request header to send to the webserver
-	char* headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: WiiEarthh 1.0\r\n\r\n";;
-	char header[strlen(headerformat) + strlen(domain) + strlen(path)];
-	sprintf(header, headerformat, path, domain);
+	extern char CFG_VERSION[];
+	char* headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: CFG-Loader %s\r\n\r\n";
+	char header[strlen(headerformat) + strlen(domain) + strlen(path) + strlen(CFG_VERSION) + 16];
+	sprintf(header, headerformat, path, domain, CFG_VERSION);
 
 	//Do the request and get the response
 	send_message(connection, header);
@@ -205,7 +217,7 @@ struct block downloadfile(const char *url)
 					if (sscanf(codep+1, "%d", &code) == 1) {
 						//printf("HTTP response code: %d\n", code);
 						//if (code != 200) {
-						if (code == 404) {
+						if (code >= 400) {
 							printf("HTTP ERROR: %s\n", htstat);
 							free(response.data);
 							return emptyblock;

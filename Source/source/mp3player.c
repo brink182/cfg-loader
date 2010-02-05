@@ -4,6 +4,7 @@
  *   nForce@Sympatico.ca                                                   *
  ***************************************************************************/
 // Modified by Hermes to include SNDLIB / ASNDLIB support
+// Fixes by oggzee
 
 #include <asm.h>
 #include <processor.h>
@@ -27,7 +28,8 @@ static u32 mp3_volume = 255;
 #ifndef __SNDLIB_H__
 	#define ADMA_BUFFERSIZE			(4992)
 #else
-	#define ADMA_BUFFERSIZE			(8192)
+//	#define ADMA_BUFFERSIZE			(8192)
+	#define ADMA_BUFFERSIZE			(32768)
 #endif
 #define STACKSIZE				(32768)
 
@@ -387,7 +389,8 @@ static void Resample(struct mad_pcm *Pcm,EQState eqs[2],u32 stereo,u32 src_sampl
 	s32 incr;
 
 	pos.adword = 0;
-	incr = (u32)(((f32)src_samplerate/48000.0F)*65536.0F);
+	//incr = (u32)(((f32)src_samplerate/48000.0F)*65536.0F);
+	incr = (u32)(((u64)src_samplerate<<16) / 48000);
 	while(pos.aword.hi<Pcm->length) {
 		val16 = Do3Band(&eqs[0],FixedToShort(Pcm->samples[0][pos.aword.hi]));
 		val32 = (val16<<16);
@@ -464,7 +467,7 @@ static void DataTransferCallback()
 	if(!(SND_TestPointer(0,(void*)OutputBuffer[CurrentBuffer]) && SND_StatusVoice(0)!=SND_UNUSED)) {
 		if(have_samples==0) {
 			MP3Playing = (buf_get(&OutputRingBuffer,OutputBuffer[CurrentBuffer],ADMA_BUFFERSIZE)>0);
-			have_samples = 1;
+			if (MP3Playing) have_samples = 1;
 		}
 	}
 #endif

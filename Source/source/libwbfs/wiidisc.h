@@ -45,6 +45,7 @@ typedef struct wiidisc_s
 
         char *extract_pathname;
         u8  *extracted_buffer;
+        int extracted_size;
 }wiidisc_t;
 
 wiidisc_t *wd_open_disc(read_wiidisc_callback_t read,void*fp);

@@ -5,6 +5,7 @@
 // Modified by oggzee
 
 
+#include "../memcheck.h"
 #include "libwbfs.h"
 
 #define likely(x)       __builtin_expect(!!(x), 1)

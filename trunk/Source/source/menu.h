@@ -1,12 +1,15 @@
 #ifndef _MENU_H_
 #define _MENU_H_
 
+#include "disc.h" // discHdr
+
 /* Prototypes */
 void Menu_Device(void);
 void Menu_Format(void);
 void Menu_Install(void);
 void Menu_Remove(void);
-void Menu_Boot(void);
+void Menu_Boot(bool disc);
+int Menu_Boot_Options(struct discHdr *header, bool disc);
 s32 __Menu_GetEntries(void);
 void Menu_Loop(void);
 void Menu_Options(void);
@@ -14,13 +17,20 @@ void Menu_Partition(bool must_select);
 void Handle_Home(int disable_screenshot);
 void Online_Update();
 void Download_Titles();
-void Menu_Cheats();
+void Menu_Cheats(struct discHdr *header);
 int  Menu_PrintWait();
 bool Menu_Confirm(char *msg);
+
+void __Menu_ShowGameInfo(bool showfullinfo, u8 *id); // Lustar
+char *skip_sort_ignore(char *s);
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
 extern s32 all_gameCnt;
+
+void __Menu_ScrollStartList();
+
+extern struct discHdr *filter_gameList;
 
 struct Menu
 {

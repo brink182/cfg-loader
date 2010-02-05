@@ -148,11 +148,12 @@ GRRLIB_texImg GRRLIB_LoadTexturePNG(const unsigned char my_png[]) {
 	if (ctx == NULL) goto out;
     ret = PNGU_GetImageProperties (ctx, &imgProp);
 	if (ret != PNGU_OK) goto out;
-    my_texture.data = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
+    //my_texture.data = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
+    my_texture.data = mem_alloc (imgProp.imgWidth * imgProp.imgHeight * 4);
 	if (my_texture.data == NULL) goto out;
     ret = PNGU_DecodeTo4x4RGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, my_texture.data, 255);
 	if (ret != PNGU_OK) {
-		free(my_texture.data);
+		SAFE_FREE(my_texture.data);
 		my_texture.data = NULL;
 		goto out;
 	}
@@ -1316,8 +1317,8 @@ u32 GRRLIB_GetColor( u8 r, u8 g, u8 b, u8 a ) {
  */
 /*
 void GRRLIB_FreeTexture(struct GRRLIB_texImg *tex) {
-    free(tex->data);
-    free(tex);
+    SAFE_FREE(tex->data);
+    SAFE_FREE(tex);
     tex = NULL;
 }
 */

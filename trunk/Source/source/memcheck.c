@@ -15,6 +15,7 @@
 #define XM_NO_OVERRIDE
 #include "memcheck.h"
 #include "util.h"
+#include "wpad.h"
 
 #ifdef DEBUG_MEM_CHECK
 
@@ -51,11 +52,16 @@ void xm_call(const char *fun, int line)
 	xm_line = line;
 }
 
-void xm_print_fun()
+void xm_print_fun2(char *fun, int line)
 {
 	if (con_inited) {
-		printf("\nXM: %s : %d\n", xm_fun, xm_line);
+		printf("\nXM: %s : %d\n", fun, line);
 	}
+}
+
+void xm_print_fun()
+{
+	xm_print_fun2(xm_fun, xm_line);
 }
 
 void xm_print_err(char *fmt, ...)
@@ -75,8 +81,10 @@ void xm_print_err(char *fmt, ...)
 			for (j=0; j<60; j++) {
 				VIDEO_WaitVSync();
 			}
-			printf(".\n");
+			printf(". ");
 		}
+		//Wpad_WaitButtonsCommon();
+		//*(char*)0=0; // crash
 		//Sys_Exit();
 		exit(0);
 	}
@@ -141,10 +149,12 @@ int xm_cmp(void *ptr, size_t size)
 	return memcmp(ptr+size, xm_signature, XM_SIG_SIZE);
 }
 
-int xm_check(void *ptr, size_t size)
+int xm_check(struct xm_ps *xx)
 {
-	if (xm_cmp(ptr, size) == 0) return 0;
-	xm_print_err("ptr %p [%d]\n", ptr, size);
+	if (xx->ptr == 0) return 0;
+	if (xm_cmp(xx->ptr, xx->size) == 0) return 0;
+	xm_print_err("ptr %p [%d]\n(%s : %d)\n",
+			xx->ptr, xx->size, xx->fun, xx->line);
 	return -1;
 }
 
@@ -152,9 +162,7 @@ void xm_check_all()
 {
 	int i;
 	for (i=0; i<xm_ptr_num; i++) {
-		if (xm_ptr[i].ptr) {
-			xm_check(xm_ptr[i].ptr, xm_ptr[i].size);
-		}
+		xm_check(&xm_ptr[i]);
 	}
 	mallinfo();
 }
@@ -172,6 +180,7 @@ void *xm_memalign(size_t align, size_t size)
 {
 	xm_check_all();
 	void *p = memalign(align, size + XM_OVERHEAD);
+	if (!p) return p;
 	xm_mark(p, size);
 	xm_check_all();
 	return p;
@@ -235,9 +244,9 @@ void memstat()
 	printf("\n");
 	malloc_stats();
 	printf("XM: %d / %d %d\n", xm_ptr_use, xm_ptr_num, xm_ptr_size);
-	// print larger than 200kb allocs
+	// print larger than 128kb allocs
 	for (i=0; i<xm_ptr_num; i++) {
-		if (xm_ptr[i].size > 128000) {
+		if (xm_ptr[i].size > 128*1024) {
 			printf("%p %4dk %-20.20s %d\n",
 					xm_ptr[i].ptr, xm_ptr[i].size/1024,
 					xm_ptr[i].fun, xm_ptr[i].line);

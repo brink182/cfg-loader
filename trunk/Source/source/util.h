@@ -7,6 +7,8 @@
 #include <stdlib.h> // bool...
 #include <gctypes.h> // bool...
 
+#include "mem.h"
+
 #define STRCOPY(DEST,SRC) strcopy(DEST,SRC,sizeof(DEST)) 
 char* strcopy(char *dest, const char *src, int size);
 
@@ -14,6 +16,7 @@ char* strcopy(char *dest, const char *src, int size);
 char *strappend(char *dest, char *src, int size);
 
 bool str_replace(char *str, char *olds, char *news, int size);
+bool str_replace_all(char *str, char *olds, char *news, int size);
 bool trimsplit(char *line, char *part1, char *part2, char delim, int size);
 
 #define dbg_printf if (CFG.debug) printf
@@ -22,6 +25,7 @@ unsigned dbg_time2(char *msg);
 
 #define D_S(A) A, sizeof(A)
 
+/*
 void util_init();
 void util_clear();
 void* LARGE_memalign(size_t align, size_t size);
@@ -30,16 +34,19 @@ size_t LARGE_used();
 void memstat2();
 
 #define SAFE_FREE(P) if(P){free(P);P=NULL;}
+*/
 
 void wiilight(int enable);
 
-//#include "memcheck.h"
+#include "memcheck.h"
 
+/*
 #ifndef _MEMCHECK_H
 #define memstat() do{}while(0)
 #define memcheck() do{}while(0)
 #define memcheck_ptr(B,P) do{}while(0)
 #endif
+*/
 
 #define MAX_USORT_MAP 512
 extern int usort_map[MAX_USORT_MAP];

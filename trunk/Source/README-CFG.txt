@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v50
+Configurable SD/USB Loader v51
 ==============================
 
 by oggzee & usptactical
@@ -89,6 +89,9 @@ File locations:
   ocarina TXT cheat codes use the locations:
     Downloaded to: sd:/usb-loader/codes/*.txt
     Saved .gct to: sd:/usb-loader/codes/*.gct
+
+  wiitdb:          sd:/usb-loader/wiitdb.zip
+  play history:    sd:/usb-loader/playstats.txt
 
   .wip files:      sd:/usb-loader/GAMEID.wip
   .bca files:      sd:/usb-loader/GAMEID.bca
@@ -292,17 +295,17 @@ the admin mode must be in an unlocked state!
 
 
 Various Controllers Button Mapping:
------------------------------------
-WIIMOTE  CLASSIC  GC       GUITAR
------------------------------------
+--------------------------------------------------
+WIIMOTE  CLASSIC  GC       GUITAR       NUNCHUK
+--------------------------------------------------
 UP       UP       UP       STRUM UP
 RIGHT    RIGHT    RIGHT    NONE
 DOWN     DOWN     DOWN     STRUM DOWN
 LEFT     LEFT     LEFT     NONE
 -        -        L        -
 +        +        R        +
-A        A        A        GREEN
-B        B        B        RED
+A        A        A        GREEN        C
+B        B        B        RED          Z
 HOME     HOME     START    ORANGE
 1        Y        Y        YELLOW
 2        X        X        BLUE
@@ -499,7 +502,7 @@ Config file:
 #
 # URL options:
 #   URL can contain any of the following tags which are then replaced
-#   with proper values: {REGION}, {WIDTH}, {HEIGHT}, {ID3}, {ID4}, {ID6}, {ID}, {CC}
+#   with proper values: {REGION}, {WIDTH}, {HEIGHT}, {ID3}, {ID4}, {ID6}, {ID}, {CC}, {PUB}
 #   {ID} will find automatically the correct ID by trying ID6, ID4 and ID3
 #   Note: {WIDTH} and {HEIGHT} don't work well if download_all_styles is enabled
 #
@@ -598,9 +601,10 @@ Config file:
 # fat_split_size = [4], 2
 #   Selects if the split is at 4gb-32kb or 2gb-32kb
 #
-# fat_install_dir = [1], 0
+# fat_install_dir = [1], 0, 2
 #   Enable install in subdirectories on fat:
-#   /wbfs/GAMEID_TITLE/GAMEID.wbfs
+#   fat_install_dir = 1 /wbfs/GAMEID_TITLE/GAMEID.wbfs
+#   fat_install_dir = 2 /wbfs/TITLE [GAMEID]/GAMEID.wbfs
 #
 # music = [1], 0, filename, PATH
 #   Play background music (only one option has to be specified)
@@ -679,6 +683,42 @@ Config file:
 #   will specify the default profile to use
 #   saving global settings will also save which profile is used
 #
+# db_url = [http://wiitdb.com/wiitdb.zip?LANG={DBL}]
+#   URL to download database from.
+#
+# db_language = [AUTO], EN, JA, German, etc
+#   Language to use for the database. If invalid or not able to be
+#   displayed by the loader this will default to English.
+#   Both country codes (EN) and languages (English) are valid.
+#
+# db_show_info = [1], 0
+#   Show info loaded from the database.
+#
+# write_playstats = [1], 0
+#   Write to the play history file.
+#
+# sort = [title-asc], etc
+#   Change the default sorting method. Default is Title Ascending.
+#
+#   Valid sort options:
+#     "title"         => Title
+#     "players"       => Number of Players
+#     "online_players"=> Number of Online Players
+#     "publisher"     => Publisher
+#     "developer"     => Developer
+#     "release"       => Release Date
+#     "play_count"    => Play Count
+#     "install"       => Install Date
+#                        (This will only work with FAT or NTFS drives)
+#     "play_date      => Last Play Date
+#
+#   To use ascending add "-asc" to the option.
+#     ie: sort = players-asc
+#   
+#   To use descending add "-desc" to the option.
+#     ie: sort = players-desc
+#
+#
 # Game Compatibility Options:
 # ===========================
 # 
@@ -753,6 +793,101 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+cfg v51 (release)
+ * New Sort: last play date
+   option: sort = play_date
+ * Removed empty line from game list when showing database info
+ * Secondary sort using titles added. Lists should be consistent
+   when there are matching values now
+
+cfg v51b3 (beta3)
+ * Fixed the ambiguity with the game dir layouts (ID_TITLE or TITLE [ID])
+ * fat_install_dir = 2 will use the new layout (TITLE [ID]) when
+   installing
+ * Removed redundant options from main menu.
+ * Cleaned up the sort and filter menus.
+   Improved sort menu. Ascending / descending options for current 
+   sort are remembered.
+ * Color of database info now changed. 
+ * Install and disc boot menus will show [?] cover before a disc is 
+   read, and game cover for disc if found.
+
+cfg v51b2 (beta2)
+ * More bug fixes
+   Loader no longer crashes when trying to sort or filter without
+   a database.
+   Accented characters now show up in the synopsis.
+   Display of synopsis cleaned up and improved.
+   Entities now converted in the synopsis. (&quot;, etc)
+   Main menu will respect the disable_options configuration.
+   sort=play_count now works properly without reloading the game list.
+
+cfg v51b (beta)
+ * Minor bug fixes
+   Loader will not wait for a button press in the event a database
+   is not found.
+   Disc boot menu will show the proper database information.
+ * Changed db_url option and db_language option slightly
+     option: db_url = [http://wiitdb.com/wiitdb.zip?LANG={DBL}]
+     {DBL} will be replaced by the db_language value
+     option: db_language = [AUTO], EN, JA, German, etc
+ * option: "-asc" is no longer necessary to specify a sort as ascending.
+ * db_show_info no longer hides the hdd info or footer in the console.
+ * Added more game directory layouts: (by oggzee)
+   /wbfs/TITLE_[GAMEID]/GAMEID.wbfs
+   /wbfs/TITLE [GAMEID]/GAMEID.wbfs
+   /wbfs/TITLE[GAMEID]/GAMEID.wbfs
+   When loading games from FAT or NTFS
+ * Added {PUB} to cover url options.
+   {PUB} will be replaced by the last two characters of the ID
+   (the publisher)
+   This can be used to do things like forcing NTSC covers for 
+   PAL games by replacing {CC} with US and {ID6} with {ID3}E{PUB}
+
+cfg v51a (alpha)
+ * Wiitdb support. Can be downloaded inside the loader on the
+   global options screen.
+ * Enhanced nunchuk support: C mapped to A, Z mapped to B
+ * Filtering of games based on certain criteria
+ * Sorting of games based on certain criteria
+ * Gameplay history
+ * Disc Loading
+ * New: Main menu accessible by pressing - or going to the
+   global options screen.
+   Disc loading, sorting, filtering, and more options are located here.
+ * option: db_url = [http://wiitdb.com/wiitdb.zip?LANG={db_language}]
+   URL to download database from.
+ * option: db_language = [Console Language], EN, JA, German, etc
+   Language to use for the database. If invalid or not able to be
+   displayed by the loader this will default to English.
+   Both country codes (EN) and languages (English) are valid.
+ * option: db_show_info = [1], 0
+   Show info loaded from the database.
+ * option: write_playstats = [1], 0
+   Write to the play history file.
+ * option: sort = [title-asc], etc
+   Change the default sorting method. Default is Title Ascending.
+
+   Valid sort options:
+     "title"         => Title
+     "players"       => Number of Players
+     "online_players"=> Number of Online Players
+     "publisher"     => Publisher
+     "developer"     => Developer
+     "release"       => Release Date
+     "play_count"    => Play Count
+     "install"       => Install Date
+                        (This will only work with FAT or NTFS drives)
+   To use ascending add "-asc" to the option.
+     ie: sort = players-asc
+   
+   To use descending add "-desc" to the option.
+     ie: sort = players-desc
+
+
+cfg v50c (bugfix)
+
+ * Fixed starting games from SD Card with FAT or NTFS
 
 cfg v50 (release)
 

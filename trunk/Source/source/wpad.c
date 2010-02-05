@@ -18,13 +18,14 @@
 #define CLASSIC	1
 #define GCPAD	2
 #define GUITAR	3
-//#define NUNCHUCK	4
+#define NUNCHUK	4
 #define MAX_X	660
 #define MAX_Y	480
-//#define PI	3.14159265f
 
 extern u8 shutdown;
-u32 buttonmap[4][MAX_BUTTONS];
+extern long long gettime();
+extern u32 diff_msec(long long start,long long end);
+u32 buttonmap[5][MAX_BUTTONS];
 float coord[2] = {320,240};
 bool padMoved = false;
 
@@ -94,7 +95,6 @@ void Wpad_getIR(int n, struct ir_t *ir) {
 			ir->valid = 1;
 		}
     } else {
-		//coord = {340,280};
 		coord[0] = 320;
 		coord[1] = 240;
 		padMoved = false;
@@ -107,20 +107,20 @@ u32 readPad(int n, bool held) {
 	int i;
 	u32 pad, wii, type;
 	u32 buttons = 0; 
-//	PADStatus status[4];
-//	PAD_Read(status);
-//	if (status[n].err == PAD_ERR_NONE) {
 	pad = (held == 1) ? PAD_ButtonsHeld(n) : PAD_ButtonsDown(n);
 	for (i=0; i<MAX_BUTTONS; i++) {
 		if ((pad & buttonmap[GCPAD][i]))
 			buttons |= buttonmap[WIIMOTE][i];
 	}
-//	} else
-//		PAD_Rest(n);
 	if (WPAD_Probe(n, &type) == WPAD_ERR_NONE) {
 		wii = (held == 1) ? WPAD_ButtonsHeld(n) : WPAD_ButtonsDown(n);
-		if (type == WPAD_EXP_NONE || type == WPAD_EXP_NUNCHUK) {
-			buttons |= wii;
+		if (type == WPAD_EXP_NONE) {
+			buttons |=  wii;
+		} else if (type == WPAD_EXP_NUNCHUK) {
+			for (i=0; i<MAX_BUTTONS; i++) {
+				if ((wii & buttonmap[NUNCHUK][i]) || (wii & buttonmap[WIIMOTE][i]))
+					buttons |= buttonmap[WIIMOTE][i];
+			}
 		} else if (type == WPAD_EXP_CLASSIC) {
 			for (i=0; i<MAX_BUTTONS; i++) {
 				if ((wii & buttonmap[CLASSIC][i]) || (wii & buttonmap[WIIMOTE][i]))
@@ -148,67 +148,67 @@ void makeButtonMap(void) {
 	buttonmap[WIIMOTE][0] = WPAD_BUTTON_UP;
 	buttonmap[CLASSIC][0] = WPAD_CLASSIC_BUTTON_UP;
 	buttonmap[GUITAR][0] = WPAD_GUITAR_HERO_3_BUTTON_STRUM_UP;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][0] = buttonmap[WIIMOTE][0];
 	
 	buttonmap[GCPAD][1] = PAD_BUTTON_RIGHT;
 	buttonmap[WIIMOTE][1] = WPAD_BUTTON_RIGHT;
 	buttonmap[CLASSIC][1] = WPAD_CLASSIC_BUTTON_RIGHT;
-	buttonmap[GUITAR][1] = WPAD_BUTTON_RIGHT;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[GUITAR][1] = buttonmap[WIIMOTE][1];
+	buttonmap[NUNCHUK][1] = buttonmap[WIIMOTE][1];
 	
 	buttonmap[GCPAD][2] = PAD_BUTTON_DOWN;
 	buttonmap[WIIMOTE][2] = WPAD_BUTTON_DOWN;
 	buttonmap[CLASSIC][2] = WPAD_CLASSIC_BUTTON_DOWN;
 	buttonmap[GUITAR][2] = WPAD_GUITAR_HERO_3_BUTTON_STRUM_DOWN;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][2] = buttonmap[WIIMOTE][2];
 	
 	buttonmap[GCPAD][3] = PAD_BUTTON_LEFT;
 	buttonmap[WIIMOTE][3] = WPAD_BUTTON_LEFT;
 	buttonmap[CLASSIC][3] = WPAD_CLASSIC_BUTTON_LEFT;
-	buttonmap[GUITAR][3] = WPAD_BUTTON_LEFT;
-	//buttonmap[NUNCHUK][3] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[GUITAR][3] = buttonmap[WIIMOTE][3];
+	buttonmap[NUNCHUK][3] = buttonmap[WIIMOTE][3];
 	
 	buttonmap[GCPAD][4] = PAD_TRIGGER_L;
 	buttonmap[WIIMOTE][4] = WPAD_BUTTON_MINUS;
 	buttonmap[CLASSIC][4] = WPAD_CLASSIC_BUTTON_MINUS;
 	buttonmap[GUITAR][4] = WPAD_GUITAR_HERO_3_BUTTON_MINUS;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][4] = buttonmap[WIIMOTE][4];
 	
 	buttonmap[GCPAD][5] = PAD_TRIGGER_R;
 	buttonmap[WIIMOTE][5] = WPAD_BUTTON_PLUS;
 	buttonmap[CLASSIC][5] = WPAD_CLASSIC_BUTTON_PLUS;
 	buttonmap[GUITAR][5] = WPAD_GUITAR_HERO_3_BUTTON_PLUS;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][5] = buttonmap[WIIMOTE][5];
 	
 	buttonmap[GCPAD][6] = PAD_BUTTON_A;
 	buttonmap[WIIMOTE][6] = WPAD_BUTTON_A;
 	buttonmap[CLASSIC][6] = WPAD_CLASSIC_BUTTON_A;
 	buttonmap[GUITAR][6] = WPAD_GUITAR_HERO_3_BUTTON_GREEN;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][6] = WPAD_NUNCHUK_BUTTON_C;
 	
 	buttonmap[GCPAD][7] = PAD_BUTTON_B;
 	buttonmap[WIIMOTE][7] = WPAD_BUTTON_B;
 	buttonmap[CLASSIC][7] = WPAD_CLASSIC_BUTTON_B;
 	buttonmap[GUITAR][7] = WPAD_GUITAR_HERO_3_BUTTON_RED;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][7] = WPAD_NUNCHUK_BUTTON_Z;
 	
 	buttonmap[GCPAD][8] = PAD_BUTTON_START;
 	buttonmap[WIIMOTE][8] = WPAD_BUTTON_HOME;
 	buttonmap[CLASSIC][8] = WPAD_CLASSIC_BUTTON_HOME;
 	buttonmap[GUITAR][8] = WPAD_GUITAR_HERO_3_BUTTON_ORANGE;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][8] = buttonmap[WIIMOTE][8];
 	
 	buttonmap[GCPAD][9] = PAD_BUTTON_Y;
 	buttonmap[WIIMOTE][9] = WPAD_BUTTON_1;
 	buttonmap[CLASSIC][9] = WPAD_CLASSIC_BUTTON_Y;
 	buttonmap[GUITAR][9] = WPAD_GUITAR_HERO_3_BUTTON_YELLOW;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][9] = buttonmap[WIIMOTE][9];
 	
 	buttonmap[GCPAD][10] = PAD_BUTTON_X;
 	buttonmap[WIIMOTE][10] = WPAD_BUTTON_2;
 	buttonmap[CLASSIC][10] = WPAD_CLASSIC_BUTTON_X;
 	buttonmap[GUITAR][10] = WPAD_GUITAR_HERO_3_BUTTON_BLUE;
-	//buttonmap[NUNCHUK][0] = WPAD_NUNCHUK_BUTTON_A;
+	buttonmap[NUNCHUK][10] = buttonmap[WIIMOTE][10];
 }
 
 void __Wpad_PowerCallback(s32 chan)
@@ -224,7 +224,7 @@ s32 Wpad_Init(void)
 	s32 ret = WPAD_Init();
 	PAD_Init();
 	makeButtonMap();
-	
+
 	if (ret < 0)
 		return ret;
 		
@@ -291,9 +291,6 @@ u32 Wpad_WaitButtonsCommon(void)
 
 	return buttons;
 }
-
-extern long long gettime();
-extern u32 diff_msec(long long start,long long end);
 
 u32 Wpad_WaitButtonsRpt(void)
 {

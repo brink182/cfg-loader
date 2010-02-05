@@ -16,6 +16,8 @@
 #include "gui.h"
 #include "video.h"
 #include "fat.h"
+#include "net.h"
+#include "xml.h"
 
 char FAT_DRIVE[8] = "sd:";
 char USBLOADER_PATH[200] = "sd:/usb-loader";
@@ -134,6 +136,15 @@ struct TextMap map_gui_style[] =
 	{ "carousel",    GUI_STYLE_COVERFLOW + carousel },
 	{ NULL, -1 }
 };
+
+struct playStat {
+	char id[7];
+	s32 playCount;
+	time_t playTime;
+};
+
+int playStatsSize = 0;
+struct playStat *playStats;
 
 int CFG_IOS_MAX = sizeof(map_ios) / sizeof(struct TextMap) - 2;
 int CURR_IOS_IDX = -1;
@@ -550,7 +561,7 @@ void CFG_Default_Coverflow_Themes()
 	int i = 0;
 	
 	//allocate the structure array
-	free (CFG_cf_theme);
+	SAFE_FREE(CFG_cf_theme);
 	CFG_cf_theme = malloc(5 * sizeof *CFG_cf_theme);	
 	
 	// coverflow 3D
@@ -973,6 +984,11 @@ void CFG_Default()
 	STRCOPY(CFG.titles_url, "http://wiitdb.com/titles.txt?LANG={CC}");
 	CFG.intro = 1;
 	CFG.fat_install_dir = 1;
+	CFG.db_show_info = 1;
+	CFG.write_playstats = 1;
+	STRCOPY(CFG.db_url, "http://wiitdb.com/wiitdb.zip?LANG={DBL}");
+	STRCOPY(CFG.db_language, get_cc());
+	STRCOPY(CFG.sort, "title-asc");
 }
 
 int map_get_id(struct TextMap *map, char *name, int *id_val)
@@ -1147,7 +1163,8 @@ void title_set(char *id, char *title)
 		// replace
 		strcopy(idt->title, title, TITLE_MAX);
 	} else {
-		cfg_title = realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
+		//cfg_title = realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
+		cfg_title = mem1_realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
 		if (!cfg_title) {
 			// error
 			num_title = 0;
@@ -1412,6 +1429,9 @@ void theme_set_base(char *name, char *val)
 	cfg_bool("hide_header",  &CFG.hide_header);
 	cfg_bool("hide_hddinfo", &CFG.hide_hddinfo);
 	cfg_bool("hide_footer",  &CFG.hide_footer);
+	cfg_bool("db_show_info",  &CFG.db_show_info);
+	cfg_bool("write_playstats",  &CFG.write_playstats);
+	
 	cfg_map("buttons", "original",   &CFG.buttons, CFG_BTN_ORIGINAL);
 	cfg_map("buttons", "options",    &CFG.buttons, CFG_BTN_OPTIONS_1);
 	cfg_map("buttons", "options_1",  &CFG.buttons, CFG_BTN_OPTIONS_1);
@@ -1787,6 +1807,18 @@ void cfg_set(char *name, char *val)
 	cfg_bool("console_mark_favorite", &CFG.console_mark_favorite);
 	cfg_bool("console_mark_saved", &CFG.console_mark_saved);
 
+	// db options - Lustar
+	if (!strcmp(name, "db_url")) 
+		strcpy(CFG.db_url,val);
+	if (!strcmp(name, "db_language")) {
+		if (strcmp(val, "auto") == 0 || strcmp(val, "AUTO") == 0) {
+			STRCOPY(CFG.db_language, get_cc());
+		} else {
+			strcpy(CFG.db_language,val);
+		}
+	}
+	if (!strcmp(name, "sort"))
+		strcpy(CFG.sort,val);
 	cfg_bool("gui_compress_covers", &CFG.gui_compress_covers);	
 	cfg_int_max("gui_antialias", &CFG.gui_antialias, 4);
 	if (CFG.gui_antialias==0 || !CFG.gui_compress_covers) CFG.gui_antialias = 1;
@@ -1905,7 +1937,7 @@ void cfg_set(char *name, char *val)
 		}
 	}
 
-	cfg_bool("fat_install_dir", &CFG.fat_install_dir);
+	cfg_int_max("fat_install_dir", &CFG.fat_install_dir, 2);
 	cfg_bool("disable_nsmb_patch", &CFG.disable_nsmb_patch);
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
@@ -2411,6 +2443,16 @@ struct Game_CFG_2* CFG_find_game(u8 *id)
 	return NULL;
 }
 
+// find game cfg by id
+struct Game_CFG CFG_read_active_game_setting(u8 *id)
+{
+	struct Game_CFG_2 *game = CFG_find_game(id);
+	if (game != NULL)
+		return game->curr;
+	else
+		return CFG.game;
+}
+
 // current options to game
 void cfg_init_game(struct Game_CFG_2 *game, u8 *id)
 {
@@ -2879,6 +2921,9 @@ void cfg_setup3()
 
 	ENTRIES_PER_PAGE = rows - 5;
 	// correct ENTRIES_PER_PAGE
+	if (CFG.db_show_info) {  // lustar
+		ENTRIES_PER_PAGE -= 2;
+	}
 	if (CFG.hide_header) ENTRIES_PER_PAGE++;
 	if (CFG.hide_hddinfo) ENTRIES_PER_PAGE++;
 	if (CFG.buttons == CFG_BTN_OPTIONS_1 || CFG.buttons == CFG_BTN_OPTIONS_B) {
@@ -3074,7 +3119,103 @@ void CFG_Load(int argc, char **argv)
 void CFG_Setup(int argc, char **argv)
 {
 	cfg_setup3();
+	// load database
+	ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 1);
+	if (!playStatsRead(0)) {
+		if (readPlayStats() > -1) playStatsRead(1);
+	}
 	cfg_debug(argc, argv);
+}
+
+u32 getPlayCount(u8 *id) {
+	int n = 0;
+	for (;n<playStatsSize; n++) {
+		if (!strcmp(playStats[n].id, (char *)id))
+			return playStats[n].playCount;
+	}
+	return 0;
+}
+
+time_t getLastPlay(u8 *id) {
+	int n = 0;
+	for (;n<playStatsSize; n++) {
+		if (!strcmp(playStats[n].id, (char *)id))
+			return playStats[n].playTime;
+	}
+	return 0;
+}
+
+bool playStatsRead(int i) { //i < 0 checks read without modifying it
+	static bool read = 0;
+	if (i > 0) read = 1;
+	if (i == 0) read = 0;
+	return read;
+}
+
+int readPlayStats() {
+	int n = 0;
+	char filepath[MAXPATHLEN];
+	snprintf(filepath, sizeof(filepath), "%s/playstats.txt", USBLOADER_PATH);
+	time_t start;
+	int count;
+	char id[7];
+	FILE *f;
+	f = fopen(filepath, "r");
+	if (!f) {
+		return -1;
+	}
+	while (fscanf(f, "%6s:%d:%ld\n", id, &count, &start) == 3) {
+		if (n >= playStatsSize) {
+			playStatsSize++;
+			playStats = (struct playStat*)mem1_realloc(playStats, (playStatsSize * sizeof(struct playStat)));
+			if (!playStats)
+				return -1;
+		}
+		strncpy(playStats[n].id, id, 7);
+		playStats[n].playCount = count;
+		playStats[n].playTime = start;
+		n++;
+	}
+	fclose(f);
+	return 0;
+}
+
+int setPlayStat(u8 *id) {
+	if (CFG.write_playstats == 0)
+		return 0;
+	char filepath[MAXPATHLEN];
+	time_t now;
+	int n = 0;
+	int count = 0;
+	snprintf(filepath, sizeof(filepath), "%s/playstats.txt", USBLOADER_PATH);
+	FILE *f;
+
+	if (!playStatsRead(0)) {
+		if (readPlayStats() > -1) playStatsRead(1);
+	}
+
+	f = fopen(filepath, "r+");
+	if (!f) {
+		f = fopen(filepath, "w");
+		if (!f) {
+			return -1;
+		}
+		now = time(NULL);
+		fprintf(f, "%s:%d:%ld\n", (char *)id, 1, now);
+		fclose(f);
+		return 1;
+	}
+	for (n=0; n<playStatsSize; n++) {
+		if (strcmp(playStats[n].id, (char *)id)) {
+			fprintf(f, "%s:%d:%ld\n", playStats[n].id, playStats[n].playCount, playStats[n].playTime);
+		} else {
+			count = playStats[n].playCount;
+		}
+	}
+	now = time(NULL);
+	fprintf(f, "%s:%d:%ld\n", (char *)id, count+1, now);
+	fclose(f);
+	return 1;
 }
 
 #ifdef FAKE_GAME_LIST
@@ -3083,7 +3224,7 @@ void CFG_Setup(int argc, char **argv)
 #include "wbfs.h"
 
 // initial/max game list size
-int fake_games = 250;
+int fake_games = 2300;
 //int fake_games = 0;
 
 // current game list size
@@ -3095,8 +3236,8 @@ int is_fake(char *id)
 {
 	int i;
 	for (i=0; i<fake_num; i++) {
-		// ignore region, check only first 3
-		if (strncmp((char*)fake_list[i].id, (char*)id, 3) == 0) return 1;
+		// ignore region, check only first 5
+		if (strncmp((char*)fake_list[i].id, (char*)id, 5) == 0) return 1;
 	}
 	return 0;
 }
@@ -3143,7 +3284,7 @@ s32 dbg_WBFS_GetCount(u32 *count)
 		p = strchr(id, '.');
 		if (p == NULL) continue;
 		*p = 0;
-		// check if already exists, ignore region
+		// check if already exists, do not ignore region, we want more games ;)
 		if (is_fake(id)) continue;
 		fake_list = realloc(fake_list, sizeof(struct discHdr) * (fake_num+1));
 		memset(fake_list+fake_num, 0, sizeof(struct discHdr));

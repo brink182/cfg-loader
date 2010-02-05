@@ -426,11 +426,10 @@ void print_game_info(struct discHdr *header, int cols)
    	(more notes) / Press button B to go back
 */
 
-void Menu_Cheats()
+void Menu_Cheats(struct discHdr *header)
 {
 	struct Menu menu;
 	char active[CHEAT_MAX + 5];
-	struct discHdr *header = &gameList[gameSelected];
 	int cheat_state = 3;
 	// 3: loading
 	// 2: no file

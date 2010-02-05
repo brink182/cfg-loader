@@ -1,3 +1,6 @@
+
+// Modified by oggzee
+
 #ifndef LIBWBFS_H
 #define LIBWBFS_H
 
@@ -150,6 +153,7 @@ wbfs_disc_t *wbfs_open_disc(wbfs_t* p, u8 *diskid);
 void wbfs_close_disc(wbfs_disc_t*d);
 
 u32 wbfs_sector_used(wbfs_t *p,wbfs_disc_info_t *di);
+u32 wbfs_sector_used2(wbfs_t *p,wbfs_disc_info_t *di, u32 *last_blk);
 
 /*! @brief accessor to the wii disc
   @param d: a pointer to already open disc
@@ -159,7 +163,7 @@ u32 wbfs_sector_used(wbfs_t *p,wbfs_disc_info_t *di);
 // offset is pointing 32bit words to address the whole dvd, although len is in bytes
 int wbfs_disc_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len);
 
-/*! @return the number of discs inside the paritition */
+/*! @return the number of discs inside the partition */
 u32 wbfs_count_discs(wbfs_t*p);
 /*! get the disc info of ith disc inside the partition. It correspond to the first 0x100 bytes of the wiidvd
   http://www.wiibrew.org/wiki/Wiidisc#Header
@@ -204,10 +208,23 @@ u32 wbfs_extract_disc(wbfs_disc_t*d, rw_sector_callback_t write_dst_wii_sector,v
 /*! extract a file from the wii disc filesystem. 
   E.G. Allows to extract the opening.bnr to install a game as a system menu channel
  */
-u32 wbfs_extract_file(wbfs_disc_t*d, char *path);
+int wbfs_extract_file(wbfs_disc_t*d, char *path, void **data);
 
 // remove some sanity checks
 void wbfs_set_force_mode(int force);
+
+// compressed and real size
+u32 wbfs_size_disc(wbfs_t*p,read_wiidisc_callback_t read_src_wii_disc,
+                  void *callback_data,partition_selector_t sel,
+				  u32 *comp_size, u32 *real_size);
+
+typedef int (*_frag_append_t)(void *ff, u32 offset, u32 sector, u32 count);
+int wbfs_get_fragments(wbfs_disc_t *d, _frag_append_t append_fragment, void *callback_data);
+
+extern wbfs_t wbfs_iso_file;
+u32 wbfs_disc_sector_used(wbfs_disc_t *d, u32 *num_blk);
+int wbfs_iso_file_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len);
+
 
 #ifdef __cplusplus
    }

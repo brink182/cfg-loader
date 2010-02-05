@@ -15,6 +15,7 @@
 #define IOCTL_DI_SEEK		0xAB
 #define IOCTL_DI_STOPLASER	0xD2
 #define IOCTL_DI_OFFSET		0xD9
+#define IOCTL_DI_DISC_BCA	0xDA
 #define IOCTL_DI_STOPMOTOR	0xE3
 #define IOCTL_DI_SETWBFSMODE	0xF4
 
@@ -337,7 +338,22 @@ s32 WDVD_SetWBFSMode(u32 mode, u8 *discid)
 	return (ret == 1) ? 0 : -ret;
 }
 
+s32 WDVD_Read_Disc_BCA(void *buf)
+{
+	s32 ret;
 
+	memset(inbuf, 0, sizeof(inbuf));
+
+	/* Disc read */
+	inbuf[0] = IOCTL_DI_DISC_BCA << 24;
+	//inbuf[1] = 64;
+
+	ret = IOS_Ioctl(di_fd, IOCTL_DI_DISC_BCA, inbuf, sizeof(inbuf), buf, 64);
+	if (ret < 0)
+		return ret;
+
+	return (ret == 1) ? 0 : -ret;
+}
 
 // YAL / CIOS 222 DI
 
@@ -356,7 +372,7 @@ static unsigned int Output[8] ALIGNED(32);
  *
  ******************************************************************************/
 
-int YAL_Set_OffsetBase(unsigned int Base)
+int YAL_Set_OffsetBase(u64 Base)
 {
 	memset(Command, 0, 0x20);
 	Command[0] = YAL_DI_SETOFFSETBASE << 24;
@@ -412,8 +428,8 @@ int YAL_Enable_WBFS(void*discid)
 {
 	memset(Command, 0, 0x20);
 	Command[0] = YAL_DI_SETWBFSMODE << 24;
-	Command[1] = 1;
-        memcpy(&Command[2],discid,6);
+	Command[1] = discid ? 1 : 0;
+	if (discid) memcpy(&Command[2],discid,6);
 
 	int Ret = IOS_Ioctl(Device_Handle, YAL_DI_SETWBFSMODE, Command, 0x20, Output, 0x20);
 

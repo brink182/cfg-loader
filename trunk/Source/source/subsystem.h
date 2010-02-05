@@ -4,5 +4,6 @@
 /* Prototypes */
 void Subsystem_Init(void);
 void Subsystem_Close(void);
+void Services_Close();
 
 #endif

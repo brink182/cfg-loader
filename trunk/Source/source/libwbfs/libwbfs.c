@@ -2,21 +2,26 @@
 // Licensed under the terms of the GNU GPL, version 2
 // http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+// Modified by oggzee
+
 
 #include "libwbfs.h"
-
-int _wbfs_cur_part = 0;
 
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect(!!(x), 0)
 
 #define ERROR(x) do {wbfs_error(x);goto error;}while(0)
 #define ALIGN_LBA(x) (((x)+p->hd_sec_sz-1)&(~(p->hd_sec_sz-1)))
+
+wbfs_t wbfs_iso_file;
+
 static int force_mode=0;
+
 void wbfs_set_force_mode(int force)
 {
         force_mode = force;
 }
+
 static u8 size_to_shift(u32 size)
 {
         u8 ret = 0;
@@ -52,13 +57,13 @@ wbfs_t*wbfs_open_hd(rw_sector_callback_t read_hdsector,
                 // verify there is the magic.
                 if (head->magic == wbfs_htonl(WBFS_MAGIC))
                 {
-                        _wbfs_cur_part = i;
-
                         wbfs_t*p = wbfs_open_partition(read_hdsector,write_hdsector,
                                                 callback_data,hd_sector_size,0,part_lba,reset);
+                        wbfs_iofree(tmp_buffer);
                         return p;
                 }
         }
+        wbfs_iofree(tmp_buffer);
         if(reset)// XXX make a empty hd partition..
         {
         }
@@ -155,6 +160,7 @@ void wbfs_sync(wbfs_t*p)
                         p->write_hdsector(p->callback_data,p->part_lba+p->freeblks_lba,ALIGN_LBA(p->n_wbfs_sec/8)>>p->hd_sec_sz_s, p->freeblks);
         }
 }
+
 void wbfs_close(wbfs_t*p)
 {
         wbfs_sync(p);
@@ -218,6 +224,9 @@ void wbfs_close_disc(wbfs_disc_t*d)
 // offset is pointing 32bit words to address the whole dvd, although len is in bytes
 int wbfs_disc_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len)
 {
+	if (d->p == &wbfs_iso_file) {
+		return wbfs_iso_file_read(d, offset, data, len);
+	}
  
         wbfs_t *p = d->p;
         u16 wlba = offset>>(p->wbfs_sec_sz_s-2);
@@ -291,6 +300,7 @@ u32 wbfs_count_discs(wbfs_t*p)
         return count;
         
 }
+
 u32 wbfs_sector_used(wbfs_t *p,wbfs_disc_info_t *di)
 {
         u32 tot_blk=0,j;
@@ -298,17 +308,30 @@ u32 wbfs_sector_used(wbfs_t *p,wbfs_disc_info_t *di)
                 if(wbfs_ntohs(di->wlba_table[j]))
                         tot_blk++;
         return tot_blk;
-
 }
+
+u32 wbfs_sector_used2(wbfs_t *p, wbfs_disc_info_t *di, u32 *last_blk)
+{
+        u32 tot_blk=0,j;
+        for(j=0;j<p->n_wbfs_sec_per_disc;j++)
+                if(wbfs_ntohs(di->wlba_table[j])) {
+                        if (last_blk) *last_blk = j;
+                        tot_blk++;
+                }
+        return tot_blk;
+}
+
 u32 wbfs_get_disc_info(wbfs_t*p, u32 index,u8 *header,int header_size,u32 *size)//size in 32 bit
 {
         u32 i,count=0;
+        if (!p) return 1;
         int disc_info_sz_lba = p->disc_info_sz>>p->hd_sec_sz_s;
+		
         for(i=0;i<p->max_disc;i++)
                 if (p->head->disc_table[i]){
                         if(count++==index)
                         {
-                                p->read_hdsector(p->callback_data,
+                             p->read_hdsector(p->callback_data,
                                                  p->part_lba+1+i*disc_info_sz_lba,1,p->tmp_buffer);
                                 if(header_size > (int)p->hd_sec_sz)
                                         header_size = p->hd_sec_sz;
@@ -363,7 +386,8 @@ u32 wbfs_count_usedblocks(wbfs_t*p)
 // write access
 
 
-static int block_used(u8 *used,u32 i,u32 wblk_sz)
+//static
+int block_used(u8 *used,u32 i,u32 wblk_sz)
 {
         u32 k;
         i*=wblk_sz;
@@ -398,122 +422,178 @@ static void free_block(wbfs_t *p,int bl)
         u32 v = wbfs_ntohl(p->freeblks[i]);
         p->freeblks[i] = wbfs_htonl(v | 1<<j);
 }
-u32 wbfs_add_disc(wbfs_t*p,read_wiidisc_callback_t read_src_wii_disc,
-                  void *callback_data,progress_callback_t spinner,partition_selector_t sel,int copy_1_1)
+
+u32 wbfs_add_disc(wbfs_t*p, read_wiidisc_callback_t read_src_wii_disc,
+		void *callback_data,progress_callback_t spinner,partition_selector_t sel,int copy_1_1)
 {
-        int i,discn;
-        u32 tot,cur;
-        u32 wii_sec_per_wbfs_sect = 1<<(p->wbfs_sec_sz_s-p->wii_sec_sz_s);
-        wiidisc_t *d = 0;
-        u8 *used = 0;
-        wbfs_disc_info_t *info = 0;
-        u8* copy_buffer = 0;
-        used = wbfs_malloc(p->n_wii_sec_per_disc);
-        if(!used)
-                ERROR("unable to alloc memory");
-        if(!copy_1_1)
-        {
-                d = wd_open_disc(read_src_wii_disc,callback_data);
-                if(!d)
-                        ERROR("unable to open wii disc");
-                wd_build_disc_usage(d,sel,used);
-                wd_close_disc(d);
-                d = 0;
-        }
-        
+	int i,discn;
+	u32 tot,cur;
+	u32 wii_sec_per_wbfs_sect = 1<<(p->wbfs_sec_sz_s-p->wii_sec_sz_s);
+	wiidisc_t *d = 0;
+	u8 *used = 0;
+	wbfs_disc_info_t *info = 0;
+	u8* copy_buffer = 0;
+	int retval = -1;
+	int num_wbfs_sect_to_copy;
+	u32 last_used;
+	used = wbfs_malloc(p->n_wii_sec_per_disc);
 
-        for(i=0;i<p->max_disc;i++)// find a free slot.
-                if(p->head->disc_table[i]==0)
-                        break;
-        if(i==p->max_disc)
-                ERROR("no space left on device (table full)");
-        p->head->disc_table[i] = 1;
-        discn = i;
-        load_freeblocks(p);
+	if(!used)
+		ERROR("unable to alloc memory");
+	// copy_1_1 needs disk usage for layers detection
+	//if(!copy_1_1)
+	{
+		d = wd_open_disc(read_src_wii_disc,callback_data);
+		if(!d)
+			ERROR("unable to open wii disc");
+		wd_build_disc_usage(d,sel,used);
+		wd_close_disc(d);
+		d = 0;
+	}
 
-        // build disc info
-        info = wbfs_ioalloc(p->disc_info_sz);
-        read_src_wii_disc(callback_data,0,0x100,info->disc_header_copy);
+	for(i=0;i<p->max_disc;i++)// find a free slot.
+		if(p->head->disc_table[i]==0)
+			break;
+	if(i==p->max_disc)
+		ERROR("no space left on device (table full)");
+	p->head->disc_table[i] = 1;
+	discn = i;
+	load_freeblocks(p);
 
-        copy_buffer = wbfs_ioalloc(p->wii_sec_sz);
-        if(!copy_buffer)
-                ERROR("alloc memory");
-        tot=0;
-        cur=0;
-        if(spinner){
-                // count total number to write for spinner
-                for(i=0; i<p->n_wbfs_sec_per_disc;i++)
-                        if(copy_1_1 || block_used(used,i,wii_sec_per_wbfs_sect)) tot += wii_sec_per_wbfs_sect;
-                spinner(0,tot);
-        }
-        for(i=0; i<p->n_wbfs_sec_per_disc;i++){
-                u16 bl = 0;
-                if(copy_1_1 || block_used(used,i,wii_sec_per_wbfs_sect)) {
-                        u16 j;
+	// build disc info
+	info = wbfs_ioalloc(p->disc_info_sz);
+	read_src_wii_disc(callback_data,0,0x100,info->disc_header_copy);
 
-                        bl = alloc_block(p);
-                        if (bl==0xffff)
-                                ERROR("no space left on device (disc full)");
-                        for(j=0; j<wii_sec_per_wbfs_sect;j++) {
-                                u32 offset = (i*(p->wbfs_sec_sz>>2)) + (j*(p->wii_sec_sz>>2));
+	copy_buffer = wbfs_ioalloc(p->wii_sec_sz);
+	if(!copy_buffer)
+		ERROR("alloc memory");
+	tot=0;
+	cur=0;
+	num_wbfs_sect_to_copy = p->n_wbfs_sec_per_disc;
+	// count total number of sectors to write
+	last_used = 0;
+	for(i=0; i<num_wbfs_sect_to_copy; i++) {
+		if(block_used(used,i,wii_sec_per_wbfs_sect)) {
+			tot += wii_sec_per_wbfs_sect;
+			last_used = i;
+		}
+	}
+	if (copy_1_1) {
+		// detect single or dual layer
+		if ( (last_used + 1) > (p->n_wbfs_sec_per_disc / 2) ) {
+			// dual layer
+			num_wbfs_sect_to_copy = p->n_wbfs_sec_per_disc;
+		} else {
+			// single layer
+			num_wbfs_sect_to_copy = p->n_wbfs_sec_per_disc / 2;
+		}
+		tot = num_wbfs_sect_to_copy * wii_sec_per_wbfs_sect;
+	}
+	/*
+	// num of hd sectors to copy could be specified directly
+	if (copy_1_1 > 1) {
+		u32 hd_sec_per_wii_sec = p->wii_sec_sz / p->hd_sec_sz;
+		num_wbfs_sect_to_copy = copy_1_1 / hd_sec_per_wii_sec / wii_sec_per_wbfs_sect;
+		tot = num_wbfs_sect_to_copy * wii_sec_per_wbfs_sect;
+	}*/
+	int ret = 0;
+	if(spinner) spinner(0,tot);
+	for(i=0; i<num_wbfs_sect_to_copy; i++){
+		u16 bl = 0;
+		if(copy_1_1 || block_used(used,i,wii_sec_per_wbfs_sect)) {
+			u16 j;
 
-                                read_src_wii_disc(callback_data,offset,p->wii_sec_sz,copy_buffer);
+			bl = alloc_block(p);
+			if (bl==0xffff)
+				ERROR("no space left on device (disc full)");
+			for(j=0; j<wii_sec_per_wbfs_sect;j++) {
+				u32 offset = (i*(p->wbfs_sec_sz>>2)) + (j*(p->wii_sec_sz>>2));
 
-                                //fix the partition table
-                                if(offset == (0x40000>>2))
-                                             wd_fix_partition_table(d, sel, copy_buffer);
-                                p->write_hdsector(p->callback_data,p->part_lba+bl*(p->wbfs_sec_sz/p->hd_sec_sz)+j*(p->wii_sec_sz/p->hd_sec_sz),
-                                             p->wii_sec_sz/p->hd_sec_sz,copy_buffer);
-                                cur++;
-                                if(spinner)
-                                             spinner(cur,tot);
-                        }
-                }
-                info->wlba_table[i] = wbfs_htons(bl);
-        }
-        // write disc info
-        int disc_info_sz_lba = p->disc_info_sz>>p->hd_sec_sz_s;
-        p->write_hdsector(p->callback_data,p->part_lba+1+discn*disc_info_sz_lba,disc_info_sz_lba,info);
-        wbfs_sync(p);
+				ret = read_src_wii_disc(callback_data,offset,p->wii_sec_sz,copy_buffer);
+				if (ret) {
+					if (copy_1_1 && i > p->n_wbfs_sec_per_disc / 2) {
+						// end of dual layer data
+						if (j > 0) {
+							info->wlba_table[i] = wbfs_htons(bl);
+						}
+						spinner(tot,tot);
+						break;
+					}
+					//ERROR("read error");
+					printf("\rWARNING: read (%u) error (%d)\n", offset, ret);
+				}
+
+				//fix the partition table
+				if(offset == (0x40000>>2))
+					wd_fix_partition_table(d, sel, copy_buffer);
+				p->write_hdsector(p->callback_data,
+						p->part_lba+bl*(p->wbfs_sec_sz/p->hd_sec_sz) + j*(p->wii_sec_sz/p->hd_sec_sz),
+						p->wii_sec_sz/p->hd_sec_sz, copy_buffer);
+				cur++;
+				if(spinner)
+					spinner(cur,tot);
+			}
+		}
+		if (ret) break;
+		info->wlba_table[i] = wbfs_htons(bl);
+	}
+	// write disc info
+	int disc_info_sz_lba = p->disc_info_sz>>p->hd_sec_sz_s;
+	p->write_hdsector(p->callback_data,p->part_lba+1+discn*disc_info_sz_lba,disc_info_sz_lba,info);
+	wbfs_sync(p);
+	retval = 0;
 error:
-        if(d)
-                wd_close_disc(d);
-        if(used)
-                wbfs_free(used);
-        if(info)
-                wbfs_iofree(info);
-        if(copy_buffer)
-                wbfs_iofree(copy_buffer);
-        // init with all free blocks
-        
-        return 0;
+	if(d)
+		wd_close_disc(d);
+	if(used)
+		wbfs_free(used);
+	if(info)
+		wbfs_iofree(info);
+	if(copy_buffer)
+		wbfs_iofree(copy_buffer);
+	// init with all free blocks
+
+	return retval;
 }
+
 u32 wbfs_rm_disc(wbfs_t*p, u8* discid)
 {
-        wbfs_disc_t *d = wbfs_open_disc(p,discid);
-        int i;
-        int discn = 0;
-        int disc_info_sz_lba = p->disc_info_sz>>p->hd_sec_sz_s;
-        if(!d)
-                return 1;
-        load_freeblocks(p);
-        discn = d->i;
-        for( i=0; i< p->n_wbfs_sec_per_disc; i++)
-        {
-                u32 iwlba = wbfs_ntohs(d->header->wlba_table[i]);
-                if (iwlba)
-                        free_block(p,iwlba);
-        }
-        memset(d->header,0,p->disc_info_sz);
-        p->write_hdsector(p->callback_data,p->part_lba+1+discn*disc_info_sz_lba,disc_info_sz_lba,d->header);
-        p->head->disc_table[discn] = 0;
-        wbfs_close_disc(d);
-        wbfs_sync(p);
-        return 0;
+	wbfs_disc_t *d = wbfs_open_disc(p,discid);
+	int i;
+	int discn = 0;
+	int disc_info_sz_lba = p->disc_info_sz>>p->hd_sec_sz_s;
+	if(!d)
+		return 1;
+	load_freeblocks(p);
+	discn = d->i;
+	for( i=0; i< p->n_wbfs_sec_per_disc; i++)
+	{
+		u32 iwlba = wbfs_ntohs(d->header->wlba_table[i]);
+		if (iwlba)
+			free_block(p,iwlba);
+	}
+	memset(d->header,0,p->disc_info_sz);
+	p->write_hdsector(p->callback_data,p->part_lba+1+discn*disc_info_sz_lba,disc_info_sz_lba,d->header);
+	p->head->disc_table[discn] = 0;
+	wbfs_close_disc(d);
+	wbfs_sync(p);
+	return 0;
 }
 
 // trim the file-system to its minimum size
-u32 wbfs_trim(wbfs_t*p);
+u32 wbfs_trim(wbfs_t*p)
+{
+        u32 maxbl;
+        load_freeblocks(p);
+        maxbl = alloc_block(p);
+        p->n_hd_sec = maxbl<<(p->wbfs_sec_sz_s-p->hd_sec_sz_s);
+        p->head->n_hd_sec = wbfs_htonl(p->n_hd_sec);
+        // make all block full
+        memset(p->freeblks,0,p->n_wbfs_sec/8);
+        wbfs_sync(p);
+        // os layer will truncate the file.
+        return maxbl;
+}
 
 // data extraction
 u32 wbfs_extract_disc(wbfs_disc_t*d, rw_sector_callback_t write_dst_wii_sector,void *callback_data,progress_callback_t spinner)
@@ -544,4 +624,145 @@ u32 wbfs_extract_disc(wbfs_disc_t*d, rw_sector_callback_t write_dst_wii_sector,v
 error:
         return 1;
 }
-u32 wbfs_extract_file(wbfs_disc_t*d, char *path);
+
+u32 wbfs_size_disc(wbfs_t*p,read_wiidisc_callback_t read_src_wii_disc,
+                  void *callback_data,partition_selector_t sel,
+				  u32 *comp_size, u32 *real_size)
+{
+        int i;
+        u32 tot = 0, last = 0;
+        u32 wii_sec_per_wbfs_sect = 1<<(p->wbfs_sec_sz_s-p->wii_sec_sz_s);
+        wiidisc_t *d = 0;
+        u8 *used = 0;
+        used = wbfs_malloc(p->n_wii_sec_per_disc);
+        if(!used)
+                ERROR("unable to alloc memory");
+		d = wd_open_disc(read_src_wii_disc,callback_data);
+		if(!d)
+				ERROR("unable to open wii disc");
+		wd_build_disc_usage(d,sel,used);
+		wd_close_disc(d);
+		d = 0;
+
+		// count total number to write for spinner
+		for(i=0; i<p->n_wbfs_sec_per_disc;i++) {
+			if(block_used(used,i,wii_sec_per_wbfs_sect)) {
+				tot += wii_sec_per_wbfs_sect;
+				last = i * wii_sec_per_wbfs_sect;
+			}
+		}
+
+error:
+        if(d)
+                wd_close_disc(d);
+        if(used)
+                wbfs_free(used);
+
+		*comp_size = tot;
+		*real_size = last;
+        
+        return 0;
+}
+
+// offset is pointing 32bit words to address the whole dvd, although len is in bytes
+//int wbfs_disc_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len)
+
+// offset points 32bit words, count counts bytes
+//int (*read_wiidisc_callback_t)(void*fp,u32 offset,u32 count,void*iobuf);
+
+// connect wiidisc to wbfs_disc
+int read_wiidisc_wbfsdisc(void*fp,u32 offset,u32 count,void*iobuf)
+{
+        return wbfs_disc_read((wbfs_disc_t*)fp, offset, iobuf, count);
+}
+
+int wbfs_extract_file(wbfs_disc_t*d, char *path, void **data)
+{
+        wiidisc_t *wd = 0;
+        int ret = 0;
+
+        wd = wd_open_disc(read_wiidisc_wbfsdisc, d);
+        if (!wd) {
+                ERROR("opening wbfs disc");
+				return -1;
+        }
+        wd->extracted_size = 0;
+        *data = wd_extract_file(wd, ONLY_GAME_PARTITION, path);
+        ret = wd->extracted_size;
+        if (!*data) {
+                //ERROR("file not found");
+                ret = -1;
+        }
+        wd_close_disc(wd);
+error:
+        return ret;
+}
+
+int wbfs_get_fragments(wbfs_disc_t *d, _frag_append_t append_fragment, void *callback_data)
+{
+	if (!d) return -1;
+	wbfs_t *p = d->p;
+	int src_wbs_nlb = p->wbfs_sec_sz / p->hd_sec_sz;
+	int i, ret, last = 0;
+	for( i=0; i< p->n_wbfs_sec_per_disc; i++)
+	{
+		u32 iwlba = wbfs_ntohs(d->header->wlba_table[i]);
+		if (iwlba)
+		{
+			ret = append_fragment(callback_data,
+					i * src_wbs_nlb, // offset
+					p->part_lba + iwlba * src_wbs_nlb, // sector
+					src_wbs_nlb); // count
+			if (ret) return ret; // error
+			last = i;
+		}
+	}
+	if (last < p->n_wbfs_sec_per_disc / 2) {
+		last = p->n_wbfs_sec_per_disc / 2;
+	}
+	u32 size = last * src_wbs_nlb;
+	append_fragment(callback_data, size, 0, 0); // set size
+	return 0;
+}
+
+// wrapper for reading .iso files using wbfs apis
+
+#include <unistd.h>
+#include <sys/stat.h>
+
+// offset is pointing 32bit words to address the whole dvd, although len is in bytes
+int wbfs_iso_file_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len)
+{
+	if (!d || d->p != &wbfs_iso_file) return -1;
+	int fd = (int)d->header;
+	off_t off = ((u64)offset) << 2;
+	off_t ret_off;
+	int ret;
+	ret_off = lseek(fd, off, SEEK_SET);
+	if (ret_off != off) return -1;
+	ret = read(fd, data, len);
+	if (ret != len) return -2;
+	return 0;
+}
+
+u32 wbfs_disc_sector_used(wbfs_disc_t *d, u32 *num_blk)
+{
+	if (d->p == &wbfs_iso_file) {
+		int fd = (int)d->header;
+		struct stat st;
+		if (fstat(fd, &st) == -1) return 0;
+		if (num_blk) {
+			*num_blk = (st.st_size >> 9); // in 512 units
+		}
+		return st.st_blocks; // in 512 units (can be sparse)
+	}
+	u32 last_blk;
+	u32 ret;
+	ret = wbfs_sector_used2(d->p, d->header, &last_blk);
+	if (num_blk) {
+		*num_blk = last_blk + 1;
+	}
+	return ret;
+}
+
+

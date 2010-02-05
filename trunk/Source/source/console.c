@@ -1,7 +1,11 @@
+
+// Transparency and fixes by oggzee
+
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
 #include <errno.h>
+#include <sys/param.h>
 
 #include "ogc/machine/asm.h"
 #include "ogc/machine/processor.h"
@@ -16,6 +20,8 @@
 
 #include <stdio.h>
 #include <sys/iosupport.h>
+
+#include "util.h"
 
 //---------------------------------------------------------------------------------
 const devoptab_t dotab_stdout = {
@@ -67,24 +73,27 @@ static u32 do_xfb_copy = FALSE;
 static struct _console_data_s stdcon;
 static struct _console_data_s *curr_con = NULL;
 static void *_console_buffer = NULL;
-static void *_bg_buffer = NULL;
-static unsigned int _bg_color = COLOR_BLACK;
 
+// transparency
 struct _c1
 {
-   	char c;
+   	//char c;
+   	wchar_t c;
    	int fg, bg;
 };
-
+static void *_bg_buffer = NULL;
+static unsigned int _bg_color = COLOR_BLACK;
 static int _c_buffer_size = 0;
 static struct _c1 *_c_buffer = NULL;
+static int _tr_enable = 0;
+int __console_disable = 0;
+int __console_scroll = 0;
 
 static s32 __gecko_status = -1;
 static u32 __gecko_safe = 0;
 
 extern u8 console_font_8x16[];
-
-extern void *VIDEO_GetCurrrentFramebuffer();
+extern u8 console_font_512[];
 
 int fb_change = 0;
 int retrace_cnt = 0;
@@ -114,6 +123,8 @@ void __console_flush(int retrace_min)
 	fb_change = 0;
 	retrace_cnt = 0;
 
+    if (__console_disable) return;
+
 	ptr = curr_con->destbuffer;
 	fb = VIDEO_GetCurrentFramebuffer()+(curr_con->target_y*curr_con->tgt_stride) + curr_con->target_x*VI_DISPLAY_PIX_SZ;
 	fb_stride = curr_con->tgt_stride/4 - (curr_con->con_xres/VI_DISPLAY_PIX_SZ);
@@ -128,13 +139,15 @@ void __console_flush(int retrace_min)
 	}
 }
 
-void _bg_grab()
+void __console_bg_grab(void *x_fb)
 {
 	u32 ycnt,xcnt, fb_stride;
 	u32 *fb,*ptr;
+	if (x_fb == NULL) x_fb = VIDEO_GetCurrentFramebuffer();
 
+	if (!_bg_buffer) return;
 	ptr = _bg_buffer;
-	fb = VIDEO_GetCurrentFramebuffer()+(curr_con->target_y*curr_con->tgt_stride) + curr_con->target_x*VI_DISPLAY_PIX_SZ;
+	fb = x_fb + (curr_con->target_y*curr_con->tgt_stride) + curr_con->target_x*VI_DISPLAY_PIX_SZ;
 	fb_stride = curr_con->tgt_stride/4 - (curr_con->con_xres/VI_DISPLAY_PIX_SZ);
 
 	for(ycnt=curr_con->con_yres;ycnt>0;ycnt--)
@@ -248,13 +261,14 @@ static void _nc_console_drawc(int c)
 	if(!curr_con) return;
 	con = curr_con;
 
-	if (_bg_buffer && con->background == _bg_color) {
+	if (_tr_enable && _bg_buffer && con->background == _bg_color) {
 		_bg_console_drawc(c);
 		return;
 	}
 
 	ptr = (unsigned int*)(con->destbuffer + ( con->con_stride *  con->cursor_row * FONT_YSIZE ) + ((con->cursor_col * FONT_XSIZE / 2) * 4));
 	pbits = &con->font[c * FONT_YSIZE];
+	
 	nextline = con->con_stride/4 - 4;
 	fgcolor = con->foreground;
 	bgcolor = con->background;
@@ -321,7 +335,7 @@ static void _nc_console_drawc(int c)
 static void __console_drawc(int c)
 {
 	if(!curr_con) return;
-	if (_bg_buffer && _c_buffer) {
+	if (_tr_enable && _bg_buffer && _c_buffer) {
 		int cidx = curr_con->cursor_row * curr_con->con_cols + curr_con->cursor_col;
 		_c_buffer[cidx].c = c;
 		_c_buffer[cidx].fg = curr_con->foreground;
@@ -331,8 +345,11 @@ static void __console_drawc(int c)
 	//fb_change = 1;
 }
 
-void _bg_scroll()
+void _c_repaint();
+
+void _bg_repaint()
 {
+	if (!_bg_buffer) return;
 	// clear
 	unsigned int c;
 	unsigned int *p;
@@ -341,13 +358,26 @@ void _bg_scroll()
 	p = (unsigned int*)curr_con->destbuffer;
 	bg = _bg_buffer;
 	while(c--) *p++ = *bg++;
+}
+
+void _bg_scroll()
+{
+	// clear
+	_bg_repaint();
     // scroll
 	memmove(_c_buffer, _c_buffer + curr_con->con_cols,
 		sizeof(struct _c1) * (curr_con->con_rows-1) * curr_con->con_cols);
 	// clear last
 	memset(_c_buffer + (curr_con->con_rows-1) * curr_con->con_cols, 0,
 		sizeof(struct _c1) * curr_con->con_cols);
+	// redraw characters
+	_c_repaint();
+}
+
+void _c_repaint()
+{
 	// repaint
+	if (!_c_buffer) return;
 	int save_row = curr_con->cursor_row;
 	int save_col = curr_con->cursor_col;
 	int save_fg = curr_con->foreground;
@@ -382,7 +412,7 @@ static void __console_clear(void)
 
 	c = (con->con_xres*con->con_yres)/2;
 	p = (unsigned int*)con->destbuffer;
-	if (_bg_buffer) {
+	if (_tr_enable && _bg_buffer) {
 		bg = _bg_buffer;
 		while(c--)
 			*p++ = *bg++;
@@ -398,12 +428,25 @@ static void __console_clear(void)
 	con->saved_col = 0;
 }
 
+void __console_enable(void *fb)
+{
+	if(_tr_enable) {
+		__console_bg_grab(fb);
+		_bg_repaint();
+		_c_repaint();
+	}
+	__console_disable = 0;
+	__console_flush(-1);
+}
+
 void __console_init(void *framebuffer,int xstart,int ystart,int xres,int yres,int stride)
 {
 	unsigned int level;
 	console_data_s *con = &stdcon;
 
 	_CPU_ISR_Disable(level);
+
+	_tr_enable = 0;
 
 	con->destbuffer = framebuffer;
 	con->con_xres = xres;
@@ -453,15 +496,16 @@ void __console_init_ex(void *conbuffer,int tgt_xstart,int tgt_ystart,int tgt_str
 	con->saved_row = 0;
 	con->saved_col = 0;
 
-	con->font = console_font_8x16;
+	//con->font = console_font_8x16;
+	con->font = console_font_512;
 
 	con->foreground = COLOR_WHITE;
 	con->background = COLOR_BLACK;
 
 	curr_con = con;
 
-	if(_bg_buffer) {
-		_bg_grab();
+	if(_tr_enable && _bg_buffer) {
+		__console_bg_grab(NULL);
 		con->background = _bg_color;
 	}
 
@@ -647,7 +691,8 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 	int i = 0;
 	char *tmp = (char*)ptr;
 	console_data_s *con;
-	char chr;
+	//char chr;
+	wchar_t chr;
 
 	if(__gecko_status>=0) {
 		if(__gecko_safe)
@@ -663,8 +708,18 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 	i = 0;
 	while(*tmp!='\0' && i<len)
 	{
-		chr = *tmp++;
-		i++;
+		int k = 1;
+		chr = *tmp;
+		if (chr >= 0x80) {
+			// UTF-8 decode
+			k = mbtowc(&chr, tmp, MIN(6,len-i));
+			// ignore utf8 parse errors
+			if (k < 1) k = 1;
+			// font only contains the first 512 chars
+			if ((unsigned)chr >= 512) chr = map_ufont(chr);
+		}
+		tmp += k;
+		i += k;
 		if ( (chr == 0x1b) && (*tmp == '[') )
 		{
 			/* escape sequence found */
@@ -717,7 +772,7 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 		if( con->cursor_row >= con->con_rows)
 		{
 			/* if bottom border reached scroll */
-			if (_bg_buffer) {
+			if (_tr_enable && _bg_buffer) {
 				_bg_scroll();
 			} else {
 				memcpy(con->destbuffer,
@@ -729,6 +784,12 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 				while(cnt--)
 					*ptr++ = con->background;
 			}
+			if (__console_scroll)
+			{
+				// flush on screen
+				__console_flush(0);
+				VIDEO_WaitVSync();
+			}
 			con->cursor_row--;
 		}
 	}
@@ -739,28 +800,65 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 
 void CON_Init(void *framebuffer,int xstart,int ystart,int xres,int yres,int stride)
 {
+    // note: this is called by the CODE DUMP handler
+	_tr_enable = 0;
+    __console_disable = 0;
 	__console_init(framebuffer,xstart,ystart,xres,yres,stride);
 }
 
 
-void _con_free_bg_buff()
+/*
+void _con_free_bg_buf()
 {
 	if(_bg_buffer) free(_bg_buffer);
 	_bg_buffer = NULL;
 	if(_c_buffer) free(_c_buffer);
 	_c_buffer = NULL;
 }
+*/
+
+/*
+void _con_print_buf()
+{
+	printf("\ncon_buf: %p\n", _console_buffer);
+	printf("_bg_buf: %p\n", _bg_buffer);
+	printf("_c_buf:  %p\n", _c_buffer);
+}
+*/
+
+void _con_alloc_buf(s32 *conW, s32 *conH)
+{
+	int w = 640;
+	int h = 480;
+	int size;
+
+	if (conW && *conW > w) *conW = w;
+	if (conH && *conH > h) *conH = h;
+	if (_console_buffer) return;
+
+	size = w * h * VI_DISPLAY_PIX_SZ;
+	_c_buffer_size = sizeof(struct _c1) * (w / FONT_XSIZE) * (h / FONT_YSIZE);
+	_console_buffer = LARGE_memalign(32, size);
+	_bg_buffer = LARGE_memalign(32, size);
+	_c_buffer = LARGE_memalign(32, _c_buffer_size);
+}
 
 s32 CON_InitEx(GXRModeObj *rmode, s32 conXOrigin,s32 conYOrigin,s32 conWidth,s32 conHeight)
 {
 	VIDEO_SetPostRetraceCallback(NULL);
+
+	_con_alloc_buf(&conWidth, &conHeight);
+
+	/*
 	if(_console_buffer)
 		free(_console_buffer);
 	
 	_console_buffer = malloc(conWidth*conHeight*VI_DISPLAY_PIX_SZ);
 	if(!_console_buffer) return -1;
 
-	_con_free_bg_buff();
+	_con_free_bg_buf();
+	*/
+	_tr_enable = 0;
 
 	__console_init_ex(_console_buffer,conXOrigin,conYOrigin,rmode->fbWidth*VI_DISPLAY_PIX_SZ,conWidth,conHeight,conWidth*VI_DISPLAY_PIX_SZ);
 
@@ -771,11 +869,13 @@ s32 CON_InitTr(GXRModeObj *rmode, s32 conXOrigin,s32 conYOrigin,s32 conWidth,s32
 {
 	VIDEO_SetPostRetraceCallback(NULL);
 
+	_con_alloc_buf(&conWidth, &conHeight);
+	/*
 	if(_console_buffer) free(_console_buffer);
 	_console_buffer = malloc(conWidth*conHeight*VI_DISPLAY_PIX_SZ);
 	if(!_console_buffer) return -1;
 
-	_con_free_bg_buff();
+	_con_free_bg_buf();
 
 	_bg_buffer = malloc(conWidth*conHeight*VI_DISPLAY_PIX_SZ);
 	if(!_bg_buffer) return -1;
@@ -783,10 +883,13 @@ s32 CON_InitTr(GXRModeObj *rmode, s32 conXOrigin,s32 conYOrigin,s32 conWidth,s32
 	_c_buffer_size = sizeof(struct _c1) * (conWidth / FONT_XSIZE) * (conHeight/FONT_YSIZE);
 	_c_buffer = malloc(_c_buffer_size);
 	if(!_c_buffer) return -1;
+	*/
 	memset(_c_buffer, 0, _c_buffer_size);
 
 	if (bgColor < 0 || bgColor > 15) bgColor = 0;
 	_bg_color = color_table[bgColor];
+
+	_tr_enable = 1;
 
 	__console_init_ex(_console_buffer,conXOrigin,conYOrigin,rmode->fbWidth*VI_DISPLAY_PIX_SZ,conWidth,conHeight,conWidth*VI_DISPLAY_PIX_SZ);
 

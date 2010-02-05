@@ -1,17 +1,25 @@
 #include <stdio.h>
 #include <ogcsys.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 #include "sys.h"
 #include "video.h"
 #include "cfg.h"
-#include "libpng/png.h"
+
+#include "png.h"
 
 /* Video variables */
+static void *framebuffer0 = NULL;
+static void *framebuffer1 = NULL;
 static void *framebuffer = NULL;
+static int framebuffer_size;
 static GXRModeObj *vmode = NULL;
+static GXRModeObj vmode_non_wide;
+static int video_wide;
 
-extern s32 CON_InitTr(GXRModeObj *rmode, s32 conXOrigin,s32 conYOrigin,s32 conWidth,s32 conHeight, s32 bgColor);
+int con_inited = 0;
+
 void _Con_Clear(void);
 
 void Con_Init(u32 x, u32 y, u32 w, u32 h)
@@ -23,6 +31,7 @@ void Con_Init(u32 x, u32 y, u32 w, u32 h)
 		CON_InitEx(vmode, x, y, w, h);
 	}
 	_Con_Clear();
+	con_inited = 1;
 }
 
 void _Con_Clear(void)
@@ -123,43 +132,89 @@ void Video_Configure(GXRModeObj *rmode)
 		VIDEO_WaitVSync();
 }
 
+// allocate a MAX size frambuffer, so that it
+// can accomodate all video mode changes
+void *Video_Allocate_MAX_Framebuffer(GXRModeObj *vmode, bool mem2)
+{
+	int w, h;
+	void *buf;
+	w = vmode->fbWidth;
+	h = MAX(vmode->xfbHeight, VI_MAX_HEIGHT_PAL);
+	framebuffer_size = VIDEO_PadFramebufferWidth(w) * h * VI_DISPLAY_PIX_SZ;
+	if (mem2) {
+		buf = LARGE_memalign(32, framebuffer_size);
+	} else {
+		buf = memalign(32, framebuffer_size);
+	}
+	if (buf) {
+		memset(buf, 0, framebuffer_size);
+		DCFlushRange(buf, framebuffer_size);
+	}
+	return buf;
+}
+
+
+void Video_SetWide()
+{
+	if (CFG.widescreen && video_wide) return;
+	if (!CFG.widescreen && !video_wide) return;
+	if (!vmode) return;
+	// change required
+	if (CFG.widescreen) {
+		vmode->viWidth = 678;
+		vmode->viXOrigin = ((VI_MAX_WIDTH_NTSC - 678) / 2);
+	} else {
+		*vmode = vmode_non_wide;
+	}
+	video_wide = CFG.widescreen;
+	Video_Configure(vmode);
+}
+
 void Video_SetMode(void)
 {
-	void *old_fb = NULL;
+	if (vmode) return; // already set?!
+
 	/* Select preferred video mode */
 	vmode = VIDEO_GetPreferredMode(NULL);
 
+	// save non-wide vmode
+	vmode_non_wide = *vmode;
+
 	// widescreen mode
-	if (CFG.widescreen)	{
+	video_wide = CONF_GetAspectRatio();
+	if (video_wide) {
 		vmode->viWidth = 678;
 		vmode->viXOrigin = ((VI_MAX_WIDTH_NTSC - 678) / 2);
 	}
 
-	// keep old fb
-	if (framebuffer) {
-		old_fb = MEM_K1_TO_K0(framebuffer);
-	}
-
 	/* Allocate memory for the framebuffer */
-	framebuffer = MEM_K0_TO_K1(SYS_AllocateFramebuffer(vmode));
-
-	/* Configure the video subsystem */
-	VIDEO_Configure(vmode);
-
-	/* Setup video */
-	VIDEO_SetNextFramebuffer(framebuffer);
-	VIDEO_SetBlack(FALSE);
-	VIDEO_Flush();
-	VIDEO_WaitVSync();
-
-	if (vmode->viTVMode & VI_NON_INTERLACE)
-		VIDEO_WaitVSync();
+	//framebuffer0 = MEM_K0_TO_K1(SYS_AllocateFramebuffer(vmode));
+	//framebuffer1 = MEM_K0_TO_K1(SYS_AllocateFramebuffer(vmode));
+	framebuffer0 = MEM_K0_TO_K1(Video_Allocate_MAX_Framebuffer(vmode, true));
+	framebuffer1 = MEM_K0_TO_K1(Video_Allocate_MAX_Framebuffer(vmode, true));
+	framebuffer = framebuffer0;
 
 	/* Clear the screen */
 	Video_Clear(COLOR_BLACK);
 
-	// free old framebuffer if any
-	if (old_fb) free(old_fb);
+	// Set Next framebuffer
+	VIDEO_SetNextFramebuffer(framebuffer);
+
+	/* Configure the video subsystem */
+	Video_Configure(vmode);
+}
+
+void Video_Close()
+{
+	void *fb = Video_Allocate_MAX_Framebuffer(vmode, false);
+	VIDEO_SetBlack(TRUE);
+	if (fb) {
+		framebuffer = MEM_K0_TO_K1(fb);
+		Video_Clear(COLOR_BLACK);
+		VIDEO_SetNextFramebuffer(framebuffer);
+	}
+	VIDEO_Flush();
+	VIDEO_WaitVSync();
 }
 
 void Video_Clear(s32 color)
@@ -177,8 +232,12 @@ GXRModeObj* _Video_GetVMode()
 	return vmode;
 }
 
-void* _Video_GetFB()
+void* _Video_GetFB(int n)
 {
+	switch(n) {
+		case 0: return framebuffer0;
+		case 1: return framebuffer1;
+	}
 	return framebuffer;
 }
 
@@ -192,6 +251,13 @@ void _Video_SyncFB()
 	VIDEO_SetNextFramebuffer(framebuffer);
 	VIDEO_Flush();
 	VIDEO_WaitVSync();
+	if (framebuffer != framebuffer0) {
+		memcpy(framebuffer0, framebuffer, framebuffer_size);
+		framebuffer = framebuffer0;
+		VIDEO_SetNextFramebuffer(framebuffer);
+		VIDEO_Flush();
+		VIDEO_WaitVSync();
+	}
 }
 
 void FgColor(int color)
@@ -242,6 +308,25 @@ void Video_DrawBg()
 	memcpy(framebuffer, bg_buf_ycbr, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
 }
 
+int Video_AllocBg()
+{
+	if (bg_buf_rgba == NULL) {
+		bg_buf_rgba = LARGE_memalign(32, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 4);
+		if (!bg_buf_rgba) return -1;
+	}
+
+	if (bg_buf_ycbr == NULL) {
+		bg_buf_ycbr = LARGE_memalign(32, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
+		if (!bg_buf_ycbr) return -1;
+	}
+	return 0;
+}
+
+void Video_SaveBgRGBA()
+{
+	RGBA_to_YCbYCr(bg_buf_ycbr, bg_buf_rgba, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+}
+
 s32 Video_SaveBg(void *img)
 {
 	IMGCTX   ctx = NULL;
@@ -263,18 +348,7 @@ s32 Video_SaveBg(void *img)
 		goto out;
 	}
 
-	if (bg_buf_rgba == NULL) {
-		//bg_buf_rgba = malloc(vmode->fbWidth * vmode->xfbHeight * 4);
-		//bg_buf_rgba = malloc(BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 4);
-		bg_buf_rgba = LARGE_memalign(32, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 4);
-		if (!bg_buf_rgba) { ret = -1; goto out; }
-	}
-
-	if (bg_buf_ycbr == NULL) {
-		//bg_buf_ycbr = malloc(BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
-		bg_buf_ycbr = LARGE_memalign(32, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
-		if (!bg_buf_ycbr) { ret = -1; goto out; }
-	}
+	Video_AllocBg();
 
 	/* Decode image */
 	//PNGU_DECODE_TO_COORDS_RGBA8(ctx, 0, 0, imgProp.imgWidth, imgProp.imgHeight, 255,
@@ -282,7 +356,7 @@ s32 Video_SaveBg(void *img)
 	PNGU_DECODE_TO_COORDS_RGBA8(ctx, 0, 0, imgProp.imgWidth, imgProp.imgHeight, 255,
 			BACKGROUND_WIDTH, BACKGROUND_HEIGHT, bg_buf_rgba);
 
-	RGBA_to_YCbYCr(bg_buf_ycbr, bg_buf_rgba, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+	Video_SaveBgRGBA();
 
 	/* Success */
 	ret = 0;

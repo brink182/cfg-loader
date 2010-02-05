@@ -1,0 +1,2169 @@
+
+Configurable SD/USB Loader v50
+==============================
+
+by oggzee & usptactical
+
+This version of the loader allows you to customize numerous options
+to better suit your preferences.
+
+  Based on Wanikoko SD/USB Loader 1.5, Kwiirk Yal & cios 222,
+  Hermes uLoader 1.6 & cios 222/223+mload + many others (Sorg, nIxx,
+  fishears, usptactical, 56Killer, WiiShizzza, hungyip84, Narolez, ...)
+
+
+Features:
+---------
+
+ - SDHC and USB HDD device support
+ - GUI (Grid / Coverflow) and Console mode (switchable runtime)
+ - Background Music (.mp3 or .mod)
+ - Themes (switchable runtime)
+ - Widescreen (auto-detect)
+ - Transparency (covers and console)
+ - Cover images download
+ - Cover styles: 2d, 3d, disc and full
+ - Automatic resize of covers
+ - Renaming game titles (using titles.txt)
+ - Per game configuration of Video mode, Language, Ocarina cheating
+ - Light up DVD slot when install finishes, optional eject
+ - Childproof and parental guidance
+ - USB HDD with multiple partitions supported
+   (WBFS for games and FAT for config, covers and other resources)
+ - SDHC with multiple partitions supported
+   (WBFS for games and FAT for resources...)
+ - Custom IOS selection for better compatibility with USB drives and other USB devices.
+ - cIOS supported: waninkoko's 249 & 250, Hermes 222 & 223 (mload), kwiirk 222 & 223 (yal)
+ - Banner sounds
+ - Multiple WBFS partitions support
+ - Loading games from a FAT or NTFS partition (IOS 222/223 required)
+ - Supported game disc file formats: .wbfs and .iso
+ - Configurable
+ 
+
+For latest news, questions and suggestions head over here:
+http://gbatemp.net/index.php?showtopic=147638
+
+
+Installation:
+-------------
+
+Copy the contents of "inSDroot" to the root of your SD card.
+This will add the USB Loader to your homebew channel.
+You can also install a a channel forwarder to start the loader directly
+from the system menu.
+(Note: alternatively, a USB FAT partition can be used
+to store configuration and covers)
+
+Useful links:
+-------------
+
+The forwarder can be downloaded from here:
+http://www.yafaze.com/wii/files/USB_LOADER_FORWARDER.rar
+And installed with the WAD Manager.
+
+Game cover images can be downloaded from here:
+http://gbatemp.net/index.php?showtopic=147862&st=0
+
+Updated titles.txt can found here:
+http://wiki.gbatemp.net/wiki/index.php/USB_Loader_titles.txt
+
+
+File locations:
+---------------
+
+  config file:     sd:/usb-loader/config.txt
+  background image:sd:/usb-loader/background.png
+  covers:
+    2d:            sd:/usb-loader/covers/*.png
+	3d:            sd:/usb-loader/covers/3d/*.png
+	disc:          sd:/usb-loader/covers/disc/*.png
+	full:          sd:/usb-loader/covers/full/*.png
+  titles file:     sd:/usb-loader/titles.txt
+  themes:          sd:/usb-loader/themes/THEME_NAME/theme.txt
+
+  ocarina cheat codes are searched in:
+                   sd:/usb-loader/codes/*.gct
+                   sd:/data/gecko/codes/*.gct
+                   sd:/codes/*.gct
+  ocarina TXT cheat codes use the locations:
+    Downloaded to: sd:/usb-loader/codes/*.txt
+    Saved .gct to: sd:/usb-loader/codes/*.gct
+
+  .wip files:      sd:/usb-loader/GAMEID.wip
+  .bca files:      sd:/usb-loader/GAMEID.bca
+
+  Games on FAT:    usb:/wbfs/GAMEID.wbfs
+  or:              usb:/wbfs/GAMEID_TITLE/GAMEID.wbfs
+  (or sd:/ instead of usb:/)
+
+These are default locations, background and covers are configurable.
+If config file is not found in sd:/usb-loader, then it is searched
+in: sd:/apps/USBLoader/config.txt (or whichever directory is used to
+start from homebrew channel) and if found, the base path is set to
+that location.
+
+Besides the global config file sd:/usb-loader/config.txt, also
+the config.txt in the apps directory is used, which by default is:
+sd:/apps/USBLoader/config.txt but depends from where the loader
+has been started from the homebrew channel.
+
+Another way to specify a config file is by using the wiiload
+utility from a PC, which allows additional arguments:
+C:\> wiiload usbloader.dol config21.txt
+which will load sd:/usb-loader/config21.txt
+And you can also pass config options directly:
+C:\> wiiload usbloader.dol video=ntsc
+
+So you can have different configurations depending on where it
+is started from. This can be useful so you can configure the
+loader started from forwarder to be simple/childproff, while
+if started from homebrew channel to include the installation and
+removal options.
+To achieve this, copy sd:/apps/USBLoader/ to sd:/apps/USBLoader_admin
+and then set simple=1 in sd:/apps/USBLoader/config.txt and edit (or delete)
+sd:/apps/USBLoader_admin/meta.xml to show a different name.
+
+
+USB FAT for config and covers:
+------------------------------
+
+SD card is first searched for config.txt, if not found then USB HDD
+with a FAT partition is mounted as usb:/ and searched, for config.txt.
+in that case, all the paths mentioned above will be searched
+on usb:/ instead of sd:/
+Advantage of using USB FAT for config and covers is faster loading of
+covers. (Usually USB HDD devices are faster than SD cards)
+If you want to load the application from SD card but use USB for config
+and covers, then copy everything in inSDroot to your USB FAT partition,
+but only the inSDroot/apps directory to SD card and
+delete sd:/apps/USBLoader/config.txt and sd:/usb-loader/config.txt.
+
+Note: To create 2 partitions on SD or USB thumb drives you have to use
+special tools like gparted: http://gparted.sourceforge.net/
+Create 2 primary partitions, format both as FAT32 and then inside the loader
+re-format the SECOND partition to WBFS. Suggested partitions size if 200MB
+for config & covers and the rest for WBFS.
+
+Note: If you have problems accessing the fat partition make sure it is
+marked 'active' in the windows partition editor (or if you use gparted,
+mark the partition with the 'boot' flag)
+
+Limitations:
+- USB FAT is mounted only if config.txt is not found on SD.
+
+
+Themes:
+-------
+
+Another way to customize the loader is by using Themes.
+A theme is defined by creating a config file in the location:
+sd:/usb-loader/themes/THEME_NAME/theme.txt
+And the background images:
+sd:/usb-loader/themes/THEME_NAME/background.png
+sd:/usb-loader/themes/THEME_NAME/background_wide.png
+
+The options that can be used in theme.txt are described below,
+basically only options that define the looks are accepted, everything else
+is ignored in theme.txt. Background image (background.png or specified with
+background option) for a theme will be searched first in the theme
+directory (sd:/usb-loader/themes/THEME_NAME/) and if not found
+it will be searched in the base directory (sd:/usb-loader/)
+
+Other themable gui resources:
+  favorite.png
+  pointer.png
+  hourglass.png
+  font_uni.png (new type 512 letters unicode)
+  font.png (old type 128 letters ascii)
+  font_clock.png
+Same search method as for the background image applies to these files.
+There are some example files in: usb-loader/resources, but note that the program
+does not search in that location, they need to be copied to the base or theme
+directory to be used.
+
+Background overlay support:
+additional images can be supplied that will be overlaid over the background:
+ - bg_overlay.png or bg_overlay_w.png for console background
+ - bg_gui_over.png or bg_gui_over_w.png for gui background
+If *_w.png variant is not found then the normal is used.
+If a theme is used then the overlay files are searched only in theme directories,
+not in base directories.
+
+Auto-scaling of background image:
+Since version 41 background width can be larger than 640 and will be either
+ - scaled if widescreen
+ - cropped if not widescreen
+down to 640x480. Note: height must still be 480.
+
+
+
+GUI Mode:
+---------
+
+By default console mode is started.
+To switch to GUI mode, press B in main screen.
+While in GUI mode, the following buttons are used:
+    button A : start selected game
+    button B : return to console mode
+    button LEFT/RIGHT (Grid): previous/next page
+    button LEFT/RIGHT (Coverflow) : rotate to next cover - hold down for fast rotate.
+    button UP/Down (Grid) : switch number of rows (1-3)
+    button UP (Coverflow) : flip center cover to its back/front
+    button DOWN : change gui styles (grid -> flow -> flow-z -> coverflow 3d -> etc)
+    button 1, +, - : options, install, remove
+    button 2: favorites game list
+    button HOME : exit
+The background image in GUI mode can be changed with the file:
+    sd:/usb-loader/themes/Theme_Name/bg_gui.png  or
+    sd:/usb-loader/bg_gui.png
+
+
+Downloading covers
+------------------
+
+Covers can be downloaded for all games at once or on a per-game basis.
+To download the covers for all games go to Global Options screen, move
+to "<Download All Covers>" and press button RIGHT or LEFT.
+There is a difference between LEFT and RIGHT buttons:
+- button RIGHT will download all MISSING covers.
+- button LEFT will download ALL covers, even the ones that are already present.
+To download the covers for the current selected game, go to Game Options screen,
+move to "Cover Image:" option and press RIGHT or LEFT. The same difference between
+RIGHT and LEFT buttons apply here as with download all covers.
+The way how the covers are downloaded can be further customized with config options
+download_* and url_*. See the documentation on these options below in the Config file section.
+
+Parental Control and Unlocking Admin Functionality
+--------------------------------------------------
+
+If the loader is configured with restricted functionality it can be unlocked
+with a password - a "secret" wiimote button combination. Restricted functionality
+means any of the options: "simple" or "disable_*" or "hide_game" are set, which is
+usually used for "Parental Control".
+
+When admin mode is unlocked it will allow you to access all the previously 
+locked functionality. In addition: when unlocked, any games that are hidden
+with the hide_game option will be displayed.
+
+To access the unlock screen, hold the 1 button down for 5 seconds and the screen
+will appear.  After you see the text "Enter Code:", press the wiimote buttons
+in the correct order.  If you were successful, the word SUCCESS will appear
+on the screen.  Otherwise the word LOCKED! will appear.  The unlock screen has a 30
+second timeout limit so if an incorrect (or no) password is entered, it will
+automatically lock.  To set the lock back on with the original settings intact, hold
+the 1 button for 5 seconds and the lock will automatically turn on.  When the loader
+is started, the lock will always be enabled.
+
+This functionality is controlled by the option: admin_unlock = [1], 0.
+By default it is enabled. To disable the ability to unlock admin mode set
+the option to: admin_unlock = 0
+
+The default admin unlock password is: BUDAH12
+To change it, use the config option: unlock_password = [BUDAH12]
+The password length is limited to 10 characters. Do NOT use quotes around the
+password - just type what you want it to be.  E.g.  unlock_password = 12UDAB
+The following are the button to letter mappings for the password:
+      D-Pad Up:     U
+      D-Pad Down:   D
+      D-Pad Right:  R
+      D-Pad Left:   L
+      B button:     B
+      A Button:     A
+      Minus button: M
+      Plus button:  P
+      Home button:  H
+      1 button:     1
+      2 button:     2
+
+To hide certain games, use the the Game Options screen and toggle the "Hide Game"
+setting.  This allows you to set which games are hidden when the admin mode is LOCKED.
+In order to see this option, admin_unlock must be enabled (which it is by default) AND
+the admin mode must be in an unlocked state!
+- NOTE: this functionality completely replaces the hide_game option in config.txt,
+	but they CAN be used together. Any games currently listed in hide_game will be
+	shown when unlocked, but will ALWAYS be marked as hidden by default in Game Options
+   	and cannot be changed to unhidden unless they are removed from config.txt
+- NOTE 2: An easy way to convert all your games in hide_game to this new functionality
+	is to start the loader with your hide_game still in config.txt and then go into
+	Game Options in any game (you may have to unlock admin lock first) and change
+	something and save it. All your hide_game entries will automatically be saved.  
+	Then you can remove the hide_game entry completely from config.txt.
+
+
+Various Controllers Button Mapping:
+-----------------------------------
+WIIMOTE  CLASSIC  GC       GUITAR
+-----------------------------------
+UP       UP       UP       STRUM UP
+RIGHT    RIGHT    RIGHT    NONE
+DOWN     DOWN     DOWN     STRUM DOWN
+LEFT     LEFT     LEFT     NONE
+-        -        L        -
++        +        R        +
+A        A        A        GREEN
+B        B        B        RED
+HOME     HOME     START    ORANGE
+1        Y        Y        YELLOW
+2        X        X        BLUE
+
+
+Title Rename
+------------
+
+To rename a game title, edit the file in sd:/usb-loader/titles.txt
+Format is:
+GAMEID = Game Title
+Example:
+RSPP = Wii Sports
+
+
+
+Config file:
+------------
+
+
+# lines starting with # are comments
+# default values are in [ ]
+#
+# There are 2 categories of options: Global and Theme
+#   Theme options (theme.txt) only affect the looks, everything else is ignored
+#   Global options (config.txt) will accept all options, including theme options.
+#
+#
+# Theme options:
+# ==============
+#
+# background = [background.png]
+# wbackground = [background_wide.png]
+#   file to use for the background image.
+#   file can be an absolute path (like sd:/somedir/myimage.png)
+#   if the specified background is not an absolute path it is searched
+#   in theme directory (sd:/usb-loader/themes/THEME_NAME/)
+#   and in default directory (sd:/usb-loader)
+#
+# background_base = [background.png]
+# wbackground_base = [background_wide.png]
+#   base background image over which the bg_overlay* files are overlaid.
+#   actually this option is the same as normal background option
+#   the only difference is that it is understood by versions that
+#   support overlaid background, which makes it possible to create
+#   forward and backward compatible themes
+#
+# background_gui = [bg_gui.png]
+# wbackground_gui = [bg_gui_wide.png]
+#  gui mode background file.
+#
+# layout = original2 original small medium large large2 [large3],
+#          ultimate1 ultimate2 ultimate3 kosaic
+#   original:   6 lines (wanikoko 1.0-1.1)
+#   original2: 12 lines (wanikoko 1.2-1.5)
+#   small:      9 lines (same background as original)
+#   medium:    17 lines
+#   large:     21 lines (nixx)
+#   large2:    21 lines (usptactical)
+#   large3:    21 lines (oggzee) 
+#   ultimate1: 12 lines (WiiShizza)
+#   ultimate2: 12 lines (jservs7 / hungyip84)
+#   ultimate3: 12 lines (WiiShizza - cover on right)
+#
+# buttons=[options_1], options_B, original
+#   (change button controls layout.)
+#
+#   The button layout "options_1" is:
+#       button B - GUI mode / Back
+#       button 1 - options menu
+#       button 2 - save / discard game options
+#		direction buttons - select and change options
+#
+#   The button layout "options_B" is:
+#       button B - options menu / Back
+#       button 1 - GUI mode
+#       button 2 - save / discard game options
+#		direction buttons - select and change options
+#
+# covers = [1], 0
+#   (enable/disable covers)
+#
+# console_coords = x,y,width,height
+# wconsole_coords = x,y,w,h (widescreen)
+#
+# console_color = foreground,background
+#   (color values: 0-15)
+#   Dark:  0=black, 1=red, 2=green, 3=yellow, 4=blue, 5=purple, 6=cyan, 7=bright grey
+#   Bright: 8=grey, 9=red, 10=green, 11=yellow, 12=blue, 13=purple, 14=cyan, 15=white
+#   see: http://img6.imageshack.us/img6/720/colorchart.png
+#
+# covers_coords = x,y
+# wcovers_coords = x,y (widescreen)
+#
+# hide_header = [0],1 
+# hide_hddinfo = [0],1 
+# hide_footer = [0],1 
+#   These options control the look of main menu.
+#   In -fat version default value of hide_hddinfo=1
+#
+# simple = [0], 1
+#   Using the simple option in a theme will only affect the hide_* options
+#   it will not change the disable_* options. Use the simple option in the
+#   global config.txt to change also the disable_* options.
+#
+# colors = [dark], bright, mono
+#   will select a prefedines set of colors for a dark or bright background
+#   or normal 2 color text if mono is specified
+#
+# color_header, color_selected_fg, color_selected_bg,
+# color_inactive, color_footer, color_help
+#   Will set individual text colors. Values are 0-15
+#
+# cover_style = [standard], 3d, disc
+#   Support for 3d covers and disc covers
+#   This option selects which cover_url and cover_path is used
+#
+# console_transparent = [0], 1
+#   Enable transparent console.
+#
+# covers_size = width, height
+#   default: covers_size = 160, 225
+#   If the loaded image is if different size, it will be to the size specified.
+#
+# wcovers_size = width, height
+#   default: wcovers_size = 130, 225
+#   used for widescreen setting. If not set it will use the covers_size
+#   and properly scaling it to widescreen size.
+#
+# cursor = ">>"
+#   Changes cursor shape, at max 2 characters are used. Can be empty.
+#   If you want spaces, so that the menu is not shifted use quotes
+#   like this: cursor = "  "
+#
+# menu_plus  = "[+] "
+#   Changes the [+] mark in the main, options and start menu.
+#   At max 4 characters are used.
+#
+# gui_text_color = [black], white, RRGGBBAA
+#   Set the text color in GUI mode
+#   Note: to use a color other than a black or white, it has to be
+#   represented as a HEX value with the following components: RRGGBBAA
+#   RR=red, GG=green, BB=blue, AA=alpha
+#   Example: red = FF0000FF, blue = 00FF00FF, yellow = 00FFFFFF
+#
+# gui_text_outline = [FF], AA, RRGGBBAA, black, white
+# gui_text_shadow = [00], AA, RRGGBBAA, black, white
+#   Outline and shadow color for text in GUI mode
+#   If only alpha is specified, it will set the outline / shadow
+#   color to black or white depending if text color is bright or dark.
+#
+# gui_text2_color = [white], black, RRGGBBAA
+# gui_text2_outline = [FF], AA, RRGGBBAA, black, white
+# gui_text2_shadow = [00], AA, RRGGBBAA, black, white
+#   Text colors for coverflow modes, where background is darker
+#
+# gui_title_top = [0], 1
+#
+# Global options:
+# ===============
+#
+# gui = [1], 0, start
+#   Enable or disable GUI mode.
+#   Using gui = start will start directly in GUI mode when loader is started.
+#
+# gui_transition = [scroll], fade
+#   Set GUI transition effect between console and gui mode
+#
+# gui_style = [grid], flow, flow-z, coverflow3d, coverflow2d, frontrow, vertical, carousel
+#   Set the default GUI style
+#
+# gui_rows = [2] (Valid values: 1-4)
+#   Set the default number of rows in GUI mode
+#
+# gui_lock = [0], 1
+#   Disable changing gui style with button up/down
+#
+# gui_antialias = [4] {0-4}
+#   Tune coverflow mode antialias level
+#
+# theme = Theme_Name
+#   Load a specified theme from sd:/usb-loader/themes/Theme_Name/theme.txt
+#   Note: a theme resets all theme related options, so if you want to override
+#   any theme option, do that in the lines after the 'theme =' option.
+#
+# covers_path = [sd:/usb-loader/covers]
+#   Changing covers_path will change all covers_path_* like this: 
+# covers_path_2d = covers_path
+# covers_path_3d = covers_path/3d
+# covers_path_disc = covers_path/disc
+# covers_path_full = covers_path/full
+#   If you need fine controll on the 2d/3d/disc/full paths use the
+#   covers_path_* options after covers_path.
+#
+# URL options:
+#   URL can contain any of the following tags which are then replaced
+#   with proper values: {REGION}, {WIDTH}, {HEIGHT}, {ID3}, {ID4}, {ID6}, {ID}, {CC}
+#   {ID} will find automatically the correct ID by trying ID6, ID4 and ID3
+#   Note: {WIDTH} and {HEIGHT} don't work well if download_all_styles is enabled
+#
+#   Multiple URLS can be specified for cover_url_* options
+#   They can be in the same line separated with space, example:
+#   cover_url = http://site1.com/{ID}.png http://site2.org/{ID}.png
+#   Or in multiple lines using =+ to add instead of =, example:
+#   cover_url = http://site1.com/{ID}.png
+#   cover_url =+ http://site2.org/{ID}.png
+#   cover_url =+ http://site3.net/{ID}.png
+#
+# Normal 4:3 mode aspect ratio url options:
+# cover_url = URL      (url for standard 2d flat covers)
+# cover_url_3d = URL   (url for 3d covers)
+# cover_url_disc = URL (url for disc covers)
+# cover_url_full = URL (url for disc covers)
+#   defaults:
+#
+#	cover_url =
+#	cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png
+#	cover_url =+ http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID}.png
+#	cover_url =+ http://boxart.rowdyruff.net/flat/{ID6}.png
+#	cover_url =+ http://awiibit.com/BoxArt160x224/{ID6}.png
+#	cover_url =+ http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png
+#
+#   cover_url_3d =
+#   cover_url_3d =+ http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png
+#   cover_url_3d =+ http://wiicover.gateflorida.com/sites/default/files/cover/3D%20Cover/{ID6}.png
+#   cover_url_3d =+ http://boxart.rowdyruff.net/3d/{ID6}.png
+#   cover_url_3d =+ http://awiibit.com/3dBoxArt176x248/{ID6}.png
+#   cover_url_3d =+ http://www.muntrue.nl/covers/ALL/160/225/3D/{ID6}.png
+#
+#   cover_url_disc =
+#   cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disc/{CC}/{ID6}.png
+#   cover_url_disc =+ http://wiicover.gateflorida.com/sites/default/files/cover/Disc%20Cover/{ID6}.png
+#   cover_url_disc =+ http://boxart.rowdyruff.net/fulldisc/{ID6}.png
+#   cover_url_disc =+ http://awiibit.com/WiiDiscArt/{ID6}.png
+#   cover_url_disc =+ http://www.muntrue.nl/covers/ALL/160/160/disc/{ID6}.png
+#
+#   cover_url_full =
+#   cover_url_full =+ http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png
+#   cover_url_full =+ http://wiicover.gateflorida.com/sites/default/files/cover/Full%20Cover/{ID}.png
+#   cover_url_full =+ http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png
+#
+# download_id_len = 4, [6]
+#   Specifies the downloaded cover ID length for the saved file name 
+#
+# download_all_styles = [1], 0
+#   Download all cover styles (flat,3d,disc), or just the current style
+#
+# download_cc_pal = [AUTO], EN, FR, DE, AU, ...
+#   The code is used as a replacement for {CC} tag for PAL regions.
+#   If AUTO is specified, then the code is set depending on the console
+#   country - if Australia: AU, Brasil: PT else, console language is used.
+#   If image is not found with the specified cc code, download is
+#   retried with EN code.
+#
+# titles_url = http://wiitdb.com/titles.txt?LANG={CC}
+#   Url for updating titles.txt
+#
+# home = [reboot], exit, hbc, screenshot
+#   What to do when home buttin is pressed
+#
+# device = [ask], usb, sdhc
+#   Specifies which device to use when starting the loader
+#
+# partition = [WBFS1], ...WBFS4, FAT1, ...FAT9, NTFS1, ...NTFS9, ask
+#   Specifies which partition to use when starting the loader
+#
+# simple = [0], 1
+#   (enable/disable simple/childsafe mode)
+#   setting simple=1 will change all disable_xxx options and
+#   hide_hddinfo and hide_footer to 1 and confirm_start to 0.
+#   setting simple=0 will do the opposite.
+#   any of the disable_xxx, hide_xxx and confirm_start options can be set individually.
+#
+# confirm_start = [1], 0
+#   Specifies if confirmation is required when starting a game
+#
+# disable_remove = [0],1
+# disable_install = [0],1
+# disable_options = [0],1
+# disable_format = [0],1
+#   fine permissions control 
+#
+# admin_unlock = [1], 0.
+#   If enabled it will allow unlock admin mode, so you will be able to access
+#   all the settings screens that simple or disable_* options disabled.
+#   
+# unlock_password = [BUDAH12]
+#   Set the password for admin unlock
+#
+# install_partitions = [all], only_game, 1:1
+#   controls which partitions from DVD are installed to HDD
+#
+# fat_split_size = [4], 2
+#   Selects if the split is at 4gb-32kb or 2gb-32kb
+#
+# fat_install_dir = [1], 0
+#   Enable install in subdirectories on fat:
+#   /wbfs/GAMEID_TITLE/GAMEID.wbfs
+#
+# music = [1], 0, filename, PATH
+#   Play background music (only one option has to be specified)
+#   Examples:
+#   music = 1
+#     (which is default) will randomly play all .mp3 or .mod
+#     files (whichever are found first) in sd:/usb-loader dir
+#   music = sd:/usb-loader/my_music.mp3
+#     Plays my_music.mp3. The file name can be specified
+#     relative to sd:/usb-loader or an absolute pathname.
+#   music = sd:/music
+#     Will randomly play all .mp3 or .mod files in that folder.
+#   music = 0
+#     Will disable music
+#
+# widescreen = [auto], 0, 1
+#   * If widescreen is enabled (or autodetected) then the following options are used:
+#      - wbackground
+#      - wbackground_base
+#      - wbackground_gui
+#      - wconsole_coords
+#      - wcovers_coords
+#      - wcovers_size
+#   * when in widescreen mode, cover images will be searched first by
+#     the name GAMEID_wide.png and if not found then by GAMEID.png and
+#     will be resized properly.
+#   * some layouts will specify widescreen cooridinates automatically
+#     like: large3 and ultimate3, so there is no need to specify them manually,
+#     if one of these layouts are used.
+#
+# hide_game = [0], GAMEID1, GAMEID2, ...
+#   Hide games from list (can be used for parental control)
+#   Multiple games can be specified in one line separated by comma ","
+#   or each game in a separate hide_game = GAMEID line.
+#   setting hide_game = 0 will reset the hide list.
+#   GAMEID is a 4 letter game ID.
+#   Example: hide_game = RZZP, RDCP
+#
+# pref_game = [0], GAMEID1, GAMEID2, ...
+#   Preffered games, to be shown first in the list.
+#   Syntax is same as with hide_game.
+#   Example: pref_game = RHAP, RSSP
+#
+# confirm_ocarina = [0], 1
+#   Specifies if confirmation is required when ocarina is enabled
+#   and codes have been found
+#
+# cursor_jump = [0] or N
+#   Sets how much moves left/right (if 0 do a end page / next page jump)
+#
+# start_favorites = [0], 1
+#   Start with the favorites game list
+#
+# clock_style = [24], 12, 12am, 0
+#   Set clock style, 0 will disable clock
+#
+# sort_ignore = A,An,The
+#   Which starting words to ignore when sorting titles
+#   Set sort_ignore = 0 for old sort method - to not ignore anything
+#
+# debug = [0], 1, ...
+#   Display some diagnostic messages when started
+#   Benchmark mode with debug = 8 and start or install a game
+#
+# profile_names = [default], name2, name3,...
+#   Profiles - aka multiple favorite groups
+#   (max profiles:10, max profile name length: 16)
+#   Profiles can be added, removed and reordered with this option.
+#   But if you want to rename it, you will need to change the profile
+#   name also in settings.cfg otherwise it will be considered as a new
+#   name and the old one will be forgotten next time you save settings.
+#   Profiles can be switched in the global options screen. Changing a
+#   game favorite setting is done as usual in the game options screen.
+#
+# profile = name
+#   will specify the default profile to use
+#   saving global settings will also save which profile is used
+#
+# Game Compatibility Options:
+# ===========================
+# 
+# These options can be set in the global config.txt
+# The options can be set also per-game from inside the loader
+# options screen and will be saved to settings.cfg
+#
+# video = [auto], game, system, pal50, pal60, ntsc
+#   (auto is same as game)
+#
+# language = [console], japanese, english, german, french, spanish,
+#            italian, dutch, s.chinese, t.chinese, korean
+#
+# video_patch = [0], 1, all
+#   'video_patch = all' will force all modes to the selected video mode.
+#   This will also force progressive / interlaced mode, depending on what
+#   is configured in wii settings. This can be used for example to force
+#   progressive mode if the game will otherwise use interlaced mode (MPT)
+#   'video_patch = 1': This will patch NTSC -> PAL modes if console is PAL
+#   and PAL -> NTSC modes if console is NTSC
+#   This will not change interlaced / progressive mode
+#
+# vidtv = [0], 1
+#   Required by some games (Japanese,...)
+#
+# country_patch = [0], 1
+#   Country Patch for better compatibility with some games
+#
+# fix_002 = [0], 1
+#   This is the Anti 002 fix.
+#
+# ios = [249], 222-mload, 223-mload, 222-yal, 223-yal, 250
+#   Select Custom IOS
+#   Note: 222-yal is for kwiirk's cIOS
+#   Note: 222-mload is for Hermes's cIOS
+#   Note: a few seconds of delay when starting a game with custom ios is expected.
+#
+# block_ios_reload = [0], 1
+#   Required by some games, but works inly with ios: 222-mload, 223-mload
+#
+# alt_dol = [0], 1, sd, disc
+#   Alternative .dol loading option (from NeoGamma by WiiPower)
+#   If set to 1 or sd it will load the .dol from
+#     the loader base dir + GAMEID.dol (4 letter ID)
+#     [ sd:/usb-loader/GAMEID.dol ]
+#   If set to disc it will prompt with a list of .dols on the wbfs iso image
+#
+# ocarina = [0], 1
+#   enable/disable ocarina - cheating engine
+#
+
+Config file sample:
+-------------------
+
+# USBLoader config
+background = background.png
+layout = large3
+covers = 1
+hide_footer = 1
+# device = usb
+
+
+Sample titles.txt file:
+-----------------------
+
+RFNP = Wii Fit
+RHAP = Wii Play
+RSPP = Wii Sports
+RMGP = Super Mario Galaxy
+
+
+
+Changelog:
+----------
+
+cfg v50 (release)
+
+ * Optimizations for highly fragmented files (either fat or ntfs)
+
+cfg v50b2 (beta2)
+
+ * Fixed crash when using flat /wbfs file layout without subdirectories
+ * Fixed crashes when starting HBC forwarder discs
+   And added safety checks of memory regions when loading disc 
+ * Raised number of fragments limit to 20000
+ * Properly identify dual-layer iso
+ * Removed obsolete ehcmodules for IOS 222 revisions 2 and 3
+   External ehcmodules for these versions are still supported
+ * Use the new ehcmodule with fat/ntfs support also for wbfs
+   (but still uses wbfs mode for wbfs partition)
+   Can be overriden using an external ehcmodule4
+   External module for fat/wbfs has been renamed
+   from ehcmodule_fat.elf to ehcmodule_frag.elf
+ * In case the new fragments method fails for any reason for FAT
+   it will fallback to the old method
+ * Other cleanups
+
+cfg v50b (beta)
+
+ * .iso files on NTFS support
+   The file name layout is the same as for .wbfs files:
+   /wbfs/gameid.iso or /wbfs/gameid_title/gameid.iso
+ * Fixes and cleanups for NTFS support (fixed ntfs getf -1 error)
+ * option: partition=ntfs1 accepted
+
+ About NTFS support: 
+
+	FAT support in ehcmodule has been rewritten with a new
+	generic wii disc emulation system that is:
+	- light weight / zero overhead
+	- filesystem independent
+	- fileformat independent
+	It works by supplying the ehcmodule with a list of sector fragments
+	that specify the location of data using direct sector addressing.
+	To see the list of fragments one can use debug=1 and they will
+	be printed out before starting the game.
+	The number of fragments if limited to 5000, that number is also
+	the max theoretical number of fragments on a wbfs partition (actually
+	4600, for a dual layer disc with a 2mb wbfs block size). In normal
+	conditions the number of fragments should be a lot lower most commonly
+	just a single big block. Fragments are used to describe both physical
+	address on hdd and virtual adress on wii disc so if a .wbfs file is used
+	the list will be composed of 3 fragments - disc header, update partition
+	and game partition.
+	libntfs however doesn't seem stable enough for write access at the moment,
+	so the ntfs partition is mounted read-only meaning install and remove can't
+	be done from inside the loader for now.
+
+ Credits: WiiPower for libntfs modification which returns the list of fragments.
+
+cfg v50a (alpha)
+
+ * Fix for PeppaPig (from NeoGamma by WiiPower)
+ * Fixes and cleanups for NTFS
+
+cfg v50x (experimental)
+
+ * Rewritten FAT support in ehcmodule with a generic system
+ * NTFS support
+ * Improved gui speed with large number of games
+   (most noticable in grid, flow and flow-z gui styles)
+ * Print on the intro screen if the ios is reloaded a second time
+   (in case the setting from config.txt is different from default)
+ * The -fat version 'simple' option does not change 'hide_hddinfo'
+ * Changed WBFS ERROR: read error while installing a game to a WARNING.
+   Note: the read error check has been introduced in v47, all previous
+   versions including the original loader 1.5 and all other loaders
+   silently ignore it.
+ * Changed default value of install_partition=only_game
+   To avoid errors caused by modchips when trying to copy the update partition.
+ * Minor cosmetic changes to cover download when trying different urls.
+
+cfg v49 (release)
+
+ * Fixed install game on SD/FAT
+ * Override [w]covers_size theme option with config.txt
+ * simple=x will always set hide_hddinfo when using -fat version
+ * Only one "#GAMEID" string inside binary - for direct starting
+
+cfg v49b2 (beta2)
+
+ * Improved speed of loading game list when using FAT and /wbfs/id_title/ subdirs
+ * Changed default: fat_install_dir=1
+ * When downloading titles.txt and wii region is JA or KO force EN in titles_url {CC}
+ * Allow specifying alt_dol=name (on disc) when using direct start
+ * Accept GAMEID without # as argument for direct start (RHAP01 instead of #RHAP01)
+ * Override some theme options in base config.txt.
+   The options that can be overriden are those that don't
+   have a major effect on the theme looks and layout:
+   - hide_header
+   - hide_hddinfo
+   - hide_footer
+   - buttons
+   - simple
+   - cover_style
+   - cursor
+   - menu_plus
+   - gui_text_*
+   - gui_text2_*
+   - gui_title_top
+ * Save cfg loader version when saving gamelist.txt
+
+cfg v49b (beta)
+
+ * Added BCA dump to file from install menu
+   (Press + to install and then press 1 to dump BCA)
+
+cfg v49a (alpha)
+
+ * Games on SDHC with IOS 222/223 for both FAT or WBFS partition
+ * Games in subdirs on FAT: /wbfs/GAMEID_TITLE/GAMEID.wbfs
+   option: fat_install_dir = [0], 1
+ * Rename old boot.dol to boot.dol.bak when upgrading
+ * If the loader is used to start a game directly
+   (from a channel created with crap or similar tools)
+   and option: intro=0 is specified then no intro
+   and no progress is displayed while the game is being loaded
+ * Support for .wip game patches (by WiiPower)
+   Loaded from: sd:/usb-loader/GAMEID.wip (text format)
+ * Support for BCA data (by Hermes)
+   Loaded from: sd:/usb-loader/GAMEID.bca (binary data of size 64 bytes)
+   (updated dip plugin from uloader 3.2)
+ * option: disable_nsmb_patch=[0],1 will disable the builtin nsmb patches
+   (in case someone wants to use/test the external .wip patch or .bca data)
+ * Enable WiiRD if usb gecko is connected and ocarina is enabled
+   even if not codes are found (by Rfrf)
+ * Ocarina url fix: /R/ID6 instead of /ID1/ID6 (for SNM*)
+
+
+cfg v48 (release)
+
+ * External ehcmodule improvements (by WiiZ)
+ * Fixed titles.txt with custom game ids (proper ID6 lookup)
+
+cfg v48b2 (beta2)
+
+ * FAT loading speed optimisations
+ * Support for 4gb .wbfs files on FAT - fixed the 2gb limit
+ * Changed the default split size when installing to 4gb-32kb
+ * Option: fat_split_size = [4], 2
+ * Benchmark mode with debug = 8 and start or install a game
+ * Allow space in profile name, so the names must be separated by a comma (,)
+ * Raised max favorites to 100
+ * Removed obsolete cover sites: gateflorida.com, awiibit.com
+ * Cleanups
+
+cfg v48b (beta)
+
+ * NSMB NTSC patch
+ * Make updating meta.xml optional by pressing button 1 in the
+   online update screen to skip it.
+ * Specifying titles url allows the use of {CC} tag for the country code.
+   changed default: titles_url = http://wiitdb.com/titles.txt?LANG={CC}
+ * Presing button A on global options screen works too (same as right)
+
+cfg v48a (alpha)
+
+ * Profiles - aka multiple favorite groups
+   option: profile_names = [default], name2, name3,...
+   (max profiles:10, max profile name length: 16)
+   Profiles can be added, removed and reordered with this option.
+   But if you want to rename it, you will need to change the profile
+   name also in settings.cfg otherwise it will be considered as a new
+   name and the old one will be forgotten next time you save settings.
+   Profiles can be switched in the global options screen. Changing a
+   game favorite setting is done as usual in the game options screen.
+   option: profile = name will specify the default profile to use
+   saving global settings will also save which profile is used
+ * Minor fix to favorites switching in console mode
+ * Update /apps/.../meta.xml when downloading an update.
+   So that the correct version is visible in HBC
+ * Added 'Update titles.txt' to global options screen.
+   option: titles_url = [http://wiitdb.com/titles.txt]
+   Can be changed to a localized version like this:
+   titles_url = http://wiitdb.com/titles.txt?LANG=FR
+
+cfg v47 (release)
+
+ * Minor coverflow fixes
+ * Cleanups
+
+cfg v47b3 (beta3)
+
+ * Support for guitar controller in the loader (by gannon)
+ * More banner sound fixes (opening.bnr case)
+ * Changed the default value of the option: hide_hddinfo=1 But only for the -fat
+   variant, because checking the disc free space on fat takes a few moments.
+ * 4GB partition offset fixes
+ * Increased the updates list length to 8
+ * Minor coverflow fixes
+
+cfg v47b2 (beta2)
+
+ * NSMB main.dol patch by WiiPower
+ * minor coverflow gui fixes
+
+cfg v47b (beta)
+
+ * GC and classic controller and nunchuk joystick support (by gannon)
+ * option: install_partitions = 1:1
+   disable scrubbing when installing, except for the last 256kb which are
+   stil scrubbed because of the wbfs block size not aligned to wii disc size
+ * Fixed banner sounds with games that have upper case OPENING.BNR
+   (Thanks to RolloS60 from wiicoverflow)
+ * Cleanups
+
+cfg v47a (alpha)
+
+ * Better compatibility with weird WBFS partition setups:
+ - WBFS on RAW disk device, without a partition table
+   With such a setup the partition table will look like this:
+	P# Size(GB) Type Mount Used
+	-----------------------------
+	RAW  500.00 WBFS1      [USED]
+
+ - WBFS on EXTENDED partition. Normally a filesystem should
+   reside on either a primary or logical partition, never on
+   an extended partition. Extended is just a container of logical
+   partitions. However older version allowed this setup and so
+   the support for it is back. The partition table will look like:
+	P# Size(GB) Type Mount Used
+	-----------------------------
+	P#1  500.00 EXTEND/WBFS1 [USED]
+   And the loader will also let you fix the partition table by
+   pressing 1, which will change the partition type from EXTEND to
+   a known data type (0x0b, which is also used for fat)
+
+cfg v46 (release)
+
+ * Support for direct launching of games from fat
+   (Useful for game channel launching, using loadstructor or similar tool)
+   To specify direct loading from fat, the parameter has to be in form: #GAMEID-X
+   Where X is 0-3 for wbfs and 4-9 for fat partitions (4 means first fat partition)
+ * Automatically switch to ios222 in case ios249 is used for starting games from fat
+ * Only allow IOS 222 and 223 in game options if fat partition is selected
+ * Improved drawing speed in some coverflow gui modes
+ * Cleanups
+
+cfg v46b (beta)
+
+ * Added option: partition = [WBFS1], ..., WBFS4, FAT1, ..., FAT9, ask
+ * Saving global settings will also save current selected partition
+ * Increased fat cache size in IOS module
+ * Load FAT module in IOS early in case config has: 
+   ios=222-mload (or ios=223-mload) and partition=FAT*
+   So that IOS does not need to be reloaded another time before
+   starting the game from a FAT partition
+ * Added indication in global options if [FAT] module is loaded in IOS
+ * Cleanups
+
+cfg v46a2 (alpha2)
+
+ * Faster loading of game list from a fat partition - should be instant now.
+   The only thing that has a slight delay is showing the hdd free space
+   in console mode game list (if it is enabled)
+ * Create game info file after installing on a FAT partition named:
+   usb:/wbfs/GAMEID_TITLE.txt This makes it easier to tell the titles
+   of installed games when using a filesystem explorer
+ * Rephrased the warning message when no WBFS partition found
+ * Allow to select partition if no wbfs partition is found and disable_format is on.
+ * Minor cleanups in partition selection
+
+cfg v46a (alpha)
+
+ * Loading games from a FAT32 partitions. The game file has to
+   be located and named like this: usb:/wbfs/GAMEID.wbfs
+
+cfg v45 (release)
+
+ * full package, no code changes
+
+cfg v45b2 (beta2)
+
+ * Fixed multiple WBFS partition support for drives larger than 1TB
+ * Fixed "DVD in drive check" by patching the game (thanks giantpune)
+   (only if IOS249 before rev12 or IOS222/223)
+
+cfg v45b (beta)
+
+ * Updated ehcmodule for IOS222-mload from uLoader 3.1
+ * Fixed disable_format option
+ * Show game info in options screen while scanning for alt.dols
+ * More IOS related warning notes: (thanks WiiPower)
+ - cIOS before rev14: possible 001 error source on new games (Wii Fit Plus)
+ - cIOS before rev13: need a disc in the drive
+ - cIOS before rev10: no sd/sdhc support
+ - cIOS before rev9: no usb support
+ * Changed the default for: download_id_len = [6]
+ * Changed IOS order - moved *-yal after *-mload
+ * Show version on intro screen
+ * Partition selection screen improvements
+ * The usual minor cleanups
+
+cfg v45a (alpha)
+
+ * Multiple WBFS partitions support (from uLoader)
+   Limitation: max 4 WBFS partitions on same drive supported by ios 222/223
+ * Print game size, dual-layer and wbfs free space in install screen
+ * Save gamelist.txt when saving settings in global options screen
+ * option: home = hbc will exit to Homebrew Channel (thanks to giantpune)
+   (similar to home = exit, but might work better with forwarders)
+ * Stability fixes:
+ - Corrupted cover images should no longer crash the loader
+ - Fixed hdd spin down/up at startup for some drive models (since v43, tnx Narolez)
+ - Don't print error if opening.bnr not found
+ - mp3 playing stability fixes (fixes stuttering and slowdowns in rare occasions)
+ - fixed the few notes of music between banner sound and game start
+ - minor cleanups
+ * Added CIOS related warning notices: (thanks Clipper)
+ - CIOS249 rev13 : unsupported "return to menu" to exit game
+ - CIOS249 rev14 : unsupported dual layer (start, install)
+ - CIOS249 : unsupported multiple WBFS
+ - CIOS222 : unsupported SDHC WBFS
+ * New intro screen (by Milcoi)
+
+cfg v44 (release)
+
+ * Full package
+ * Updated resources/fonts* with unicode and clock fonts
+ * Updated titles.txt (from wiitdb.com)
+ * Added localized resources/titles-XX.txt (EN, FR, DE, ES, IT, NL, PT)
+
+cfg v44b6 (beta6)
+
+ * More banner sound fixes (again)
+
+cfg v44b5 (beta5)
+
+ * More banner sound fixes (thanks to Dr.Clipper)
+
+cfg v44b4 (beta4)
+
+ * More banner sound fixes
+   all 3 audio formats are implemented, so the few rare
+   games that previously didn't play should work now.
+ * Clock font can be changed with font_clock.png
+   (either from theme or base dir)
+
+cfg v44b3 (beta3)
+
+ * Banner sound fixes
+
+cfg v44b2 (beta2)
+
+ * Play banner sound in the game start confirmation screen
+ * option: clock_style=[24],12,12am,0
+
+cfg v44b (beta)
+
+ * Updated ehcmodule for CIOS 222/223 rev4 to uloader 3.0C
+ * Fixed ios argument from forwarder
+ * Option: sort_ignore=A,An,The
+   (sort_ignore=0 for old sort method)
+ * Show clock in GUI mode if wiimote doesn't point at screen for 5 seconds
+ * Skip gui transition at start
+ * changed default: gui_text_outline=FF
+ * Minor unicode fixes
+
+cfg v44a (alpha)
+
+ * Improved coverflow gui mode:
+ - better transitions between modes and console
+ - fluid movement of covers
+
+ * Latin unicode support for titles.txt (EN,ES,FR,DE,PT,IT)
+   (not supported: Japanese, Korean or Chinese)
+   New font name: font_uni.png (can be created with the Confugrator)
+   Localized titles.txt can be downloaded from:
+   http://wiitdb.com/titles.txt?LANG=FR
+
+ * parse cmd line for ios=... before ios reload
+   (used by forwarders)
+
+ * Changed message for device init error to:
+   Make sure USB port 0 is used!
+   (The one nearest to the edge)
+
+ * Scale intro to fullscreen in 576i mode
+
+
+cfg v43 (release)
+
+ * minor code cleanups
+
+cfg v43b (beta)
+
+ * Improved antialiasing in coverflow (sharper)
+ * Reorganized game options screen:
+ - Allow to change saved options
+ - Unsaved changes are private per-game, not global
+ - Moved alt.dol selection to options menu
+ * Minor gui fixes: style switching, screen scale glitch
+
+cfg v42c (bugfix)
+
+ * Fixed green bar when loading game with a different cios (222...)
+
+cfg v42 (release)
+
+ * Fixed scrolling glitch in options screen
+   with themes that have small console size
+ * Modified intro screen (based on Milcoi design)
+ * Moved larger themes to a separate package
+
+cfg v42b2 (beta2)
+
+ * Fixed coverflow antialiasing in PAL 576i (50Hz) mode
+ * Fixed occasional flashing in options screen
+ * Intro screen (thanks to Milcoi)
+
+cfg v42b (beta)
+
+ * Antialiasing in CoverFlow GUI modes.
+   Can be tuned with option: gui_antialias = [4] {0-4}
+ * cios 222/223 rev4 support:
+ - using new dip_plugin and ehcmodule from uloader 3.0B
+ - external ehcmodule for rev4 has to be named: ehcmodule4.elf
+ - note: rev2&3 modules are still integrated and used appropriately.
+ * Changed url tag CC value for portugal/brasil from PO to PT
+ * Removed obsolete options: cover_url_*_wide, download_wide
+ * Show 6 letter ID in game options screen
+ * Better support for custom games in titles.txt - use full 6 letter IDs
+   if available, otherwise 4 letter IDs still work same as before.
+   Note: 6 letter ID in titles.txt was supported before but just 4 were used.
+ * Show a note in the global options screen if there are multiple config.txt
+   files used (one in base and another in apps/... dir)
+ * Fixed occasional crash with the combination of
+   options: video = game, video_patch = all
+ * Minor fixes (thanks to wiimm)
+
+cfg v42a (alpha)
+
+ * Ability to force progressive mode: (from NeoGamma)
+ - Split 'patch' video mode to a separate option:
+   video_patch = [0], 1, all
+ - 'video_patch = all' will force all modes to the selected video mode.
+   This will also force progressive / interlaced mode, depending on what
+   is configured in wii settings. This can be used for example to force
+   progressive mode if the game will otherwise use interlaced mode (MPT)
+ - The equivalent of the old video = patch is now:
+     video = system
+     video_patch = 1
+   This will patch NTSC -> PAL modes if console is PAL
+   and PAL -> NTSC modes if console is NTSC
+   This will not change interlaced / progressive mode
+
+ * Allow wiird to work if ocarina is enabled and no codes are found.
+
+
+cfg v41 (release)
+
+ * Fixed minor glitch with resized overlays
+ * Increased hide game limit to 500
+ * Updated all themes in the package to use overlays
+   (while still being backward compatible)
+ * New themes included: (all using overlays)
+   - NXE_transparent by Blue-K
+   - Nature 3D by DonTlaloc
+   - Black Cat by Milcoi
+
+cfg v41b (beta)
+
+ * Streamlined steps in game install screen
+ * Fixed green screen before starting game (from cloader)
+
+cfg v41a (alpha)
+
+ * Improved theming:
+
+ * Background overlay support
+   additional images can be supplied that will be overlaid over the background:
+   - bg_overlay.png or bg_overlay_w.png for console background
+   - bg_gui_over.png or bg_gui_over_w.png for gui background
+   If *_w.png variant is not found then the normal is used.
+   New options:
+   - background_base
+   - wbackground_base
+   - background_gui
+   - wbackground_gui
+   Used to specify the background base over which the overlays are applied.
+
+ * background width can be larger than 640 and will be either
+   - scaled if widescreen
+   - cropped if not widescreen
+   down to 640x480. Note: height must still be 480.
+
+ * Option layout no longer re-sets the covers_size and wcovers_size
+   So that a cover_style or [w]cover_size in front of layout works as expected.
+
+
+cfg v40 (release)
+
+ * Increased timeout for entering password to 30 seconds
+ * Renamed option admin_lock to admin_unlock as that better describes
+   what it does - it allows you to unlock admin functionality
+ * Fixed option unlock_password
+
+cfg v40b3 (beta3)
+
+ * uLoader cIOS 222/223 rev3 support
+ - both rev2 and rev3 are supported
+ - ehcmodule for rev2 is updated to uloader 2.5
+ - ehcmodule for rev3 is from uloader 2.8D
+ - external ehcmodule for rev2 has to be named: ehcmodule.elf
+ - external ehcmodule for rev3 has to be named: ehcmodule3.elf
+   
+ * Minor GUI speed optimizations of rendering and cover loading
+
+ * Admin unlock by password
+
+ * Hide games from settings screen
+
+ * Added new config option (admin_lock = 0,[1]) for admin locking (i.e. Parental Mode).
+   When this setting is enabled, it will allow all screens normally locked by the
+   simple or disable_* settings to be unlocked via a "secret" wiimote button combination.
+   In addition: when unlocked, any covers that are hidden with the hide_game option will
+   be displayed.  To access the unlock screen, hold the 1 button down for 5-10 seconds
+   and the screen will appear.  After you see the text "Enter Code:", press the wiimote
+   buttons in the correct order.  If you were successful, the word SUCCESS will appear
+   on the screen.  Otherwise the word LOCKED! will appear.  The unlock screen has a 15
+   second timeout limit so if an incorrect (or no) password is entered, it will
+   automatically lock.  To set the lock back on with the original settings intact, hold
+   the 1 button for 5-10 seconds and the lock will automatically turn on.  When the loader
+   is started, the lock will always be enabled, so there is no need to manually set the
+   lock before you let the kiddies play.  :)
+   - NOTE: this option is enabled by default.
+ * Added new config option (unlock_password = [BUDAH12]) to allow a custom button
+   combination to be used for the admin_lock password.  
+   - NOTE: The password length is limited to 10 characters.  Do NOT use quotes around the
+     password - just type what you want it to be.  E.g.  unlock_password = 12UDAB
+   - The following are the button mappings for the password:
+      D-Pad Up:     U
+      D-Pad Down:   D
+      D-Pad Right:  R
+      D-Pad Left:   L
+      B button:     B
+      A Button:     A
+      Minus button: M
+      Plus button:  P
+      Home button:  H
+      1 button:     1
+      2 button:     2
+ * Automatically hide uLoader's CFG entry, so hide_game=__CF is no longer needed.
+ * Added new option on the Game Options screen called "Hide Game".  This allows you
+   to set which games are hidden when the admin lock is LOCKED.  In order to see this
+   option, admin_lock must be enabled (which it is by default) AND the admin lock must
+   be in an unlocked state!
+   - NOTE: this functionality completely replaces the hide_game option, but they CAN
+     be used together.  Any games currently listed in hide_game will ALWAYS be marked
+     as hidden by default in Game Options and cannot be unhidden until they are removed
+     from hide_game.  
+   - NOTE 2: An easy way to convert all your games in hide_game to this new functionality
+     is to start the loader with your hide_game still in config.txt and then go into
+     Game Options in any game (you may have to unlock admin lock first) and change
+     something and save it.  All your hide_game entries will automatically be saved.  
+     Then you can remove the hide_game entry completely from config.txt.
+ 
+
+cfg v39c (bugfix)
+
+ * Changed cheats url to: geckocodes.org
+ * Fixed SD card access in games
+ * GUI page number alignment
+
+cfg v39 (release)
+
+ * Fixed running games from SDHC
+ * GUI Text improvments:
+ - Fixed gui_text_color=black
+ - gui_text_outline and gui_text_shadow accept black and white too
+
+cfg v39b (beta)
+
+ * Improved the covers reflection
+ * GUI Text improvments:
+ - Moved gui_text_outline and gui_text_shadow to theme section
+ - Select the outline color automatically if only alpha specified
+   (now AA and 000000AA are different)
+ - Added gui_text2_* options for text on darkened background in coverflow mode
+   (faded background or reflections)
+ - Center title in gridflow modes
+ - Adjusted title position in gui for overscan
+ - Added option: gui_title_top = [0], 1
+ - Fixed sometimes unreadable text
+ * Added option: gui_lock = [0], 1
+   (locks gui style changes with up/down buttons)
+ * Increase max title length in titles.txt to 64
+ * url tag CC=ZH For W region game id (Taiwan)
+
+cfg v38 (release)
+
+ * Fixed searching for .mp3 files
+ * Fine tuned wiimote pointer scrolling in coverflow
+ * Bigger default gui font
+ * Added options: gui_text_outline=AA gui_text_shadow=AA
+ * Added a better selection of fonts
+ * Removed a few old themes (ultimate, stars)
+ * Updated titles.txt
+
+cfg v38b (beta)
+
+ * Added WiiMote pointer scrolling in coverflow modes - as you move the pointer towards 
+   the edge of the screen, the covers automatically move.  Also, the movement speed 
+   increases as the pointer approaches the edge.
+ * Added random music playing - all .mp3 or .mod files in the base
+   folder will play randomly (sd:/usb-loader by default)
+ * Added new parameter (PATH) to the "music" option in config.txt to allow
+   any folder to be specified for music playing (e.g. sd:/mp3s or usb:/mp3s)
+ * Pause music while installing new games.
+ * Changed option: download_cc_pal = [AUTO], EN, FR, DE, AU, ...
+   If AUTO is specified, then the code is set depending on the console
+   region - if Australia: AU, Brasil: PO else, console language is used.
+   This is now the default, but can still be specified as before.
+ * Support for msdos and utf8 formatted ocarina TXT files
+ * Always mount USB FAT partition, not just when there is no config.txt on SD.
+ * Minor cleanups
+
+cfg v37 (release)
+
+ * Fixed USB FAT detection on drives larger than 1TB
+   (Also FAT detection shold no longer require that the partition is marked active)
+ * Fixed covers not showing in favorites mode
+ * Minor cleanups
+
+cfg v37b2 (beta 2)
+
+ * Fixed some issues with the new libfat
+ * Display which covers are already present when downloading
+   missing covers for a single game.
+
+cfg v37b (beta)
+
+ * Improved covers loading speed - using new libfat.
+   (fixed the issues with usb hdd fat partition in v37ax)
+ * Cover downloading improvements: when downloading missing covers,
+   it will now check if it's missing for all cover styles not just the current.
+   (so that full covers can be easily downloaded, without the need to download everything)
+   Also note: pressing RIGHT will download only missing covers, while pressing LEFT will
+   force download all covers. This is valid for per-game cover download and for downloading
+   covers for all games.
+ * Changed WiiMote rotation functionality in coverflow: rotate 90 degrees to flip to the 
+   back cover and then rotate back up to 0 degrees to flip to the front.
+
+cfg v37ax (alpha-experimental ***SEE NOTE!)
+
+ * Same changes as v37a, but with new libfat for improved cover loading speed.
+   - NOTE: DO NOT USE THIS if your usb-loader directory is on a USB drive!  It will NOT mount your FAT
+     partition.  This is just a preview release for people who have all their covers / themes / 
+     config.txt on SD.
+
+cfg v37a (alpha)
+
+ * Full cover image support in all coverflow gui modes
+   - NOTE: Full covers will load in all coverflow modes by default.  If no local full cover is found, 
+     the 2D flat cover will be used.
+ * Full cover download support - choose <Download All Missing Covers> in Global Options to download
+   - NOTE: Full covers go in the "usb-loader/covers/full" directory.
+ * Added URL tags for full cover downloads.
+ * Twist the WiiMote 90 degrees (right or left) while pointing at the screen to flip the center cover 
+   over to display the back.  Up on the D-Pad continues to do the same.
+ * Mouseover on cover in coverflow mode highlights cover and shows game title.  Pressing A on the 
+   selected cover will load the game, 1 will go to Game Settings, etc.
+ * Visual improvements to cover objects in coverflow mode
+ 
+cfg v36d (bugfix)
+
+ * Fixed error when accessing network and after that using IOS 222/223-mload
+ * Improved url tag {CC} region detection for: IT, ES and NL
+ * Changed default urls to use {ID6} instead of {ID}
+
+cfg v36c (bugfix)
+
+ * Fixed url {CC} tag for US region
+ * added option: download_cc_pal = [EN], FR, DE, AU, ...
+   The code is used as a replacement for {CC} tag for PAL regions.
+   If image is not found with the supplied cc code, download is
+   retried with EN code.
+ * Changed default urls to wiitdb.com site.
+
+cfg v36 (release)
+
+ * Minor cleanups of the Cheat Manager
+   Increased limits for cheat codes (per game):
+   max 256 cheats, max 1000 total code lines
+
+ * added {CC} tag for urls (Country Code) based on
+   game region id expands to one of: EN FR DE JA KO
+
+cfg v36b (beta)
+
+ * Ocarina TXT (Cheat Code Manager)
+   (based on wiicmpnc and wiiflow)
+ * Loadstructor support (launch a game directly)
+   (either by binary gameid patch or forwarder param)
+ * Online update: size check
+
+cfg v35d (bugfix)
+
+* Fixed crash after installing a game
+
+cfg v35c (bugfix)
+
+* Stability improvements for games that require alt.dol.
+  Fixes freezes and glitches in MOH2, FIFA08 (maybe others as well)
+
+cfg v35 (release)
+
+ * Force video mode fixes
+ * Online update: progress indicator, fixed crash, compact display
+ * Reduced size of embedded graphics
+ * Minor cleanups
+
+cfg v35rc (release candidate)
+
+ * Stability improvements
+ * Added all coverflow modes to gui_style option:
+   - coverflow3d coverflow2d frontrow vertical carousel
+ * Save gui style and rows settings in global options save
+ * Online update: improved detection of boot.dol location
+ * Fixed garbaged display when printing out a code dump
+ * Increase max favorites to 64
+ * Updated covers urls
+
+cfg v35b (beta)
+
+ * Save global settings: theme and device
+ * Save selection of alt.dol from disc
+
+cfg v35a6 (alpha6)
+
+ * Online Update
+ * minor fixes
+
+cfg v35a5 (alpha5)
+
+ * Fixed theme switching
+ * Stability fixes
+ * Disabled console game list markings.
+   Can be re-enabled with options:
+   console_mark_page = [0], 1
+   console_mark_favorite = [0], 1
+   console_mark_saved = [0], 1
+
+cfg v35a4 (alpha4)
+
+ * Disabled ttf font rendering to speed up cover loading and resolve issue when music
+   is playing.
+ 
+cfg v35a3 (alpha3)
+
+ * Integrated Coverflow Gui mode
+   - NOTE: This mode renders the game covers in true 3D so 2D (flat) cover images are needed.
+     If "fake" 3D/disk cover images are currently being used (in console or Grid mode), moving to Coverflow 
+	 will automatically switch to 2D covers and then switch back when leaving.
+   - To access Coverflow mode (from console mode) press B and then down several times.
+     Each subsequent Down button press will iterate through each coverflow style.
+   - Currently only 2D flat front covers are supported.  Full cover image (front, spine,
+     back) support will be added in a future release.
+ * Favorites in console mode are now marked with a '*'
+ * Games with saved options are now marked with a '#' in the last column of the console.
+
+cfg v35a2 (alpha2)
+
+ * Fixed =+ with cover_url options
+ * Changed default urls to this:
+
+cover_url =
+cover_url =+ http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID}.png
+cover_url =+ http://boxart.rowdyruff.net/flat/{ID}.png
+cover_url =+ http://awiibit.com/BoxArt160x224/{ID}.png
+cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/EN/{ID}.png
+cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/US/{ID}.png
+
+#3d
+cover_url_3d =
+cover_url_3d =+ http://wiicover.gateflorida.com/sites/default/files/cover/3D%20Cover/{ID}.png
+cover_url_3d =+ http://boxart.rowdyruff.net/3d/{ID}.png
+cover_url_3d =+ http://awiibit.com/3dBoxArt176x248/{ID}.png
+cover_url_3d =+ http://wiitdb.com/wiitdb/artwork/cover3D/EN/{ID}.png
+cover_url_3d =+ http://wiitdb.com/wiitdb/artwork/cover3D/US/{ID}.png
+
+#disc
+cover_url_disc =
+cover_url_disc =+ http://wiicover.gateflorida.com/sites/default/files/cover/Disc%20Cover/{ID}.png
+cover_url_disc =+ http://boxart.rowdyruff.net/fulldisc/{ID}.png
+cover_url_disc =+ http://awiibit.com/WiiDiscArt/{ID}.png
+cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disc/EN/{ID}.png
+cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disc/US/{ID}.png
+
+ * option: download_all_styles = [1], 0
+   Downloading all styles (flat,3d,disc) of covers, or just the current style
+
+cfg v35a (alpha)
+
+ * Load Alternative .dol from disc (from NeoGamma by WiiPower)
+
+cfg v34 (release)
+
+ * Changed default URLS to sites:
+   1. wiicover.gateflorida.com
+   2. boxart.rowdyruff.net
+ 
+ * Retry downloading from all available servers if cover not found
+ 
+ * Multiple URLS can be specified for cover_url_* options
+   They can be in the same line separated with space, example:
+   cover_url = http://site1.com/{ID}.png http://site2.org/{ID}.png
+   Or in multiple lines using =+ to add instead of =, example:
+   cover_url = http://site1.com/{ID}.png
+   cover_url =+ http://site2.org/{ID}.png
+   cover_url =+ http://site3.net/{ID}.png
+
+ * Added another URL tag: {ID} which will try automatically to
+   find the correct ID by trying ID6, ID4 and ID3
+
+ * Download all cover styles at the same time: 2d, 3d and disc
+
+ * option: download_id_len = [4], 6
+   Specifies the downloaded cover ID length for the saved file name 
+
+ * Print info when loading external ehcmodule
+
+cfg v34b (beta)
+
+ * Changed the default urls from theotherzone.com to wiiboxart.com
+   although, automatic downloading of covers from that site now requires payment,
+   which also requires changing of URL to include /USERNAME/PASSWORD/
+
+ * Changed the way cover_url options work:
+ - cover_url* are now global instead of theme options.
+ - Added per cover style url options:
+   cover_url - standard (2d) covers
+   cover_url_3d - 3d covers
+   cover_url_disc - disc covers
+ - Note: These options still work and do the same:
+   cover_url_norm, cover_url_3d_norm, cover_url_disc_norm
+ - Downloading covers in widescreen mode will no longer download resized
+   widescreen covers, instead full covers are downloaded and then resized
+   when they are being displayed. In other words, cover_url_*_norm is used
+   always instead of cover_url_*_wide in widescreen mode.
+   To revert this to previous behaviour, use the option:
+   download_wide = [0], 1 Which will use cover_url_*_wide options in widescreen mode:
+   cover_url_wide
+   cover_url_3d_wide
+   cover_url_disc_wide
+ - Note: ID_wide.png covers are still used if found in widescreen mode.
+   If not found then ID.png is used, same as before.
+
+ * Changed cover_style to not change the cover_url values as was before
+   but just selectes the proper url from one of the specified options.
+
+ * Console mode game list improvements:
+   - Added '+' indicators if there are more games in up or down directions.
+   - Added page indicator
+   
+ * Use bg_gui_wide.png for widescreen gui background.
+   If not found bg_gui.png is used instead.
+ 
+ * Themable gui resources: favorite.png, pointer.png, hourglass.png, font.png
+   See inSDRoot/usb-loader/resources for example files:
+   - favorite0.png - turns off the favorite star
+   - favorite32.png - half sized favorite star
+   - favorite64.png - full sized favorite star
+   Copy one of the above to sd:/usb-loader/favorite.png to change the favorite star.
+   
+ * option: start_favorites = [0], 1
+   Start with the favorites game list
+
+ * Ocarina codes are now searched in the following directories:
+   1. sd:/usb-loader/codes/
+   2. sd:/data/gecko/codes/
+   3. sd:/codes/
+
+ * Updated ehcmodule to uloader 2.3 (used by ios 222/223-mload)(by Hermes)
+   Load external ehcmodule if found in: sd:/usb-loader/ehcmodule.elf
+
+ * Updated Nature theme (by DonTlaloc)
+
+
+cfg v33 (release)
+
+ - When switching favorites in gui mode, move to start of the game list
+
+cfg v33b3 (beta3)
+
+ - Fixed game: Wii Sports Resort
+   (by disabling "Sam & Max" fix, which was not working properly anyway)
+
+cfg v33b2 (beta2)
+
+ - fixed ocarina
+
+cfg v33b (beta)
+
+ - Favorite Games
+   Favorite game is marked in the game options screen. To switch between
+   all games and favorite games, press 2 in either gui or console mode.
+
+ - Split game and global options screens
+ - More memory for alt.dol - higher loader start address (same as v32t1)
+ - Possible alt.dol stability improvement (bss init)
+ - If the loader is started from usb drive (fat partition) it will look
+   for the configuration first on the usb drive and if not found on sd card.
+ - Properly renamed "002 fix" to "Anti 002 fix" in game options screen
+ - Fixed crash if ocarina is enabled and MK is started
+
+cfg v32 (release)
+
+ - New default theme: BlueMatrix (by Narolez)
+ - New HBC icon (by Matriculated)
+
+cfg v32b2 (beta2)
+
+- fix for alt.dol out of memory issues 
+
+cfg v32b (beta)
+
+ - 002 fix option (002b variant)
+ - Updated ios222/223-mload ehci module and dip plugin to uLoader 2.1 version
+ - Split VIDTV option from video modes
+ - new game compatibility options:
+   vidtv = [0], 1
+   fix_002 = [0], 1
+   block_ios_reload = [0], 1
+   alt_dol = [0], 1
+ - Remeber saved settings for the above game options
+
+cfg v32a2 (alpha2)
+
+ - Alternative .dol loading option (from NeoGamma by WiiPower)
+   Loaded from loader base dir GAMEID.dol (4 letter ID)
+   [ default: sd:/usb-loader/GAMEID.dol ]
+ - Sam & Max fix (by WiiPower)
+ - Updated ios22[23]-mload ehci module from uLoader 2.0
+ - Init wpad after ios reload, so that confirm_ocarina doesn't hang
+
+cfg v32a1 (alpha1)
+
+ - Block IOS Reload option
+   (works only with IOS 222-mload or 223-mload)
+
+cfg v31c (bug fixes / minor improvements)
+
+ - cIOS 249 rev13 - 002 fix (by WiiPower)
+ - Fixed: power off button in GUI mode
+ - Fixed: gui style no longer resets when switching to console and back to gui
+ - option gui=start will switch to gui directly after device init,
+   without first displaying the game list in console mode
+ - print IOS version and revision in device selection menu
+
+cfg v31 (release)
+
+ - option: gui_style = [grid], flow, flow-z
+   Set the default GUI style
+ - option: gui_rows = [2] (Valid values: 1-4)
+   Set the default number of rows in GUI mode
+ - gui_text_color = [black], white, HEX
+   Set the text color in GUI mode
+   Note: to use a color other than a black or white, it has to be
+   represented as a HEX value with the following components: RRGGBBAA
+   RR=red, GG=green, BB=blue, AA=alpha
+   Example: red = FF0000FF, blue = 00FF00FF, yellow = 00FFFFFF
+ - Return directly back to GUI mode if any action is started from GUI mode
+   Also return to GUI if the action is canceled.
+   Action refers to one of: install, remove, options, run game
+ - Re-enabled buttons=options_B
+   If options_B is used then GUI mode switching is done with button 1
+ - Changed option covers_path to global instead of theme option
+   In addition the following options are added:
+   option: covers_path_2d
+   option: covers_path_3d
+   option: covers_path_disc
+   cover_style will then select which of the above paths is used
+   Changing covers_path will change all covers_path_* like this: 
+   covers_path_2d = covers_path
+   covers_path_3d = covers_path/3d
+   covers_path_disc = covers_path/disc
+   If you need fine controll on the 2d/3d/disc paths use the
+   covers_path_* after covers_path.
+ - Per-game save settings: country_patch, ios
+
+
+cfg v31b2 (beta2)
+
+ - GUI: New style: "flow-z"
+ - Country Patch for better compatibility with some games (by WiiPower)
+   (for Punch Out & EA Sports on JPN consoles, ...)
+   Settings menu option: "Country Patch"
+   config option: country_patch = [0], 1
+ - Fixes to IOS 222-mload/223-mload
+   (fixed occasional hang at start when ios was set in config.txt)
+ - Hide uLoader's CFG entry (hide_game=__CF) in default config.txt
+ - Updated titles.txt
+ - Updated Wolf_3D theme gui background
+
+cfg v31b: (beta)
+
+ - GUI: New style: "grid flow"
+   To change gui style mode use button up when in 4 rows mode
+   or button down when in 1 row mode
+ - GUI: Animated transition between rows change and style change
+ - Fixes to IOS 222-mload/223-mload
+ - If custom IOS is specified, load it before storage device init
+ - Added game loading progress indication when using custom IOS
+
+cfg v31a: (alpha)
+
+ - Support USB drive with a FAT partition for configuration and covers
+   (If config.txt is not found on SD, then uses USB FAT partition)
+ - Support for kwiirk and hermes cIOS 222
+   option: ios = [249], 222-yal, 222-mload, 223-yal, 223-mload, 250
+   Note: 222-yal is for kwiirk's cIOS
+   Note: 222-mload is for Hermes's cIOS
+   Note: a few seconds of delay when starting a game with custom ios is expected.
+ - Added IOS selection to options screen
+ - GUI Mode screenshot enabled with option: home = screenshot
+ - GUI: added fade transition effect from console
+ - option: gui_transition = [scroll], fade
+   Set GUI transition effect between console and gui mode
+ - GUI: animated transition when changing number of rows
+ - minor GUI fixes
+
+
+cfg v30: (release)
+
+ - Fixed crash when switching theme after gui mode
+ - Other minor GUI fixes
+
+cfg v30b: (beta)
+
+ - GUI Mode (beta)
+   By default console mode is started.
+   To switch to GUI mode, press B in main screen.
+   While in GUI mode, the following buttons are used:
+     button A : start selected game
+	 button B : return to console mode
+	 button LEFT/RIGHT : previous/next page
+	 button UP/DOWN : switch number of rows (1-3)
+	 button 1, +, - : options, install, remove
+	 button HOME : exit
+   The background image in GUI mode can be changed with the file:
+     sd:/usb-loader/themes/Theme_Name/bg_gui.png  or
+     sd:/usb-loader/bg_gui.png
+ - option: gui = [1], 0, start
+   Enable or disable GUI mode.
+   Using gui = start will start directly in GUI mode when loader is started.
+ - Start music only after usb hdd device is opened, to avoid stuttering
+   while initializing the usb device.
+ - Other minor fixes
+
+
+cfg v30x: (experimental)
+
+ - GUI mode (experimental)
+ - fixed crash when using some forwarders 
+
+cfg v29d:
+
+ - Fixed option: hide_game=...
+
+cfg v29c:
+
+ - Fixed minor glitch in 576i mode
+
+cfg v29:
+
+ - Theme support (See README-CFG.txt for details on how to create themes)
+ - option: theme = Theme_Name
+   Load a specified theme from sd:/usb-loader/themes/Theme_Name/theme.txt
+ - Runtime theme change from the options menu
+ - Fixed mp3 stuttering
+ - Now mp3 plays fine also while installing a new game.
+ - Faster loading of game covers and scrolling through the game list
+ - Now it works fast also with large (1000+) collection of covers in same directory
+ - Fixed: searching for music.mp3 if base directory is not sd:/usb-loader
+ - removed obsolete option: buttons=ultimate
+
+cfg v28:
+
+ - Screenshot is saved to screenshot[1..99].png - the first which doesn't exist.
+
+ - More flexible base path - it will search for config.txt in:
+   sd:/usb-loader/, sd:/USBLoader/ and app dir which by default
+   is: sd:/apps/USBLoader, but can be something else if started with
+   homebrew channel from a different location, for example: sd:/apps/my_usb_loader/
+   The location where config.txt is first found is then used as a base for all other
+   files such as: titles.txt, settings.cfg, music, backgrounds, covers and screenshots.
+   Note1: the config.txt and titles.txt in appdir will be read in addition even
+   if the base path is one of the global paths like sd:/usb-loader.
+   Note2: background and covers paths can still be set to any path
+   using appropriate config options.
+
+ - option: cursor = ">>"
+   Changes cursor shape, at max 2 characters are used. Can be empty.
+   If you want spaces, so that the menu is not shifted use quotes
+   like this: cursor = "  "
+
+ - option: menu_plus  = "[+] "
+   Changes the [+] mark in the main, options and start menu.
+   At max 4 characters are used.
+
+
+cfg v27:
+
+ - Clear button status before formatting, so it always asks for confirmation
+ - Allow to exit from device menu with button B, if device has already been
+   selected previously
+ - Fixed crash on device retry-on-failure timeout (no ios reload)
+ - option: ios = [249], 222
+
+cfg v26:
+
+ - Fixed PNG transparency
+ - Clear button status after install, so it always asks for confimration
+
+cfg v25:
+
+ - Automatic resize of covers (4:3 -> wide) if wide cover not found.
+ It can actually resize any size to specified size with options:
+ covers_size = width, height
+   default: covers_size = 160, 225
+ wcovers_size = width, height
+   default: wcovers_size = 130, 225
+   used for widescreen setting. If not set it will use the covers_size
+   and properly scaling it to widescreen size.
+ With these changes in place the loader is now compatible with
+ the 3d cover pack by NeoRame:
+ http://rs777.rapidshare.com/files/227304261/3D_Cover_Update_29_April_2009.rar
+ - The supplied noimage.png images in covers/3d and covers/disc
+ now use transparency (tnx narolez)
+
+cfg v24:
+
+ - Support transparent PNG for covers (used by 3d and disc covers)
+ - Changed builtin background and nocover images to match the default provided inSDroot.
+ - Changed default layout to large3 (to match builtin background)
+
+cfg v23:
+
+ - Game compatibility fixes:
+ - Fixed harvest moon & nunchuck problem
+ - Added video mode: VIDTV
+   (It was previously enabled by default, but is not compatible with all games
+	so it is now a separate mode. Select it in game options / video mode.
+   	Required for Japanese and maybe some other games)
+ - Fixed network problems in games when downloading covers from loader.
+ - Restart music if it was stopped by usb device retry on failure
+
+cfg v22:
+
+ - option: console_transparent = [0], 1
+   Enable transparent console.
+ - Auto repeat Up and Down movement if button is held
+ - Allow re-download of a cover if it exists
+ - Added layout=kosaic
+
+
+cfg v21:
+
+ - Fixed downloading of NTSC covers.
+ - Check if downloaded file is a valid PNG
+ - Check for a valid HTTP status of downloaded file
+ - New set of noimage.png for 3d and disc covers (tnx Narolez)
+ - Clear console on init (Narolez)
+ - option: home = screenshot
+   make a screenshot when home button is pressed (only in main and options screens)
+ - option: confirm_ocarina = [0], 1
+ - option: cursor_jump = [0] or N
+   Sets how much moves left/right (if 0 do a end page / next page jump)
+
+
+cfg v20:
+
+ - Added option to 'Download All Missing Covers' in the options menu.
+   If selected with dpad-right, only missing covers will be donwloaded
+   If selected with dpad-left, ALL covers of installed games will be downloaded
+
+ - Support for 3d covers and disc covers
+   option: cover_style = [standard], 3d, disc
+   This option also changes the cover_url, covers_path and cover_size
+   covers_path will be set to:
+   standard: sd:/usb-loader/covers
+   3d:       sd:/usb-loader/covers/3d
+   disc:     sd:/usb-loader/covers/disc
+
+ - New set of backgrounds suitable for 3d covers
+
+ - Custom urls.
+   URL can contain any of the following tags which are then replaced
+   with proper values: {REGION}, {WIDTH}, {HEIGHT}, {ID6}, {ID4}, {ID3}
+
+   option: cover_url_norm = URL
+   (url for normal 4:3 covers)
+   default:
+      cover_url_norm = http://www.theotherzone.com/wii/{REGION}/{ID6}.png
+
+   option: cover_url_wide = URL
+   (url for widescreen covers)
+   default:
+      cover_url_wide = http://www.theotherzone.com/wii/widescreen/{REGION}/{ID6}.png
+
+   option: cover_url = URL
+   (This changes the url for both normal and widescreen covers)
+
+ - Debugging can be enabled with option: debug=1
+   It will also show some music related info
+
+
+cfg v19:
+
+ - Fixed music stuttering
+ - Fixed mp3 loop crash
+
+cfg v18:
+
+ - Improved USB and SD retry initialize on fail (tnx: Narolez)
+ - Improved mp3 loading
+ - Added support for mod files as background music
+ - option: music = [1], 0, filename
+   option music will now accept a filename (.mp3 or .mod) which
+   can be relative to sd:/usb-loader or an absolute pathname
+   if option is set to: music = 1 then it will search for music.mp3
+   or music.mod whichever is found first in sd:/usb-loader
+
+cfg v17:
+
+ - Eject DVD after install is complete if button A is pressed
+ - option: hide_game = [0], GAMEID1, GAMEID2, ...
+   Hide games from list (can be used for parental control)
+   Multiple games can be specified in one line separated by comma ","
+   or each game in a separate hide_game = GAMEID line.
+   setting hide_game = 0 will reset the hide list.
+   GAMEID is a 4 letter game ID.
+   Example: hide_game = RZZP, RDCP
+ - option: pref_game = [0], GAMEID1, GAMEID2, ...
+   Preffered games, to be shown first in the list.
+   Syntax is same as with hide_game.
+   Example: pref_game = RHAP, RSSP
+ - Show number of games after hdd info
+
+cfg v16:
+
+ - fixed music sometimes not working
+ - widescreen support
+   option: widescreen=[auto], 0, 1
+   If widescreen is enabled (or autodetected) then the following options are used:
+   option: wbackground=filename.png
+   option: wconsole_coords=x,y,w,h
+   option: wcovers_coords=x,y
+   Note 1: widescreen will be enabled only if the file specified by wbackground
+   is found, otherwise it will fall back to normal mode.
+   Note 2: cover images have to be named GAMEID_wide.png
+   downloading covers will save them with this name automatically.
+   Note 3: some layouts will specify widescreen cooridinates automatically
+   like: large3 and ultimate3, so there is no need to specify them manually,
+   if one of these layouts are used.
+
+cfg v15:
+
+ - Added Force PAL50, PAL60, NTSC video modes (tnx Narolez)
+   option: video=pal50, pal60, ntsc
+ - Light up DVD slot when install finished (Dteyn/Bool)
+ - BETA: mp3 background music - plays a sd:/usb-loader/music.mp3 if found.
+   NOTE: sometimes the audio stutters, not sure how to fix it
+   Can be disabled with option: music=0
+
+
+cfg v14:
+
+ - Colored console text:
+   option: colors=[dark], light, mono
+   will select a predefined set of colors for a dark or light background
+   or normal 2 color text if mono is specified
+   Individual text colors can be specified with options:   
+   color_header, color_selected_fg, color_selected_bg,
+   color_inactive, color_footer, color_help
+ - Fixed individual disable_xxx settings. (tnx. Narolez)
+
+cfg v13:
+
+ - Support running games from a SD/SDHC Card with a WBFS and FAT32 partition.
+   So you can have the loader, covers, background and other configuration files
+   on the FAT partition and games on WBFS partition.
+   Note: this worked in waninkoko original 1.4 but seems broken in 1.5.
+ - Minor fixes to download covers from internet (tnx: Don Killah)
+ - Fixed simple=1 option
+
+cfg v12:
+
+ - fine granularity of simple options:
+   added options: disable_remove, disable_install, disable_options, disable_format
+   by default none of this is set.
+   setting simple=1 will change all of these disable_xxx options and
+   hide_hddinfo and hide_footer to 1 and confirm_start to 0.
+   setting simple=0 will do the opposite.
+   any of the disable_xxx, hide_xxx and confirm_start options can be set individually.
+ - allow absolute paths for background (like sd:/somedir/myimage.png)
+   if the specified background is not an absolute path it is searched
+   in default directory (sd:/usb-loader)
+ - option: install_partitions = [all], only_game
+ - minor stuff: background version, fixed default apps/USBLoader/config.txt
+
+
+
+cfg v11:
+
+ - Rebase code to waninkoko SDUSB Loader 1.5
+
+cfg v10:
+
+ - load game covers from the options menu (by hungyip84/forsaken)
+ - fixed Japan (and other regions) games (tnx: Narolez)
+ - support for covers with 4 letter ID like: RHAP.png
+   (6 letter ID file names like: RHAP01.png are of course still supported.)
+   Covers that are downloaded from the options menu will be automatically saved
+   to a file with 4 letter ID instead of 6.
+
+cfg v9:
+
+ - new set of backgrounds to match the new buttons=options mode
+ - option: layout=large3 to match the new backgrounds
+ - automatically set number of entries per page
+   and number of characters from the console size
+ - buttons=options_B for alternative button layout (press B to enter options menu)
+ - option: layout=ultimate3 to match WiiShiza backgrounds from ultimate V 3-7
+   note: ultimate 7 background use in combination with buttons=options_B
+ - options to control the look of main menu:
+   option: hide_header = [0],1 
+   option: hide_hddinfo = [0],1 
+   option: hide_hfooter = [0],1 
+ - included titles.txt from: http://wiki.gbatemp.net/wiki/index.php/USB_Loader_titles.txt
+ - cleaned up the sample config files to match the sample backgrounds
+ - remove confirmation for Ocarina, since it is configurable
+ - fixed display of titles longer than console
+ - fixed a crash with odd x coordinates
+ - other minor fixes
+
+cfg v8:
+
+ - option: device=[ask], usb, sdhc
+ - option: confirm_start=[1], 0
+ - option: buttons=[options], original
+ With buttons=options mode, you can edit options in a menu:
+ direction buttons - select and change options
+ button 1 - enter options menu
+ button 2 - save/discard game options
+
+cfg v7:
+
+ - Added per-game saved settings (video, language, ocarina)
+   Per-game settings can be saved/forgotten in the start game
+   screen with button 2.
+   The settings are saved to sd:/usb-loader/settings.cfg
+
+cfg v6:
+
+ - option: buttons=[original], ultimate  (change button controls layout.)
+   The button layout "ultimate" is:
+       BUTTON 1 - force video option
+       BUTTON 2 - ocarina option
+       BUTTON B - language option
+
+cfg v5:
+
+ - merge changes from hungyip84 Ultimate V6:
+ - language selection (config option: language=...)
+ - video modes (config option: video=system, game, patch)
+
+cfg v4:
+
+ - Rebase code to waninkoko SDUSB Loader 1.4
+
+cfg v3:
+
+ - Rebase code to waninkoko SDUSB Loader 1.3
+ - standard SD mode for background and cover access still works
+   (waninkoko's requires new cios with SDHC support)
+ - changed default base path from sd:/USBLoader to sd:/usb-loader
+   so it uses the same path as waninkoko.
+   (If new path is not found, it reverts to the old one)
+ - fix ocarina path
+ - fix loading config from HBC app dir (/app/usbloader_cfg/config.txt)
+ - option: console_entries=N (number of shown games in list)
+ - option: layout=original2 (waninkoko 1.2-1.3)
+
+cfg v2:
+
+ - option: layout=large2 matches usptactical cover coordinates
+ - option: layout=ultimate1 (WiiShizza)
+ - option: layout=ultimate2 (jservs7 / hungyip84)
+ - option: console_coords=x,y,width,height
+ - option: console_color=foreground,background (color values: 0-15)
+ - option: covers_coords=x,y
+ - option: covers_path=path
+ - show noimage.png if cover missing
+ - sd bug fix (56Killer)
+
+cfg v1:
+
+Based on Wanikoko & Kwiirk USB Loader 1.1 + nIxx mod (USBLoader1.1ssorgmod+cover)
+including:
+ - Sorg mod1.02 (Sorg)
+ - Ocarina (fishears)
+ - Cover (usptactical)
+ - Video Force
+ - Simple / childproof
+ - Config, Title rename (oggzee)
+

@@ -19,6 +19,7 @@ s32 WDVD_WaitForDisc(void);
 s32 WDVD_GetCoverStatus(u32 *);
 s32 WDVD_SetWBFSMode(u32, u8 *);
 s32 WDVD_Eject(void);
+s32 WDVD_Read_Disc_BCA(void *buf);
 
 // yal
 int YAL_Set_OffsetBase(unsigned int Base);

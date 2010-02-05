@@ -32,6 +32,9 @@
 #include "dvd_broadway.h"
 #include "wpad.h"
 #include "cfg.h"
+#include "fat.h"
+#include "menu.h"
+#include "video.h"
 
 #include "patchcode.h"
 #include "kenobiwii.h"
@@ -46,9 +49,9 @@
 #define MAX_FILENAME_LEN	128
 
 
-static vu32 dvddone = 0;
+//static vu32 dvddone = 0;
 
-
+#if 0
 // Real basic 
 u32 do_sd_code(char *filename)
 {
@@ -58,6 +61,8 @@ u32 do_sd_code(char *filename)
 	u32 ret;
 	u32 ret_val = 0;
 	char filepath[128];
+	char *fat_drive = FAT_DRIVE;
+	int i;
 	
 	/*
 	// fat already initialized in main()
@@ -71,15 +76,35 @@ u32 do_sd_code(char *filename)
 
 	fflush(stdout);
 	
-	//snprintf(filepath, sizeof(filepath), "%s/%s.gct", FILEDIR, filename);
-	snprintf(filepath, sizeof(filepath), "%s%s/%s.gct", FAT_DRIVE, FILEDIR, filename);
+	printf("[+] Ocarina: Searching codes...\n");
 
-	//printf("filename %s\n",filepath);
-	
-	fp = fopen(filepath, "rb");
+	for (i=0; i<3; i++) {
+		switch (i) {
+		case 0:
+			snprintf(filepath, sizeof(filepath), "%s%s/%s.gct",
+				USBLOADER_PATH, FILEDIR, filename);
+			break;
+		case 1:
+			snprintf(filepath, sizeof(filepath), "%s/data/gecko%s/%s.gct",
+				fat_drive, FILEDIR, filename);
+			break;
+		case 2:
+			snprintf(filepath, sizeof(filepath), "%s%s/%s.gct",
+				fat_drive, FILEDIR, filename);
+			break;
+		}
+		printf("    %s\n", filepath);
+		fp = fopen(filepath, "rb");
+		if (fp) break;
+		if (i == 2 && strcmp(fat_drive, "usb:") == 0) {
+			// retry on sd:
+			fat_drive = "sd:";
+			i = 0;
+		}
+	}
 	if (!fp) {
-		printf("[+] Ocarina: No SD codes found\n");
-		sleep(2);
+		printf("[+] Ocarina: No codes found\n");
+		sleep(3);
 		return 0;
 	}
 
@@ -89,6 +114,7 @@ u32 do_sd_code(char *filename)
 	
 	filebuff = (u8*) malloc (filesize);
 	if(filebuff == 0){
+		printf("[+] Ocarina: Out Of Memory Error\n");
 		fclose(fp);
 		sleep(2);
 		return 0;
@@ -96,13 +122,13 @@ u32 do_sd_code(char *filename)
 
 	ret = fread(filebuff, 1, filesize, fp);
 	if(ret != filesize){	
-		printf("[+] Ocarina: SD Code Error\n");
+		printf("[+] Ocarina: Code Error\n");
 		free(filebuff);
 		fclose(fp);
 		sleep(2);
 		return 0;
 	}
-    printf("[+] Ocarina: SD Codes found.\n");
+    printf("[+] Ocarina: Codes found.\n");
 
 	// ocarina config options are done elswhere, confirmation optional
 	if (!CFG.confirm_ocarina) goto no_confirm;
@@ -144,4 +170,97 @@ u32 do_sd_code(char *filename)
 	return ret_val;
 }
 
+#endif
+
+u8 *code_buf = NULL;
+int code_size = 0;
+
+int ocarina_load_code(u8 *id)
+{
+	char filename[8];
+	char filepath[128];
+	char *fat_drive = FAT_DRIVE;
+	int i;
+	memset(filename, 0, sizeof(filename));
+	memcpy(filename, id, 6);
+	
+	printf_x("Ocarina: Searching codes...\n");
+
+	for (i=0; i<3; i++) {
+		switch (i) {
+		case 0:
+			snprintf(filepath, sizeof(filepath), "%s%s/%s.gct",
+				USBLOADER_PATH, FILEDIR, filename);
+			break;
+		case 1:
+			snprintf(filepath, sizeof(filepath), "%s/data/gecko%s/%s.gct",
+				fat_drive, FILEDIR, filename);
+			break;
+		case 2:
+			snprintf(filepath, sizeof(filepath), "%s%s/%s.gct",
+				fat_drive, FILEDIR, filename);
+			break;
+		}
+		printf_("%s\n", filepath);
+		code_size = Fat_ReadFile(filepath, (void*)(&code_buf));
+		if (code_size > 0 && code_buf) break;
+		SAFE_FREE(code_buf);
+		code_size = 0;
+		if (i == 2 && strcmp(fat_drive, "usb:") == 0) {
+			// retry on sd:
+			fat_drive = "sd:";
+			i = 0;
+		}
+	}
+	if (!code_buf) {
+		printf_x("Ocarina: No codes found\n");
+		sleep(2);
+		return 0;
+	}
+
+    printf_x("Ocarina: Codes found.\n");
+
+	// optional confirmation
+	if (CFG.confirm_ocarina) {
+		Gui_Console_Enable();
+		printf_h("Press A button to apply codes.\n");
+		printf_h("Press B button to skip codes.\n");
+		/* Wait for user answer */
+		for (;;) {
+			u32 buttons = Wpad_WaitButtons();
+			if (buttons == WPAD_BUTTON_A) break;
+			if (buttons == WPAD_BUTTON_B) {
+				SAFE_FREE(code_buf);
+				code_size = 0;
+				break;
+			}
+		}
+	}
+
+	return code_size;
+}
+
+int ocarina_do_code()
+{
+	if (!CFG.game.ocarina) return 0;
+	if (!code_buf) {
+		if (usb_isgeckoalive(EXI_CHANNEL_1)){
+			printf_("USB Gecko found. Debugging is enabled.\n");
+		} else {
+			return 0;
+		}
+	}
+	// HOOKS STUFF - FISHEARS
+	memset((void*)0x80001800,0,kenobiwii_size);
+	memcpy((void*)0x80001800,kenobiwii,kenobiwii_size);
+	DCFlushRange((void*)0x80001800,kenobiwii_size);
+	hooktype = 1;
+	memcpy((void*)0x80001800, (char*)0x80000000, 6);	// For WiiRD
+	// copy codes over
+	memcpy((void*)0x800027E8,code_buf,code_size);
+	// enable flag
+	*(vu8*)0x80001807 = 0x01;
+	// hooks are patched in dogamehooks()
+	return 1;
+}
 

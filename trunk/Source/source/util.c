@@ -1,15 +1,38 @@
+
+// by oggzee
+
 #include <ogcsys.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <malloc.h>
 #include <stdio.h>
 #include <ctype.h>
 
-extern void* SYS_AllocArena2MemLo(u32 size,u32 align);
+#include "console.h"
+#include "menu.h"
+#include "util.h"
 
-char* strcopy(char *dest, char *src, int size)
+extern void* SYS_GetArena2Lo();
+extern void* SYS_GetArena2Hi();
+extern void* SYS_AllocArena2MemLo(u32 size,u32 align);
+extern void* __SYS_GetIPCBufferLo();
+extern void* __SYS_GetIPCBufferHi();
+
+static void *mem2_start = NULL;
+
+
+char* strcopy(char *dest, const char *src, int size)
 {
 	strncpy(dest,src,size);
 	dest[size-1] = 0;
+	return dest;
+}
+
+char *strappend(char *dest, char *src, int size)
+{
+	int len = strlen(dest);
+	strcopy(dest+len, src, size-len);
 	return dest;
 }
 
@@ -31,7 +54,6 @@ bool str_replace(char *str, char *olds, char *news, int size)
 	str[len] = 0;
 	return true;
 }
-
 
 extern long long gettime();
 extern u32 diff_msec(long long start, long long end);
@@ -64,4 +86,202 @@ void LARGE_free(void *ptr)
 	// nothing
 }
 
+size_t LARGE_used()
+{
+	size_t size = SYS_GetArena2Lo() - (void*)0x90000000;
+	return size;
+}
+
+void memstat2()
+{
+	void *m2base = (void*)0x90000000;
+	void *m2lo = SYS_GetArena2Lo();
+	void *m2hi = SYS_GetArena2Hi();
+	void *ipclo = __SYS_GetIPCBufferLo();
+	void *ipchi = __SYS_GetIPCBufferHi();
+	size_t isize = ipchi - ipclo;
+	printf("\n");
+	printf("MEM2: %p %p %p\n", m2base, m2lo, m2hi);
+	printf("s:%d u:%d f:%d\n", m2hi - m2base, m2lo - m2base, m2hi - m2lo);
+	printf("s:%.2f MB u:%.2f MB f:%.2f MB\n",
+			(float)(m2hi - m2base)/1024/1024,
+			(float)(m2lo - m2base)/1024/1024,
+			(float)(m2hi - m2lo)/1024/1024);
+	printf("IPC:  %p %p %d\n", ipclo, ipchi, isize);
+}
+
+// save M2 ptr
+void util_init()
+{
+	void _con_alloc_buf(s32 *conW, s32 *conH);
+	_con_alloc_buf(NULL, NULL);
+	mem2_start = SYS_GetArena2Lo();
+}
+
+void util_clear()
+{
+	// game start: 0x80004000
+	// game end:   0x80a00000 approx
+	void *game_start = (void*)0x80004000;
+	void *game_end   = (void*)0x80a00000;
+	u32 size;
+
+	// clear mem1 main
+	size = game_end - game_start;
+	//printf("Clear %p [%x]\n", game_start, size); __console_flush(0);
+	memset(game_start, 0, size);
+	DCFlushRange(game_start, size);
+
+	// clear mem2
+	if (mem2_start == NULL) return;
+	size = SYS_GetArena2Lo() - mem2_start;
+	//printf("Clear %p [%x]\n", mem2_start, size); __console_flush(0); sleep(2);
+	memset(mem2_start, 0, size);
+	DCFlushRange(mem2_start, size);
+
+	// clear mem1 heap
+	// find appropriate size
+	void *p;
+	for (size = 10*1024*1024; size > 0; size -= 128*1024) {
+		p = memalign(32, size);
+		if (p) {
+			//printf("Clear %p [%x] %p\n", p, size, p+size);
+			//__console_flush(0); sleep(2);
+			memset(p, 0, size);
+			DCFlushRange(p, size);
+			free(p);
+			break;
+		}
+	}
+}
+
+// Thanks Dteyn for this nice feature =)
+// Toggle wiilight (thanks Bool for wiilight source)
+void wiilight(int enable)
+{
+	static vu32 *_wiilight_reg = (u32*)0xCD0000C0;
+    u32 val = (*_wiilight_reg&~0x20);        
+    if(enable) val |= 0x20;             
+    *_wiilight_reg=val;            
+}
+
+int mbs_len(char *s)
+{
+	int count, n;
+	for (count = 0; *s; count++) {
+		n = mblen(s, 4);
+		if (n < 0) {
+			// invalid char, ignore
+			n = 1;
+		}
+		s += n;
+	}
+	return count;
+}
+
+bool mbs_trunc(char *mbs, int n)
+{
+	int len = mbs_len(mbs);
+	if (len <= n) return false;
+	int slen = strlen(mbs);
+	wchar_t wbuf[n+1];
+	wbuf[0] = 0;
+	mbstowcs(wbuf, mbs, n);
+	wbuf[n] = 0;
+	wcstombs(mbs, wbuf, slen+1);
+	return true;
+}
+
+int mbs_coll(char *a, char *b)
+{
+	int lena = strlen(a);
+	int lenb = strlen(b);
+	wchar_t wa[lena+1];
+	wchar_t wb[lenb+1];
+	int wlen, i;
+	int sa, sb, x;
+	wlen = mbstowcs(wa, a, lena);
+	wa[wlen>0?wlen:0] = 0;
+	wlen = mbstowcs(wb, b, lenb);
+	wb[wlen>0?wlen:0] = 0;
+	for (i=0; wa[i] || wb[i]; i++) {
+		sa = wa[i];
+		if ((unsigned)sa < MAX_USORT_MAP) sa = usort_map[sa];
+		sb = wb[i];
+		if ((unsigned)sb < MAX_USORT_MAP) sb = usort_map[sb];
+		x = sa - sb;
+		if (x) return x;
+	}
+	return 0;
+}
+
+int map_ufont(int c)
+{
+	int i;
+	if ((unsigned)c < 512) return c;
+	for (i=0; ufont_map[i]; i+=2) {
+		if (ufont_map[i] == c) return ufont_map[i+1];
+	}
+	return 0;
+}
+
+void hex_dump1(void *p, int size)
+{
+	char *c = p;
+	int i;
+	for (i=0; i<size; i++) {
+		unsigned cc = (unsigned char)c[i];
+		if (cc < 32 || cc > 128) {
+			printf("%02x", cc);
+		} else {
+			printf("%c ", cc);
+		}
+	}	
+}
+
+void hex_dump2(void *p, int size)
+{
+	int i = 0, j, x = 12;
+	char *c = p;
+	printf("\n");
+	while (i<size) {
+		printf("%02x ", i);
+		for (j=0; j<x && i+j<size; j++) printf("%02x", (int)c[i+j]);
+		printf(" |");
+		for (j=0; j<x && i+j<size; j++) {
+			unsigned cc = (unsigned char)c[i+j];
+			if (cc < 32 || cc > 128) cc = '.';
+			printf("%c", cc);
+		}
+		printf("|\n");
+		i += x;
+	}	
+}
+
+void hex_dump3(void *p, int size)
+{
+	int i = 0, j, x = 16;
+	char *c = p;
+	while (i<size) {
+		printf_("");
+		for (j=0; j<x && i+j<size; j++) printf("%02x", (int)c[i+j]);
+		printf("\n");
+		i += x;
+	}	
+}
+
+
+#if 0
+
+void memstat()
+{
+	//malloc_stats();
+}
+
+void memcheck()
+{
+	//mallinfo();
+}
+
+#endif
 

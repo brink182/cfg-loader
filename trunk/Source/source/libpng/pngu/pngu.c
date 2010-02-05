@@ -9,8 +9,10 @@ More info : http://frontier-dev.net
 ********************************************************************************************/
 #include <stdio.h>
 #include <malloc.h>
+#include <stdlib.h>
 #include "pngu.h"
-#include "../png.h"
+//#include "../png.h"
+#include "png.h"
 
 
 // Constants
@@ -21,6 +23,7 @@ More info : http://frontier-dev.net
 // Prototypes of helper functions
 int pngu_info (IMGCTX ctx);
 int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlpha);
+int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height);
 void pngu_free_info (IMGCTX ctx);
 void pngu_read_data_from_buffer (png_structp png_ptr, png_bytep data, png_size_t length);
 void pngu_write_data_to_buffer (png_structp png_ptr, png_bytep data, png_size_t length);
@@ -35,6 +38,7 @@ struct _IMGCTX
 	void *buffer;
 	char *filename;
 	PNGU_u32 cursor;
+	PNGU_u32 buf_size; // buffer size
 
 	PNGU_u32 propRead;
 	PNGUPROP prop;
@@ -51,14 +55,14 @@ struct _IMGCTX
 
 // PNGU Implementation //
 
-IMGCTX PNGU_SelectImageFromBuffer (const void *buffer)
+IMGCTX PNGU_SelectImageFromBufferX (const void *buffer, int size)
 {
 	IMGCTX ctx = NULL;
 
 	if (!buffer)
 		return NULL;
 
-	ctx = malloc (sizeof (struct _IMGCTX));
+	ctx = calloc (sizeof (struct _IMGCTX), 1);
 	if (!ctx)
 		return NULL;
 
@@ -68,8 +72,14 @@ IMGCTX PNGU_SelectImageFromBuffer (const void *buffer)
 	ctx->filename = NULL;
 	ctx->propRead = 0;
 	ctx->infoRead = 0;
+	ctx->buf_size = size;
 
 	return ctx;
+}
+
+IMGCTX PNGU_SelectImageFromBuffer (const void *buffer)
+{
+	return PNGU_SelectImageFromBufferX(buffer, 0);
 }
 
 
@@ -80,7 +90,7 @@ IMGCTX PNGU_SelectImageFromDevice (const char *filename)
 	if (!filename)
 		return NULL;
 
-	ctx = malloc (sizeof (struct _IMGCTX));
+	ctx = calloc (sizeof (struct _IMGCTX), 1);
 	if (!ctx)
 		return NULL;
 
@@ -683,6 +693,310 @@ int PNGU_DecodeTo4x4RGBA8 (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *bu
 }
 
 
+//########################################################################################
+//----------  Start CMPR added section ---------------------------------------------------
+//########################################################################################
+
+static inline PNGU_u16 rgb8ToRGB565(PNGU_u8 *color)
+{
+	return ((color[0] >> 3) << 11) | ((color[1] >> 2) << 5) | (color[2] >> 3);
+}
+
+static int colorDistance(const PNGU_u8 *c0, const PNGU_u8 *c1)
+{
+	return (c1[0] - c0[0]) * (c1[0] - c0[0]) + (c1[1] - c0[1]) * (c1[1] - c0[1]) + (c1[2] - c0[2]) * (c1[2] - c0[2]);
+}
+
+static void getBaseColors(PNGU_u8 *color0, PNGU_u8 *color1, const PNGU_u8 *srcBlock)
+{
+	int maxDistance = -1;
+	int i;
+	int j;
+
+	for (i = 0; i < 15; ++i)
+		for (j = i + 1; j < 16; ++j)
+		{
+			int distance = colorDistance(srcBlock + i * 4, srcBlock + j * 4);
+			if (distance > maxDistance)
+			{
+				maxDistance = distance;
+				*(PNGU_u32 *)color0 = ((PNGU_u32 *)srcBlock)[i];
+				*(PNGU_u32 *)color1 = ((PNGU_u32 *)srcBlock)[j];
+			}
+		}
+	if (rgb8ToRGB565(color0) < rgb8ToRGB565(color1))
+	{
+		PNGU_u32 tmp;
+		tmp = *(PNGU_u32 *)color0;
+		*(PNGU_u32 *)color0 = *(PNGU_u32 *)color1;
+		*(PNGU_u32 *)color1 = tmp;
+	}
+}
+
+static PNGU_u32 colorIndices(const PNGU_u8 *color0, const PNGU_u8 *color1, const PNGU_u8 *srcBlock)
+{
+	PNGU_u16 colors[4][4];
+	PNGU_u32 res = 0;
+	int i;
+
+	// Make the 4 colors available in the block
+	colors[0][0] = (color0[0] & 0xF8) | (color0[0] >> 5);
+	colors[0][1] = (color0[1] & 0xFC) | (color0[1] >> 6);
+	colors[0][2] = (color0[2] & 0xF8) | (color0[2] >> 5);
+	colors[1][0] = (color1[0] & 0xF8) | (color1[0] >> 5);
+	colors[1][1] = (color1[1] & 0xFC) | (color1[1] >> 6);
+	colors[1][2] = (color1[2] & 0xF8) | (color1[2] >> 5);
+	colors[2][0] = (2 * colors[0][0] + 1 * colors[1][0]) / 3;
+	colors[2][1] = (2 * colors[0][1] + 1 * colors[1][1]) / 3;
+	colors[2][2] = (2 * colors[0][2] + 1 * colors[1][2]) / 3;
+	colors[3][0] = (1 * colors[0][0] + 2 * colors[1][0]) / 3;
+	colors[3][1] = (1 * colors[0][1] + 2 * colors[1][1]) / 3;
+	colors[3][2] = (1 * colors[0][2] + 2 * colors[1][2]) / 3;
+	for (i = 15; i >= 0; --i)
+	{
+		int c0 = srcBlock[i * 4 + 0];
+		int c1 = srcBlock[i * 4 + 1];
+		int c2 = srcBlock[i * 4 + 2];
+		int d0 = abs(colors[0][0] - c0) + abs(colors[0][1] - c1) + abs(colors[0][2] - c2);
+		int d1 = abs(colors[1][0] - c0) + abs(colors[1][1] - c1) + abs(colors[1][2] - c2);
+		int d2 = abs(colors[2][0] - c0) + abs(colors[2][1] - c1) + abs(colors[2][2] - c2);
+		int d3 = abs(colors[3][0] - c0) + abs(colors[3][1] - c1) + abs(colors[3][2] - c2);
+		int b0 = d0 > d3;
+		int b1 = d1 > d2;
+		int b2 = d0 > d2;
+		int b3 = d1 > d3;
+		int b4 = d2 > d3;
+		int x0 = b1 & b2;
+		int x1 = b0 & b3;
+		int x2 = b0 & b4;
+		res |= (x2 | ((x0 | x1) << 1)) << ((15 - i) << 1);
+	}
+	return res;
+}
+
+int PNGU_DecodeToCMPR(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
+{
+	int result;
+	PNGU_u8 srcBlock[16 * 4];
+	PNGU_u8 color0[4];
+	PNGU_u8 color1[4];
+	PNGU_u8 *outBuf = (PNGU_u8 *)buffer;
+	int ii;
+	int jj;
+	int k;
+
+	//check for alpha channel
+	if ( !(ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY_ALPHA) && !(ctx->prop.imgColorType == PNGU_COLOR_TYPE_RGB_ALPHA) ) {
+		result = pngu_decode_add_alpha (ctx, width, height);
+	} else {
+		result = pngu_decode (ctx, width, height, 0);
+	}
+	if (result != PNGU_OK)
+		return result;
+
+	width = width & ~7u;
+	height = height & ~7u;
+
+	// Alpha channel present, copy image to the output buffer
+	for (jj = 0; jj < height; jj += 8)
+		for (ii = 0; ii < width; ii += 8)
+			for (k = 0; k < 4; ++k)
+			{
+				int j = jj + ((k >> 1) << 2);	// jj + 0, jj + 0, jj + 4, jj + 4
+				int i = ii + ((k & 1) << 2);	// ii + 0, ii + 4, ii + 0, ii + 4
+				memcpy(srcBlock, ctx->row_pointers[j] + i * 4, 16);
+				memcpy(srcBlock + 4 * 4, ctx->row_pointers[j + 1] + i * 4, 16);
+				memcpy(srcBlock + 8 * 4, ctx->row_pointers[j + 2] + i * 4, 16);
+				memcpy(srcBlock + 12 * 4, ctx->row_pointers[j + 3] + i * 4, 16);
+				getBaseColors(color0, color1, srcBlock);
+				*(PNGU_u16 *)outBuf = rgb8ToRGB565(color0);
+				outBuf += 2;
+				*(PNGU_u16 *)outBuf = rgb8ToRGB565(color1);
+				outBuf += 2;
+				*(PNGU_u32 *)outBuf = colorIndices(color0, color1, srcBlock);
+				outBuf += 4;
+			}
+	// Free resources
+	free (ctx->img_data);
+	free (ctx->row_pointers);
+
+	// Success
+	return PNGU_OK;
+}
+
+void ExtractBlock( PNGU_u8 *inPtr, int y, int x, PNGU_u32 width, int i, PNGU_u8 colorBlock[] ) {
+	PNGU_u32 offset;
+	PNGU_u8 r, g, b, a;
+
+	offset = (((y >> 2)<<4)*width) + ((x >> 2)<<6) + ((((y&3) << 2) + (x&3) ) << 1);
+	//offset = (((y >> 2) << 4)*width) + ((x >> 2) << 6) + (((y % 4 << 2) + x % 4) << 1);
+	//get rgba values based on the RGBA8 offsets
+	a = *(inPtr+offset);
+	r = *(inPtr+offset+1);
+	g = *(inPtr+offset+32);
+	b = *(inPtr+offset+33);
+	colorBlock[i*4] = r;
+	colorBlock[i*4+1] = g;
+	colorBlock[i*4+2] = b;
+	colorBlock[i*4+3] = a;
+
+}
+
+/**
+ * Converts a 4x4 RGBA8 image to CMPR.
+ */ 
+int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr)
+{
+	PNGU_u8 srcBlock[16 * 4];
+	PNGU_u8 color0[4];
+	PNGU_u8 color1[4];
+	PNGU_u8 *outBuf = (PNGU_u8 *)buf_cmpr;
+	PNGU_u8 *rgba = (PNGU_u8 *)buf_rgb;
+	int jj, ii, i, j, k;
+
+	width = width & ~7u;
+	height = height & ~7u;
+	
+	// loop over blocks
+	//CMPR needs 4x4 block of pixels:
+	//image row 0:  0, 1, 2, 3 (first 16 block)
+	//image row 1:  0, 1, 2, 3 (second 16 block)
+	//image row 2:  0, 1, 2, 3 (third 16 block)
+	//image row 3:  0, 1, 2, 3 (last 16 block)
+
+	//image row 0:  4, 5, 6, 7 (first 16 block)
+	//image row 1:  4, 5, 6, 7 (second 16 block)
+	//image row 2:  4, 5, 6, 7 (third 16 block)
+	//image row 3:  4, 5, 6, 7 (last 16 block)
+
+	//image row 4:  0, 1, 2, 3 (first 16 block)
+	//image row 5:  0, 1, 2, 3 (second 16 block)
+	//image row 6:  0, 1, 2, 3 (third 16 block)
+	//image row 7:  0, 1, 2, 3 (last 16 block)
+
+	//image row 4:  4, 5, 6, 7 (first 16 block)
+	//image row 5:  4, 5, 6, 7 (second 16 block)
+	//image row 6:  4, 5, 6, 7 (third 16 block)
+	//image row 7:  4, 5, 6, 7 (last 16 block)
+
+	for(jj = 0; jj < height; jj += 8)
+		for(ii = 0; ii < width; ii += 8)
+			for (k=0; k < 4; k++)
+			{
+				j = jj + ((k >> 1) << 2);	// jj + 0, jj + 0, jj + 4, jj + 4
+				i = ii + ((k & 1) << 2);	// ii + 0, ii + 4, ii + 0, ii + 4
+
+				ExtractBlock(rgba, j, i, width, 0, srcBlock);
+				ExtractBlock(rgba, j, i+1, width, 1, srcBlock);
+				ExtractBlock(rgba, j, i+2, width, 2, srcBlock);
+				ExtractBlock(rgba, j, i+3, width, 3, srcBlock);
+
+				ExtractBlock(rgba, j+1, i, width, 4, srcBlock);
+				ExtractBlock(rgba, j+1, i+1, width, 5, srcBlock);
+				ExtractBlock(rgba, j+1, i+2, width, 6, srcBlock);
+				ExtractBlock(rgba, j+1, i+3, width, 7, srcBlock);
+
+				ExtractBlock(rgba, j+2, i, width, 8, srcBlock);
+				ExtractBlock(rgba, j+2, i+1, width, 9, srcBlock);
+				ExtractBlock(rgba, j+2, i+2, width, 10, srcBlock);
+				ExtractBlock(rgba, j+2, i+3, width, 11, srcBlock);
+
+				ExtractBlock(rgba, j+3, i, width, 12, srcBlock);
+				ExtractBlock(rgba, j+3, i+1, width, 13, srcBlock);
+				ExtractBlock(rgba, j+3, i+2, width, 14, srcBlock);
+				ExtractBlock(rgba, j+3, i+3, width, 15, srcBlock);
+
+				getBaseColors(color0, color1, srcBlock);
+				*(PNGU_u16 *)outBuf = rgb8ToRGB565(color0);
+				outBuf += 2;
+				*(PNGU_u16 *)outBuf = rgb8ToRGB565(color1);
+				outBuf += 2;
+				*(PNGU_u32 *)outBuf = colorIndices(color0, color1, srcBlock);
+				outBuf += 4;
+			}
+	// Success
+	return PNGU_OK;
+}
+
+
+int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height)
+{
+	png_uint_32 rowbytes;
+	int i;
+
+	// Read info if it hasn't been read before
+	if (!ctx->infoRead)
+	{
+		i = pngu_info (ctx);
+		if (i != PNGU_OK)
+			return i;
+	}
+
+	// Check if the user has specified the real width and height of the image
+	if ( (ctx->prop.imgWidth != width) || (ctx->prop.imgHeight != height) )
+		return PNGU_INVALID_WIDTH_OR_HEIGHT;
+
+	// Check if color type is supported by PNGU
+	if ( (ctx->prop.imgColorType == PNGU_COLOR_TYPE_PALETTE) || (ctx->prop.imgColorType == PNGU_COLOR_TYPE_UNKNOWN) )
+		return PNGU_UNSUPPORTED_COLOR_TYPE;
+
+	// Scale 16 bit samples to 8 bit
+	if (ctx->prop.imgBitDepth == 16)
+        png_set_strip_16 (ctx->png_ptr);
+
+	// Add alpha channel filler
+	png_set_filler(ctx->png_ptr, 0xff, PNG_FILLER_AFTER);
+	
+	// Expand 1, 2 and 4 bit samples to 8 bit
+	if (ctx->prop.imgBitDepth < 8)
+        png_set_packing (ctx->png_ptr);
+
+	// Transform grayscale images to RGB
+	if ( (ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY) || (ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY_ALPHA) )
+		png_set_gray_to_rgb (ctx->png_ptr);
+
+	// Flush transformations
+	png_read_update_info (ctx->png_ptr, ctx->info_ptr);
+
+	// Allocate memory to store the image
+	rowbytes = png_get_rowbytes (ctx->png_ptr, ctx->info_ptr);
+	if (rowbytes % 4)
+		rowbytes = ((rowbytes / 4) + 1) * 4; // Add extra padding so each row starts in a 4 byte boundary
+
+	ctx->img_data = malloc (rowbytes * ctx->prop.imgHeight);
+	if (!ctx->img_data)
+	{
+		pngu_free_info (ctx);
+		return PNGU_LIB_ERROR;
+	}
+
+	ctx->row_pointers = malloc (sizeof (png_bytep) * ctx->prop.imgHeight);
+	if (!ctx->row_pointers)
+	{
+		free (ctx->img_data);
+		pngu_free_info (ctx);
+		return PNGU_LIB_ERROR;
+	}
+
+	for (i = 0; i < ctx->prop.imgHeight; i++)
+		ctx->row_pointers[i] = ctx->img_data + (i * rowbytes);
+
+	// Transform the image and copy it to our allocated memory
+	png_read_image (ctx->png_ptr, ctx->row_pointers);
+
+	// Free resources
+	pngu_free_info (ctx);
+
+	// Success
+	return PNGU_OK;
+}
+
+
+//########################################################################################
+//----------  End CMPR added section -----------------------------------------------------
+//########################################################################################
+
+
 int PNGU_EncodeFromYCbYCr (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer, PNGU_u32 stride)
 {
 	png_uint_32 rowbytes;
@@ -1005,6 +1319,9 @@ int pngu_info (IMGCTX ctx)
 	return PNGU_OK;
 }
 
+#ifndef SAFE_FREE
+#define SAFE_FREE(p) if(p){free(p);p=NULL;}
+#endif
 
 int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlpha)
 {
@@ -1026,6 +1343,18 @@ int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlph
 	// Check if color type is supported by PNGU
 	if ( (ctx->prop.imgColorType == PNGU_COLOR_TYPE_PALETTE) || (ctx->prop.imgColorType == PNGU_COLOR_TYPE_UNKNOWN) )
 		return PNGU_UNSUPPORTED_COLOR_TYPE;
+
+    // error handling
+    jmp_buf save_jmp;
+    memcpy(save_jmp, png_jmpbuf(ctx->png_ptr), sizeof(save_jmp));
+    if (setjmp(png_jmpbuf(ctx->png_ptr))) {
+        error:
+        memcpy(png_jmpbuf(ctx->png_ptr), save_jmp, sizeof(save_jmp));
+        SAFE_FREE(ctx->row_pointers);
+        SAFE_FREE(ctx->img_data);
+        pngu_free_info (ctx);
+        return PNGU_LIB_ERROR;
+    }
 
 	// Scale 16 bit samples to 8 bit
 	if (ctx->prop.imgBitDepth == 16)
@@ -1054,16 +1383,13 @@ int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlph
 	ctx->img_data = malloc (rowbytes * ctx->prop.imgHeight);
 	if (!ctx->img_data)
 	{
-		pngu_free_info (ctx);
-		return PNGU_LIB_ERROR;
+        goto error;
 	}
 
 	ctx->row_pointers = malloc (sizeof (png_bytep) * ctx->prop.imgHeight);
 	if (!ctx->row_pointers)
 	{
-		free (ctx->img_data);
-		pngu_free_info (ctx);
-		return PNGU_LIB_ERROR;
+        goto error;
 	}
 
 	for (i = 0; i < ctx->prop.imgHeight; i++)
@@ -1071,6 +1397,9 @@ int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlph
 
 	// Transform the image and copy it to our allocated memory
 	png_read_image (ctx->png_ptr, ctx->row_pointers);
+
+    // restore default error handling
+    memcpy(png_jmpbuf(ctx->png_ptr), save_jmp, sizeof(save_jmp));
 
 	// Free resources
 	pngu_free_info (ctx);
@@ -1098,6 +1427,13 @@ void pngu_free_info (IMGCTX ctx)
 void pngu_read_data_from_buffer (png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	IMGCTX ctx = (IMGCTX) png_get_io_ptr (png_ptr);
+    if (ctx->buf_size && (ctx->cursor + length > ctx->buf_size))
+    {
+        static char err_str[40];
+        snprintf(err_str, sizeof(err_str), "read error (%x/%x)", 
+            ctx->cursor + length, ctx->buf_size);
+        png_error(png_ptr, err_str);
+    }
 	memcpy (data, ctx->buffer + ctx->cursor, length);
 	ctx->cursor += length;
 }

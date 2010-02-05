@@ -20,6 +20,7 @@
 static const char mload_fs[] ATTRIBUTE_ALIGN(32) = "/dev/mload";
 
 static s32 mload_fd = -1;
+static s32 hid = -1;
 
 /*--------------------------------------------------------------------------------------------------------------*/
 
@@ -29,9 +30,24 @@ int mload_init()
 {
 int n;
 
-	if(mload_fd>=0) return 0;
+	if(hid<0) hid = iosCreateHeap(0x800);
 
-	for(n=0;n<10;n++) // try 2.5 seconds
+	if(hid<0)
+		{
+		if(mload_fd>=0)
+			IOS_Close(mload_fd);
+
+		mload_fd=-1;
+
+		return hid;
+		}
+
+	if(mload_fd>=0) 
+		{
+		return 0;
+		}
+
+	for(n=0;n<20;n++) // try 5 seconds
 	{
 		mload_fd=IOS_Open(mload_fs, 0);
 		
@@ -39,6 +55,16 @@ int n;
 
 		usleep(250*1000);
 	}
+
+	if(mload_fd<0)
+		{
+		
+		if(hid>=0)
+			{
+			iosDestroyHeap(hid);
+			hid=-1;
+			}
+		}
 
 return mload_fd;
 }
@@ -50,6 +76,12 @@ return mload_fd;
 int mload_close()
 {
 int ret;
+
+	if(hid>=0)
+		{
+		iosDestroyHeap(hid);
+		hid=-1;
+		}
 
 	if(mload_fd<0) return -1;
 	
@@ -67,19 +99,10 @@ return ret;
 int mload_get_thread_id()
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return -1;
-
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
 	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_MLOAD_THREAD_ID, ":");
-	
-
-	iosDestroyHeap(hid);
 
 return ret;
 
@@ -92,19 +115,10 @@ return ret;
 int mload_get_load_base(u32 *starlet_base, int *size)
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return -1;
-
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
 	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_LOAD_BASE, ":ii",starlet_base, size);
-	
-
-	iosDestroyHeap(hid);
 
 return ret;
 
@@ -119,9 +133,15 @@ int mload_module(void *addr, int len)
 {
 int ret;
 void *buf=NULL;
-s32 hid = -1;
+
 
 	if(mload_init()<0) return -1;
+
+    if(hid>=0)
+		{
+		iosDestroyHeap(hid);
+		hid=-1;
+		}
 
 	hid = iosCreateHeap(len+0x800);
     
@@ -143,9 +163,12 @@ s32 hid = -1;
 	if(ret<0) {ret= -666;goto out;}
 	
 out:
+	if(hid>=0)
+		{
+		iosDestroyHeap(hid);
+		hid=-1;
+		}
 	
-	iosDestroyHeap(hid);
-
 return ret;
 
 }
@@ -229,19 +252,12 @@ return 0;
 int mload_run_thread(void *starlet_addr, void *starlet_top_stack, int stack_size, int priority)
 {
 int ret;
-s32 hid = -1;
 
 
 	if(mload_init()<0) return -1;
-
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
 	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_RUN_THREAD, "iiii:", starlet_addr,starlet_top_stack, stack_size, priority);
-	
 
-	iosDestroyHeap(hid);
 
 return ret;
 }
@@ -253,19 +269,10 @@ return ret;
 int mload_stop_thread(int id)
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return -1;
-
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
 	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_STOP_THREAD, "i:", id);
-	
-
-	iosDestroyHeap(hid);
 
 return ret;
 
@@ -278,20 +285,11 @@ return ret;
 int mload_continue_thread(int id)
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return -1;
 
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
-	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_CONTINUE_THREAD, "i:", id);
 	
-
-	iosDestroyHeap(hid);
-
 return ret;
 
 }
@@ -302,6 +300,7 @@ return ret;
 int mload_seek(int offset, int mode) 
 {
 	if(mload_init()<0) return -1;
+
 	return IOS_Seek(mload_fd, offset, mode);
 }
 
@@ -312,6 +311,7 @@ int mload_seek(int offset, int mode)
 int mload_read(void* buf, u32 size) 
 {
 	if(mload_init()<0) return -1;
+
 	return IOS_Read(mload_fd, buf, size);
 }
 
@@ -322,6 +322,7 @@ int mload_read(void* buf, u32 size)
 int mload_write(const void * buf, u32 size) 
 {
 	if(mload_init()<0) return -1;
+
 	return IOS_Write(mload_fd, buf, size);
 }
 
@@ -332,19 +333,11 @@ int mload_write(const void * buf, u32 size)
 int mload_memset(void *starlet_addr, int set, int len)
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return -1;
-
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
 	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_MEMSET, "iii:", starlet_addr, set, len);
-	
 
-	iosDestroyHeap(hid);
 
 return ret;
 }
@@ -356,19 +349,11 @@ return ret;
 void * mload_get_ehci_data()
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return NULL;
-
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return NULL;
 	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_EHCI_DATA, ":");
 	if(ret<0) return NULL;
-
-	iosDestroyHeap(hid);
 
 return (void *) ret;
 }
@@ -380,20 +365,78 @@ return (void *) ret;
 int mload_set_ES_ioctlv_vector(void *starlet_addr)
 {
 int ret;
-s32 hid = -1;
-
 
 	if(mload_init()<0) return -1;
 
-	hid = iosCreateHeap(0x800);
-    
-	if(hid<0) return hid;
-	
 	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_SET_ES_IOCTLV, "i:", starlet_addr);
 	
+return ret;
+}
 
-	iosDestroyHeap(hid);
+
+
+int mload_getw(const void * addr, u32 *dat)
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GETW, "i:i", addr, dat);
 
 return ret;
 }
 
+int mload_geth(const void * addr, u16 *dat)
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GETH, "i:h", addr, dat);
+	
+return ret;
+}
+
+int mload_getb(const void * addr, u8 *dat)
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GETB, "i:b", addr, dat);
+	
+return ret;
+}
+
+int mload_setw(const void * addr, u32 dat)
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_SETW, "ii:", addr, dat);
+	
+return ret;
+}
+
+int mload_seth(const void * addr, u16 dat)
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_SETH, "ih:", addr, dat);
+
+return ret;
+}
+
+int mload_setb(const void * addr, u8 dat)
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_SETB, "ib:", addr, dat);
+
+return ret;
+}

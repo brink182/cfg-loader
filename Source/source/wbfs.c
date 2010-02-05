@@ -26,6 +26,7 @@
 #include "partition.h"
 #include "cfg.h"
 #include "wbfs_fat.h"
+#include "util.h"
 
 /* Constants */
 #define MAX_NB_SECTORS	32

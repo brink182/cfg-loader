@@ -17,7 +17,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/libpng/pngu source/libwbfs
+SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip
 DATA		:=	data
 INCLUDES	:=	
 

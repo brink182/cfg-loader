@@ -39,6 +39,7 @@ int main(int argc, char **argv)
 	s32 ret;
 
 	/* Initialize system */
+	mem_init();
 	Sys_Init();
 
 	cfg_parsearg_early(argc, argv);
@@ -100,6 +101,10 @@ int main(int argc, char **argv)
 	/* Initialize console */
 	Gui_InitConsole();
 
+	// debug:
+	//__console_disable = 1;
+	//Gui_Console_Enable();
+
 	/* Initialize Wiimote subsystem */
 	Wpad_Init();
 
@@ -121,7 +126,7 @@ int main(int argc, char **argv)
 		printf("\n[+] Custom IOS %s Loaded OK\n\n", ios_str(CURR_IOS_IDX));
 		sleep(2);
 	}
-
+	
 	/* Initialize DIP module */
 	ret = Disc_Init();
 	if (ret < 0) {

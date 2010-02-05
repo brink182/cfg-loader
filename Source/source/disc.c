@@ -19,6 +19,8 @@
 #include "usbstorage.h"
 #include "sdhc.h"
 #include "sys.h"
+#include "menu.h"
+#include "frag.h"
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000
@@ -267,6 +269,7 @@ s32 Disc_Wait(void)
 
 s32 Disc_SetWBFS(u32 mode, u8 *id)
 {
+	int ret;
 	if (CFG.ios_mload) {
 		u32 part = 0;
 		if (wbfs_part_fs) {
@@ -278,19 +281,28 @@ s32 Disc_SetWBFS(u32 mode, u8 *id)
 			Fat_UnmountWBFS();
 			// if game on sd and ios222, we must close sd now
 			if (wbfsDev == WBFS_DEVICE_SDHC) {
-				int ret;
 				Fat_UnmountSDHC();
 				SDHC_Close();
 				ret = USBStorage_WBFS_SetDevice(1);
 				if (ret) {
 					printf("ERROR: Setting SD mode\n");
 					//usb_debug_dump(0);
+					return -1;
 				}
 			}
+			ret = set_frag_list(id);
+			if (ret) {
+				printf_("ERROR: set_frag_list: %d\n", ret);
+				return ret;
+			}
+		} else {
+			// disable
+			ret = USBStorage_WBFS_SetFragList(NULL, 0);
+			if (ret) {
+				printf_("ERROR: SetFragList(0): %d\n", ret);
+				return ret;
+			}
 		}
-		//if (CFG.direct_launch) {
-		//	part = CFG.current_partition;
-		//}
 		return MLOAD_SetWBFSMode(id, part);
 	}
 	if (CFG.ios_yal) {

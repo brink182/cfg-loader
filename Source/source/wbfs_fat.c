@@ -26,12 +26,14 @@
 #include "cfg.h"
 #include "wpad.h"
 #include "wbfs_fat.h"
+#include "util.h"
 
 // max fat fname = 256
 #define MAX_FAT_PATH 1024
 
 char wbfs_fs_drive[16];
 char wbfs_fat_dir[16] = "/wbfs";
+char invalid_path[] = "/\\:|<>?*\"'";
 
 int  wbfs_fat_vfs_have = 0;
 int  wbfs_fat_vfs_lba = 0;
@@ -54,6 +56,7 @@ bool is_gameid(char *id)
 	int i;
 	for (i=0; i<6; i++) {
 		if (!isalnum(id[i])) return false;
+		if (isalpha(id[i]) && islower(id[i])) return false;
 	}
 	return true;
 }
@@ -73,6 +76,9 @@ s32 _WBFS_FAT_GetHeadersCount()
 	char *p;
 	u32 size;
 	int is_dir;
+	int len;
+	char dir_title[65];
+	char *title;
 
 	//dbg_time1();
 
@@ -87,7 +93,8 @@ s32 _WBFS_FAT_GetHeadersCount()
 	while (dirnext(dir_iter, fname, &st) == 0) {
 		//printf("found: %s\n", fname); Wpad_WaitButtonsCommon();
 		if ((char)fname[0] == '.') continue;
-		if (strlen(fname) < 8) continue; // "GAMEID_x"
+		len = strlen(fname);
+		if (len < 8) continue; // "GAMEID_x"
 
 		memcpy(id, fname, 6);
 		id[6] = 0;
@@ -95,25 +102,55 @@ s32 _WBFS_FAT_GetHeadersCount()
 		is_dir = S_ISDIR(st.st_mode);
 		//printf("mode: %d %d %x\n", is_dir, st.st_mode, st.st_mode);
 		if (is_dir) {
-			// usb:/wbfs/GAMEID_TITLE/GAMEID.wbfs
-			if (fname[6] != '_') continue;
+			int lay_a = 0;
+			int lay_b = 0;
+			if (fname[6] == '_' && is_gameid((char*)id)) {
+				// usb:/wbfs/GAMEID_TITLE/GAMEID.wbfs
+				lay_a = 1;
+			}
+			if (fname[len-8] == '[' && fname[len-1] == ']' && is_gameid(&fname[len-7])) {
+				// usb:/wbfs/TITLE[GAMEID]/GAMEID.wbfs
+				lay_b = 1;
+			}
+			if (!lay_a && !lay_b) continue;
+			if (lay_a) {
+				STRCOPY(dir_title, &fname[7]);
+			} else {
+				try_lay_b:
+				memcpy(id, &fname[len-7], 6);
+				id[6] = 0;
+				STRCOPY(dir_title, fname);
+				dir_title[len-8] = 0; // cut at '['
+				int n = strlen(dir_title);
+				if (n == 0) continue;
+				// cut trailing _ or ' '
+				if (dir_title[n - 1] == ' ' || dir_title[n - 1] == '_' ) {
+					dir_title[n - 1] = 0;
+				}
+				if (strlen(dir_title) == 0) continue;
+			}
 			snprintf(fpath, sizeof(fpath), "%s/%s/%s.wbfs", path, fname, id);
 			//printf("path2: %s\n", fpath);
 			// if more than 50 games, skip second stat to improve speed
-			if (fat_hdr_count < 50) {
-				do_stat2:
+			// but if ambiguous layout check anyway
+			if (fat_hdr_count < 50 || (lay_a && lay_b)) {
 				if (stat(fpath, &st) == -1) {
 					//printf("missing: %s\n", fpath);
 					// try .iso
 					strcpy(strrchr(fpath, '.'), ".iso"); // replace .wbfs with .iso
 					if (stat(fpath, &st) == -1) {
 						//printf("missing: %s\n", fpath);
+						if (lay_a && lay_b == 1) {
+							// mark lay_b so that the stat check is still done,
+							// but lay_b is not re-tried again
+							lay_b = 2;
+							// retry with layout b
+							goto try_lay_b;
+						}
 						continue;
 					}
 				}
 			} else {
-				// just check if gameid is valid (alphanum)
-				if (!is_gameid((char*)id)) goto do_stat2;
 				st.st_size = 1024*1024;
 			}
 		} else {
@@ -131,10 +168,10 @@ s32 _WBFS_FAT_GetHeadersCount()
 		// size must be at least 1MB to be considered a valid wbfs file
 		if (st.st_size < 1024*1024) continue;
 		// if we have titles.txt entry use that
-		char *title = cfg_get_title(id);
+		title = cfg_get_title(id);
 		// if directory, and no titles.txt get title from dir name
 		if (!title && is_dir) {
-			title = &fname[7];
+			title = dir_title;
 		}
 		if (title) {
 			memset(&tmpHdr, 0, sizeof(tmpHdr));
@@ -335,23 +372,51 @@ void WBFS_FAT_fname(u8 *id, char *fname, int len, char *path)
 	}
 }
 
-void mk_gameid_title(struct discHdr *header, char *name, int re_space)
+// format title so that it is usable in a filename
+void title_filename(char *title)
+{
+    int i, len;
+    // trim leading space
+	len = strlen(title);
+	while (*title == ' ') {
+		memmove(title, title+1, len);
+		len--;
+	}
+    // trim trailing space - not allowed on windows directories
+    while (len && title[len-1] == ' ') {
+        title[len-1] = 0;
+        len--;
+    }
+    // replace silly chars with '_'
+    for (i=0; i<len; i++) {
+        if(strchr(invalid_path, title[i]) || iscntrl(title[i])) {
+            title[i] = '_';
+        }
+    }
+}
+
+void mk_gameid_title(struct discHdr *header, char *name, int re_space, int layout)
 {
 	int i, len;
+	char title[65];
+	char id[8];
 
-	memcpy(name, header->id, 6);
-	name[6] = 0;
-	strcat(name, "_");
-	strcat(name, get_title(header));
+	memcpy(id, header->id, 6);
+	id[6] = 0;
+	STRCOPY(title, get_title(header));
+	title_filename(title);
 
-	// replace silly chars with '_'
-	len = strlen(name);
-	for (i = 0; i < len; i++) {
-		if(strchr("\\/:<>|\"", name[i]) || iscntrl(name[i])) {
-			name[i] = '_';
-		}
-		if(re_space && name[i]==' ') {
-			name[i] = '_';
+	if (layout == 0) {
+		sprintf(name, "%s_%s", id, title);
+	} else {
+		sprintf(name, "%s [%s]", title, id);
+	}
+
+	// replace space with '_'
+	if (re_space) {
+		len = strlen(name);
+		for (i = 0; i < len; i++) {
+			if(name[i]==' ') name[i] = '_';
 		}
 	}
 }
@@ -362,7 +427,9 @@ void WBFS_FAT_get_dir(struct discHdr *header, char *path)
 	strcat(path, wbfs_fat_dir);
 	if (CFG.fat_install_dir) {
 		strcat(path, "/");
-		mk_gameid_title(header, path + strlen(path), 0);
+		int layout = 0;
+		if (CFG.fat_install_dir == 2) layout = 1;
+		mk_gameid_title(header, path + strlen(path), 0, layout);
 	}
 }
 
@@ -373,7 +440,7 @@ void mk_title_txt(struct discHdr *header, char *path)
 
 	strcpy(fname, path);
 	strcat(fname, "/");
-	mk_gameid_title(header, fname+strlen(fname), 1);
+	mk_gameid_title(header, fname+strlen(fname), 1, 0);
 	strcat(fname, ".txt");
 
 	f = fopen(fname, "wb");
@@ -394,6 +461,7 @@ int WBFS_FAT_find_fname(u8 *id, char *fname, int len)
 	strcpy(strrchr(fname, '.'), ".iso"); // replace .wbfs with .iso
 	if (stat(fname, &st) == 0) return 1;
 	// direct file not found, check subdirs
+	*fname = 0;
 	DIR_ITER *dir_iter;
 	char path[MAX_FAT_PATH];
 	char name[MAX_FAT_PATH];
@@ -402,30 +470,40 @@ int WBFS_FAT_find_fname(u8 *id, char *fname, int len)
 	dir_iter = diropen(path);
 	//printf("dir: %s %p\n", path, dir); Wpad_WaitButtons();
 	if (!dir_iter) {
-		goto err;
+		return 0;
 	}
 	while (dirnext(dir_iter, name, &st) == 0) {
 		if (name[0] == '.') continue;
-		if (name[6] != '_') continue;
-		if (strncmp(name, (char*)id, 6) != 0) continue;
-		if (strlen(name) < 8) continue;
+		int n = strlen(name);
+		if (n < 8) continue;
+		if (name[6] == '_') {
+			// GAMEID_TITLE
+			if (strncmp(name, (char*)id, 6) != 0) goto try_alter;
+		} else {
+			try_alter:
+			// TITLE [GAMEID]
+			if (name[n-8] != '[' || name[n-1] != ']') continue;
+			if (strncmp(&name[n-7], (char*)id, 6) != 0) continue;
+		}
 		// look for .wbfs file
 		snprintf(fname, len, "%s/%s/%.6s.wbfs", path, name, id);
 		if (stat(fname, &st) == 0) {
-			dirclose(dir_iter);
-			return 2;
+			break;
 		}
 		// look for .iso file
 		snprintf(fname, len, "%s/%s/%.6s.iso", path, name, id);
 		if (stat(fname, &st) == 0) {
-			dirclose(dir_iter);
-			return 2;
+			break;
 		}
+		*fname = 0;
 	}
 	dirclose(dir_iter);
+	if (*fname) {
+		// found
+		//printf("found:%s\n", fname);
+		return 2;
+	}
 	// not found
-	err:
-	*fname = 0;
 	return 0;
 }
 
@@ -620,4 +698,3 @@ s32 WBFS_FAT_DVD_Size(u64 *comp_size, u64 *real_size)
 
 	return 0;
 }
-

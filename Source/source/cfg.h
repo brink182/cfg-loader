@@ -17,16 +17,16 @@
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
-#if 1
+#if 0
 
-#define CFG_VERSION_STR "50"
+#define CFG_VERSION_STR "51"
 #define DEFAULT_IOS_IDX CFG_IOS_249
 #define CFG_DEFAULT_PARTITION "WBFS1"
 #define CFG_HIDE_HDDINFO 0
 
 #else
 
-#define CFG_VERSION_STR "50-fat"
+#define CFG_VERSION_STR "51-fat"
 #define DEFAULT_IOS_IDX CFG_IOS_222_MLOAD
 #define CFG_DEFAULT_PARTITION "FAT1"
 #define CFG_HIDE_HDDINFO 1
@@ -254,6 +254,14 @@ struct CFG
 	char cover_url_3d_norm[1000];
 	char cover_url_disc_norm[1000];
 	char cover_url_full_norm[1000];
+
+	// database  options - Lustar
+	char db_url[512];
+	char db_language[50];
+	int db_show_info;
+	int write_playstats;
+	char sort[20];
+	
 	//int download_wide;
 	int download_id_len;
 	int download_all;
@@ -425,6 +433,7 @@ char *cfg_get_title(u8 *id);
 char *get_title(struct discHdr *header);
 
 struct Game_CFG_2* CFG_find_game(u8 *id);
+struct Game_CFG CFG_read_active_game_setting(u8 *id);
 struct Game_CFG_2* CFG_get_game(u8 *id);
 bool CFG_is_saved(u8 *id);
 bool CFG_is_changed(u8 *id);
@@ -452,6 +461,12 @@ int CFG_filter_favorite(struct discHdr *list, int cnt);
 char* split_token(char *dest, char *src, char delim, int size);
 
 char *get_clock_str(time_t t);
+
+int readPlayStats(void);
+u32 getPlayCount(u8 *id);
+time_t getLastPlay(u8 *id);
+bool playStatsRead(int i);
+int setPlayStat(u8 *id);
 
 //#define FAKE_GAME_LIST
 

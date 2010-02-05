@@ -17,6 +17,8 @@
 #include "dns.h"
 #include "video.h"
 #include "net.h"
+#include "xml.h" /* XML - Lustar */
+#include "menu.h"
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
@@ -323,6 +325,8 @@ void format_URL(char *game_id, char *url, int size)
 	STRCOPY(id, game_id);
 	str_replace(url, "{REGION}", region, size);
 	if (str_replace(url, "{CC}", cc, size) == false) fmt_cc_pal = false;
+	id[6] = 0;
+	str_replace(url, "{PUB}", id+4, size);
 	id[6] = 0;
 	str_replace(url, "{ID6}", id, size);
 	id[4] = 0;
@@ -660,3 +664,85 @@ void Download_All_Covers(bool missing_only)
 }
 
 
+/* download zipped XML - Lustar */
+/* based on Download_Cover by Forsaeken, modified by oggzee */
+void Download_XML()
+{
+	char myIP[16];
+
+	printf("\n[+] Initializing Network...\n");
+	if( !Net_Init(myIP)){
+		printf("    Error Initializing Network.\n");
+		goto dl_err;
+	}
+	printf("    Network connection established.\n");
+
+	struct stat st;
+	char drive_root[8];
+	snprintf(drive_root, sizeof(drive_root), "%s/", FAT_DRIVE);
+	if (stat(drive_root, &st)) {
+		printf("    ERROR: %s is not accessible\n", drive_root);
+		goto dl_err;
+	}
+
+	char zippath[200];
+	snprintf(zippath, sizeof(zippath), "%s/%s", USBLOADER_PATH, "db_new.zip");
+	char zipurl[100];
+	char * dbl = ((strlen(CFG.db_language) == 2) ? VerifyLangCode(CFG.db_language) : ConvertLangTextToCode(CFG.db_language));
+	strcopy(zipurl, CFG.db_url, sizeof(zipurl));
+	str_replace(zipurl, "{DBL}", dbl, sizeof(zipurl));
+	
+	if (zipurl[0] == 0) {
+		printf("    Error: no URL.\n");
+		goto dl_err;	
+	}
+	printf("[+] Downloading database.\n");
+
+	struct block file = downloadfile(zipurl);
+	
+	if (file.data == NULL) {
+		printf("    Error: no data.\n");
+		goto dl_err;
+	}
+	printf("    Size: %d bytes\n", file.size);
+	
+	FILE *f;
+	f = fopen(zippath, "wb");
+	if (!f) {
+		printf("\n    Error opening: %s\n", zippath);
+		goto dl_err;
+	}
+	fwrite(file.data,1,file.size,f);
+	fclose (f);
+	free(file.data);
+	
+	printf("    Download complete.\n");
+
+	/* try to open newly downloaded zipped XML */
+	printf("[+] Updating database.\n");
+
+	//FreeXMLMemory();
+	char currentzippath[200];
+	snprintf(currentzippath, sizeof(currentzippath), "%s/wiitdb_%s.zip", USBLOADER_PATH, CFG.partition);
+	char tmppath[200];
+	snprintf(tmppath, sizeof(tmppath), "%s/wiitdb_%s_old.zip", USBLOADER_PATH, CFG.partition);
+	remove(tmppath);
+	rename(currentzippath, tmppath);
+	rename(zippath, currentzippath);
+
+	if (ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 1)) {
+		printf("    Database update successful.\n");
+	} else {
+		// revert to the previous file
+		remove(currentzippath);
+		rename(tmppath, currentzippath);
+		ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 1);
+		printf("    Error opening database, update did not complete.\n");
+		goto dl_err;
+	}
+	
+	return;
+	
+	dl_err:
+	sleep(4);
+} /* end download zipped xml */

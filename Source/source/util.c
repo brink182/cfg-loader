@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "util.h"
 
+/*
 extern void* SYS_GetArena2Lo();
 extern void* SYS_GetArena2Hi();
 extern void* SYS_AllocArena2MemLo(u32 size,u32 align);
@@ -20,6 +21,7 @@ extern void* __SYS_GetIPCBufferLo();
 extern void* __SYS_GetIPCBufferHi();
 
 static void *mem2_start = NULL;
+*/
 
 
 char* strcopy(char *dest, const char *src, int size)
@@ -55,6 +57,17 @@ bool str_replace(char *str, char *olds, char *news, int size)
 	return true;
 }
 
+bool str_replace_all(char *str, char *olds, char *news, int size) {
+	int cnt = 0;
+	bool ret = str_replace(str, olds, news, size);
+	while (ret) {
+		ret = str_replace(str, olds, news, size);
+		cnt++;
+	}
+	return (cnt > 0);
+}
+
+
 extern long long gettime();
 extern u32 diff_msec(long long start, long long end);
 
@@ -76,6 +89,7 @@ unsigned dbg_time2(char *msg)
 }
 
 
+#if 0
 void* LARGE_memalign(size_t align, size_t size)
 {
 	return SYS_AllocArena2MemLo(size, align);
@@ -154,6 +168,7 @@ void util_clear()
 		}
 	}
 }
+#endif
 
 // Thanks Dteyn for this nice feature =)
 // Toggle wiilight (thanks Bool for wiilight source)

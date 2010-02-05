@@ -1370,41 +1370,34 @@ GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h,
 }
 
 
-void cache2_tex(struct M2_texImg *dest, GRRLIB_texImg *src)
-{
-	int src_size = src->w * src->h * 4;
-	void *m2_buf;
-	if (src->data == NULL) return;
-	// data exists and big enough?
-	if (dest->tx.data && dest->size >= src_size) {
-		// overwrite data
-		m2_buf = dest->tx.data;
-	} else {
-		// alloc new
-		m2_buf = LARGE_memalign(32, src_size);
-		dest->size = src_size;
-	}
-	memcpy(m2_buf, src->data, src_size);
-	memcpy(&dest->tx, src, sizeof (GRRLIB_texImg));
-	dest->tx.data = m2_buf;
-	// free src texture
-	SAFE_FREE(src->data);
-	src->w = src->h = 0;
-	GRRLIB_FlushTex(dest->tx);
-}
-
 void cache2_tex_alloc(struct M2_texImg *dest, int w, int h)
 {
 	int src_size = w * h * 4;
-	void *m2_buf;
-	if (dest->tx.data) return;
-	// alloc new
-	m2_buf = LARGE_memalign(32, src_size);
-	if (m2_buf == NULL) return;
-	dest->tx.data = m2_buf;
+	// data exists and big enough?
+	if ((dest->tx.data == NULL) || (dest->size < src_size)) {
+		dest->tx.data = LARGE_realloc(dest->tx.data, src_size);
+		//dest->tx.data = LARGE_alloc(src_size);
+		dest->size = src_size;
+	}
 	dest->tx.w = w;
 	dest->tx.h = h;
-	dest->size = src_size;
+}
+
+void cache2_tex(struct M2_texImg *dest, GRRLIB_texImg *src)
+{
+	int src_size = src->w * src->h * 4;
+	if (src->data == NULL) return;
+	// realloc
+	cache2_tex_alloc(dest, src->w, src->h);
+	void *data = dest->tx.data;
+	if (!data) return;
+	memcpy(data, src->data, src_size);
+	memcpy(&dest->tx, src, sizeof (GRRLIB_texImg));
+	dest->tx.data = data; // reset as above will overwrite it
+	GRRLIB_FlushTex(dest->tx);
+	// free src texture
+	SAFE_FREE(src->data);
+	src->w = src->h = 0;
 }
 
 void cache2_tex_alloc_fullscreen(struct M2_texImg *dest)
@@ -1535,7 +1528,7 @@ void GRRLIB_RearrangeFont128(GRRLIB_texImg *tx)
 		GRRLIB_CopyTextureBlock(tx, stripe_w * i, 0, stripe_w, tile_h,
 				&tt, 0, tile_h * i);
 	}
-	free(tx->data);
+	SAFE_FREE(tx->data);
 	*tx = tt;
 	tt.data = NULL;
 }
@@ -1579,7 +1572,8 @@ void GRRLIB_TrimTile(GRRLIB_texImg *tx, int maxn)
 	tx->nbtileh = (maxn + tx->nbtilew - 1) / tx->nbtilew;
 	tx->h = tx->tileh * tx->nbtileh;
 	int size = tx->w * tx->h * 4;
-	tx->data = realloc(tx->data, size + 64 - (size%32));
+	//tx->data = realloc(tx->data, size + 64 - (size%32));
+	tx->data = mem_realloc(tx->data, size + 64 - (size%32));
 }
 
 void Gui_TestUnicode()
@@ -2419,36 +2413,31 @@ int Gui_Mode()
 			//remove game
 			if (game_select >= 0) {
 				gameSelected = game_select;
-				break;
+				//break;
 			}
+			break;
 		}
-
 
 		//----------------------
 		//  (+) button
 		//----------------------
-
 		if (buttons & WPAD_BUTTON_PLUS) {
 			//add game
 			if (game_select >= 0) gameSelected = game_select;
 			break;
 		}
 
-
 		//----------------------
 		//  1 Button
 		//----------------------
-
 		if (buttons & WPAD_BUTTON_1) {
 			if (game_select >= 0) gameSelected = game_select;
 			break;
 		}
 
-
 		//----------------------
 		//  2 button
 		//----------------------
-
 		if (buttons & WPAD_BUTTON_2) {
 			extern void Switch_Favorites(bool enable);
 			extern bool enable_favorite;
@@ -2456,7 +2445,6 @@ int Gui_Mode()
 			cache_release_all();
 			Switch_Favorites(!enable_favorite);
 			ccache.num_game = gameCnt;
-
 			if (gui_style == GUI_STYLE_COVERFLOW) {
 				gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
 				//load the covers - alternate right and left
@@ -2467,11 +2455,9 @@ int Gui_Mode()
 			}
 		}
 
-
 		//----------------------
 		//  check for other wiimote events
 		//----------------------
-
 		if (gui_style == GUI_STYLE_FLOW
 				|| gui_style == GUI_STYLE_FLOW_Z) {
 			// scroll flow style
@@ -2489,9 +2475,7 @@ int Gui_Mode()
 			suppressCoverDrawing = false;
 			goto restart;
 		}
-
 		//_CPU_ISR_Disable(level);
-
 		//draw the covers
 		if (gui_style == GUI_STYLE_COVERFLOW) {
 			//Wpad_getIR(WPAD_CHAN_0, &ir);
@@ -2507,14 +2491,13 @@ int Gui_Mode()
 			// title
 			grid_print_title(game_select);
 		}
-		
+
 		//wgui_test(&ir, buttons);
-		
+
 		//int ms = dbg_time2(NULL);
 		//GRRLIB_Printf(20, 20, tx_font, 0xFF00FFFF, 1, "%3d ms: %d", fr_cnt, ms);
 		//draw_Cache();
 		//GRRLIB_DrawImg(0, 50, tx_font, 0, 1, 1, 0xFFFFFFFF); // entire font
-
 		Gui_draw_pointer(&ir);
 		//GRRLIB_Rectangle(fr_cnt % 640, 0, 5, 15, 0x000000FF, 1);
 
@@ -2553,7 +2536,6 @@ int Gui_Mode()
 	return buttons;
 }
 
-
 void Gui_Close()
 {
 	if (CFG.gui == 0) return;
@@ -2573,4 +2555,3 @@ void Gui_Close()
 
 	grr_init = 0;
 }
-

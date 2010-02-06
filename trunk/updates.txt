@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 52b2 (beta2)
+size = 1412544
+date = 2010-2-6
+url = http://cfg-loader.googlecode.com/files/cfg52b2.dol
+Play time logging to Message Board
+Titles from custom_titles.txt/WiiTDB
+Console color fixes
+Disc booting reverted
+
+release = 52b2-fat (beta2)
+size = 1412544
+date = 2010-2-6
+url = http://cfg-loader.googlecode.com/files/cfg52b2.dol
+Same as 52b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
 
 release = 52b (beta)
 size = 1411040

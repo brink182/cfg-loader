@@ -13,9 +13,28 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 52b3 (beta3)
+size = 1418176
+date = 2010-02-09
+url = http://cfg-loader.googlecode.com/files/cfg52b3.dol
+Button remapping
+NTFS partition switching bugfix
+Title in filename of .wbfs/.iso
+db_ignore_titles option
+
+release = 52b3-fat (beta3)
+size = 1418176
+date = 2010-02-09
+url = http://cfg-loader.googlecode.com/files/cfg52b3-fat.dol
+Same as 52b3 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 52b2 (beta2)
 size = 1412544
-date = 2010-2-6
+date = 2010-02-06
 url = http://cfg-loader.googlecode.com/files/cfg52b2.dol
 Play time logging to Message Board
 Titles from custom_titles.txt/WiiTDB
@@ -24,7 +43,7 @@ Disc booting reverted
 
 release = 52b2-fat (beta2)
 size = 1412544
-date = 2010-2-6
+date = 2010-02-06
 url = http://cfg-loader.googlecode.com/files/cfg52b2-fat.dol
 Same as 52b2 but with different
 default options:
@@ -34,7 +53,7 @@ default options:
 
 release = 52b (beta)
 size = 1411040
-date = 2010-1-30
+date = 2010-01-30
 url = http://cfg-loader.googlecode.com/files/cfg52b.dol
 Original Gamecube disc loading
 Wii disc loading now uses disc IOS
@@ -43,7 +62,7 @@ Updated Cover URLs
 
 release = 52b-fat (beta)
 size = 1411040
-date = 2010-1-30
+date = 2010-01-30
 url = http://cfg-loader.googlecode.com/files/cfg52b-fat.dol
 Same as 52b but with different
 default options:
@@ -53,7 +72,7 @@ default options:
 
 release = 52a2 (alpha 2)
 size = 1411552
-date = 2010-1-23
+date = 2010-01-23
 url = http://cfg-loader.googlecode.com/files/cfg52a2.dol
 Translation files now supported.
 Fixed a duplicate option in 52a1.
@@ -61,7 +80,7 @@ One disc loading bug fixed.
 
 release = 52a2-fat (alpha)
 size = 1411552
-date = 2010-1-23
+date = 2010-01-23
 url = http://cfg-loader.googlecode.com/files/cfg52a2-fat.dol
 Same as 52a2 but with different
 default options:
@@ -71,7 +90,7 @@ default options:
 
 release = 51 (release)
 size = 1404256
-date = 2010-1-17
+date = 2010-01-17
 url = http://cfg-loader.googlecode.com/files/cfg51.dol
 More directory layouts with FAT / NTFS
 Wiitdb support.
@@ -81,7 +100,7 @@ Gameplay history.
 
 release = 51-fat (release)
 size = 1404256
-date = 2010-1-17
+date = 2010-01-17
 url = http://cfg-loader.googlecode.com/files/cfg51-fat.dol
 Same as 51 but with different
 default options:

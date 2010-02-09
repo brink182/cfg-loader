@@ -1,0 +1,1355 @@
+﻿# CFG USB Loader language file template.
+# Put the translated string in msgstr ""
+# Fill in the Last-Translator and Language-Team fields.
+# Please use utf-8 charset when editing.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CFG USB Loader\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"PO-Revision-Date: 2010-01-27 18:39-0500\n"
+"Last-Translator: Geridian <caramon1983@web.de>\n"
+"Language-Team: GERMAN <caramon1983@web.de>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#, c-format
+msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
+msgstr "%.2f%% von %.2fGB (%c) RZ: %d:%02d:%02d"
+
+#, c-format
+msgid "%.2fGB copied in %d:%02d:%02d"
+msgstr "%.2fGB kopiert in %d:%02d:%02d"
+
+#, c-format
+msgid "%d available"
+msgstr "%d verfuegbar"
+
+#, c-format
+msgid "%d more notes"
+msgstr "%d Eintraege mehr"
+
+#, c-format
+msgid "%s No games found!!"
+msgstr "%s Keine Spiele da!"
+
+#, c-format
+msgid "%s Split: %d %s"
+msgstr ""
+
+#, c-format
+msgid "%s, please wait..."
+msgstr "%s, bitte warten..."
+
+#, c-format
+msgid "(%d seconds timeout)"
+msgstr "(%d Sek. Unterbrechung)"
+
+msgid ".dol too small"
+msgstr ".dol zu klein"
+
+msgid "< DOWNLOAD >"
+msgstr "<LADE HERUNTER>"
+
+msgid "Action"
+msgstr ""
+
+msgid "Additional config:"
+msgstr "Zusatz Einstellung:"
+
+msgid "Adventure"
+msgstr "Abenteuer"
+
+msgid "All"
+msgstr "ALLE"
+
+msgid "All Games"
+msgstr "ALLE Spiele"
+
+msgid "Alt dol"
+msgstr ""
+
+msgid "Alternative .dol:"
+msgstr ""
+
+msgid "Anti 002 Fix:"
+msgstr ""
+
+#, c-format
+msgid "App. Path: %s"
+msgstr "App. Pfad: %s"
+
+#, c-format
+msgid ""
+"Are you sure you want to %s\n"
+"this partition?"
+msgstr ""
+"Bist du sicher das du\n"
+"DIESE Partition %s willst?"
+
+msgid ""
+"Are you sure you want to FIX\n"
+"this partition?"
+msgstr ""
+"Sicher das du diese Partition\n"
+"REPARIEREN willst?"
+
+msgid ""
+"Are you sure you want to remove this\n"
+"    game?"
+msgstr ""
+"Sicher das Du dieses Spiel loeschen\n"
+"    willst?"
+
+#, c-format
+msgid "Auto-start game: %.6s not found!"
+msgstr "Auto-Start: %.6s nicht vorhanden!"
+
+msgid "Available Updates"
+msgstr "Verfuegbare Updates"
+
+msgid "Balance Board"
+msgstr ""
+
+msgid "Block IOS Reload:"
+msgstr ""
+
+msgid "Boot Disc"
+msgstr "Starte Disc"
+
+msgid "Booting Wii game, please wait..."
+msgstr "Starte WII Spiel, bitte warten..."
+
+#, c-format
+msgid "CFG base: %s"
+msgstr "CFG Basis: %s"
+
+msgid "Cancelled."
+msgstr "Abgebrochen."
+
+#, c-format
+msgid "Cannot create dir: %s"
+msgstr "Konnte Verz. nicht erstellen: %s"
+
+msgid "Cheat Codes:"
+msgstr ""
+
+msgid "Cheats: "
+msgstr ""
+
+msgid "Check For Updates"
+msgstr "Pruefe auf Updates"
+
+msgid "Checking for updates..."
+msgstr "Suche nach Updates..."
+
+msgid "Choose a sorting method"
+msgstr "Waehle Sortiermethode"
+
+msgid "Classic Controller"
+msgstr ""
+
+#, c-format
+msgid "Complete. Size: %d"
+msgstr "Fertig. Groesse: %d"
+
+#, c-format
+msgid "Configurable Loader %s"
+msgstr ""
+
+msgid "Configuration error, MAX_DNS_ENTRIES reached while the list is empty"
+msgstr "Konfigurations Fehler, MAX_DNS_ENTRIES erreicht waehrend Liste leer."
+
+#, c-format
+msgid "Connection error from net_read()  Errorcode: %i"
+msgstr "Verbindungsfehler von net_read() Fehlercode: %i"
+
+#, c-format
+msgid "Could not initialize DIP module! (ret = %d)"
+msgstr "Konnte DIP Modul nicht initialisieren! (ret= %d)"
+
+msgid "Country Fix:"
+msgstr ""
+
+msgid "Cover Image:"
+msgstr ""
+
+msgid "Create"
+msgstr "Erstelle"
+
+#, c-format
+msgid "Current Version: %s"
+msgstr "Derzeit. Version: %s"
+
+#, c-format
+msgid "Custom IOS %d could not be loaded! (ret = %d)"
+msgstr "Konnte Custom IOS %d nicht laden!  (ret = %d)"
+
+#, c-format
+msgid "Custom IOS %s Loaded OK"
+msgstr "Custom IOS %s laden OK"
+
+msgid "Dance Pad"
+msgstr "Tanzmatte"
+
+msgid "Database update successful."
+msgstr "Database Update erfolgreich."
+
+msgid "Deleting"
+msgstr "Loesche"
+
+msgid "Developer"
+msgstr "Entwickler"
+
+msgid "Device:"
+msgstr "Laufwerk:"
+
+msgid "Disc"
+msgstr ""
+
+msgid "Done."
+msgstr "Fertig."
+
+msgid "Download .txt"
+msgstr "Lade .txt"
+
+msgid "Download All Missing Covers"
+msgstr "Lade ALLE fehlenden Cover"
+
+msgid "Download Game Database"
+msgstr "Lade Spiel Database"
+
+msgid "Download complete."
+msgstr "Laden beendet."
+
+msgid "Downloadable Content"
+msgstr "Herunterladb. Inhalt"
+
+#, c-format
+msgid "Downloading %s Covers for %.4s"
+msgstr "Lade %s Cover runter fuer %.4s"
+
+#, c-format
+msgid "Downloading %s cover... (%s)"
+msgstr "Lade %s Cover runter... (%s)"
+
+#, c-format
+msgid "Downloading All %sCovers"
+msgstr "Lade ALLE %sCover runter"
+
+msgid "Downloading cheats..."
+msgstr "Lade Cheats runter..."
+
+msgid "Downloading database."
+msgstr "Lade Database runter."
+
+msgid "Downloading titles.txt ..."
+msgstr "Lade titles.txt runter..."
+
+#, c-format
+msgid "Downloading: %s"
+msgstr "Lade runter: %s"
+
+msgid "Drums"
+msgstr ""
+
+msgid "ERROR"
+msgstr "FEHLER"
+
+msgid "ERROR creating file"
+msgstr "FEHLER Datei erstellen"
+
+msgid "ERROR game opt"
+msgstr "FEHLER Spiele Option"
+
+msgid "ERROR reading BCA!"
+msgstr "FEHLER BCA lesen!"
+
+#, c-format
+msgid "ERROR removing %s"
+msgstr "FEHLER Loeschen von %s"
+
+msgid "ERROR writing BCA!"
+msgstr "FEHLER BCA schreiben!"
+
+msgid "ERROR!"
+msgstr "FEHLER!"
+
+#, c-format
+msgid "ERROR! (ret = %d)"
+msgstr "FEHLER! (ret = %d)"
+
+msgid "ERROR:"
+msgstr "FEHLER:"
+
+#, c-format
+msgid "ERROR: %s is not accessible"
+msgstr "FEHLER: %s nicht erreichbar"
+
+#, c-format
+msgid "ERROR: Apploader %d"
+msgstr "FEHLER: Prog.Starter %d"
+
+msgid ""
+"ERROR: CIOS222 or CIOS223 required for\n"
+"starting games from a FAT partition!"
+msgstr ""
+"FEHLER: cIOS222 oder cIOS223 noetig um\n"
+"Spiele von FAT Partition zu starten!"
+
+msgid "ERROR: CIOS222/223 v4 required for BCA"
+msgstr "FEHLER: cIOS222/223 v4 noetig fuer BCA"
+
+msgid "ERROR: Cache Close"
+msgstr "FEHLER: Cache zu"
+
+#, c-format
+msgid "ERROR: Could not open game! (ret = %d)"
+msgstr "FEHLER: Spiel nicht startbar!(ret = %d)"
+
+msgid "ERROR: Game already installed!!"
+msgstr "FEHLER: Spiel ist vorhanden!!"
+
+#, c-format
+msgid "ERROR: GetCerts %d"
+msgstr ""
+
+msgid "ERROR: Invalid Game ID"
+msgstr "FEHLER: Spiel ID ungueltig"
+
+#, c-format
+msgid "ERROR: Loading EHC module! (%d)"
+msgstr "FEHLER : Lade EHC module!! (%d)"
+
+#, c-format
+msgid "ERROR: No partitions found! (ret = %d)"
+msgstr "FEHLER : Keine Partitionen! (ret = %d)"
+
+msgid "ERROR: Not a Wii disc!!"
+msgstr "FEHLER: Keine WII Disc!"
+
+#, c-format
+msgid "ERROR: Offset(0x%llx) %d"
+msgstr "FEHLER: Offset (0x%llx) %d"
+
+#, c-format
+msgid "ERROR: OpenPartition %d"
+msgstr "FEHLER: OpenPartition %d"
+
+#, c-format
+msgid "ERROR: OpenPartition(0x%llx) %d"
+msgstr "FEHLER: OpenPartition(0x%llx) %d"
+
+#, c-format
+msgid "ERROR: SD mount NTFS! (%d)"
+msgstr "FEHLER: SD mount NTFS! (%d)"
+
+#, c-format
+msgid "ERROR: SD/FAT mount wbfs! (%d)"
+msgstr "FEHLER: SD/FAT mount WBFS! (%d)"
+
+#, c-format
+msgid "ERROR: SetFragList(0): %d"
+msgstr "FEHLER: SetFragList(0): %d"
+
+#, c-format
+msgid "ERROR: SetWBFS: %d"
+msgstr "FEHLER: SetWBFS: %d"
+
+msgid "ERROR: Setting SD mode"
+msgstr "FEHLER: SD-Modus Einstellung"
+
+#, c-format
+msgid "ERROR: USB init! (%d)"
+msgstr "FEHLER: USB init! (%d)"
+
+#, c-format
+msgid "ERROR: USB mount NTFS! (%d)"
+msgstr "FEHLER: USB mount NTFS! (%d)"
+
+#, c-format
+msgid "ERROR: USB/FAT mount wbfs! (%d)"
+msgstr "FEHLER: USB/FAT mount WBFS! (%d)"
+
+#, c-format
+msgid "ERROR: WBFS FAT mount sector %x not %x"
+msgstr "FEHLER: WBFS FAT mount sector %x not %x"
+
+msgid "ERROR: cache: out of memory"
+msgstr "FEHLER: Cache: Nicht genug Speicher"
+
+msgid ""
+"ERROR: ehcmodule2 no longer included!\n"
+"external file ehcmodule.elf must be used!"
+msgstr ""
+"FEHLER: ehcmodule2 nicht mehr dabei!\n"
+"Externe Datei ehcmodule.elf ist noetig!"
+
+msgid ""
+"ERROR: ehcmodule3 no longer included!\n"
+"external file ehcmodule3.elf must be used!"
+msgstr ""
+"FEHLER: ehcmodule3 nicht mehr dabei!\n"
+"Externe Datei ehcmodule3.elf ist noetig!"
+
+#, c-format
+msgid "ERROR: get_frag_list: %d"
+msgstr "FEHLER: get_frag_list: %d"
+
+msgid "ERROR: memory overlap!"
+msgstr "FEHLER: Speicher Ueberlappung!"
+
+msgid ""
+"ERROR: multiple wbfs partitions\n"
+"supported only with IOS222/223-mload"
+msgstr ""
+"ERROR: Mehrere WBFS Partitionen werden\n"
+"NUR von IOS222/223-mload unterstuetzt"
+
+msgid "ERROR: not enough free space!!"
+msgstr "FEHLER: Zu wenig Speicher frei!"
+
+#, c-format
+msgid "ERROR: opening %.6s"
+msgstr "FEHLER: Oeffne %.6s"
+
+#, c-format
+msgid "ERROR: set_frag_list: %d"
+msgstr "FEHLER: set_frag_list: %d"
+
+#, c-format
+msgid "ERROR: setting up fragments %d %d"
+msgstr "FEHLER: setting up fragments %d %d"
+
+#, c-format
+msgid "ERROR: writing %s (%d)."
+msgstr "FEHLER: schreibe %s (%d)."
+
+msgid "EXTEND"
+msgstr "ERWEITERN"
+
+msgid "Ejecting DVD..."
+msgstr "Werfe DVD aus..."
+
+msgid "Enter Code: "
+msgstr "Code eingeben: "
+
+msgid "Error GRRLIB init"
+msgstr "FEHLER GRRLIB init"
+
+msgid "Error Initializing Network."
+msgstr "FEHLER im Verbindungsaufbau."
+
+msgid "Error adding disc!"
+msgstr "FEHLER Disc hinzufuegen"
+
+msgid "Error discarding options!"
+msgstr "FEHLER Optionen verwerfen"
+
+msgid "Error downloading update..."
+msgstr "FEHLER bei Update laden..."
+
+msgid "Error downloading updates..."
+msgstr "FEHLER bei Updates laden..."
+
+msgid "Error downloading."
+msgstr "FEHLER beim runterladen."
+
+msgid "Error establishing connection"
+msgstr "Verbindungsaufbau fehlgeschlagen"
+
+msgid "Error opening database, update did not complete."
+msgstr "FEHLER Database oeffnen, Update nicht komplett."
+
+#, c-format
+msgid "Error opening: %s"
+msgstr "FEHLER OEFNEN: %s"
+
+#, c-format
+msgid "Error playing %s"
+msgstr "FEHLER Abspielen von %s"
+
+msgid "Error reading .dol"
+msgstr "FEHLER Lesen von .dol"
+
+msgid "Error reading dol header"
+msgstr "FEHLER dol header lesen!"
+
+#, c-format
+msgid "Error saving %s"
+msgstr "FEHLER speichern %s"
+
+msgid "Error saving options!"
+msgstr "FEHLER Optionen speichern!"
+
+msgid "Error saving settings!"
+msgstr "FEHLER Einstell. speichern!"
+
+msgid ""
+"Error storing playlog file.\n"
+"Start from the Wii Menu to fix."
+msgstr ""
+
+msgid "Error: Invalid PNG image!"
+msgstr "FEHLER: Ungueltige PNG-Bilddatei!"
+
+msgid "Error: no URL."
+msgstr "FEHLER: keine URL."
+
+msgid "Error: no data."
+msgstr "FEHLER: keine Daten."
+
+msgid "FAIL"
+msgstr "FEHLGESCHLAGEN"
+
+msgid "FAT mode only supported with ios 222 rev4"
+msgstr "FAT Modus nur von IOS 222 rev 4 unterstuetzt"
+
+msgid "FAT32 mount: "
+msgstr ""
+
+#, c-format
+msgid "FAT: ALLOC ERROR %p %p %p"
+msgstr ""
+
+msgid "FAT: fallback to old method"
+msgstr "FAT: Zurueckgreifen auf alte Methode"
+
+#, c-format
+msgid "FATAL: alloc grid(%d)"
+msgstr "KRITISCH: alloc grid(%d)"
+
+#, c-format
+msgid "FILL %d"
+msgstr "BELEGE %d"
+
+msgid "Favorite Games"
+msgstr "Lieblingsspiele"
+
+msgid "Favorite:"
+msgstr "Favorit:"
+
+msgid "Fighting"
+msgstr "Kampf-Spiel"
+
+#, c-format
+msgid "File not found! %s"
+msgstr "Datei nicht gefunden! %s"
+
+msgid "Filter Games"
+msgstr "Sortiere Spiele Option 2"
+
+msgid "Filter by Controller"
+msgstr "Sortiere nach Controller"
+
+msgid "Filter by Genre"
+msgstr "Sortiere nach Genre"
+
+msgid "Filter by Online Features"
+msgstr "Sortiere nach Online-Inhalten"
+
+msgid "Fixing EXTEND partition..."
+msgstr "Repariere ERWEITERTE Partition..."
+
+msgid "Formatting"
+msgstr "Formatiere"
+
+#, c-format
+msgid "Found %s Cover"
+msgstr "%s Cover gefunden"
+
+msgid "Game Options"
+msgstr "Spiele Optionen"
+
+#, c-format
+msgid "Game Options:  %s"
+msgstr "Spiele Optionen:  %s"
+
+msgid "Gamecube"
+msgstr "Gamecube"
+
+msgid "Global Options"
+msgstr "Globale Einstellungen"
+
+msgid "Guitar"
+msgstr "Gitarre"
+
+#, c-format
+msgid "HTTP ERROR: %s"
+msgstr "HTTP FEHLER: %s"
+
+msgid "HTTP Response was without a file"
+msgstr "HTTP Antwort ohne Datei"
+
+msgid "Hide Game:"
+msgstr "Verstecke Spiel:"
+
+msgid "Hold button B to cancel."
+msgstr "B halten zum abbrechen."
+
+#, c-format
+msgid "ID mismatch: [%.6s] [%.6s]"
+msgstr "ID mismatch: [%.6s] [%.6s]"
+
+msgid "IOS Reload: Blocked"
+msgstr ""
+
+#, c-format
+msgid "IOS_Open(%s) failed with code %d"
+msgstr "IOS-Open(%s) fehlgeschlagen code %d"
+
+#, c-format
+msgid "Inconsistency in LZ77 encoding %x"
+msgstr "Inkonsistenz in LZ77 Kodierung %x"
+
+#, c-format
+msgid "Info file: %s"
+msgstr "Datei Info: %s"
+
+msgid "Initializing Network..."
+msgstr "Initialisiere Netzwerk..."
+
+msgid "Install Date"
+msgstr "Installierungs Datum"
+
+msgid "Install Game"
+msgstr "Installiere Spiel"
+
+msgid "Install game"
+msgstr "Installiere Spiel"
+
+#, c-format
+msgid "Installation ERROR! (ret = %d)"
+msgstr "Installations FEHLER! (ret = %d)"
+
+msgid "Installing game, please wait..."
+msgstr "Installiere Spiel, bitte warten..."
+
+msgid "Invalid .dol"
+msgstr "Ungueltige .dol"
+
+#, c-format
+msgid "Invalid partition: '%s'"
+msgstr "Ungueltige Partition '%s'"
+
+msgid "Keyboard"
+msgstr ""
+
+msgid "LOCKED!"
+msgstr "GESPERRT!"
+
+msgid "Language:"
+msgstr "Sprache: "
+
+msgid "Last Play Date"
+msgstr "Zuletzt gespielt"
+
+msgid "Load OK!"
+msgstr "Laden OK!"
+
+#, c-format
+msgid "Loader Version: %s"
+msgstr "Loader Version: %s"
+
+msgid "Loading ..."
+msgstr "Lade ..."
+
+msgid "Loading previous game list..."
+msgstr ""
+
+msgid "Main Menu"
+msgstr "Haupt Menu"
+
+msgid ""
+"Make sure USB port 0 is used!\n"
+"(The one nearest to the edge)"
+msgstr ""
+"USB Port 0 wird nicht genutzt!\n"
+"(USB Port nahe am Gehaeuserand)"
+
+msgid "Manage"
+msgstr "Verwalte"
+
+msgid "Microphone"
+msgstr "Mikrofon"
+
+msgid "Missing"
+msgstr "fehlende(s)"
+
+msgid "Missing "
+msgstr "fehlende(s) "
+
+msgid "Motion+"
+msgstr ""
+
+msgid "Mounting device, please wait..."
+msgstr "Mounte Laufwerk, bitte warten.."
+
+msgid "Music"
+msgstr "Musik"
+
+#, c-format
+msgid "Music file from dir: %s"
+msgstr "Musik Datei aus Verzeichnis: %s"
+
+#, c-format
+msgid "Music file size: %d"
+msgstr "Musik Datei Größe: %d"
+
+#, c-format
+msgid "Music file: %s"
+msgstr "Musik Datei: %s"
+
+msgid "Music: Disabled"
+msgstr "Musik: Aus"
+
+msgid "Music: Enabled"
+msgstr "Musik: Ein"
+
+#, c-format
+msgid "Music: Looking for %s files in: %s"
+msgstr "Musik: Suche nach %s Dateien in: %s"
+
+#, c-format
+msgid "Music: Next file index to play: %i"
+msgstr "Musik: Naechste abgespielte Datei: %i"
+
+#, c-format
+msgid "Music: Number of %s files found: %i"
+msgstr "Musik: Anzahl von %s gefunden Dateien: %i"
+
+msgid "Music: musicArray contents: "
+msgstr "Musik: Musik Ansammlung beinhaltet:"
+
+msgid ""
+"NOTE: CIOS249 before rev10:\n"
+"Loading games from SDHC not supported!"
+msgstr ""
+"BEACHTE: cIOS249 VOR rev10:\n"
+"Spiele von SDHC laden nicht unterstuetzt!"
+
+msgid ""
+"NOTE: CIOS249 before rev14:\n"
+"Possible error #001 is not handled!"
+msgstr ""
+"BEACHTE: cIOS249 vor rev14:\n"
+"ERROR #001 Korrektur fehlerhaft!"
+
+msgid ""
+"NOTE: CIOS249 before rev9:\n"
+"Loading games from USB not supported!"
+msgstr ""
+"BEACHTE: cIOS249 vor rev9:\n"
+"USB Festplatten nicht unterstuetzt!"
+
+msgid ""
+"NOTE: You are using CIOS249 rev13:\n"
+"To quit the game you must reset or\n"
+"power-off the Wii before you start\n"
+"another game or it will hang here!"
+msgstr ""
+"BEACHTE: cIOS249 rev13 wird benutzt:\n"
+"Das Spiel beenden durch resetten oder\n"
+"ausschalten DA SONST die WII sich beim\n"
+"starten eines weiteren Spiels aufhaengt!"
+
+msgid ""
+"NOTE: You are using CIOS249 rev14:\n"
+"It has known problems with dual layer\n"
+"games. It is highly recommended that\n"
+"you use a different IOS or revision\n"
+"for installation/playback of this game."
+msgstr ""
+"BEACHTE: cIOS 249 rev 14 wird benutzt:\n"
+"Es hat bekannte Probleme mit DVD-9\n"
+"(Dual Layer)Spielen. Zum Abspielen und\n"
+"zur Installation dieser Spiele wird\n"
+"ein hoeheres cIOS empfohlen!"
+
+msgid ""
+"NOTE: loader restart is required\n"
+"for the update to take effect."
+msgstr ""
+"BEACHTE: Loader-Neustart erforderlich\n"
+"um das update abzuschliessen."
+
+#, c-format
+msgid ""
+"NOTE: partition P#%d is type EXTEND but\n"
+"contains a WBFS filesystem. This is an\n"
+"invalid setup. Press %s to change the\n"
+"partition type from EXTEND to data."
+msgstr ""
+"BEACHTE: Partition P#%d ist ERWEITERT aber\n"
+"beinhaltet ein WBFS Dateisystem. Dieses ist\n"
+"ein ungueltiges Setup. Druecke %s um den\n"
+"Partitionstyp von ERWEITERT auf DATA zu setzen."
+
+msgid "Network connection established."
+msgstr "Netzwerk Verbindung besteht."
+
+msgid "Nintendo DS"
+msgstr ""
+
+msgid "Nintendo DS Connectivity"
+msgstr "Nintendo DS Konnektivitaet"
+
+msgid "No"
+msgstr "Nein"
+
+#, c-format
+msgid "No domain part in URL '%s'"
+msgstr "Kein Domäne-Teil in der URL '%s'"
+
+msgid "No more memory to copy file from HTTP response"
+msgstr "Kein Speicher frei um Datei aus HTTP Verbindung zu kopieren"
+
+msgid "No partition selected!"
+msgstr "Keine Partition ausgewählt!"
+
+msgid "No updates found."
+msgstr "Keine Updates gefunden."
+
+msgid "None found on disc"
+msgstr "Keine auf Disc gefunden"
+
+msgid "Not Found!"
+msgstr "Nicht gefunden!"
+
+msgid "Number of Online Players"
+msgstr "Anzahl der Online-Spieler"
+
+msgid "Number of Players"
+msgstr "Anzahl der Spieler"
+
+msgid "Nunchuk"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "OK!"
+msgstr ""
+
+msgid "Ocarina (cheats):"
+msgstr ""
+
+msgid "Ocarina Cheat Manager"
+msgstr ""
+
+msgid "Ocarina: Code Error"
+msgstr "Ocarina: Code Fehler"
+
+msgid "Ocarina: Codes found."
+msgstr "Ocarina: Codes gefunden."
+
+msgid "Ocarina: No codes found"
+msgstr "Ocarina: Keine Codes gefunden"
+
+msgid "Ocarina: Out Of Memory Error"
+msgstr "Ocarina: Kein Speicher mehr frei!"
+
+msgid "Ocarina: Searching codes..."
+msgstr "Ocarina: Suche nach Codes..."
+
+msgid "Off"
+msgstr "Aus"
+
+msgid "On"
+msgstr "An"
+
+msgid "Online Content"
+msgstr "Online Inhalte"
+
+msgid "Online Play"
+msgstr "Online Spielen"
+
+msgid "Online Score List"
+msgstr "Online Punkte Liste"
+
+msgid "Opening DVD disc..."
+msgstr "Lade DVD disc..."
+
+msgid "Opening FAT partition..."
+msgstr "Lade FAT Partition..."
+
+msgid "Opening NTFS partition..."
+msgstr "Lade NTFS Partition..."
+
+msgid "Options discarded for this game."
+msgstr "Optionen des Spiels verworfen!!!"
+
+msgid "Options saved for this game."
+msgstr "Optionen des Spiels gespeichert."
+
+msgid "Out of memory"
+msgstr "Nicht genug Speicher"
+
+msgid "Partition:"
+msgstr ""
+
+#, c-format
+msgid "Partition: %s not found!"
+msgstr "Partition: %s nicht gefunden!"
+
+msgid "Party"
+msgstr ""
+
+msgid "Platformer"
+msgstr "Jump & Run"
+
+msgid "Play Count"
+msgstr "Gespielt"
+
+msgid "Please insert a game disc..."
+msgstr "WII Spiele Disc einlegen..."
+
+#, c-format
+msgid "Press %s button for options"
+msgstr "%s druecken = Optionen."
+
+#, c-format
+msgid "Press %s button to %s."
+msgstr "%s druecken = %s."
+
+#, c-format
+msgid "Press %s button to apply codes."
+msgstr "%s druecken = Codes aktivieren."
+
+#, c-format
+msgid "Press %s button to cancel."
+msgstr "%s druecken = abbrechen."
+
+#, c-format
+msgid "Press %s button to change device."
+msgstr "%s druecken = Laufwerk wechseln."
+
+#, c-format
+msgid "Press %s button to continue."
+msgstr "%s druecken = fortfahren."
+
+#, c-format
+msgid "Press %s button to delete FS."
+msgstr "%s druecken = Dateisystem loeschen."
+
+#, c-format
+msgid "Press %s button to dump BCA."
+msgstr "%s druecken = BCA dumpen."
+
+#, c-format
+msgid "Press %s button to exit."
+msgstr "%s druecken = verlassen."
+
+#, c-format
+msgid "Press %s button to fix EXTEND/WBFS."
+msgstr "%s duecken = ERWEITERTE/WBFS reparieren."
+
+#, c-format
+msgid "Press %s button to format WBFS."
+msgstr "%s druecken = WBFS formatieren."
+
+#, c-format
+msgid "Press %s button to go back."
+msgstr "%s druecken = zurueck."
+
+#, c-format
+msgid "Press %s button to select a partition."
+msgstr "%s druecken = Partition auswaehlen."
+
+#, c-format
+msgid "Press %s button to select."
+msgstr "%s druecken = auswaehlen."
+
+#, c-format
+msgid "Press %s button to skip codes."
+msgstr "%s druecken = Codes ueberspringen."
+
+#, c-format
+msgid "Press %s for game options"
+msgstr "%s druecken = Spiel Optionen"
+
+#, c-format
+msgid "Press %s for global options"
+msgstr "%s druecken = globale Einstellungen"
+
+#, c-format
+msgid "Press %s to discard options"
+msgstr "%s druecken = Optionen verwerfen"
+
+#, c-format
+msgid "Press %s to download and update"
+msgstr "%s druecken = herunterladen/updaten"
+
+#, c-format
+msgid "Press %s to download, %s to return"
+msgstr "Druecke: %s = herunterladen, %s = zurueck"
+
+#, c-format
+msgid "Press %s to return"
+msgstr "%s druecken = zurueck"
+
+#, c-format
+msgid "Press %s to save global settings"
+msgstr "%s druecken = Einstellungen speichern"
+
+#, c-format
+msgid "Press %s to save options"
+msgstr "%s druecken = Optionen speichern"
+
+#, c-format
+msgid "Press %s to save selection"
+msgstr "%s druecken = Auswahl speichern"
+
+#, c-format
+msgid "Press %s to select"
+msgstr "%s druecken = auswaehlen"
+
+#, c-format
+msgid "Press %s to select filter type"
+msgstr "%s druecken = Filtertypen waehlen"
+
+#, c-format
+msgid "Press %s to select sorting method"
+msgstr "%s druecken = Sortiermethode waehlen"
+
+#, c-format
+msgid "Press %s to start game"
+msgstr "%s druecken = Spielstart"
+
+#, c-format
+msgid "Press %s to update without meta.xml"
+msgstr "%s druecken = Update ohne meta.xml"
+
+#, fuzzy, c-format
+msgid "Press %s/%s to select device."
+msgstr "LINKS/RECHTS druecken = Laufwerk waehlen."
+
+msgid "Press any button to continue..."
+msgstr "Beliebigen Knopf druecken = fortfahren..."
+
+msgid "Press any button to exit..."
+msgstr "Beliebigen Knopf druecken = verlassen..."
+
+msgid "Press any button to restart..."
+msgstr "Beliebigen Knopf druecken = Neustart..."
+
+msgid "Press any button..."
+msgstr "Beliebigen Knopf druecken..."
+
+#, c-format
+msgid "Press button %s to eject DVD."
+msgstr "%s druecken = DVD auswerfen."
+
+msgid "Profile:"
+msgstr "Profil:"
+
+msgid "Publisher"
+msgstr "Herausgeber"
+
+msgid "Puzzle"
+msgstr ""
+
+msgid "RAW"
+msgstr ""
+
+msgid "RPG"
+msgstr ""
+
+msgid "Racing"
+msgstr "Rennen"
+
+msgid "Read"
+msgstr "Lese"
+
+msgid "Reading BCA..."
+msgstr "Lese BCA..."
+
+msgid "Release Date"
+msgstr "Erscheinungsdatum"
+
+msgid "Release Notes: (short)"
+msgstr "Inhaltsangabe:  (kurz)"
+
+msgid "Remove Game"
+msgstr "Loesche Spiel"
+
+msgid "Removing game, please wait..."
+msgstr "Entferne Spiel, bitte warten!"
+
+msgid "Restarting Wii..."
+msgstr "Starte WII neu..."
+
+#, c-format
+msgid "Returned! (ret = %d)"
+msgstr "Zurueck!! (ret = %d)"
+
+msgid "Rhythm"
+msgstr "Rhythmik"
+
+msgid "Running benchmark, please wait"
+msgstr "Führe Messung durch, bitte warten"
+
+msgid "SD/SDHC Card"
+msgstr "SD/SDHC Karte"
+
+msgid "SUCCESS!"
+msgstr "ERFOLG!"
+
+msgid "Save .gct"
+msgstr "Speichere .gct"
+
+msgid "Saving Settings... "
+msgstr "Speichere Einstellungen.."
+
+msgid "Saving cheats..."
+msgstr "Speichere Cheats.."
+
+msgid "Saving gamelist.txt ... "
+msgstr "Speichere gamelist.txt.."
+
+msgid "Saving settings..."
+msgstr "Speichere Einstellungen.."
+
+#, c-format
+msgid "Saving: %s"
+msgstr "Speichere: %s"
+
+msgid "Select Alternative .dol:"
+msgstr "Waehle Alternativte .dol:"
+
+msgid "Select WBFS device:"
+msgstr "Waehle WBFS Laufwerk:"
+
+msgid "Select a different partition"
+msgstr "Waehle eine andere Partition"
+
+msgid "Select a partition"
+msgstr "Waehle eine Partition"
+
+msgid "Select all"
+msgstr "Waehle alle"
+
+msgid "Select the game you want to boot"
+msgstr "Waehle das Spiel aus das du starten willst"
+
+msgid "Selected Game"
+msgstr "Gewaehltes Spiel"
+
+msgid "Shooter"
+msgstr ""
+
+msgid "Simulation"
+msgstr ""
+
+#, c-format
+msgid "Size: %d byte"
+msgstr "Groesse: %d byte"
+
+#, c-format
+msgid "Size: %d bytes"
+msgstr "Groesse: %d bytes"
+
+msgid "Sort Games"
+msgstr "Sortiere Spiele Option 1"
+
+msgid "Sports"
+msgstr ""
+
+msgid "Start Game"
+msgstr "Starte Spiel"
+
+msgid "Start this game?"
+msgstr "Spiel starten???"
+
+msgid "Strategy"
+msgstr "Strategie"
+
+msgid "Switching to IOS222 for FAT support."
+msgstr "Wechsle auf IOS222 fuer FAT Unterstuetzung."
+
+msgid "Theme:"
+msgstr ""
+
+msgid "Title"
+msgstr "Titel"
+
+#, c-format
+msgid "Too many cheats! (%d)"
+msgstr "Zu viele Cheats! (%d)"
+
+msgid "Too many code lines!"
+msgstr "Zu viele Code-Zeilen!"
+
+#, c-format
+msgid "Too many fragments! %d"
+msgstr "Zu viele Fragmente! %d"
+
+#, c-format
+msgid "Trying (url#%d) ..."
+msgstr "Versuche (url#%d).."
+
+#, c-format
+msgid "URL '%s' doesn't start with 'http://'"
+msgstr "URL '%s' beginnt nicht mit 'http://'"
+
+#, c-format
+msgid "URL '%s' has no PATH part"
+msgstr "URL '%s' has no PATH part"
+
+msgid "USB Gecko found. Debugging is enabled."
+msgstr "USB Gecko erkannt. Debugging aktiviert."
+
+msgid "USB Mass Storage Device"
+msgstr "USB Massenspeicher"
+
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgid "Unknown syntax!"
+msgstr "Unbekannter Syntax!"
+
+msgid "Unplayed Games"
+msgstr "Ungespielte Spiele"
+
+msgid "Update titles.txt"
+msgstr "Lade titles.txt"
+
+msgid "Updating database."
+msgstr "Update Database..."
+
+#, c-format
+msgid "Used: %.1fGB Free: %.1fGB [%d]"
+msgstr "Genutzt: %.1fGB FREI: %.1fGB [%d]"
+
+msgid "Using Saved Alternative .dol:"
+msgstr "Nutze gespeicherte Alt. .dol:"
+
+msgid "Video Patch:"
+msgstr ""
+
+msgid "Video:"
+msgstr ""
+
+msgid "Vitality Sensor"
+msgstr "Vitalitaets Sensor"
+
+msgid "WARNING:"
+msgstr "WARNUNG:"
+
+#, c-format
+msgid "WBFS: %.1fGB free of %.1fGB"
+msgstr "WBFS: %.1fGB FREI von %.1fGB"
+
+msgid "Wheel"
+msgstr "Rad"
+
+msgid "Wii Speak"
+msgstr ""
+
+msgid "Wiimote"
+msgstr ""
+
+#, c-format
+msgid "Writing to %s"
+msgstr "Schreibe auf %s"
+
+#, c-format
+msgid "Writing: %s"
+msgstr "Schreibe: %s"
+
+#, c-format
+msgid "Wrong Size: %d (%d)"
+msgstr "Groesse falsch: %d (%d)"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Zapper"
+msgstr ""
+
+msgid "[ CHANGED ]"
+msgstr "[ VERAENDERT ]"
+
+msgid "[ FOUND ]"
+msgstr "[ GEFUNDEN ]"
+
+msgid "[ SAVED ]"
+msgstr "[ GESPEICHERT ]"
+
+msgid "[ SD/SDHC Card ]"
+msgstr "[ SD/SDHC Karte ]"
+
+msgid "[ USB Mass Storage Device ]"
+msgstr "[ USB Massenspeicher ]"
+
+msgid "[USED]"
+msgstr "[GENUTZT]"
+
+#, c-format
+msgid "bad wbfs file: %s"
+msgstr "Ungueltige wbfs Datei: %s"
+
+msgid "calculating space, please wait..."
+msgstr "Berechne freien Speicher, bitte warten..."
+
+#, c-format
+msgid "dest: %p - %p"
+msgstr "Ziel: %p - %p"
+
+#, c-format
+msgid "domain %s could not be resolved"
+msgstr "Domaene %s konnte nicht aufgeloest werden"
+
+#, c-format
+msgid "error reading: %s (%d)"
+msgstr "Fehler beim lesen: %s (%d)"
+
+#, c-format
+msgid "linear read speed: %.2f mb/s"
+msgstr "Lineare Lesegeschwindigkeit: %.2f mb/s"
+
+msgid "linear..."
+msgstr "linear..."
+
+#, c-format
+msgid "music file too big (%d) %s"
+msgstr "Muisk Datei zu gross (%d) %s"
+
+msgid "music.mp3 or music.mod not found!"
+msgstr "musik.mp3 oder musik.mod nicht gefunden!"
+
+msgid "no file"
+msgstr "Keine Datei"
+
+msgid "none"
+msgstr "nichts"
+
+msgid "or format a WBFS partition."
+msgstr "oder formatiere eine WBFS Partition."
+
+msgid "parse error"
+msgstr "Zergliederungsfehler"
+
+#, c-format
+msgid "random read speed: %.2f mb/s"
+msgstr "Zufaellige Lesegeschwindigkeit: %.2f mb/s"
+
+msgid "random..."
+msgstr "Zufall..."
+
+msgid "save"
+msgstr "Speichern"
+
+#, c-format
+msgid "split error: %s"
+msgstr "Split Fehler: %s"
+
+msgid "unable to open wii disc"
+msgstr "Kann WII Disc nicht oeffnen"
+
+#, c-format
+msgid "used: %p - %p"
+msgstr "benutzt: %p - %p"

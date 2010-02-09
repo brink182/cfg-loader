@@ -488,6 +488,8 @@ msgid ""
 "Error storing playlog file.\n"
 "Start from the Wii Menu to fix."
 msgstr ""
+"Kan het Wii prikbord niet bijwerken.\n"
+"Werkt wel na start via het Wii Menu."
 
 msgid "Error: Invalid PNG image!"
 msgstr "Fout: Ongeldige PNG afb."

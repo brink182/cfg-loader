@@ -51,43 +51,6 @@ default options:
   partition=FAT1
   hide_hddinfo=1
 
-release = 52b (beta)
-size = 1411040
-date = 2010-01-30
-url = http://cfg-loader.googlecode.com/files/cfg52b.dol
-Original Gamecube disc loading
-Wii disc loading now uses disc IOS
-Console font fix
-Updated Cover URLs
-
-release = 52b-fat (beta)
-size = 1411040
-date = 2010-01-30
-url = http://cfg-loader.googlecode.com/files/cfg52b-fat.dol
-Same as 52b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 52a2 (alpha 2)
-size = 1411552
-date = 2010-01-23
-url = http://cfg-loader.googlecode.com/files/cfg52a2.dol
-Translation files now supported.
-Fixed a duplicate option in 52a1.
-One disc loading bug fixed.
-
-release = 52a2-fat (alpha)
-size = 1411552
-date = 2010-01-23
-url = http://cfg-loader.googlecode.com/files/cfg52a2-fat.dol
-Same as 52a2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
 release = 51 (release)
 size = 1404256
 date = 2010-01-17

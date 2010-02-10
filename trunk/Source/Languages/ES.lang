@@ -2,13 +2,13 @@
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"POT-Creation-Date: 2010-02-11 00:25+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -218,9 +218,6 @@ msgstr "Descargar .txt"
 
 msgid "Download All Missing Covers"
 msgstr "Descargar las Portadas Faltantes"
-
-msgid "Download Game Database"
-msgstr "Descargar la Base de Datos de Juegos"
 
 msgid "Download complete."
 msgstr "Descarga terminada."
@@ -492,6 +489,8 @@ msgid ""
 "Error storing playlog file.\n"
 "Start from the Wii Menu to fix."
 msgstr ""
+"Error almacenando registro del juego.\n"
+"Inicia desde el menú de Wii para arreglarlo."
 
 msgid "Error: Invalid PNG image!"
 msgstr "Error: Imagen PNG inválida!"
@@ -1046,6 +1045,10 @@ msgstr "Presiona el botón %s para expulsar el DVD."
 msgid "Profile:"
 msgstr "Perfíl:"
 
+#, c-format
+msgid "Profile: %s"
+msgstr ""
+
 msgid "Publisher"
 msgstr "Editor"
 
@@ -1155,6 +1158,10 @@ msgstr "Tamaño: %d bytes"
 msgid "Sort Games"
 msgstr "Ordenar Juegos"
 
+#, c-format
+msgid "Sort: %s-%s"
+msgstr ""
+
 msgid "Sports"
 msgstr "Deportes"
 
@@ -1172,6 +1179,10 @@ msgstr "Cambiar a IOS222 para soporte de FAT."
 
 msgid "Theme:"
 msgstr "Tema:"
+
+#, c-format
+msgid "Theme: %s"
+msgstr ""
 
 msgid "Title"
 msgstr "Título"
@@ -1213,6 +1224,9 @@ msgstr "Sintaxis desconocida!"
 
 msgid "Unplayed Games"
 msgstr "Juegos Sin Jugar"
+
+msgid "Update WiiTDB Game Database"
+msgstr "Actualizar WiiTDB"
 
 msgid "Update titles.txt"
 msgstr "Actualizar titles.txt"
@@ -1356,3 +1370,6 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "IOS %u del disco no se cargó! (ret = %d)"
+
+#~ msgid "Download Game Database"
+#~ msgstr "Descargar la Base de Datos de Juegos"

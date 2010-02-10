@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"POT-Creation-Date: 2010-02-11 00:25+0100\n"
 "PO-Revision-Date: 2010-02-01 04:59-0500\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
@@ -216,9 +216,6 @@ msgstr "Télécharger .txt"
 
 msgid "Download All Missing Covers"
 msgstr "Téléch. les jaquettes manquantes"
-
-msgid "Download Game Database"
-msgstr "Téléch. base de données de jeux"
 
 msgid "Download complete."
 msgstr "Téléchargement terminé."
@@ -1050,6 +1047,10 @@ msgstr "Appuyez sur %s pour éjecter le DVD."
 msgid "Profile:"
 msgstr "Profil:"
 
+#, c-format
+msgid "Profile: %s"
+msgstr ""
+
 msgid "Publisher"
 msgstr "Éditeur"
 
@@ -1159,6 +1160,10 @@ msgstr "Taille: %d octets"
 msgid "Sort Games"
 msgstr "Trier les jeux"
 
+#, c-format
+msgid "Sort: %s-%s"
+msgstr ""
+
 msgid "Sports"
 msgstr "Sport"
 
@@ -1176,6 +1181,10 @@ msgstr "Passe à l'IOS222 pour le support FAT."
 
 msgid "Theme:"
 msgstr "Thème:"
+
+#, c-format
+msgid "Theme: %s"
+msgstr ""
 
 msgid "Title"
 msgstr "Titre"
@@ -1217,6 +1226,9 @@ msgstr "Syntaxe inconnue !"
 
 msgid "Unplayed Games"
 msgstr "Jeux jamais lus"
+
+msgid "Update WiiTDB Game Database"
+msgstr "Mettre à jour WiiTDB"
 
 msgid "Update titles.txt"
 msgstr "Mettre à jour titles.txt"
@@ -1360,3 +1372,6 @@ msgstr "utilisé: %p - %p"
 
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "L'IOS du disque %u n'a pas pu être chargé ! (ret = %d)"
+
+#~ msgid "Download Game Database"
+#~ msgstr "Téléch. base de données de jeux"

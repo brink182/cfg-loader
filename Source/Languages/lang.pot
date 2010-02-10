@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"POT-Creation-Date: 2010-02-11 00:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,9 +211,6 @@ msgid "Download .txt"
 msgstr ""
 
 msgid "Download All Missing Covers"
-msgstr ""
-
-msgid "Download Game Database"
 msgstr ""
 
 msgid "Download complete."
@@ -1009,6 +1006,10 @@ msgstr ""
 msgid "Profile:"
 msgstr ""
 
+#, c-format
+msgid "Profile: %s"
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -1118,6 +1119,10 @@ msgstr ""
 msgid "Sort Games"
 msgstr ""
 
+#, c-format
+msgid "Sort: %s-%s"
+msgstr ""
+
 msgid "Sports"
 msgstr ""
 
@@ -1134,6 +1139,10 @@ msgid "Switching to IOS222 for FAT support."
 msgstr ""
 
 msgid "Theme:"
+msgstr ""
+
+#, c-format
+msgid "Theme: %s"
 msgstr ""
 
 msgid "Title"
@@ -1175,6 +1184,9 @@ msgid "Unknown syntax!"
 msgstr ""
 
 msgid "Unplayed Games"
+msgstr ""
+
+msgid "Update WiiTDB Game Database"
 msgstr ""
 
 msgid "Update titles.txt"

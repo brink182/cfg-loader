@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"POT-Creation-Date: 2010-02-11 00:25+0100\n"
 "PO-Revision-Date: 2010-02-09 14:00-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -216,9 +216,6 @@ msgstr "Scarica .txt"
 
 msgid "Download All Missing Covers"
 msgstr "Scarica Copertine Mancanti"
-
-msgid "Download Game Database"
-msgstr "Scarica Database Giochi"
 
 msgid "Download complete."
 msgstr "Download completato."
@@ -1046,6 +1043,10 @@ msgstr "Premere %s per espellere il DVD"
 msgid "Profile:"
 msgstr "Profilo:"
 
+#, c-format
+msgid "Profile: %s"
+msgstr ""
+
 msgid "Publisher"
 msgstr "Casa Editrice"
 
@@ -1155,6 +1156,10 @@ msgstr "Dimensione: %d bytes"
 msgid "Sort Games"
 msgstr "Ordina Giochi"
 
+#, c-format
+msgid "Sort: %s-%s"
+msgstr ""
+
 msgid "Sports"
 msgstr "Sport"
 
@@ -1172,6 +1177,10 @@ msgstr "Sto passando al IOS222 per il supporto FAT"
 
 msgid "Theme:"
 msgstr "Tema:"
+
+#, c-format
+msgid "Theme: %s"
+msgstr ""
 
 msgid "Title"
 msgstr "Titolo"
@@ -1213,6 +1222,9 @@ msgstr "Sintassi sconosciuta!"
 
 msgid "Unplayed Games"
 msgstr "Giochi mai caricati"
+
+msgid "Update WiiTDB Game Database"
+msgstr "Aggiorna WiiTDB"
 
 msgid "Update titles.txt"
 msgstr "Aggiorna titles.txt"
@@ -1357,3 +1369,5 @@ msgstr "usati: %p - %p"
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "Impossibile caricare IOS %u del disco! (ret = %d)"
 
+#~ msgid "Download Game Database"
+#~ msgstr "Scarica Database Giochi"

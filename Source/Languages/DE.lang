@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"POT-Creation-Date: 2010-02-11 00:25+0100\n"
 "PO-Revision-Date: 2010-01-27 18:39-0500\n"
 "Last-Translator: Geridian <caramon1983@web.de>\n"
 "Language-Team: GERMAN <caramon1983@web.de>\n"
@@ -218,9 +218,6 @@ msgstr "Lade .txt"
 
 msgid "Download All Missing Covers"
 msgstr "Lade ALLE fehlenden Cover"
-
-msgid "Download Game Database"
-msgstr "Lade Spiel Database"
 
 msgid "Download complete."
 msgstr "Laden beendet."
@@ -1046,6 +1043,10 @@ msgstr "%s druecken = DVD auswerfen."
 msgid "Profile:"
 msgstr "Profil:"
 
+#, c-format
+msgid "Profile: %s"
+msgstr ""
+
 msgid "Publisher"
 msgstr "Herausgeber"
 
@@ -1155,6 +1156,10 @@ msgstr "Groesse: %d bytes"
 msgid "Sort Games"
 msgstr "Sortiere Spiele Option 1"
 
+#, c-format
+msgid "Sort: %s-%s"
+msgstr ""
+
 msgid "Sports"
 msgstr ""
 
@@ -1171,6 +1176,10 @@ msgid "Switching to IOS222 for FAT support."
 msgstr "Wechsle auf IOS222 fuer FAT Unterstuetzung."
 
 msgid "Theme:"
+msgstr ""
+
+#, c-format
+msgid "Theme: %s"
 msgstr ""
 
 msgid "Title"
@@ -1213,6 +1222,9 @@ msgstr "Unbekannter Syntax!"
 
 msgid "Unplayed Games"
 msgstr "Ungespielte Spiele"
+
+msgid "Update WiiTDB Game Database"
+msgstr "Lade WiiTDB Spiel Database"
 
 msgid "Update titles.txt"
 msgstr "Lade titles.txt"
@@ -1353,3 +1365,6 @@ msgstr "Kann WII Disc nicht oeffnen"
 #, c-format
 msgid "used: %p - %p"
 msgstr "benutzt: %p - %p"
+
+#~ msgid "Download Game Database"
+#~ msgstr "Lade Spiel Database"

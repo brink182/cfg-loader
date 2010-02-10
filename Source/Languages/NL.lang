@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 02:29+0100\n"
+"POT-Creation-Date: 2010-02-11 00:25+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -214,9 +214,6 @@ msgstr ".txt downloaden"
 
 msgid "Download All Missing Covers"
 msgstr "Alle missende hoesjes downloaden"
-
-msgid "Download Game Database"
-msgstr "Spellendatabase downloaden"
 
 msgid "Download complete."
 msgstr "Downloaden voltooid"
@@ -1044,6 +1041,10 @@ msgstr "Druk %s om de DVD uit te werpen."
 msgid "Profile:"
 msgstr "Profiel:"
 
+#, c-format
+msgid "Profile: %s"
+msgstr ""
+
 msgid "Publisher"
 msgstr "Uitgever"
 
@@ -1153,6 +1154,10 @@ msgstr "Grootte: %d bytes"
 msgid "Sort Games"
 msgstr "Spellen sorteren"
 
+#, c-format
+msgid "Sort: %s-%s"
+msgstr ""
+
 msgid "Sports"
 msgstr "Sport"
 
@@ -1170,6 +1175,10 @@ msgstr "Schakel over op IOS222 voor FAT ondersteuning."
 
 msgid "Theme:"
 msgstr "Thema:"
+
+#, c-format
+msgid "Theme: %s"
+msgstr ""
 
 msgid "Title"
 msgstr "Titel"
@@ -1211,6 +1220,9 @@ msgstr "Onbekende syntax!"
 
 msgid "Unplayed Games"
 msgstr "Ongespeelde spellen"
+
+msgid "Update WiiTDB Game Database"
+msgstr "WiiTDB Spellendatabase updaten"
 
 msgid "Update titles.txt"
 msgstr "titles.txt updaten"
@@ -1354,3 +1366,6 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "Disk IOS %u kan niet worden geladen! (ret = %d)"
+
+#~ msgid "Download Game Database"
+#~ msgstr "Spellendatabase downloaden"

@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 52b5 (beta5)
+size = 1419200
+date = 2010-02-12
+url = http://cfg-loader.googlecode.com/files/cfg52b5.dol
+Fixed multiline strings in .lang
+Minor translation updates
+
+release = 52b5-fat (beta5)
+size = 1419200
+date = 2010-02-12
+url = http://cfg-loader.googlecode.com/files/cfg52b5-fat.dol
+Same as 52b5 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 52b4 (beta4)
 size = 1418752
 date = 2010-02-11
@@ -46,25 +63,6 @@ size = 1418176
 date = 2010-02-09
 url = http://cfg-loader.googlecode.com/files/cfg52b3-fat.dol
 Same as 52b3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 52b2 (beta2)
-size = 1412544
-date = 2010-02-06
-url = http://cfg-loader.googlecode.com/files/cfg52b2.dol
-Play time logging to Message Board
-Titles from custom_titles.txt/WiiTDB
-Console color fixes
-Disc booting reverted
-
-release = 52b2-fat (beta2)
-size = 1412544
-date = 2010-02-06
-url = http://cfg-loader.googlecode.com/files/cfg52b2-fat.dol
-Same as 52b2 but with different
 default options:
   ios=222-mload
   partition=FAT1

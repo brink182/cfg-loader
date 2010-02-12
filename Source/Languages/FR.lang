@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-11 00:25+0100\n"
-"PO-Revision-Date: 2010-02-01 04:59-0500\n"
+"POT-Creation-Date: 2010-02-12 09:43+0100\n"
+"PO-Revision-Date: 2010-02-11 2:00+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
 "MIME-Version: 1.0\n"
@@ -97,10 +97,10 @@ msgstr ""
 
 msgid ""
 "Are you sure you want to remove this\n"
-"    game?"
+"game?"
 msgstr ""
 "Êtes-vous sûr de vouloir supprimer\n"
-"     ce jeu ?"
+"ce jeu ?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -487,6 +487,8 @@ msgid ""
 "Error storing playlog file.\n"
 "Start from the Wii Menu to fix."
 msgstr ""
+"Erreur de sauvegarde d'historique de jeu.\n"
+"Démarrez à partir du menu Wii pour réparer."
 
 msgid "Error: Invalid PNG image!"
 msgstr "Erreur: Image PNG invalide !"
@@ -905,7 +907,7 @@ msgid "Please insert a game disc..."
 msgstr "Veuillez insérer un disque de jeu..."
 
 #, c-format
-msgid "Press %s button for options"
+msgid "Press %s button for options."
 msgstr "Appuyez sur %s pour les options."
 
 #, c-format
@@ -1049,7 +1051,7 @@ msgstr "Profil:"
 
 #, c-format
 msgid "Profile: %s"
-msgstr ""
+msgstr "Profil: %s"
 
 msgid "Publisher"
 msgstr "Éditeur"
@@ -1162,7 +1164,7 @@ msgstr "Trier les jeux"
 
 #, c-format
 msgid "Sort: %s-%s"
-msgstr ""
+msgstr "Tri: %s-%s"
 
 msgid "Sports"
 msgstr "Sport"
@@ -1184,7 +1186,7 @@ msgstr "Thème:"
 
 #, c-format
 msgid "Theme: %s"
-msgstr ""
+msgstr "Thème: %s"
 
 msgid "Title"
 msgstr "Titre"
@@ -1228,7 +1230,7 @@ msgid "Unplayed Games"
 msgstr "Jeux jamais lus"
 
 msgid "Update WiiTDB Game Database"
-msgstr "Mettre à jour WiiTDB"
+msgstr "Mettre à jour BDD de jeux WiiTDB"
 
 msgid "Update titles.txt"
 msgstr "Mettre à jour titles.txt"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-11 00:25+0100\n"
+"POT-Creation-Date: 2010-02-12 09:43+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -99,10 +99,10 @@ msgstr ""
 
 msgid ""
 "Are you sure you want to remove this\n"
-"    game?"
+"game?"
 msgstr ""
 "¿Estás seguro que deseas Are you sure you want to eliminar este\n"
-"    juego?"
+"juego?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -907,8 +907,8 @@ msgid "Please insert a game disc..."
 msgstr "Por favor inserte un disco de juego..."
 
 #, c-format
-msgid "Press %s button for options"
-msgstr "Presiona el botón %s para las opciones"
+msgid "Press %s button for options."
+msgstr "Presiona el botón %s para las opciones."
 
 #, c-format
 msgid "Press %s button to %s."

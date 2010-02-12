@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-11 00:25+0100\n"
+"POT-Creation-Date: 2010-02-12 09:43+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -95,7 +95,7 @@ msgstr ""
 
 msgid ""
 "Are you sure you want to remove this\n"
-"    game?"
+"game?"
 msgstr ""
 "Weet je zeker dat je dit spel wilt\n"
 "verwijderen?"
@@ -903,7 +903,7 @@ msgid "Please insert a game disc..."
 msgstr "Voeg een speldisc in..."
 
 #, c-format
-msgid "Press %s button for options"
+msgid "Press %s button for options."
 msgstr "Druk %s voor opties"
 
 #, c-format
@@ -1043,7 +1043,7 @@ msgstr "Profiel:"
 
 #, c-format
 msgid "Profile: %s"
-msgstr ""
+msgstr "Profiel: %s"
 
 msgid "Publisher"
 msgstr "Uitgever"
@@ -1156,7 +1156,7 @@ msgstr "Spellen sorteren"
 
 #, c-format
 msgid "Sort: %s-%s"
-msgstr ""
+msgstr "Sortering: %s-%s"
 
 msgid "Sports"
 msgstr "Sport"
@@ -1178,7 +1178,7 @@ msgstr "Thema:"
 
 #, c-format
 msgid "Theme: %s"
-msgstr ""
+msgstr "Thema: %s"
 
 msgid "Title"
 msgstr "Titel"

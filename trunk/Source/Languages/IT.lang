@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-11 00:25+0100\n"
+"POT-Creation-Date: 2010-02-12 09:43+0100\n"
 "PO-Revision-Date: 2010-02-09 14:00-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -97,10 +97,10 @@ msgstr ""
 
 msgid ""
 "Are you sure you want to remove this\n"
-"    game?"
+"game?"
 msgstr ""
 "Sei sicuro di voler eliminare\n"
-"    questo gioco?"
+"questo gioco?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -905,7 +905,7 @@ msgid "Please insert a game disc..."
 msgstr "Inserire un disco..."
 
 #, c-format
-msgid "Press %s button for options"
+msgid "Press %s button for options."
 msgstr "Premere %s per le opzioni"
 
 #, c-format
@@ -1045,7 +1045,7 @@ msgstr "Profilo:"
 
 #, c-format
 msgid "Profile: %s"
-msgstr ""
+msgstr "Profilo: %s"
 
 msgid "Publisher"
 msgstr "Casa Editrice"
@@ -1158,7 +1158,7 @@ msgstr "Ordina Giochi"
 
 #, c-format
 msgid "Sort: %s-%s"
-msgstr ""
+msgstr "Ordinamento: %s-%s"
 
 msgid "Sports"
 msgstr "Sport"
@@ -1180,7 +1180,7 @@ msgstr "Tema:"
 
 #, c-format
 msgid "Theme: %s"
-msgstr ""
+msgstr "Tema: %s"
 
 msgid "Title"
 msgstr "Titolo"

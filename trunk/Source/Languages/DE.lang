@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-11 00:25+0100\n"
+"POT-Creation-Date: 2010-02-12 09:43+0100\n"
 "PO-Revision-Date: 2010-01-27 18:39-0500\n"
 "Last-Translator: Geridian <caramon1983@web.de>\n"
 "Language-Team: GERMAN <caramon1983@web.de>\n"
@@ -99,10 +99,10 @@ msgstr ""
 
 msgid ""
 "Are you sure you want to remove this\n"
-"    game?"
+"game?"
 msgstr ""
 "Sicher das Du dieses Spiel loeschen\n"
-"    willst?"
+"willst?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -905,7 +905,7 @@ msgid "Please insert a game disc..."
 msgstr "WII Spiele Disc einlegen..."
 
 #, c-format
-msgid "Press %s button for options"
+msgid "Press %s button for options."
 msgstr "%s druecken = Optionen."
 
 #, c-format

@@ -3,15 +3,34 @@ metaxml=<app version="1">
 metaxml=	<name>Configurable USB Loader</name>
 metaxml=	<version>{VERSION}</version>
 metaxml=	<release_date>{DATE}</release_date>
-metaxml=	<coder>oggzee, usptactical, ...</coder>
+metaxml=	<coder>oggzee, usptactical, gannon, Clipper, ...</coder>
 metaxml=	<short_description>Play from USB drive</short_description>
-metaxml=	<long_description>
+metaxml=<long_description>
 metaxml=Play Wii Backups from USB harddrive
 metaxml=Waninkoko cIOS 249 is required!
 metaxml=Hermes cIOS 222/223 is supported.
 metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
+
+release = 52 (release)
+size = 1420096
+date = 2010-02-13
+url = http://cfg-loader.googlecode.com/files/cfg52.dol
+Left/Right hold repeat in console
+GUI displays messages for sort,
+    profile and theme switch.
+Minor cleanups
+
+release = 52-fat (release)
+size = 1420096
+date = 2010-02-13
+url = http://cfg-loader.googlecode.com/files/cfg52-fat.dol
+Same as 52 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
 
 release = 52b5 (beta5)
 size = 1419200
@@ -44,25 +63,6 @@ size = 1418752
 date = 2010-02-11
 url = http://cfg-loader.googlecode.com/files/cfg52b4-fat.dol
 Same as 52b4 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 52b3 (beta3)
-size = 1418176
-date = 2010-02-09
-url = http://cfg-loader.googlecode.com/files/cfg52b3.dol
-Button remapping
-NTFS partition switching bugfix
-Title in filename of .wbfs/.iso
-db_ignore_titles option
-
-release = 52b3-fat (beta3)
-size = 1418176
-date = 2010-02-09
-url = http://cfg-loader.googlecode.com/files/cfg52b3-fat.dol
-Same as 52b3 but with different
 default options:
   ios=222-mload
   partition=FAT1

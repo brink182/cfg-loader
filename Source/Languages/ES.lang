@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-12 09:43+0100\n"
+"POT-Creation-Date: 2010-02-12 20:48+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -1047,7 +1047,7 @@ msgstr "Perfíl:"
 
 #, c-format
 msgid "Profile: %s"
-msgstr ""
+msgstr "Perfíl: %s"
 
 msgid "Publisher"
 msgstr "Editor"
@@ -1160,7 +1160,7 @@ msgstr "Ordenar Juegos"
 
 #, c-format
 msgid "Sort: %s-%s"
-msgstr ""
+msgstr "Orden: %s-%s"
 
 msgid "Sports"
 msgstr "Deportes"
@@ -1182,7 +1182,7 @@ msgstr "Tema:"
 
 #, c-format
 msgid "Theme: %s"
-msgstr ""
+msgstr "Tema: %s"
 
 msgid "Title"
 msgstr "Título"

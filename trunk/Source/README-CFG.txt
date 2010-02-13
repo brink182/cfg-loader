@@ -1,8 +1,8 @@
 
-Configurable SD/USB Loader v51
+Configurable SD/USB Loader v52
 ==============================
 
-by oggzee & usptactical
+by oggzee, usptactical, gannon & Dr. Clipper
 
 This version of the loader allows you to customize numerous options
 to better suit your preferences.
@@ -24,7 +24,7 @@ Features:
  - Cover images download
  - Cover styles: 2d, 3d, disc and full
  - Automatic resize of covers
- - Renaming game titles (using titles.txt)
+ - Renaming game titles (using titles.txt, custom_titles.txt and/or wiitdb.zip)
  - Per game configuration of Video mode, Language, Ocarina cheating
  - Light up DVD slot when install finishes, optional eject
  - Childproof and parental guidance
@@ -35,6 +35,7 @@ Features:
  - Custom IOS selection for better compatibility with USB drives and other USB devices.
  - cIOS supported: waninkoko's 249 & 250, Hermes 222 & 223 (mload), kwiirk 222 & 223 (yal)
  - Banner sounds
+ - Saving game play time to Wii's play log
  - Multiple WBFS partitions support
  - Loading games from a FAT or NTFS partition (IOS 222/223 required)
  - Supported game disc file formats: .wbfs and .iso
@@ -76,9 +77,9 @@ File locations:
   background image:sd:/usb-loader/background.png
   covers:
     2d:            sd:/usb-loader/covers/*.png
-	3d:            sd:/usb-loader/covers/3d/*.png
-	disc:          sd:/usb-loader/covers/disc/*.png
-	full:          sd:/usb-loader/covers/full/*.png
+    3d:            sd:/usb-loader/covers/3d/*.png
+    disc:          sd:/usb-loader/covers/disc/*.png
+    full:          sd:/usb-loader/covers/full/*.png
   titles file:     sd:/usb-loader/titles.txt
   themes:          sd:/usb-loader/themes/THEME_NAME/theme.txt
 
@@ -206,7 +207,7 @@ GUI Mode:
 
 By default console mode is started.
 To switch to GUI mode, press B in main screen.
-While in GUI mode, the following buttons are used:
+While in GUI mode, the following buttons are used by default (they can be remapped):
     button A : start selected game
     button B : return to console mode
     button LEFT/RIGHT (Grid): previous/next page
@@ -284,37 +285,46 @@ setting.  This allows you to set which games are hidden when the admin mode is L
 In order to see this option, admin_unlock must be enabled (which it is by default) AND
 the admin mode must be in an unlocked state!
 - NOTE: this functionality completely replaces the hide_game option in config.txt,
-	but they CAN be used together. Any games currently listed in hide_game will be
-	shown when unlocked, but will ALWAYS be marked as hidden by default in Game Options
-   	and cannot be changed to unhidden unless they are removed from config.txt
+    but they CAN be used together. Any games currently listed in hide_game will be
+    shown when unlocked, but will ALWAYS be marked as hidden by default in Game Options
+       and cannot be changed to unhidden unless they are removed from config.txt
 - NOTE 2: An easy way to convert all your games in hide_game to this new functionality
-	is to start the loader with your hide_game still in config.txt and then go into
-	Game Options in any game (you may have to unlock admin lock first) and change
-	something and save it. All your hide_game entries will automatically be saved.  
-	Then you can remove the hide_game entry completely from config.txt.
+    is to start the loader with your hide_game still in config.txt and then go into
+    Game Options in any game (you may have to unlock admin lock first) and change
+    something and save it. All your hide_game entries will automatically be saved.  
+    Then you can remove the hide_game entry completely from config.txt.
 
 
 Various Controllers Button Mapping:
---------------------------------------------------
-WIIMOTE  CLASSIC  GC       GUITAR       NUNCHUK
---------------------------------------------------
-UP       UP       UP       STRUM UP
-RIGHT    RIGHT    RIGHT    NONE
-DOWN     DOWN     DOWN     STRUM DOWN
-LEFT     LEFT     LEFT     NONE
--        -        L        -
-+        +        R        +
-A        A        A        GREEN        C
-B        B        B        RED          Z
-HOME     HOME     START    ORANGE
-1        Y        Y        YELLOW
-2        X        X        BLUE
+There are 17 possible buttons, listed here with the controller mappings.
+-----------------------------------------------------------
+BUTTON   WIIMOTE  CLASSIC  GC       GUITAR       NUNCHUK
+-----------------------------------------------------------
+UP       UP       UP       UP       STRUM UP
+RIGHT    RIGHT    RIGHT    RIGHT    NONE
+DOWN     DOWN     DOWN     DOWN     STRUM DOWN
+LEFT     LEFT     LEFT     LEFT     NONE
+-        -        -                 -
++        +        +                 +
+A        A        A        A        GREEN        
+B        B        B        B        RED          
+HOME     HOME     HOME     START    
+1        1                          
+2        2                          
+X                 X        X        BLUE
+Y                 Y        Y        YELLOW
+Z                 ZL/ZR    Z        ORANGE       Z
+C                                                C
+L                 L        L
+R                 R        R
 
+The actions of these buttons can be changed via the button_* options.
 
 Title Rename
 ------------
 
 To rename a game title, edit the file in sd:/usb-loader/titles.txt
+or sd:/usb-loader/custom-titles.txt
 Format is:
 GAMEID = Game Title
 Example:
@@ -370,20 +380,6 @@ Config file:
 #   ultimate2: 12 lines (jservs7 / hungyip84)
 #   ultimate3: 12 lines (WiiShizza - cover on right)
 #
-# buttons=[options_1], options_B, original
-#   (change button controls layout.)
-#
-#   The button layout "options_1" is:
-#       button B - GUI mode / Back
-#       button 1 - options menu
-#       button 2 - save / discard game options
-#		direction buttons - select and change options
-#
-#   The button layout "options_B" is:
-#       button B - options menu / Back
-#       button 1 - GUI mode
-#       button 2 - save / discard game options
-#		direction buttons - select and change options
 #
 # covers = [1], 0
 #   (enable/disable covers)
@@ -463,6 +459,82 @@ Config file:
 #   Text colors for coverflow modes, where background is darker
 #
 # gui_title_top = [0], 1
+#   If 1, gui text appears above covers.  If 0, below.
+#
+# home = [reboot], exit, hbc, screenshot
+#   What to do when home buttin is pressed in the menus
+#   Also changes the operation of button_H in the gui and game list.
+#
+# buttons=[options_1], options_B, original
+#   (change button controls layout in the gui and game list.)
+#
+#   The button layout "options_1" is:
+#       button B - GUI mode
+#       button 1 - options menu
+#
+#   The button layout "options_B" is:
+#       button B - options menu
+#       button 1 - GUI mode
+#
+#   The button layout "original" is obsolete, but is:
+#       button 1 - options menu
+#       button B - nothing
+#
+# button_B = [gui], <other actions>
+# button_- = [main_menu], <other actions>
+# button_+ = [install], <other actions>
+# button_H = [reboot], <other actions>
+# button_1 = [options], <other actions>
+# button_2 = [favorites], <other actions>
+# button_X = A, B, 1, [2], H, -, +, <action>
+# button_Y = A, B, [1], 2, H, -, +, <action>
+# button_Z = A, [B], 1, 2, H, -, +, <action>
+# button_C = [A], B, 1, 2, H, -, +, <action>
+# button_L = A, B, 1, 2, H, [-], +, <action>
+# button_R = A, B, 1, 2, H, -, [+], <action>
+#   These buttons can be mapped to any of the following actions in the game list and gui:
+#     nothing    # does nothing
+#     options    # access game options
+#     gui        # switch to/from GUI
+#     reboot     # reboot to system menu
+#     exit       # exit to launching app
+#     hbc        # exit to HBC
+#     screenshot # take a screenshot
+#     install    # install a game
+#     remove     # remove a game
+#     main_menu  # access main menu 
+#     global_ops # access global options menu
+#     favorites  # toggle favorites view
+#     boot_game  # boot a game from the drive
+#     boot_disc  # boot a game from disc
+#     theme      # switch to next theme
+#     profile    # switch to next profile
+#     unlock     # access the unlock password dialog immediately
+#   X, Y, Z, C, L & R can also be optionally targetted to emulate one of the buttons
+#   on the Wiimote (A, B, 1, 2, -, +, Home).  This emulation will function everywhere.
+#
+# button_cancel = [B], <comma separated list of buttons>
+#   Set which button(s) will act as the back button in menus
+#   Valid button values in the list are: 
+#     B, 1, 2, -, M, Minus, +, P, Plus, H, Home, X, Y, Z, C, L, R
+#
+# button_exit = [Home], <comma separated list of buttons>
+#   Set which button(s) will perform the 'home' action in menus
+#   Valid button values in the list are: 
+#     B, 1, 2, -, M, Minus, +, P, Plus, H, Home, X, Y, Z, C, L, R
+#
+# button_other = [1], <comma separated list of buttons>
+#   Set which button(s) will perform the other or alternate action in menus
+#   This covers switching between options and global options, choosing to
+#   download BCA during install, choosing to ignore meta.xml during upgrade etc.
+#   Valid button values in the list are: 
+#     B, 1, 2, -, M, Minus, +, P, Plus, H, Home, X, Y, Z, C, L, R
+#   
+# button_save = [2], <comma separated list of buttons>
+#   Set which button(s) will perform the save action in menus
+#   Valid button values in the list are: 
+#     B, 1, 2, -, M, Minus, +, P, Plus, H, Home, X, Y, Z, C, L, R
+# 
 #
 # Global options:
 # ===============
@@ -521,12 +593,12 @@ Config file:
 # cover_url_full = URL (url for disc covers)
 #   defaults:
 #
-#	cover_url =
-#	cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png
-#	cover_url =+ http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID}.png
-#	cover_url =+ http://boxart.rowdyruff.net/flat/{ID6}.png
-#	cover_url =+ http://awiibit.com/BoxArt160x224/{ID6}.png
-#	cover_url =+ http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png
+#    cover_url =
+#    cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png
+#    cover_url =+ http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID}.png
+#    cover_url =+ http://boxart.rowdyruff.net/flat/{ID6}.png
+#    cover_url =+ http://awiibit.com/BoxArt160x224/{ID6}.png
+#    cover_url =+ http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png
 #
 #   cover_url_3d =
 #   cover_url_3d =+ http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png
@@ -563,8 +635,6 @@ Config file:
 # titles_url = http://wiitdb.com/titles.txt?LANG={CC}
 #   Url for updating titles.txt
 #
-# home = [reboot], exit, hbc, screenshot
-#   What to do when home buttin is pressed
 #
 # device = [ask], usb, sdhc
 #   Specifies which device to use when starting the loader
@@ -601,10 +671,13 @@ Config file:
 # fat_split_size = [4], 2
 #   Selects if the split is at 4gb-32kb or 2gb-32kb
 #
-# fat_install_dir = [1], 0, 2
-#   Enable install in subdirectories on fat:
+# fat_install_dir = [1], 0, 2, 3
+#   Select install filename layout on fat:
+#   fat_install_dir = 0 /wbfs/GAMEID.wbfs
 #   fat_install_dir = 1 /wbfs/GAMEID_TITLE/GAMEID.wbfs
 #   fat_install_dir = 2 /wbfs/TITLE [GAMEID]/GAMEID.wbfs
+#   fat_install_dir = 3 /wbfs/TITLE [GAMEID].wbfs
+# fs_install_layout is an alias for fat_install_dir
 #
 # music = [1], 0, filename, PATH
 #   Play background music (only one option has to be specified)
@@ -694,8 +767,16 @@ Config file:
 # db_show_info = [1], 0
 #   Show info loaded from the database.
 #
+# db_ignore_titles = [0], 1
+#   Set this to ignore titles from the database when naming games.
+#
 # write_playstats = [1], 0
 #   Write to the play history file.
+#
+# write_playlog = [0], 1
+#   Write gameplay stats to the Wii message board log.
+#   This option won't work when the Wii Menu is skipped before
+#   starting Cfg (e.g., using Priiloader or BootMii autoboot).
 #
 # sort = [title-asc], etc
 #   Change the default sorting method. Default is Title Ascending.
@@ -718,6 +799,10 @@ Config file:
 #   To use descending add "-desc" to the option.
 #     ie: sort = players-desc
 #
+# translation = [AUTO], EN, custom, etc
+#   Current auto values: JA, EN, DE, FR, ES, IT, NL, ZH, ZH, KO
+#   Any filename is supported as long as a corresponding translation 
+#   file exists
 #
 # Game Compatibility Options:
 # ===========================
@@ -793,6 +878,188 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+cfg v52 (release)
+
+ * Left/Right hold repeat in console
+ * GUI displays messages for sort, profile and theme switch.
+ * Minor cleanups
+
+cfg v52b5 (beta5)
+
+ * Fixed handling of multiline strings in .lang files
+ * Minor translation updates
+
+cfg v52b4 (beta4)
+
+ * New actions for buttons: sort (switch sort type), filter (filter menu) (Clipper)
+ * Button actions sort, profile and theme will display a message in the console (Clipper)
+ * Holding any of the buttons in button_other in the GUI will work for menu_unlock (Clipper)
+ * Fixed: title length 3 from folder names
+ * Fixed: WiiTDB update crash
+ * Handle &amp; etc. in wiitdb titles
+ * fat_install_dir = 3 will use layout: /wbfs/Title [ID].wbfs
+ * new option: fs_install_layout is an alias for fat_install_dir
+ * Minor cleanups
+
+
+cfg v52b3 (beta3)
+ * Button remapping options (Dr. Clipper)
+   See below for information.
+ * Previous home option is now a theme option with overrides
+ * Reversion of boot disc to cIOS method (for real this time)
+ * Fix for switching between NTFS partitions (oggzee)
+ * Various translation and menu alignment fixes (oggzee)
+ * Support for new filenames on FAT/NTFS: (oggzee)
+   /wbfs/TITLE [GAMEID].wbfs  or  /wbfs/TITLE [GAMEID].iso
+ * option: db_ignore_titles = [0], 1
+     Set this option to ignore titles from the database
+
+ About button remapping: 
+  Firstly, the guitar default mappings have changed slightly.
+    The new mappings are as follows:
+    RED = A; GREEN = B; YELLOW = X; BLUE = Y; ORANGE = Z.
+
+  Each of the following buttons can now have its own action:
+  B, -, +, 1, 2, Home, X, Y, Z, C, L & R.
+
+  These actions are valid for the console game list and the GUI 
+  mode only.  For options that affect the menus, see below.
+  The new options for this type of mapping are all theme options
+  with config.txt overrides and are as follows:	
+   option: button_B = [gui], <other actions>
+           button_- = [main_menu], <other actions>
+           button_+ = [install], <other actions>
+           button_H = [reboot], <other actions>
+           button_1 = [options], <other actions>
+           button_2 = [favorites], <other actions>
+           button_X = A, B, 1, [2], H, -, +, <action>
+           button_Y = A, B, [1], 2, H, -, +, <action>
+           button_Z = A, [B], 1, 2, H, -, +, <action>
+           button_C = [A], B, 1, 2, H, -, +, <action>
+           button_L = A, B, 1, 2, H, [-], +, <action>
+           button_R = A, B, 1, 2, H, -, [+], <action>
+  These buttons can be mapped to any of the following actions:
+     nothing    # does nothing
+     options    # access game options
+     gui        # switch to/from GUI
+     reboot     # reboot to system menu
+     exit       # exit to launching app
+     hbc        # exit to HBC
+     screenshot # take a screenshot
+     install    # install a game
+     remove     # remove a game
+     main_menu  # access main menu 
+     global_ops # access global options menu
+     favorites  # toggle favorites view
+     boot_game  # boot a game from the drive
+     boot_disc  # boot a game from disc
+     theme      # switch to next theme
+     profile    # switch to next profile
+     unlock     # access the unlock password dialog immediately
+  As shown, X, Y, Z, C, L & R can also be optionally targetted to 
+  emulate one of the buttons on the Wiimote (A, B, 1, 2, -, +, Home).
+  If used this way, this emulation will also work in menus.
+
+  As stated, the other options allow you to select the default
+  action in the game list and GUI mode only.  The menus can be
+  remapped by specifying which buttons affect which commands.
+  These options take a commas separated list of button names from the
+  following list:
+    B, 1, 2, -, M, Minus, +, P, Plus, H, Home, X, Y, Z, C, L, R
+
+  The following are the mappable commands.  All the options are theme
+  options with overrides in config.txt.
+
+   option: button_cancel = [B], <comma separated list of buttons>
+     Set which button(s) will act as the back button in menus
+
+   option: button_exit = [Home], <comma separated list of buttons>
+     Set which button(s) will perform the 'home' action in menus
+
+   option: button_other = [1], <comma separated list of buttons>
+     Set which button(s) will perform the other or alternate action in menus
+     This covers switching between options and global options, choosing to
+     download BCA during install, choosing to ignore meta.xml during upgrade etc.
+
+   option: button_save = [2], <comma separated list of buttons>
+     Set which button(s) will perform the save action in menus
+
+ EXAMPLES:
+   To switch buttons B & 1 around so that 1 operates as GUI while
+   B operates as back:
+     button_B = options
+     button_1 = gui
+     button_other = B
+     button_cancel = 1
+   To make both the L and R buttons on a GameCube controller
+   operate as back buttons in the menus in addition to B:
+     button_cancel = B, L, R
+   Plug in the Classic controller and you can have any twelve
+   different actions available at once (with A being boot_game):
+     button_B = gui
+     button_1 = options
+     button_2 = favorites
+     button_- = profile
+     button_+ = theme
+     button_H = exit
+     button_L = remove
+     button_R = install
+     button_X = main_menu
+     button_Y = global_ops
+     button_Z = boot_disc
+
+cfg v52b2 (beta2)
+ * File custom-titles.txt in the base directory is searched 
+   for game titles.
+ * Titles are extracted from wiitdb.zip but can be overridden 
+   with either titles file.
+ * The titles precedence (highest to lowest) is as follows:
+     - custom_titles.txt
+     - titles.txt
+     - wiitdb.zip
+     - directory name (FAT & NTFS only)
+     - game image
+ * When saving global options, the saved settings are listed.
+ * Console color fixes (Dr. Clipper)
+ * Play time logging to message board (marc_max & Dr. Clipper)
+     When enabled, this option will put the correct title
+     and play time into the Wii Message Board log and will
+     also be read by the Nintendo Channel.  However, this will
+     usually fail if you skip the Wii Menu via BootMii or 
+     Priiloader autoboot.
+ * option: write_playlog = [0],1 
+     Note, it is disabled by default as this fix changes your
+     Wii's NAND and cannot be used via autoboot methods.
+
+cfg v52b (beta)
+ * Gamecube disc loading
+   Just like Wii discs, only original discs supported!
+ * Wii disc loading now uses the disc specified IOS.
+   This should increase game compatibility.
+ * Console font outline and shadow fix by Dr. Clipper
+ * Many translatable strings have been improved.
+ * Cover URLs updated
+
+cfg v52a2 (alpha 2)
+ * Fixed options.
+   option: language_path has been removed.
+   The path is now fixed at /usb-loader/languages/
+   option: language has been changed to translation to 
+   prevent conflicts with the game language setting.
+   option: translation = [AUTO], EN, custom, etc
+
+cfg v52a (alpha)
+ * Translation files now supported.
+   option: language_path = path to language files
+   Default: USBLOADER_PATH/languages
+   option: language = filename without extension
+   Default: Current the wii language from the following list
+            JA, EN, DE, FR, ES, IT, NL, ZH, ZH, KO
+ * Fixed crash issue if booting from disc failed
+ * Database can now be named wiitdb.zip.
+   The old naming scheme is still supported however.
+
 cfg v51 (release)
  * New Sort: last play date
    option: sort = play_date
@@ -921,26 +1188,26 @@ cfg v50b (beta)
 
  About NTFS support: 
 
-	FAT support in ehcmodule has been rewritten with a new
-	generic wii disc emulation system that is:
-	- light weight / zero overhead
-	- filesystem independent
-	- fileformat independent
-	It works by supplying the ehcmodule with a list of sector fragments
-	that specify the location of data using direct sector addressing.
-	To see the list of fragments one can use debug=1 and they will
-	be printed out before starting the game.
-	The number of fragments if limited to 5000, that number is also
-	the max theoretical number of fragments on a wbfs partition (actually
-	4600, for a dual layer disc with a 2mb wbfs block size). In normal
-	conditions the number of fragments should be a lot lower most commonly
-	just a single big block. Fragments are used to describe both physical
-	address on hdd and virtual adress on wii disc so if a .wbfs file is used
-	the list will be composed of 3 fragments - disc header, update partition
-	and game partition.
-	libntfs however doesn't seem stable enough for write access at the moment,
-	so the ntfs partition is mounted read-only meaning install and remove can't
-	be done from inside the loader for now.
+    FAT support in ehcmodule has been rewritten with a new
+    generic wii disc emulation system that is:
+    - light weight / zero overhead
+    - filesystem independent
+    - fileformat independent
+    It works by supplying the ehcmodule with a list of sector fragments
+    that specify the location of data using direct sector addressing.
+    To see the list of fragments one can use debug=1 and they will
+    be printed out before starting the game.
+    The number of fragments if limited to 5000, that number is also
+    the max theoretical number of fragments on a wbfs partition (actually
+    4600, for a dual layer disc with a 2mb wbfs block size). In normal
+    conditions the number of fragments should be a lot lower most commonly
+    just a single big block. Fragments are used to describe both physical
+    address on hdd and virtual adress on wii disc so if a .wbfs file is used
+    the list will be composed of 3 fragments - disc header, update partition
+    and game partition.
+    libntfs however doesn't seem stable enough for write access at the moment,
+    so the ntfs partition is mounted read-only meaning install and remove can't
+    be done from inside the loader for now.
 
  Credits: WiiPower for libntfs modification which returns the list of fragments.
 
@@ -1105,18 +1372,18 @@ cfg v47a (alpha)
  * Better compatibility with weird WBFS partition setups:
  - WBFS on RAW disk device, without a partition table
    With such a setup the partition table will look like this:
-	P# Size(GB) Type Mount Used
-	-----------------------------
-	RAW  500.00 WBFS1      [USED]
+    P# Size(GB) Type Mount Used
+    -----------------------------
+    RAW  500.00 WBFS1      [USED]
 
  - WBFS on EXTENDED partition. Normally a filesystem should
    reside on either a primary or logical partition, never on
    an extended partition. Extended is just a container of logical
    partitions. However older version allowed this setup and so
    the support for it is back. The partition table will look like:
-	P# Size(GB) Type Mount Used
-	-----------------------------
-	P#1  500.00 EXTEND/WBFS1 [USED]
+    P# Size(GB) Type Mount Used
+    -----------------------------
+    P#1  500.00 EXTEND/WBFS1 [USED]
    And the loader will also let you fix the partition table by
    pressing 1, which will change the partition type from EXTEND to
    a known data type (0x0b, which is also used for fat)
@@ -1647,7 +1914,7 @@ cfg v35a3 (alpha3)
  * Integrated Coverflow Gui mode
    - NOTE: This mode renders the game covers in true 3D so 2D (flat) cover images are needed.
      If "fake" 3D/disk cover images are currently being used (in console or Grid mode), moving to Coverflow 
-	 will automatically switch to 2D covers and then switch back when leaving.
+     will automatically switch to 2D covers and then switch back when leaving.
    - To access Coverflow mode (from console mode) press B and then down several times.
      Each subsequent Down button press will iterate through each coverflow style.
    - Currently only 2D flat front covers are supported.  Full cover image (front, spine,
@@ -1929,11 +2196,11 @@ cfg v30b: (beta)
    To switch to GUI mode, press B in main screen.
    While in GUI mode, the following buttons are used:
      button A : start selected game
-	 button B : return to console mode
-	 button LEFT/RIGHT : previous/next page
-	 button UP/DOWN : switch number of rows (1-3)
-	 button 1, +, - : options, install, remove
-	 button HOME : exit
+     button B : return to console mode
+     button LEFT/RIGHT : previous/next page
+     button UP/DOWN : switch number of rows (1-3)
+     button 1, +, - : options, install, remove
+     button HOME : exit
    The background image in GUI mode can be changed with the file:
      sd:/usb-loader/themes/Theme_Name/bg_gui.png  or
      sd:/usb-loader/bg_gui.png
@@ -2037,8 +2304,8 @@ cfg v23:
  - Fixed harvest moon & nunchuck problem
  - Added video mode: VIDTV
    (It was previously enabled by default, but is not compatible with all games
-	so it is now a separate mode. Select it in game options / video mode.
-   	Required for Japanese and maybe some other games)
+    so it is now a separate mode. Select it in game options / video mode.
+       Required for Japanese and maybe some other games)
  - Fixed network problems in games when downloading covers from loader.
  - Restart music if it was stopped by usb device retry on failure
 

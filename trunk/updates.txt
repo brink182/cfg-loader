@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 53a (alpha)
+size = 1421952
+date = 2010-02-16
+url = http://cfg-loader.googlecode.com/files/cfg53a.dol
+cIOS 222/223/224 v5 support
+New option value for ios: 224-mload
+Support for HDDs with 4k sectors
+Fixed option: home=hbc
+
+release = 53a-fat (alpha)
+size = 1421952
+date = 2010-02-16
+url = http://cfg-loader.googlecode.com/files/cfg53a-fat.dol
+Same as 53a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 52 (release)
 size = 1420096
 date = 2010-02-13
@@ -44,25 +63,6 @@ size = 1419200
 date = 2010-02-12
 url = http://cfg-loader.googlecode.com/files/cfg52b5-fat.dol
 Same as 52b5 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 52b4 (beta4)
-size = 1418752
-date = 2010-02-11
-url = http://cfg-loader.googlecode.com/files/cfg52b4.dol
-New actions for buttons: sort, filter
-Fixed: title length 3 from dir names
-Fixed: WiiTDB update crash
-option: fat_install_dir = 3
-
-release = 52b4-fat (beta4)
-size = 1418752
-date = 2010-02-11
-url = http://cfg-loader.googlecode.com/files/cfg52b4-fat.dol
-Same as 52b4 but with different
 default options:
   ios=222-mload
   partition=FAT1

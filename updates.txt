@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 53b (beta)
+size = 1426464
+date = 2010-02-20
+url = http://cfg-loader.googlecode.com/files/cfg53b.dol
+Better handling of corrupted covers
+Japanese / Chinese lang and wiitdb
+Playlog fixes, removed wiiboxart
+Scroll screens with small console
+cover download print url and progress
+
+release = 53b-fat (beta)
+size = 1426464
+date = 2010-02-20
+url = http://cfg-loader.googlecode.com/files/cfg53b-fat.dol
+Same as 53b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 53a (alpha)
 size = 1421952
 date = 2010-02-16
@@ -46,23 +66,6 @@ size = 1420096
 date = 2010-02-13
 url = http://cfg-loader.googlecode.com/files/cfg52-fat.dol
 Same as 52 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 52b5 (beta5)
-size = 1419200
-date = 2010-02-12
-url = http://cfg-loader.googlecode.com/files/cfg52b5.dol
-Fixed multiline strings in .lang
-Minor translation updates
-
-release = 52b5-fat (beta5)
-size = 1419200
-date = 2010-02-12
-url = http://cfg-loader.googlecode.com/files/cfg52b5-fat.dol
-Same as 52b5 but with different
 default options:
   ios=222-mload
   partition=FAT1

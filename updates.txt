@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 53b2 (beta2)
+size = 1426688
+date = 2010-02-21
+url = http://cfg-loader.googlecode.com/files/cfg53b2.dol
+More fixes for handling of
+  corrupted cover images
+Minor translation updates
+
+release = 53b2-fat (beta2)
+size = 1426784
+date = 2010-02-21
+url = http://cfg-loader.googlecode.com/files/cfg53b2-fat.dol
+Same as 53b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 53b (beta)
 size = 1426464
 date = 2010-02-20

@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 53b3 (beta3)
+size = 1426752
+date = 2010-02-22
+url = http://cfg-loader.googlecode.com/files/cfg53b3.dol
+Fixed crash with cios222 v5
+Fixed update progress notification
+
+release = 53b3-fat (beta3)
+size = 1426784
+date = 2010-02-22
+url = http://cfg-loader.googlecode.com/files/cfg53b3-fat.dol
+Same as 53b3 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 53b2 (beta2)
 size = 1426688
 date = 2010-02-21
@@ -26,45 +43,6 @@ size = 1426784
 date = 2010-02-21
 url = http://cfg-loader.googlecode.com/files/cfg53b2-fat.dol
 Same as 53b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 53b (beta)
-size = 1426464
-date = 2010-02-20
-url = http://cfg-loader.googlecode.com/files/cfg53b.dol
-Better handling of corrupted covers
-Japanese / Chinese lang and wiitdb
-Playlog fixes, removed wiiboxart
-Scroll screens with small console
-cover download print url and progress
-
-release = 53b-fat (beta)
-size = 1426464
-date = 2010-02-20
-url = http://cfg-loader.googlecode.com/files/cfg53b-fat.dol
-Same as 53b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 53a (alpha)
-size = 1421952
-date = 2010-02-16
-url = http://cfg-loader.googlecode.com/files/cfg53a.dol
-cIOS 222/223/224 v5 support
-New option value for ios: 224-mload
-Support for HDDs with 4k sectors
-Fixed option: home=hbc
-
-release = 53a-fat (alpha)
-size = 1421952
-date = 2010-02-16
-url = http://cfg-loader.googlecode.com/files/cfg53a-fat.dol
-Same as 53a but with different
 default options:
   ios=222-mload
   partition=FAT1

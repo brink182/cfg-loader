@@ -8,13 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-12 20:48+0100\n"
-"PO-Revision-Date: 2010-02-12 22:26+0100\n"
-"Last-Translator: WiiNero\n"
+"POT-Creation-Date: 2010-02-21 21:09+0100\n"
+"PO-Revision-Date: 2010-02-21 22:57+0100\n"
+"Last-Translator: Geridian\n"
 "Language-Team: GERMAN <Geridian, WiiNero>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#, c-format
+msgid "%.1fGB free of %.1fGB"
+msgstr "%.1fGB von %.1fGB frei"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -45,11 +49,21 @@ msgid "%s, please wait..."
 msgstr "%s, bitte warten..."
 
 #, c-format
+msgid "(%d online)"
+msgstr "(%d online)"
+
+#, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d Sek. Timeout)"
 
 msgid ".dol too small"
 msgstr ".dol zu klein"
+
+msgid "< ASC  >"
+msgstr "<Aufst.>"
+
+msgid "< DESC >"
+msgstr "<Abst. >"
 
 msgid "< DOWNLOAD >"
 msgstr "< HERUNTERLADEN >"
@@ -225,17 +239,19 @@ msgstr "Herunterladen vollständig."
 msgid "Downloadable Content"
 msgstr "Herunterladbarer Inhalt"
 
-#, c-format
-msgid "Downloading %s Covers for %.4s"
-msgstr "Lade %s Cover herunter für %.4s"
+msgid "Downloading ALL MISSING covers"
+msgstr "Lade fehlende Cover herunter"
+
+msgid "Downloading ALL covers"
+msgstr "Lade alle Cover herunter"
 
 #, c-format
-msgid "Downloading %s cover... (%s)"
-msgstr "Lade %s Cover herunter... (%s)"
+msgid "Downloading ALL covers for %.6s"
+msgstr "Lade alle Cover für %.6s"
 
 #, c-format
-msgid "Downloading All %sCovers"
-msgstr "Lade aller %sCover herunter"
+msgid "Downloading MISSING covers for %.6s"
+msgstr "Lade fehlende Cover für %.6s"
 
 msgid "Downloading cheats..."
 msgstr "Lade Cheats herunter..."
@@ -560,6 +576,9 @@ msgstr "Formatiere"
 msgid "Found %s Cover"
 msgstr "%s Cover gefunden"
 
+msgid "GB"
+msgstr "GB"
+
 msgid "Game Options"
 msgstr "Spieleoptionen"
 
@@ -674,12 +693,6 @@ msgstr "Verwalten"
 
 msgid "Microphone"
 msgstr "Mikrofon"
-
-msgid "Missing"
-msgstr "fehlende"
-
-msgid "Missing "
-msgstr "fehlende "
 
 msgid "Motion+"
 msgstr "Motion+"
@@ -1064,6 +1077,10 @@ msgstr "Rollenspiele"
 msgid "Racing"
 msgstr "Rennen"
 
+#, c-format
+msgid "Rated %s"
+msgstr "FSK/PEGI %s"
+
 msgid "Read"
 msgstr "Lese"
 
@@ -1146,10 +1163,6 @@ msgstr "Shooter"
 
 msgid "Simulation"
 msgstr "Simulation"
-
-#, c-format
-msgid "Size: %d byte"
-msgstr "Größe: %d byte"
 
 #, c-format
 msgid "Size: %d bytes"
@@ -1309,6 +1322,12 @@ msgstr "Ungültige wbfs Datei: %s"
 msgid "calculating space, please wait..."
 msgstr "Berechne freien Speicher, bitte warten..."
 
+msgid "cover"
+msgstr "Cover"
+
+msgid "delete"
+msgstr "lösche"
+
 #, c-format
 msgid "dest: %p - %p"
 msgstr "Ziel: %p - %p"
@@ -1320,6 +1339,16 @@ msgstr "Domäne %s konnte nicht aufgelöst werden"
 #, c-format
 msgid "error reading: %s (%d)"
 msgstr "Fehler beim Lesen: %s (%d)"
+
+#, c-format
+msgid "for %d players"
+msgstr "für %d Spieler"
+
+msgid "for 1 player"
+msgstr "für 1 Spieler"
+
+msgid "format"
+msgstr "formatiere"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
@@ -1343,6 +1372,9 @@ msgstr "nichts"
 
 msgid "or format a WBFS partition."
 msgstr "oder formatiere eine WBFS Partition."
+
+msgid "page"
+msgstr "Seite"
 
 msgid "parse error"
 msgstr "Analysierungsfehler"
@@ -1370,3 +1402,21 @@ msgstr "benutzt: %p - %p"
 
 #~ msgid "Download Game Database"
 #~ msgstr "Lade Spieldatenbank"
+
+#~ msgid "Downloading %s Covers for %.4s"
+#~ msgstr "Lade %s Cover herunter für %.4s"
+
+#~ msgid "Downloading %s cover... (%s)"
+#~ msgstr "Lade %s Cover herunter... (%s)"
+
+#~ msgid "Downloading All %sCovers"
+#~ msgstr "Lade aller %sCover herunter"
+
+#~ msgid "Missing"
+#~ msgstr "fehlende"
+
+#~ msgid "Missing "
+#~ msgstr "fehlende "
+
+#~ msgid "Size: %d byte"
+#~ msgstr "Größe: %d byte"

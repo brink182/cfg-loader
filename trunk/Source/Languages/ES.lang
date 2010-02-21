@@ -8,13 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-12 20:48+0100\n"
+"POT-Creation-Date: 2010-02-21 21:09+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#, c-format
+msgid "%.1fGB free of %.1fGB"
+msgstr ""
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -30,7 +34,7 @@ msgstr "%d disponible"
 
 #, c-format
 msgid "%d more notes"
-msgstr "%d mas notas"
+msgstr "%d más notas"
 
 #, c-format
 msgid "%s No games found!!"
@@ -45,11 +49,21 @@ msgid "%s, please wait..."
 msgstr "%s, por favor espera..."
 
 #, c-format
+msgid "(%d online)"
+msgstr ""
+
+#, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d segundos de tiempo de espera)"
 
 msgid ".dol too small"
 msgstr ".dol es muy pequeño"
+
+msgid "< ASC  >"
+msgstr ""
+
+msgid "< DESC >"
+msgstr ""
 
 msgid "< DOWNLOAD >"
 msgstr "< DESCARGAR >"
@@ -101,7 +115,7 @@ msgid ""
 "Are you sure you want to remove this\n"
 "game?"
 msgstr ""
-"¿Estás seguro que deseas Are you sure you want to eliminar este\n"
+"¿Estás seguro que deseas eliminar este\n"
 "juego?"
 
 #, c-format
@@ -196,7 +210,7 @@ msgid "Dance Pad"
 msgstr "Alfombra de Baile"
 
 msgid "Database update successful."
-msgstr "Base de Datos ha sido actualizada con éxito."
+msgstr "Base de Datos exitosamente actualizada."
 
 msgid "Deleting"
 msgstr "Eliminando"
@@ -225,17 +239,19 @@ msgstr "Descarga terminada."
 msgid "Downloadable Content"
 msgstr "Contenido Descargable"
 
-#, c-format
-msgid "Downloading %s Covers for %.4s"
-msgstr "Descargando %s Portadas para %.4s"
+msgid "Downloading ALL MISSING covers"
+msgstr "Descargar las Portadas FALTANTES"
+
+msgid "Downloading ALL covers"
+msgstr "Descargar TODAS las Portadas"
 
 #, c-format
-msgid "Downloading %s cover... (%s)"
-msgstr "Descargando portada %s.. (%s)"
+msgid "Downloading ALL covers for %.6s"
+msgstr "Descargar TODAS las Portadas para %.6s"
 
 #, c-format
-msgid "Downloading All %sCovers"
-msgstr "Descargando las Portadas %s"
+msgid "Downloading MISSING covers for %.6s"
+msgstr "Descargar las Portadas FALTANTES para %.6s"
 
 msgid "Downloading cheats..."
 msgstr "Descargando trucos..."
@@ -560,6 +576,9 @@ msgstr "Formateando"
 msgid "Found %s Cover"
 msgstr "Han sido encontradas %s Portadas"
 
+msgid "GB"
+msgstr ""
+
 msgid "Game Options"
 msgstr "Opciones de Juego"
 
@@ -674,12 +693,6 @@ msgstr "Gestionar"
 
 msgid "Microphone"
 msgstr "Micrófono"
-
-msgid "Missing"
-msgstr "Faltantes"
-
-msgid "Missing "
-msgstr "Faltantes "
 
 msgid "Motion+"
 msgstr "Motion+"
@@ -1064,6 +1077,10 @@ msgstr "RPG"
 msgid "Racing"
 msgstr "Carreras"
 
+#, c-format
+msgid "Rated %s"
+msgstr ""
+
 msgid "Read"
 msgstr "Leer"
 
@@ -1146,10 +1163,6 @@ msgstr "Disparos"
 
 msgid "Simulation"
 msgstr "Simulación"
-
-#, c-format
-msgid "Size: %d byte"
-msgstr "Tamaño: %d byte"
 
 #, c-format
 msgid "Size: %d bytes"
@@ -1309,6 +1322,12 @@ msgstr "archivo wbfs malo: %s"
 msgid "calculating space, please wait..."
 msgstr "calculando espacio, por favor esperar..."
 
+msgid "cover"
+msgstr "portada"
+
+msgid "delete"
+msgstr ""
+
 #, c-format
 msgid "dest: %p - %p"
 msgstr "dest: %p - %p"
@@ -1320,6 +1339,16 @@ msgstr "dominio %s no ha sido resuelto"
 #, c-format
 msgid "error reading: %s (%d)"
 msgstr "error leyendo: %s (%d)"
+
+#, c-format
+msgid "for %d players"
+msgstr ""
+
+msgid "for 1 player"
+msgstr ""
+
+msgid "format"
+msgstr ""
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
@@ -1343,6 +1372,9 @@ msgstr "ninguno"
 
 msgid "or format a WBFS partition."
 msgstr "o formatear una partición WBFS."
+
+msgid "page"
+msgstr "página"
 
 msgid "parse error"
 msgstr "error de análisis"
@@ -1373,3 +1405,21 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Download Game Database"
 #~ msgstr "Descargar la Base de Datos de Juegos"
+
+#~ msgid "Downloading %s Covers for %.4s"
+#~ msgstr "Descargando %s Portadas para %.4s"
+
+#~ msgid "Downloading %s cover... (%s)"
+#~ msgstr "Descargando portada %s.. (%s)"
+
+#~ msgid "Downloading All %sCovers"
+#~ msgstr "Descargando las Portadas %s"
+
+#~ msgid "Missing"
+#~ msgstr "Faltantes"
+
+#~ msgid "Missing "
+#~ msgstr "Faltantes "
+
+#~ msgid "Size: %d byte"
+#~ msgstr "Tamaño: %d byte"

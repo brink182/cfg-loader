@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 53 (release)
+size = 1426752
+date = 2010-02-23
+url = http://cfg-loader.googlecode.com/files/cfg53.dol
+New option: load_unifont = [0], 1
+For Asian (CJK) language font support
+
+release = 53-fat (release)
+size = 1426816
+date = 2010-02-23
+url = http://cfg-loader.googlecode.com/files/cfg53-fat.dol
+Same as 53 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 53b3 (beta3)
 size = 1426752
 date = 2010-02-22
@@ -25,24 +42,6 @@ size = 1426784
 date = 2010-02-22
 url = http://cfg-loader.googlecode.com/files/cfg53b3-fat.dol
 Same as 53b3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 53b2 (beta2)
-size = 1426688
-date = 2010-02-21
-url = http://cfg-loader.googlecode.com/files/cfg53b2.dol
-More fixes for handling of
-  corrupted cover images
-Minor translation updates
-
-release = 53b2-fat (beta2)
-size = 1426784
-date = 2010-02-21
-url = http://cfg-loader.googlecode.com/files/cfg53b2-fat.dol
-Same as 53b2 but with different
 default options:
   ios=222-mload
   partition=FAT1

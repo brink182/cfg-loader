@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 54a (alpha)
+size = 1434720
+date = 2010-02-23
+url = http://cfg-loader.googlecode.com/files/cfg54a.dol
+Gecko OS 1.9 cheat engine
+ aka Ocarina 2 aka Bralw+ support
+ (by WiiPower)
+write_playlog per-game option
+fixed db_language=AUTO
+
+release = 54a-fat (alpha)
+size = 1434720
+date = 2010-02-23
+url = http://cfg-loader.googlecode.com/files/cfg54a-fat.dol
+Same as 54a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 53 (release)
 size = 1426752
 date = 2010-02-23

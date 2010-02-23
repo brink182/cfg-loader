@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 54a2 (alpha2)
+size = 1434848
+date = 2010-02-24
+url = http://cfg-loader.googlecode.com/files/cfg54a2.dol
+Playlog uses game language setting
+titles_url default uses {DBL}
+
+release = 54a2-fat (alpha2)
+size = 1434880
+date = 2010-02-24
+url = http://cfg-loader.googlecode.com/files/cfg54a2-fat.dol
+Same as 54a2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 54a (alpha)
 size = 1434720
 date = 2010-02-23

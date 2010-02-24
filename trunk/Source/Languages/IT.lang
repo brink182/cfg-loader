@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-21 21:09+0100\n"
-"PO-Revision-Date: 2010-02-21 08:00-0100\n"
+"PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr ""
+msgstr "%.1fGB liberi di %.1fGB"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -48,7 +48,7 @@ msgstr "%s, attendere prego..."
 
 #, c-format
 msgid "(%d online)"
-msgstr ""
+msgstr "(%d online)"
 
 #, c-format
 msgid "(%d seconds timeout)"
@@ -58,10 +58,10 @@ msgid ".dol too small"
 msgstr ".dol troppo piccolo"
 
 msgid "< ASC  >"
-msgstr ""
+msgstr "< CRES >"
 
 msgid "< DESC >"
-msgstr ""
+msgstr "< DECR >"
 
 msgid "< DOWNLOAD >"
 msgstr "< SCARICA >"
@@ -575,7 +575,7 @@ msgid "Found %s Cover"
 msgstr "Trovata Copertina %s"
 
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 msgid "Game Options"
 msgstr "Opzioni Gioco"
@@ -1077,7 +1077,7 @@ msgstr "Corse"
 
 #, c-format
 msgid "Rated %s"
-msgstr ""
+msgstr "Età %s"
 
 msgid "Read"
 msgstr "Leggi"
@@ -1324,7 +1324,7 @@ msgid "cover"
 msgstr "copertina"
 
 msgid "delete"
-msgstr ""
+msgstr "eliminare"
 
 #, c-format
 msgid "dest: %p - %p"
@@ -1340,13 +1340,13 @@ msgstr "errore lettura: %s (%d)"
 
 #, c-format
 msgid "for %d players"
-msgstr ""
+msgstr "per %d giocatori"
 
 msgid "for 1 player"
-msgstr ""
+msgstr "per 1 giocatore"
 
 msgid "format"
-msgstr ""
+msgstr "formattare"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

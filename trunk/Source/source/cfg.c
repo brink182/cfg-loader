@@ -1,5 +1,5 @@
 
-// by oggzee & usptactical
+// by oggzee, usptactical & Dr. Clipper
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,6 +18,9 @@
 #include "fat.h"
 #include "net.h"
 #include "xml.h"
+#include "gettext.h"
+#include "menu.h"
+#include "console.h"
 
 char FAT_DRIVE[8] = "sd:";
 char USBLOADER_PATH[200] = "sd:/usb-loader";
@@ -118,6 +121,7 @@ struct TextMap map_ios[] =
 	{ "249",        CFG_IOS_249 },
 	{ "222-mload",  CFG_IOS_222_MLOAD },
 	{ "223-mload",  CFG_IOS_223_MLOAD },
+	{ "224-mload",  CFG_IOS_224_MLOAD },
 	{ "222-yal",    CFG_IOS_222_YAL },
 	{ "223-yal",    CFG_IOS_223_YAL },
 	{ "250",        CFG_IOS_250 },
@@ -137,12 +141,64 @@ struct TextMap map_gui_style[] =
 	{ NULL, -1 }
 };
 
+struct TextMap map_button[] =
+{
+	{ "-",          CFG_BTN_M },
+	{ "+",          CFG_BTN_P },
+	{ "A",          CFG_BTN_A },
+	{ "B",          CFG_BTN_B },
+	{ "H",          CFG_BTN_H },
+	{ "1",          CFG_BTN_1 },
+	{ "2",          CFG_BTN_2 },
+	{ "nothing",    CFG_BTN_NOTHING },
+	{ "options",    CFG_BTN_OPTIONS },
+	{ "gui",        CFG_BTN_GUI },
+	{ "reboot",     CFG_BTN_REBOOT },
+	{ "exit",       CFG_BTN_EXIT },
+	{ "hbc",        CFG_BTN_HBC },
+	{ "screenshot", CFG_BTN_SCREENSHOT },
+	{ "install",    CFG_BTN_INSTALL },
+	{ "remove",     CFG_BTN_REMOVE },
+	{ "main_menu",  CFG_BTN_MAIN_MENU },
+	{ "global_ops", CFG_BTN_GLOBAL_OPS },
+	{ "favorites",  CFG_BTN_FAVORITES },
+	{ "boot_game",  CFG_BTN_BOOT_GAME },
+	{ "boot_disc",  CFG_BTN_BOOT_DISC },
+	{ "theme",      CFG_BTN_THEME },
+	{ "profile",    CFG_BTN_PROFILE },
+	{ "unlock",     CFG_BTN_UNLOCK },
+	{ "sort",       CFG_BTN_SORT },
+	{ "filter",     CFG_BTN_FILTER },
+	{ NULL, -1 }
+};
+
+struct TextMap map_button_menu[] =
+{
+	//{ "A", NUM_BUTTON_A },
+	{ "B", NUM_BUTTON_B },
+	{ "1", NUM_BUTTON_1 },
+	{ "2", NUM_BUTTON_2 },
+	{ "-", NUM_BUTTON_MINUS },
+	{ "M", NUM_BUTTON_MINUS },
+	{ "+", NUM_BUTTON_PLUS },
+	{ "P", NUM_BUTTON_PLUS },
+	{ "H", NUM_BUTTON_HOME },
+	{ "X", NUM_BUTTON_X },
+	{ "Y", NUM_BUTTON_Y },
+	{ "Z", NUM_BUTTON_Z },
+	{ "C", NUM_BUTTON_C },
+	{ "L", NUM_BUTTON_L },
+	{ "R", NUM_BUTTON_R },
+	{ NULL, -1 }
+};
+
 struct playStat {
 	char id[7];
 	s32 playCount;
 	time_t playTime;
 };
 
+bool playStatsRead = false;
 int playStatsSize = 0;
 struct playStat *playStats;
 
@@ -151,13 +207,14 @@ int CURR_IOS_IDX = -1;
 
 static char *cfg_name, *cfg_val;
 
+
+
 // theme
-#define MAX_THEME 100
+//#define MAX_THEME 100
 int num_theme = 0;
 int cur_theme = -1;
 char theme_list[MAX_THEME][31];
 char theme_path[200];
-
 
 void game_set(char *name, char *val);
 bool cfg_parsefile(char *fname, void (*set_func)(char*, char*));
@@ -453,40 +510,6 @@ void cfg_setup_cover_style()
 	}
 }
 
-	// OLD URLS:
-	/*
-	// www.theotherzone.com
-	STRCOPY(CFG.cover_url_2d_norm,
-			"http://www.theotherzone.com/wii/{REGION}/{ID6}.png");
-	STRCOPY(CFG.cover_url_2d_wide,
-			"http://www.theotherzone.com/wii/widescreen/{REGION}/{ID6}.png");
-	STRCOPY(CFG.cover_url_3d_norm,
-			"http://www.theotherzone.com/wii/3d/{WIDTH}/{HEIGHT}/{ID6}.png");
-	STRCOPY(CFG.cover_url_3d_wide, CFG.cover_url_3d_norm);
-	STRCOPY(CFG.cover_url_disc_norm,
-			"http://www.theotherzone.com/wii/discs/{ID3}.png");
-	STRCOPY(CFG.cover_url_disc_wide,
-			"http://www.theotherzone.com/wii/diskart/{WIDTH}/{HEIGHT}/{ID3}.png");
-	*/
-	// www.wiiboxart.com
-	// http://www.wiiboxart.com/pal/RJ2P52.png
-	// http://www.wiiboxart.com/widescreen/pal/RJ2P52.png
-	// http://www.wiiboxart.com/3d/160/225/RJ2P52.png
-	// http://www.wiiboxart.com/disc/160/160/RJ2.png
-	// http://www.wiiboxart.com/diskart/160/160/RJ2.png
-	/*
-	STRCOPY(CFG.cover_url_2d_norm,
-			"http://www.wiiboxart.com/{REGION}/{ID6}.png");
-	STRCOPY(CFG.cover_url_2d_wide,
-			"http://www.wiiboxart.com/widescreen/{REGION}/{ID6}.png");
-	STRCOPY(CFG.cover_url_3d_norm,
-			"http://www.wiiboxart.com/3d/{WIDTH}/{HEIGHT}/{ID6}.png");
-	STRCOPY(CFG.cover_url_3d_wide, CFG.cover_url_3d_norm);
-	STRCOPY(CFG.cover_url_disc_norm,
-			"http://www.wiiboxart.com/discs/{ID3}.png");
-	STRCOPY(CFG.cover_url_disc_wide,
-			"http://www.wiiboxart.com/diskart/{WIDTH}/{HEIGHT}/{ID3}.png");
-	*/
 
 void cfg_default_url()
 {
@@ -502,31 +525,37 @@ void cfg_default_url()
 
 	STRCOPY(CFG.cover_url_2d_norm,
 		" http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png"
+		//" http://www.wiiboxart.com/artwork/cover/{ID6}.png"
 		" http://boxart.rowdyruff.net/flat/{ID6}.png"
-		" http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png"
+		//" http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID6}.png"
 		//" http://awiibit.com/BoxArt160x224/{ID6}.png"
 		);
 
 	STRCOPY(CFG.cover_url_3d_norm,
 		" http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png"
+		//" http://www.wiiboxart.com/artwork/cover3D/{ID6}.png"
 		" http://boxart.rowdyruff.net/3d/{ID6}.png"
-		" http://www.muntrue.nl/covers/ALL/160/225/3D/{ID6}.png"
+		//" http://www.muntrue.nl/covers/ALL/160/225/3D/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/3D%20Cover/{ID6}.png"
 		//" http://awiibit.com/3dBoxArt176x248/{ID6}.png"
 		);
 
 	STRCOPY(CFG.cover_url_disc_norm,
 		" http://wiitdb.com/wiitdb/artwork/disc/{CC}/{ID6}.png"
+		" http://wiitdb.com/wiitdb/artwork/disccustom/{CC}/{ID6}.png"
+		//" http://www.wiiboxart.com/artwork/disc/{ID6}.png"
+		//" http://www.wiiboxart.com/artwork/disccustom/{ID6}.png"
 		" http://boxart.rowdyruff.net/fulldisc/{ID6}.png"
-		" http://www.muntrue.nl/covers/ALL/160/160/disc/{ID6}.png"
+		//" http://www.muntrue.nl/covers/ALL/160/160/disc/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/Disc%20Cover/{ID6}.png"
 		//" http://awiibit.com/WiiDiscArt/{ID6}.png"
 		);
 
 	STRCOPY(CFG.cover_url_full_norm,
 		" http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png"
-		" http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png"
+		//" http://www.wiiboxart.com/artwork/coverfull/{ID6}.png"
+		//" http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/Full%20Cover/{ID6}.png"
 		);
 }
@@ -912,7 +941,7 @@ void CFG_Default_Theme()
 	CFG.hide_hddinfo = CFG_HIDE_HDDINFO;
 	CFG.hide_footer  = 0;
 	CFG.console_transparent = 0;
-	CFG.buttons  = CFG_BTN_OPTIONS_1;
+	//CFG.buttons  = CFG_BTN_OPTIONS_1;
 	strcpy(CFG.cursor, ">>");
 	strcpy(CFG.cursor_space, "  ");
 	strcpy(CFG.menu_plus,   "[+] ");
@@ -938,6 +967,36 @@ void CFG_Default_Theme()
 	cfg_layout();
 	cfg_set_cover_style(CFG_COVER_STYLE_2D);
 	set_colors(CFG_COLORS_DARK);
+
+	CFG.button_A = CFG_BTN_BOOT_GAME;
+	CFG.button_B = CFG_BTN_GUI;
+	CFG.button_1 = CFG_BTN_OPTIONS;
+	CFG.button_2 = CFG_BTN_FAVORITES;
+	CFG.button_H = CFG_BTN_REBOOT;
+	CFG.button_P = CFG_BTN_INSTALL;
+	CFG.button_M = CFG_BTN_MAIN_MENU;
+	CFG.button_X = CFG_BTN_2;
+	CFG.button_Y = CFG_BTN_1;
+	CFG.button_Z = CFG_BTN_B;
+	CFG.button_C = CFG_BTN_A;
+	CFG.button_L = CFG_BTN_M;
+	CFG.button_R = CFG_BTN_P;
+	CFG.home = CFG_HOME_REBOOT;
+
+	CFG.button_gui = NUM_BUTTON_B;
+	CFG.button_opt = NUM_BUTTON_1;
+	CFG.button_fav = NUM_BUTTON_2;
+
+	CFG.button_confirm.mask = WPAD_BUTTON_A;
+	CFG.button_confirm.num  = NUM_BUTTON_A;
+	CFG.button_cancel.mask = WPAD_BUTTON_B;
+	CFG.button_cancel.num  = NUM_BUTTON_B;
+	CFG.button_exit.mask = WPAD_BUTTON_HOME;
+	CFG.button_exit.num  = NUM_BUTTON_HOME;
+	CFG.button_other.mask = WPAD_BUTTON_1;
+	CFG.button_other.num  = NUM_BUTTON_1;
+	CFG.button_save.mask = WPAD_BUTTON_2;
+	CFG.button_save.num  = NUM_BUTTON_2;
 }
 
 void CFG_Default()
@@ -952,7 +1011,7 @@ void CFG_Default()
 	//STRCOPY(CFG.gui_font, "font.png");
 	STRCOPY(CFG.gui_font, "font_uni.png");
 	
-	CFG.home     = CFG_HOME_REBOOT;
+	//CFG.home     = CFG_HOME_REBOOT;
 	CFG.debug    = 0;
 	CFG.device   = CFG_DEV_ASK;
 	STRCOPY(CFG.partition, CFG_DEFAULT_PARTITION);
@@ -985,9 +1044,12 @@ void CFG_Default()
 	CFG.intro = 1;
 	CFG.fat_install_dir = 1;
 	CFG.db_show_info = 1;
+	CFG.db_ignore_titles = 0;
+	CFG.write_playlog = 0;
 	CFG.write_playstats = 1;
 	STRCOPY(CFG.db_url, "http://wiitdb.com/wiitdb.zip?LANG={DBL}");
 	STRCOPY(CFG.db_language, get_cc());
+	STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
 	STRCOPY(CFG.sort, "title-asc");
 }
 
@@ -1032,6 +1094,33 @@ bool map_auto(char *name, char *name2, char *val, struct TextMap *map, int *var)
 bool cfg_map_auto(char *name, struct TextMap *map, int *var)
 {
 	return map_auto(name, cfg_name, cfg_val, map, var);
+}
+
+bool map_auto_token(char *name, char *name2, char *val, struct TextMap *map, struct MenuButton *var)
+{
+	int single, all;
+	char *next;
+	char buf[12];
+	if (strcmp(name, name2) != 0) return 0;
+	next = val;
+	all = 0;
+	while ((next = split_tokens(buf, next, ",", 12)))
+	{
+		int res;
+		buf[1]=0;
+		res = map_auto_i(name, name2, buf, map, &single);
+		if (res >= 0 && !all) var->num = single;
+		if (res >= 0) all |= buttonmap[MASTER][single];
+	}
+	if (all) {
+		var->mask = all;
+		return 1;
+	} else return 0;
+}
+
+bool cfg_map_auto_token(char *name, struct TextMap *map, struct MenuButton *var) 
+{
+	return map_auto_token(name, cfg_name, cfg_val, map, var);
 }
 
 bool cfg_map(char *name, char *val, int *var, int id)
@@ -1144,15 +1233,26 @@ struct ID_Title* cfg_get_id_title(u8 *id)
 
 char *cfg_get_title(u8 *id)
 {
+	// titles.txt
 	struct ID_Title *idt = cfg_get_id_title(id);
 	if (idt) return idt->title;
+	// wiitdb
+	if (!CFG.db_ignore_titles) {
+		int index = getIndexFromId(id);
+		if (index >= 0) {
+			if (game_info[index].title[0] != 0)
+				return game_info[index].title;
+		}
+	}
 	return NULL;
 }
 
 char *get_title(struct discHdr *header)
 {
+	// titles.txt or wiitdb
 	char *title = cfg_get_title(header->id);
 	if (title) return title;
+	// disc header
 	return header->title;
 }
 
@@ -1410,10 +1510,12 @@ void font_color_set(char *base_name, struct FontColor *fc)
 
 	if (cfg_color("gui_text_outline", &fc->outline)) {
 		if (strlen(cfg_val) == 2) fc->outline_auto = 1;
+		else fc->outline_auto = 0;
 	}
 
 	if (cfg_color("gui_text_shadow", &fc->shadow)) {
 		if (strlen(cfg_val) == 2) fc->shadow_auto = 1;
+		else fc->shadow_auto = 0;
 	}
 
 	cfg_name = old_name;
@@ -1430,12 +1532,64 @@ void theme_set_base(char *name, char *val)
 	cfg_bool("hide_hddinfo", &CFG.hide_hddinfo);
 	cfg_bool("hide_footer",  &CFG.hide_footer);
 	cfg_bool("db_show_info",  &CFG.db_show_info);
+	cfg_bool("db_ignore_titles", &CFG.db_ignore_titles);
 	cfg_bool("write_playstats",  &CFG.write_playstats);
 	
-	cfg_map("buttons", "original",   &CFG.buttons, CFG_BTN_ORIGINAL);
+	/*cfg_map("buttons", "original",   &CFG.buttons, CFG_BTN_ORIGINAL);
 	cfg_map("buttons", "options",    &CFG.buttons, CFG_BTN_OPTIONS_1);
 	cfg_map("buttons", "options_1",  &CFG.buttons, CFG_BTN_OPTIONS_1);
-	cfg_map("buttons", "options_B",  &CFG.buttons, CFG_BTN_OPTIONS_B);
+	cfg_map("buttons", "options_B",  &CFG.buttons, CFG_BTN_OPTIONS_B);*/
+
+	if (strcmp(name, "home")==0) {
+		if (strcmp(val, "exit")==0) {
+			CFG.button_H = CFG_BTN_EXIT;
+			CFG.home = CFG_HOME_EXIT;
+		} else if (strcmp(val, "reboot")==0) {
+			CFG.button_H = CFG_BTN_REBOOT;
+			CFG.home = CFG_HOME_REBOOT;
+		} else if (strcmp(val, "hbc")==0) {
+			CFG.button_H = CFG_BTN_HBC;
+			CFG.home = CFG_HOME_HBC;
+		} else if (strcmp(val, "screenshot")==0) {
+			CFG.button_H = CFG_BTN_SCREENSHOT;
+			CFG.home = CFG_HOME_SCRSHOT;
+		}
+	}
+
+
+	if (strcmp(name, "buttons")==0) {
+		if (strcmp(val, "original")==0) {
+			CFG.button_1 = CFG_BTN_OPTIONS;
+			CFG.button_B = CFG_BTN_NOTHING;
+		} else if ((strcmp(val, "options")==0) || strcmp(val, "options_1")==0) {
+			CFG.button_1 = CFG_BTN_OPTIONS;
+			CFG.button_B = CFG_BTN_GUI;
+		} else if (strcmp(val, "options_B")==0) {
+			CFG.button_B = CFG_BTN_OPTIONS;
+			CFG.button_1 = CFG_BTN_GUI;
+		}
+	}
+
+	//cfg_map_auto("button_A", map_button, &CFG.button_A);
+	cfg_map_auto("button_B", map_button, &CFG.button_B);
+	cfg_map_auto("button_1", map_button, &CFG.button_1);
+	cfg_map_auto("button_2", map_button, &CFG.button_2);
+	cfg_map_auto("button_H", map_button, &CFG.button_H);
+	cfg_map_auto("button_-", map_button, &CFG.button_M);
+	cfg_map_auto("button_+", map_button, &CFG.button_P);
+	cfg_map_auto("button_Z", map_button, &CFG.button_Z);
+	cfg_map_auto("button_C", map_button, &CFG.button_C);
+	cfg_map_auto("button_Y", map_button, &CFG.button_Y);
+	cfg_map_auto("button_X", map_button, &CFG.button_X);
+	cfg_map_auto("button_L", map_button, &CFG.button_L);
+	cfg_map_auto("button_R", map_button, &CFG.button_R);
+
+	//cfg_map_auto_token("button_confirm", map_button_menu, &CFG.button_confirm);
+	cfg_map_auto_token("button_cancel", map_button_menu, &CFG.button_cancel);
+	cfg_map_auto_token("button_exit", map_button_menu, &CFG.button_exit);
+	cfg_map_auto_token("button_other", map_button_menu, &CFG.button_other);
+	cfg_map_auto_token("button_save", map_button_menu, &CFG.button_save);
+
 	// if simple is specified in theme it only affects the looks,
 	// does not lock down admin modes
 	int simpl;
@@ -1629,23 +1783,28 @@ void cfg_ios_set_idx(int ios_idx)
 		case CFG_IOS_250:
 			CFG.ios = 250;
 			break;
-		case CFG_IOS_222_YAL:
-			CFG.ios = 222;
-			CFG.ios_yal = 1;
-			break;
 		case CFG_IOS_222_MLOAD:
 			CFG.ios = 222;
 			CFG.ios_yal = 1;
 			CFG.ios_mload = 1;
 			break;
-		case CFG_IOS_223_YAL:
-			CFG.ios = 223;
-			CFG.ios_yal = 1;
-			break;
 		case CFG_IOS_223_MLOAD:
 			CFG.ios = 223;
 			CFG.ios_yal = 1;
 			CFG.ios_mload = 1;
+			break;
+		case CFG_IOS_224_MLOAD:
+			CFG.ios = 224;
+			CFG.ios_yal = 1;
+			CFG.ios_mload = 1;
+			break;
+		case CFG_IOS_222_YAL:
+			CFG.ios = 222;
+			CFG.ios_yal = 1;
+			break;
+		case CFG_IOS_223_YAL:
+			CFG.ios = 223;
+			CFG.ios_yal = 1;
 			break;
 		default:
 			ios_idx = CFG_IOS_249;
@@ -1686,6 +1845,18 @@ void cfg_ios(char *name, char *val)
 	}
 	*/
 }
+
+bool is_ios_idx_mload(int ios_idx)
+{
+	switch (ios_idx) {
+		case CFG_IOS_222_MLOAD:
+		case CFG_IOS_223_MLOAD:
+		case CFG_IOS_224_MLOAD:
+			return true;
+	}
+	return false;
+}
+
 
 void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 {
@@ -1797,10 +1968,6 @@ void cfg_set(char *name, char *val)
 		STRCOPY(CFG.unlock_password, val);
 	}
 	
-	cfg_map("home", "exit",   &CFG.home, CFG_HOME_EXIT);
-	cfg_map("home", "reboot", &CFG.home, CFG_HOME_REBOOT);
-	cfg_map("home", "hbc",    &CFG.home, CFG_HOME_HBC);
-	cfg_map("home", "screenshot", &CFG.home, CFG_HOME_SCRSHOT);
 
 	cfg_int_max("cursor_jump", &CFG.cursor_jump, 50);
 	cfg_bool("console_mark_page", &CFG.console_mark_page);
@@ -1819,6 +1986,15 @@ void cfg_set(char *name, char *val)
 	}
 	if (!strcmp(name, "sort"))
 		strcpy(CFG.sort,val);
+		
+	if (!strcmp(name, "translation")) {
+		if (strcmp(val, "auto") == 0 || strcmp(val, "AUTO") == 0) {
+			STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
+		} else {
+			strcpy(CFG.translation,val);
+		}
+	}
+	cfg_bool("load_unifont", &CFG.load_unifont);
 	cfg_bool("gui_compress_covers", &CFG.gui_compress_covers);	
 	cfg_int_max("gui_antialias", &CFG.gui_antialias, 4);
 	if (CFG.gui_antialias==0 || !CFG.gui_compress_covers) CFG.gui_antialias = 1;
@@ -1937,7 +2113,10 @@ void cfg_set(char *name, char *val)
 		}
 	}
 
-	cfg_int_max("fat_install_dir", &CFG.fat_install_dir, 2);
+	cfg_bool("write_playlog", &CFG.write_playlog);
+
+	cfg_int_max("fat_install_dir", &CFG.fat_install_dir, 3);
+	cfg_int_max("fs_install_layout", &CFG.fat_install_dir, 3);
 	cfg_bool("disable_nsmb_patch", &CFG.disable_nsmb_patch);
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
@@ -2045,14 +2224,14 @@ bool set_favorite(u8 *id, bool fav)
 		if (fav) return true;
 		// remove
 		remove_from_list(i, CFG.favorite_game, &CFG.num_favorite_game);
-		return CFG_Save_Settings();
+		return CFG_Save_Settings(0);
 	}
 	// not on list
 	if (!fav) return true;
 	// add
 	ret = add_to_list(id, CFG.favorite_game, &CFG.num_favorite_game, MAX_FAVORITE_GAME);
 	if (!ret) return ret;
-	return CFG_Save_Settings();
+	return CFG_Save_Settings(0);
 }
 
 int CFG_filter_favorite(struct discHdr *list, int cnt)
@@ -2089,14 +2268,14 @@ bool set_hide_game(u8 *id, bool hide)
 		if (hide) return true;
 		// remove
 		remove_from_list(i, CFG.hide_game, &CFG.num_hide_game);
-		return CFG_Save_Settings();
+		return CFG_Save_Settings(0);
 	}
 	// not on list
 	if (!hide) return true;
 	// add
 	ret = add_to_list(id, CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	if (!ret) return ret;
-	return CFG_Save_Settings();
+	return CFG_Save_Settings(0);
 }
 
 
@@ -2278,7 +2457,7 @@ bool CFG_Save_Global_Settings()
 	}
 	STRCOPY(CFG.saved_partition, CFG.partition);
 	CFG.saved_profile = CFG.current_profile;
-	return CFG_Save_Settings();
+	return CFG_Save_Settings(1);
 }
 
 
@@ -2314,7 +2493,7 @@ bool CFG_Load_Settings()
 	return ret;
 }
 
-bool CFG_Save_Settings()
+bool CFG_Save_Settings(int verbose)
 {
 	FILE *f;
 	int i, j;
@@ -2323,13 +2502,15 @@ bool CFG_Save_Settings()
 
 	snprintf(D_S(pathname), "%s/", FAT_DRIVE);
 	if (stat(pathname, &st) == -1) {
-		printf("ERROR: %s inaccesible!\n", pathname);
+		printf(gt("ERROR: %s is not accessible"), pathname);
+		printf("\n");
 		sleep(1);
 		return false;
 	}
 	if (stat(USBLOADER_PATH, &st) == -1) {
 		//mkdir("sd:/usb-loader", 0777);
-		printf("ERROR: %s inaccesible!\n", USBLOADER_PATH);
+		printf(gt("ERROR: %s is not accessible"), USBLOADER_PATH);
+		printf("\n");
 		sleep(1);
 		return false;
 	}
@@ -2337,7 +2518,8 @@ bool CFG_Save_Settings()
 	snprintf(D_S(pathname), "%s/%s", USBLOADER_PATH, "settings.cfg");
 	f = fopen(pathname, "wb");
 	if (!f) {
-		printf("Error saving %s\n", pathname);
+		printf(gt("Error saving %s"), pathname);
+		printf("\n");
 		sleep(1);
 		return false;
 	}
@@ -2345,21 +2527,24 @@ bool CFG_Save_Settings()
 	fprintf(f, "# Note: This file is automatically generated\n");
 
 	fprintf(f, "\n# Global Settings:\n");
+	#define SAVE_OPT(FMT, VAL) do { \
+		fprintf(f,FMT,VAL); \
+		if (verbose) printf_(FMT,VAL); } while(0)
 	if (CFG.saved_global) {
 		if (*CFG.saved_theme) {
-			fprintf(f, "theme = %s\n", CFG.saved_theme);
+			SAVE_OPT("theme = %s\n", CFG.saved_theme);
 		}
 		char *dev_str[] = { "ask", "usb", "sdhc" };
 		if (CFG.saved_device >= 0 && CFG.saved_device <= 2) {
-			fprintf(f, "device = %s\n", dev_str[CFG.saved_device]);
+			SAVE_OPT("device = %s\n", dev_str[CFG.saved_device]);
 		}
-		fprintf(f, "partition = %s\n", CFG.saved_partition);
+		SAVE_OPT("partition = %s\n", CFG.saved_partition);
 		char *s = map_get_name(map_gui_style, CFG.saved_gui_style);
 		if (s) {
-			fprintf(f, "gui_style = %s\n", s);
+			SAVE_OPT("gui_style = %s\n", s);
 		}
 		if (CFG.saved_gui_rows > 0 && CFG.saved_gui_rows <= 4 ) {
-			fprintf(f, "gui_rows = %d\n", CFG.saved_gui_rows);
+			SAVE_OPT("gui_rows = %d\n", CFG.saved_gui_rows);
 		}
 	}
 
@@ -2575,7 +2760,7 @@ bool CFG_save_game_opt(u8 *id)
 	if (!game) return false;
 	game->save = game->curr;
 	game->is_saved = 1;
-	if (CFG_Save_Settings()) return true;
+	if (CFG_Save_Settings(0)) return true;
 	return false;
 }
 
@@ -2585,7 +2770,7 @@ bool CFG_discard_game_opt(u8 *id)
 	if (!game) return false;
 	// reset options
 	cfg_init_game(game, id);
-	return CFG_Save_Settings();
+	return CFG_Save_Settings(0);
 }
 
 void CFG_release_game(struct Game_CFG_2 *game)
@@ -2627,7 +2812,7 @@ void get_theme_list()
 			num_theme++;
 		}
 	}
-	closedir(dir);
+	closedir(dir);	
 	if (!num_theme) return;
 	qsort(theme_list, num_theme, sizeof(*theme_list),
 			(int(*)(const void*, const void*))stricmp);
@@ -2640,6 +2825,29 @@ void get_theme_list()
 			break;
 		}
 	}
+}
+
+int find_button(int value) {
+	if (CFG.button_A == value) return NUM_BUTTON_A;
+	if (CFG.button_B == value) return NUM_BUTTON_B;
+	if (CFG.button_1 == value) return NUM_BUTTON_1;
+	if (CFG.button_2 == value) return NUM_BUTTON_2;
+	if (CFG.button_M == value) return NUM_BUTTON_MINUS;
+	if (CFG.button_P == value) return NUM_BUTTON_PLUS;
+	if (CFG.button_H == value) return NUM_BUTTON_HOME;
+	if (CFG.button_X == value) return NUM_BUTTON_X;
+	if (CFG.button_Y == value) return NUM_BUTTON_Y;
+	if (CFG.button_Z == value) return NUM_BUTTON_Z;
+	if (CFG.button_C == value) return NUM_BUTTON_C;
+	if (CFG.button_L == value) return NUM_BUTTON_L;
+	if (CFG.button_R == value) return NUM_BUTTON_R;
+	return 0;
+}
+
+void set_chars(void) {
+	CFG.button_gui = find_button(CFG_BTN_GUI);
+	CFG.button_opt = find_button(CFG_BTN_OPTIONS);
+	CFG.button_fav = find_button(CFG_BTN_FAVORITES);
 }
 
 void load_theme(char *theme)
@@ -2673,7 +2881,13 @@ void load_theme(char *theme)
 		// override some theme options with config.txt:
 		snprintf(D_S(pathname), "%s/config.txt", USBLOADER_PATH);
 		cfg_parsefile(pathname, &theme_set_base);
+		if (strcmp(USBLOADER_PATH, APPS_DIR) != 0) {
+			snprintf(D_S(pathname), "%s/config.txt", APPS_DIR);
+			cfg_parsefile(pathname, &theme_set_base);
+		}
 		STRCOPY(CFG.theme_path, theme_path);
+		makeButtonMap();
+		set_chars();
 	}
 	*theme_path = 0;
 }
@@ -2741,9 +2955,9 @@ void test_unicode()
 			count = 0;
 		}
 	}
-	printf("\n    Press any button to continue...");
-	Wpad_WaitButtonsCommon();
-	printf("\n\n");
+	printf("\n");
+	Menu_PrintWait();
+	printf("\n");
 }
 
 /*
@@ -2800,10 +3014,10 @@ void cfg_debug(int argc, char **argv)
 	}
 
 	sleep(1);
-	printf("\n    Press any button to continue...");
-	Wpad_WaitButtonsCommon();
+	printf("\n");
+	Menu_PrintWait();
 	if (CFG.debug & 2) test_unicode();
-	printf("\n\n");
+	printf("\n");
 }
 
 void chdir_app(char *arg)
@@ -2926,12 +3140,12 @@ void cfg_setup3()
 	}
 	if (CFG.hide_header) ENTRIES_PER_PAGE++;
 	if (CFG.hide_hddinfo) ENTRIES_PER_PAGE++;
-	if (CFG.buttons == CFG_BTN_OPTIONS_1 || CFG.buttons == CFG_BTN_OPTIONS_B) {
-		if (CFG.hide_footer) ENTRIES_PER_PAGE++;
-	} else {
-		ENTRIES_PER_PAGE--;
-		if (CFG.hide_footer) ENTRIES_PER_PAGE+=2;
-	}
+	//if (CFG.buttons == CFG_BTN_OPTIONS_1 || CFG.buttons == CFG_BTN_OPTIONS_B) {
+	if (CFG.hide_footer) ENTRIES_PER_PAGE++;
+	//} else {
+	//	ENTRIES_PER_PAGE--;
+	//	if (CFG.hide_footer) ENTRIES_PER_PAGE+=2;
+	//}
 }
 
 
@@ -2999,7 +3213,6 @@ void cfg_direct_start(int argc, char **argv)
 // This has to be called BEFORE video & console init
 void CFG_Load(int argc, char **argv)
 {
-	char pathname[200];
 	char filename[200];
 	struct stat st;
 	bool try_sd = true;
@@ -3037,7 +3250,9 @@ void CFG_Load(int argc, char **argv)
 	ret = cfg_parsefile(filename, &cfg_set);
 
 	// try old location if default fails
+	/*
 	if (!ret) {
+		char pathname[200];
 		snprintf(D_S(pathname), "%s%s", FAT_DRIVE, "/USBLoader");
 		snprintf(D_S(filename), "%s/%s", pathname, "config.txt");
 		if (stat(filename, &st) == 0) {
@@ -3047,6 +3262,7 @@ void CFG_Load(int argc, char **argv)
 			ret = cfg_parsefile(filename, &cfg_set);
 		}
 	}
+	*/
 
 	// still no luck? try APPS_DIR
 	if (!ret && *APPS_DIR) {
@@ -3092,6 +3308,10 @@ void CFG_Load(int argc, char **argv)
 		cfg_parsefile("titles.txt", &title_set);
 	}
 
+	// load custom titles
+	snprintf(filename, sizeof(filename), "%s/%s", USBLOADER_PATH, "custom-titles.txt");
+	cfg_parsefile(filename, &title_set);
+
 	// load per-game settings
 	CFG_Load_Settings();
 
@@ -3116,20 +3336,40 @@ void CFG_Load(int argc, char **argv)
 }
 
 
+
 void CFG_Setup(int argc, char **argv)
 {
 	cfg_setup3();
-	// load database
-	ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 1);
-	if (!playStatsRead(0)) {
-		if (readPlayStats() > -1) playStatsRead(1);
+
+	if (CFG.debug) Gui_Console_Enable();
+	
+	char language_file[255];
+	snprintf(language_file, sizeof(language_file), "%s/languages/%s.lang", USBLOADER_PATH, CFG.translation);
+	FILE * f;
+    f = fopen(language_file,"r");
+    if (f) {
+        fclose(f);
+		gettextLoadLanguage(language_file);
 	}
+
+	// read playstats
+	if (!playStatsRead) {
+		readPlayStats();
+	}
+	// load unifont
+	char fname[200];
+	if (CFG.load_unifont) {
+		snprintf(D_S(fname), "%s/unifont.dat", USBLOADER_PATH);
+		console_load_unifont(fname);
+	}
+	// load database
+	ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0);
 	cfg_debug(argc, argv);
 }
 
 u32 getPlayCount(u8 *id) {
-	int n = 0;
-	for (;n<playStatsSize; n++) {
+	int n;
+	for (n=0; n<playStatsSize; n++) {
 		if (!strcmp(playStats[n].id, (char *)id))
 			return playStats[n].playCount;
 	}
@@ -3137,19 +3377,12 @@ u32 getPlayCount(u8 *id) {
 }
 
 time_t getLastPlay(u8 *id) {
-	int n = 0;
-	for (;n<playStatsSize; n++) {
+	int n;
+	for (n=0; n<playStatsSize; n++) {
 		if (!strcmp(playStats[n].id, (char *)id))
 			return playStats[n].playTime;
 	}
 	return 0;
-}
-
-bool playStatsRead(int i) { //i < 0 checks read without modifying it
-	static bool read = 0;
-	if (i > 0) read = 1;
-	if (i == 0) read = 0;
-	return read;
 }
 
 int readPlayStats() {
@@ -3167,7 +3400,7 @@ int readPlayStats() {
 	while (fscanf(f, "%6s:%d:%ld\n", id, &count, &start) == 3) {
 		if (n >= playStatsSize) {
 			playStatsSize++;
-			playStats = (struct playStat*)mem1_realloc(playStats, (playStatsSize * sizeof(struct playStat)));
+			playStats = (struct playStat*)realloc(playStats, (playStatsSize * sizeof(struct playStat)));
 			if (!playStats)
 				return -1;
 		}
@@ -3177,6 +3410,7 @@ int readPlayStats() {
 		n++;
 	}
 	fclose(f);
+	playStatsRead = true;
 	return 0;
 }
 
@@ -3190,21 +3424,12 @@ int setPlayStat(u8 *id) {
 	snprintf(filepath, sizeof(filepath), "%s/playstats.txt", USBLOADER_PATH);
 	FILE *f;
 
-	if (!playStatsRead(0)) {
-		if (readPlayStats() > -1) playStatsRead(1);
+	if (!playStatsRead) {
+		readPlayStats();
 	}
 
-	f = fopen(filepath, "r+");
-	if (!f) {
-		f = fopen(filepath, "w");
-		if (!f) {
-			return -1;
-		}
-		now = time(NULL);
-		fprintf(f, "%s:%d:%ld\n", (char *)id, 1, now);
-		fclose(f);
-		return 1;
-	}
+	f = fopen(filepath, "w");
+	if (!f) return -1;
 	for (n=0; n<playStatsSize; n++) {
 		if (strcmp(playStats[n].id, (char *)id)) {
 			fprintf(f, "%s:%d:%ld\n", playStats[n].id, playStats[n].playCount, playStats[n].playTime);

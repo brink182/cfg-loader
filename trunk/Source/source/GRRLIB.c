@@ -19,6 +19,7 @@ Download and Help Forum : http://grrlib.santo.fr
 //#include "lib/libjpeg/jpeglib.h"
 #include "GRRLIB.h"
 #include <fat.h> 
+#include "console.h"
 
 
 #define DEFAULT_FIFO_SIZE (256 * 1024)
@@ -1505,21 +1506,185 @@ void GRRLIB_DrawSlice(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees,
 		x, y, w, h);
 }
 
+#define UF_CACHE_SIZE 512
+int uf_cache_c[UF_CACHE_SIZE];
+struct GRRLIB_texImg uf_cache_tx[UF_CACHE_SIZE];
+void *uf_cache_data = NULL;
+int uf_cache_next = 0;
 
+void unifont_cache_init()
+{
+	uf_cache_data = mem2_alloc(16*16*4*UF_CACHE_SIZE);
+	// seems texture data has to be in mem2
+	// if it's in mem1 it doesn't display properly
+	// strange...
+}
+
+void GRRLIB_InitTexture(GRRLIB_texImg *tx, int w, int h, void *data)
+{
+	memset(tx, 0, sizeof(GRRLIB_texImg));
+    tx->w = w;
+    tx->h = h;
+    tx->data = data;
+	memset(data, 0, w*h*4);
+}
+
+int unifont_to_tx(struct GRRLIB_texImg *tx, int c)
+{
+	int x, y, xx, i;
+	u8 *glyph;
+	int off, len;
+	u32 color;
+	if (!unifont) return 0;
+	if (!unifont->index[c]) return 0;
+	if (tx->data == NULL) return 0;
+	off = unifont->index[c] >> 8;
+	len = unifont->index[c] & 0x0F;
+	if (len > 2) len = 2;
+	GRRLIB_InitTileSet(tx, 8*len, 16, 0);
+	glyph = unifont_glyph + off * 16;
+	xx = 0;
+	for (i=0; i<len; i++) {
+		for (y=0; y<16; y++) {
+			for (x=0; x<8; x++) {
+				if (*glyph & (0x80>>x)) {
+					color = 0xFFFFFFFF;
+				} else {
+					color = 0x00000000;
+				}
+				GRRLIB_SetPixelTotexImg(xx+x, y, *tx, color);
+			}
+			glyph++;
+		}
+		xx += 8;
+	}
+	GRRLIB_FlushTex(*tx);
+	return len;
+}
+
+
+struct GRRLIB_texImg* get_unifont_cache(int c)
+{
+	int i;
+	struct GRRLIB_texImg *tx;
+	if (!uf_cache_data) return NULL;
+	for (i=0; i<UF_CACHE_SIZE; i++) {
+		if (uf_cache_c[i] == c) break;
+	}
+	if (i == UF_CACHE_SIZE) {
+		i = uf_cache_next;
+		uf_cache_c[i] = c;
+		uf_cache_next++;
+		uf_cache_next %= UF_CACHE_SIZE;
+		tx = &uf_cache_tx[i];
+		GX_DrawDone(); // in case we're overwriting a texture in GX queue
+		GRRLIB_InitTexture(tx, 16, 16, uf_cache_data + 16*16*4*i);
+		unifont_to_tx(tx, c);
+		return tx;
+	}
+	tx = &uf_cache_tx[i];
+	return tx;
+}
+
+int draw_unifont(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
+{
+	struct GRRLIB_texImg *tx;
+	int len;
+	if (!unifont) return 0;
+	if (!unifont->index[c]) return 0;
+	if (!uf_cache_data) return 0;
+	tx = get_unifont_cache(c);
+	len = unifont->index[c] & 0x0F;
+	if (len > 2) len = 2;
+	float s = (float)h / 16;
+	GRRLIB_DrawTile(xpos+2, ypos, *tx, 0, s, s, color, 0);
+	// hmm, why xpos+2?
+	// seems the 512 font chars are right aligned while unifont is left aligned
+	// and if the two are together they will touch
+	//GX_DrawDone();
+	// dbg:
+	//extern GRRLIB_texImg tx_font;
+	//GRRLIB_Printf(50, xpos, tx_font, color, 1, "%d", c);
+	return (int)ceil(s * len * 8.0);
+}
+/*
+int draw_unifont0(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
+{
+	static struct GRRLIB_texImg txx[8];
+	static int tt = 0;
+	struct GRRLIB_texImg *tx = &txx[tt];
+	tt++;
+	tt %= 8;
+	int x, y, xx, i;
+	u8 *glyph;
+	int off, len;
+	if (!unifont) return 0;
+	if (!unifont->index[c]) return 0;
+	if (tx->data == NULL) {
+		*tx = GRRLIB_CreateEmptyTexture(16,16);
+	}
+	off = unifont->index[c] >> 8;
+	len = unifont->index[c] & 0x0F;
+	if (len > 2) len = 2;
+	GRRLIB_InitTileSet(tx, 8*len, 16, 0);
+	glyph = unifont_glyph + off * 16;
+	xx = 0;
+	for (i=0; i<len; i++) {
+		for (y=0; y<16; y++) {
+			for (x=0; x<8; x++) {
+				if (*glyph & (0x80>>x)) {
+					GRRLIB_SetPixelTotexImg(xx+x, y, *tx, 0xFFFFFFFF);
+				} else {
+					GRRLIB_SetPixelTotexImg(xx+x, y, *tx, 0x00000000);
+				}
+			}
+			glyph++;
+		}
+		xx += 8;
+	}
+	GRRLIB_FlushTex(*tx);
+	float s = (float)h / 16;
+	GRRLIB_DrawTile(xpos+2, ypos, *tx, 0, s, s, color, 0);
+	// hmm, why xpos+2?
+	// seems the 512 font chars are right aligned while unifont is left aligned
+	// and if the two are together they will touch
+	GX_DrawDone();
+	// dbg:
+	//extern GRRLIB_texImg tx_font;
+	//GRRLIB_Printf(50, xpos, tx_font, color, 1, "%d", c);
+
+	return (int)ceil(s * len * 8.0);
+}
+*/
 void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg tex,
 		u32 color, const wchar_t *wtext)
 {
 	unsigned nc = tex.nbtilew * tex.nbtileh;
 	wchar_t c;
     int i;
-	f32 x;
+	unsigned cc;
+	//f32 x;
 
 	for (i = 0; wtext[i]; i++) {
-		c = wtext[i];
-		if ((unsigned)c >= nc) c = map_ufont(c);
+		cc = c = wtext[i];
+		if (cc >= nc) {
+			cc = map_ufont(c);
+			if (cc == 0  && (unsigned)c <= 0xFFFF) {
+				if (unifont && unifont->index[(unsigned)c]) {
+					// unifont containst almost all unicode chars
+    				GRRLIB_DrawTile_end(tex);
+					int n = draw_unifont(xpos, ypos, tex.tilew, tex.tileh, color, c);
+					xpos += n;
+    				GRRLIB_DrawTile_begin(tex);
+					continue;
+				}
+			}
+			c = cc;
+		}
 		c -= tex.tilestart;
-		x = xpos + i * tex.tilew;
-		GRRLIB_DrawTile_draw1(x, ypos, tex, color, c);
+		//x = xpos + i * tex.tilew;
+		GRRLIB_DrawTile_draw1(xpos, ypos, tex, color, c);
+		xpos += tex.tilew;
 	}
 }
 
@@ -1539,10 +1704,18 @@ void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, u32 
 		__GRRLIB_Print1w(xpos+2, ypos+2, tex, shadow, wtext);
 	}
 	if (outline) {
+		/*
+		// x spread
 		__GRRLIB_Print1w(xpos-1, ypos-1, tex, outline, wtext);
 		__GRRLIB_Print1w(xpos+1, ypos-1, tex, outline, wtext);
 		__GRRLIB_Print1w(xpos-1, ypos+1, tex, outline, wtext);
 		__GRRLIB_Print1w(xpos+1, ypos+1, tex, outline, wtext);
+		*/
+		// + spread
+		__GRRLIB_Print1w(xpos-1, ypos-0, tex, outline, wtext);
+		__GRRLIB_Print1w(xpos+1, ypos-0, tex, outline, wtext);
+		__GRRLIB_Print1w(xpos-0, ypos+1, tex, outline, wtext);
+		__GRRLIB_Print1w(xpos+0, ypos+1, tex, outline, wtext);
 	}
 	__GRRLIB_Print1w(xpos, ypos, tex, color, wtext);
     GRRLIB_DrawTile_end(tex);

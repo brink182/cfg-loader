@@ -21,14 +21,21 @@
 #include "sys.h"
 #include "menu.h"
 #include "frag.h"
+#include "gettext.h"
+
+#include "wpad.h"
+#define ALIGNED(x) __attribute__((aligned(x)))
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000
 #define WII_MAGIC	0x5D1C9EA3
+#define GC_MAGIC	0xC2339F3D
 
 /* Disc pointers */
 static u32 *buffer = (u32 *)0x93000000;
 static u8  *diskid = (u8  *)0x80000000;
+
+static u8	tmd_buffer[0x49e4] ALIGNED(32);
 
 int yal_OpenPartition(u64 Offset);
 int yal_Identify();
@@ -285,21 +292,24 @@ s32 Disc_SetWBFS(u32 mode, u8 *id)
 				SDHC_Close();
 				ret = USBStorage_WBFS_SetDevice(1);
 				if (ret) {
-					printf("ERROR: Setting SD mode\n");
+					printf(gt("ERROR: Setting SD mode"));
+					printf("\n");
 					//usb_debug_dump(0);
 					return -1;
 				}
 			}
 			ret = set_frag_list(id);
 			if (ret) {
-				printf_("ERROR: set_frag_list: %d\n", ret);
+				printf_(gt("ERROR: set_frag_list: %d"), ret);
+				printf("\n");
 				return ret;
 			}
 		} else {
 			// disable
 			ret = USBStorage_WBFS_SetFragList(NULL, 0);
 			if (ret) {
-				printf_("ERROR: SetFragList(0): %d\n", ret);
+				printf_(gt("ERROR: SetFragList(0): %d"), ret);
+				printf("\n");
 				return ret;
 			}
 		}
@@ -318,39 +328,66 @@ s32 Disc_ReadHeader(void *outbuf)
 	return WDVD_UnencryptedRead(outbuf, sizeof(struct discHdr), 0);
 }
 
-s32 Disc_IsWii(void)
+s32 Disc_ReadGCHeader(void *outbuf)
 {
-	struct discHdr *header = (struct discHdr *)buffer;
-
-	s32 ret;
-
 	/* Read disc header */
-	ret = Disc_ReadHeader(header);
+	return WDVD_UnencryptedRead(outbuf, sizeof(struct gc_discHdr), 0);
+}
+
+s32 Disc_Type(bool gc)
+{
+	s32 ret;
+	u32 check;
+	u32 magic;
+	
+	if (!gc) {
+		check = WII_MAGIC;
+		struct discHdr *header = (struct discHdr *)buffer;
+		ret = Disc_ReadHeader(header);
+		magic = header->magic;
+	} else {
+		check = GC_MAGIC;
+		struct gc_discHdr *header = (struct gc_discHdr *)buffer;
+		ret = Disc_ReadGCHeader(header);
+		magic = header->magic;
+	}
+
 	if (ret < 0)
 		return ret;
-
+		
 	/* Check magic word */
-	if (header->magic != WII_MAGIC)
+	if (magic != check)
 		return -1;
 
 	return 0;
 }
 
-s32 Disc_BootPartition(u64 offset)
+s32 Disc_IsWii(void)
+{
+	return Disc_Type(0);
+}
+
+s32 Disc_IsGC(void)
+{
+	return Disc_Type(1);
+}
+
+s32 Disc_BootPartition(u64 offset, bool dvd)
 {
 	entry_point p_entry;
 
 	s32 ret;
-
+	
 	/* Open specified partition */
 
 	if (CFG.ios_yal) {
 		ret = yal_OpenPartition(offset);
 	} else {
-		ret = WDVD_OpenPartition(offset);
+		ret = WDVD_OpenPartition(offset, tmd_buffer);
 	}
 	if (ret < 0) {
-		printf("ERROR: OpenPartition(0x%llx) %d\n", offset, ret);
+		printf(gt("ERROR: OpenPartition(0x%llx) %d"), offset, ret);
+		printf("\n");
 		return ret;
 	}
 
@@ -370,12 +407,32 @@ s32 Disc_BootPartition(u64 offset)
 	__Disc_SelectVMode();
 	
 	if (CFG.ios_yal) {
-		printf("    Loading .");
+		printf(gt("Loading ..."));
 	}
+
+/*
+    // Removed for now
+	// Load Disc IOS
+	if (dvd) {
+		u32 disc_ios = 0xFFFFFFFF & *(u32*)&tmd_buffer[0x188];
+		printf("\nLoading IOS %u\n", disc_ios);
+		ret = IOS_ReloadIOS(disc_ios);
+		if (ret < 0) {
+			printf_x(gt("ERROR:"));
+			printf("\n");
+			printf_(gt("Disc IOS %u could not be loaded! (ret = %d)"), disc_ios, ret);
+			printf("\n");
+			Restart_Wait();
+			return ret;
+		}
+	}
+*/
+
 	/* Run apploader */
 	ret = Apploader_Run(&p_entry);
 	if (ret < 0) {
-		printf("ERROR: Apploader %d\n", ret);
+		printf(gt("ERROR: Apploader %d"), ret);
+		printf("\n");
 		Restart_Wait();
 		return ret;
 	}
@@ -415,7 +472,7 @@ s32 Disc_BootPartition(u64 offset)
 	return 0;
 }
 
-s32 Disc_WiiBoot(void)
+s32 Disc_WiiBoot(bool dvd)
 {
 	u64 offset;
 	s32 ret;
@@ -426,16 +483,12 @@ s32 Disc_WiiBoot(void)
 		return ret;
 
 	/* Boot partition */
-	return Disc_BootPartition(offset);
+	return Disc_BootPartition(offset, dvd);
 }
 
 
 
 // from 'yal' by kwiirk
-
-
-
-#define ALIGNED(x) __attribute__((aligned(x)))
 
 #define CERTS_SIZE	0xA00
 static const char certs_fs[] ALIGNED(32) = "/sys/cert.sys";
@@ -449,8 +502,6 @@ static unsigned int T_Length	= 0;
 static unsigned int MD_Length	= 0;
 
 static u8	Ticket_Buffer[0x800] ALIGNED(32);
-static u8	Tmd_Buffer[0x49e4] ALIGNED(32);
-
 
 s32 yal_GetCerts(signed_blob** Certs, u32* Length)
 {
@@ -482,18 +533,22 @@ int yal_OpenPartition(u64 Offset)
 	// Offset = Partition_Info.Offset << 2
 	u32 Partition_Info_Offset = Offset >> 2;
 
-	//printf("    Loading .");
+	//printf_("Loading .");
 	
     //DI_Set_OffsetBase(Offset);
     ret = YAL_Set_OffsetBase(Offset);
 	if (ret < 0) {
-		printf("\nERROR: Offset(0x%llx) %d\n", Offset, ret);
+		printf("\n");
+		printf(gt("ERROR: Offset(0x%llx) %d"), Offset, ret);
+		printf("\n");
 		return ret; 
 	}
 
 	ret = yal_GetCerts(&Certs, &C_Length);
 	if (ret < 0) {
-		printf("\nERROR: GetCerts %d\n", ret);
+		printf("\n");
+		printf(gt("ERROR: GetCerts %d"), ret);
+		printf("\n");
 		return ret; 
 	}
 
@@ -503,13 +558,15 @@ int yal_OpenPartition(u64 Offset)
 	T_Length	= SIGNED_TIK_SIZE(Ticket);
 
 	// Open Partition and get the TMD buffer
-	//if (DI_Open_Partition(Partition_Info.Offset, 0,0,0, Tmd_Buffer) < 0)
-	ret = YAL_Open_Partition(Partition_Info_Offset, 0,0,0, Tmd_Buffer);
+	//if (DI_Open_Partition(Partition_Info.Offset, 0,0,0, tmd_buffer) < 0)
+	ret = YAL_Open_Partition(Partition_Info_Offset, 0,0,0, tmd_buffer);
 	if (ret < 0) {
-		printf("\nERROR: OpenPartition %d\n", ret);
+		printf("\n");
+		printf(gt("ERROR: OpenPartition %d"), ret);
+		printf("\n");
 		return ret;
 	}
-	Tmd = (signed_blob*)(Tmd_Buffer);
+	Tmd = (signed_blob*)(tmd_buffer);
 	MD_Length = SIGNED_TMD_SIZE(Tmd);
 
 	//printf(".");

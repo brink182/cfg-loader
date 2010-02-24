@@ -176,7 +176,7 @@ void Coverflow_Grx_Init() {
 			//store a CMPR version of the full cover
 			void *buf1;
 			buf1 = memalign(32, (COVER_WIDTH * COVER_HEIGHT)/2);
-			tx_tmp = Gui_LoadTexture_CMPR(coverImg_full, COVER_WIDTH, COVER_HEIGHT, buf1);
+			tx_tmp = Gui_LoadTexture_CMPR(coverImg_full, COVER_WIDTH, COVER_HEIGHT, buf1, NULL);
 			cache2_tex(&t2_nocover_full_CMPR, &tx_tmp);
 		}
 	}
@@ -1815,6 +1815,8 @@ f32 getAparam(f32 height, f32 vertex, f32 finalIndexPos, f32 finalArcPos) {
 	return (-height + finalArcPos) / (pow(finalIndexPos - vertex, 2));
 }
 
+extern char action_string[40];
+extern int action_alpha;
 
 /**
  * Draws the selected cover's title
@@ -1827,13 +1829,20 @@ void Coverflow_draw_title(int selectedCover, int xpos, ir_t *ir) {
 	char gameTitle[TITLE_MAX] = "";
 	static time_t last_time = 0;
 	bool do_clock = false;
+	FontColor font_color = CFG.gui_text2;
 	time_t t = 0;
 	
 	//game title stub.....
 	if (ir->smooth_valid || CFG_cf_global.frameCount || !CFG.clock_style) {
 		last_time = 0;
 		L_title:
-		snprintf(gameTitle, TITLE_MAX, "%s", get_title(&gameList[selectedCover]));
+		if (action_alpha) {
+			font_color.color = (font_color.color & 0xFFFFFF00) | action_alpha;
+			if (action_alpha > 0) action_alpha -= 3;
+			if (action_alpha < 0) action_alpha = 0;
+			last_time = 0;
+			strncpy(gameTitle, action_string, TITLE_MAX);
+		} else snprintf(gameTitle, TITLE_MAX, "%s", get_title(&gameList[selectedCover]));
 	} else {
 		// clock
 		t = time(NULL);
@@ -1873,7 +1882,7 @@ void Coverflow_draw_title(int selectedCover, int xpos, ir_t *ir) {
 		int y = title_y + tx_font.tileh/2;
 		Gui_Print_Clock(x, y, CFG.gui_text2, t);
 	} else {
-		Gui_Print2(title_x, title_y, gameTitle);
+		Gui_PrintEx(title_x, title_y, tx_font, font_color, gameTitle);
 	}
 }
 

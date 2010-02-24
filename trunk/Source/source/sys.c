@@ -9,6 +9,7 @@
 #include "cfg.h"
 #include "fat.h"
 #include "menu.h"
+#include "gettext.h"
 
 /* Constants */
 #define CERTS_LEN	0x280
@@ -106,7 +107,6 @@ void prep_exit()
 	Subsystem_Close();
 	extern void Video_Close();
 	Video_Close();
-	exit(0);
 }
 
 void Sys_Exit()
@@ -135,6 +135,7 @@ void Sys_HBC()
 
 
 #include "mload.h"
+#include "mload_modules.h"
 
 // uLoader 2.5:
 #define size_ehcmodule2 20340
@@ -160,21 +161,23 @@ extern unsigned char dip_plugin3[size_dip_plugin3];
 //extern unsigned char ehcmodule4[size_ehcmodule4];
 extern unsigned char dip_plugin4[size_dip_plugin4];
 // EHCFAT module:
-#define size_ehcmodule_frag 70529
+//#define size_ehcmodule_frag 70529 // cfg50-52
+#define size_ehcmodule_frag 70613 // cfg53
 //#include "../ehcsize.h"
 extern unsigned char ehcmodule_frag[size_ehcmodule_frag];
 int mload_ehc_fat = 0;
 int mload_need_fat = 0;
 
 // current
+void *ehcmodule;
 int size_ehcmodule;
+
+void *dip_plugin;
 int size_dip_plugin;
-unsigned char *ehcmodule;
-unsigned char *dip_plugin;
 
 // external2
 char ehc_path[200];
-void *external_ehcmodule = NULL;
+void *external_ehcmodule2 = NULL;
 int size_external_ehcmodule2 = 0;
 
 // external3
@@ -228,10 +231,10 @@ int my_thread_id=0;
 
 void load_ext_ehc_module(int verbose)
 {
-	if(!external_ehcmodule)
+	if(!external_ehcmodule2)
 	{
 		snprintf(ehc_path, sizeof(ehc_path), "%s/ehcmodule.elf", USBLOADER_PATH);
-		size_external_ehcmodule2 = Fat_ReadFile(ehc_path, &external_ehcmodule);
+		size_external_ehcmodule2 = Fat_ReadFile(ehc_path, &external_ehcmodule2);
 		if (size_external_ehcmodule2 < 0) {
 			size_external_ehcmodule2 = 0;
 		}
@@ -262,8 +265,35 @@ void load_ext_ehc_module(int verbose)
 	}
 }
 
+static char mload_ver_str[40];
 
-int load_ehc_module(int verbose)
+void mk_mload_version()
+{
+	mload_ver_str[0] = 0;
+	if (CFG.ios_mload) {
+		if (IOS_GetRevision() >= 4) {
+			sprintf(mload_ver_str, "Base: IOS%d ", mload_get_IOS_base());
+		}
+		if (IOS_GetRevision() > 4) {
+			int v, s;
+			v = mload_get_version();
+			s = v & 0x0F;
+			v = v >> 4;
+			sprintf(mload_ver_str + strlen(mload_ver_str), "mload v%d.%d ", v, s);
+		} else {
+			sprintf(mload_ver_str + strlen(mload_ver_str), "mload v%d ", IOS_GetRevision());
+		}
+	}
+}
+
+void print_mload_version()
+{
+	if (CFG.ios_mload) {
+		printf("%s", mload_ver_str);
+	}
+}
+
+int load_ehc_module_ex(int verbose)
 {
 	int is_ios=0;
 
@@ -278,8 +308,10 @@ int load_ehc_module(int verbose)
 				printf("[FAT]");
 			}
 		}
-		if (IOS_GetRevision() != 4) {
-			printf("FAT mode only supported with ios 222 rev4\n");
+		if (IOS_GetRevision() < 4) {
+			printf("\nERROR: IOS%u rev%u\n", IOS_GetVersion(), IOS_GetRevision());
+			printf(gt("FAT mode only supported with ios 222 rev4"));
+			printf("\n");
 			sleep(5);
 			return -1;
 		}
@@ -289,11 +321,12 @@ int load_ehc_module(int verbose)
 		size_dip_plugin = size_dip_plugin4;
 		dip_plugin = dip_plugin4;
 		if(external_ehcmodule_frag) {
-			printf("\n    Init: %s\n    ", ehc_path_fat);
+			printf("\n");
+			printf_("external: %s\n", ehc_path_fat);
+			printf_("");
 			ehcmodule = external_ehcmodule_frag;
 			size_ehcmodule = size_external_ehcmodule_frag;
 		}
-		goto do_mload;
 	}
 	else if (IOS_GetRevision() <= 2)
 	{
@@ -301,51 +334,89 @@ int load_ehc_module(int verbose)
 		dip_plugin = dip_plugin2;
 		//size_ehcmodule = size_ehcmodule2;
 		//ehcmodule = ehcmodule2;
-		if(external_ehcmodule) {
-			if (verbose) printf("\n    Init: %s\n    ", ehc_path);
-			ehcmodule = external_ehcmodule;
+		if(external_ehcmodule2) {
+			//if (verbose) {
+				printf("\n");
+				printf_("external: %s\n", ehc_path);
+				printf_("");
+			//}
+			ehcmodule = external_ehcmodule2;
 			size_ehcmodule = size_external_ehcmodule2;
 		} else {
-			printf("\nERROR: ehcmodule2 no longer included!\n");
-			printf("external file ehcmodule.elf must be used!\n");
+			printf("\n");
+			printf(gt("ERROR: ehcmodule2 no longer included!\n"
+						"external file ehcmodule.elf must be used!"));
+			printf("\n");
 			sleep(5);
 			return -1;
 		}
-		if(mload_module(ehcmodule, size_ehcmodule)<0) return -1;
 
-	} else {
-
-		if (IOS_GetRevision() == 3) {
+	} else if (IOS_GetRevision() == 3) {
 			size_dip_plugin = size_dip_plugin3;
 			dip_plugin = dip_plugin3;
 			//size_ehcmodule = size_ehcmodule3;
 			//ehcmodule = ehcmodule3;
 			if(external_ehcmodule3) {
-				if (verbose) printf("\n    Init: %s\n    ", ehc_path3);
+				//if (verbose) {
+					printf("\n");
+					printf_("external: %s\n", ehc_path3);
+					printf_("");
+				//}
 				ehcmodule = external_ehcmodule3;
 				size_ehcmodule = size_external_ehcmodule3;
 			} else {
-				printf("\nERROR: ehcmodule3 no longer included!\n");
-				printf("external file ehcmodule3.elf must be used!\n");
+				printf("\n");
+				printf(gt("ERROR: ehcmodule3 no longer included!\n"
+							"external file ehcmodule3.elf must be used!"));
+				printf("\n");
 				sleep(5);
 				return -1;
 			}
-		} else {
-			size_dip_plugin = size_dip_plugin4;
-			dip_plugin = dip_plugin4;
-			//size_ehcmodule = size_ehcmodule4;
-			//ehcmodule = ehcmodule4;
-			// use ehcmodule_frag also for wbfs
-			size_ehcmodule = size_ehcmodule_frag;
-			ehcmodule = ehcmodule_frag;
-			if(external_ehcmodule4) {
-				if (verbose) printf("\n    Init: %s\n    ", ehc_path4);
-				ehcmodule = external_ehcmodule4;
-				size_ehcmodule = size_external_ehcmodule4;
-			}
+	} else if (IOS_GetRevision() == 4) {
+		size_dip_plugin = size_dip_plugin4;
+		dip_plugin = dip_plugin4;
+		//size_ehcmodule = size_ehcmodule4;
+		//ehcmodule = ehcmodule4;
+		// use ehcmodule_frag also for wbfs
+		size_ehcmodule = size_ehcmodule_frag;
+		ehcmodule = ehcmodule_frag;
+		if(external_ehcmodule4) {
+			//if (verbose) {
+				printf("\n");
+				printf_("external: %s\n", ehc_path4);
+				printf_("");
+			//}
+			ehcmodule = external_ehcmodule4;
+			size_ehcmodule = size_external_ehcmodule4;
 		}
+	} else if (IOS_GetRevision() >= 5) {
+		size_dip_plugin = size_dip_plugin4;
+		dip_plugin = dip_plugin4;
+		size_ehcmodule = size_ehcmodule_frag;
+		ehcmodule = ehcmodule_frag;
+	/*
+	} else {
+		printf("\nERROR: IOS%u rev%u not supported\n",
+				IOS_GetVersion(), IOS_GetRevision());
+		sleep(5);
+		return -1;
+	*/
+	}
 
-		do_mload:
+	if (IOS_GetRevision() >= 4) {
+
+		// NEW
+		int ret = load_ehc_module();
+		if (ret == 0) mk_mload_version();
+		mload_close();
+		return ret;
+	}
+
+	if (IOS_GetRevision() <= 2) {
+
+		if (mload_module(ehcmodule, size_ehcmodule)<0) return -1;
+
+	} else {
 
 		if(mload_init()<0) return -1;
 		mload_elf((void *) ehcmodule, &my_data_elf);
@@ -355,7 +426,6 @@ int load_ehc_module(int verbose)
 	}
 
 	usleep(350*1000);
-	
 
 	// Test for IOS
 	
@@ -400,6 +470,7 @@ int load_ehc_module(int verbose)
 
 		}
 	
+	mk_mload_version();
 
 	mload_close();
 
@@ -428,7 +499,7 @@ int ReloadIOS(int subsys, int verbose)
 		&& CURR_IOS_IDX == CFG_IOS_249) return 0;
 	
 	if (verbose) {
-		printf("    IOS(%d) ", CFG.ios);
+		printf_("IOS(%d) ", CFG.ios);
 		if (CFG.ios_mload) printf("mload ");
 		else if (CFG.ios_yal) printf("yal ");
 	}
@@ -441,8 +512,7 @@ int ReloadIOS(int subsys, int verbose)
 		mload_need_fat = 1;
 	}
 	if (wbfsDev == WBFS_DEVICE_SDHC) {
-		if (CFG.game.ios_idx == CFG_IOS_222_MLOAD
-				|| CFG.game.ios_idx == CFG_IOS_223_MLOAD)
+		if (CFG.ios_mload)
 		{
 			// wbfs on sd with 222/223 requires fat module
 			mload_need_fat = 1;
@@ -464,6 +534,8 @@ int ReloadIOS(int subsys, int verbose)
 		}
 		return 0;
 	}
+
+	mload_ver_str[0] = 0;
 
 	if (CFG.ios_mload) {
 		load_ext_ehc_module(verbose);
@@ -487,24 +559,39 @@ int ReloadIOS(int subsys, int verbose)
 	ret = IOS_ReloadIOS(CFG.ios);
 	usleep(300000);
 	if (ret < 0) {
-		if (verbose) {
-			printf("\n[+] ERROR:\n");
-			printf("    Custom IOS %d could not be loaded! (ret = %d)\n", CFG.ios, ret);
-		}
+		//if (verbose) {
+			printf("\n");
+			printf_x(gt("ERROR:"));
+			printf("\n");
+			printf_(gt("Custom IOS %d could not be loaded! (ret = %d)"), CFG.ios, ret);
+			printf("\n");
+		//}
 		goto err;
 	}
-	if (verbose) printf(".");
+	if (verbose) {
+		printf(".");
+	}
 
 	// mload ehc & dip
 	if (CFG.ios_mload) {
-		ret = load_ehc_module(verbose);
+		ret = load_ehc_module_ex(verbose);
 		if (ret < 0) {
-			if (verbose)
-				printf("\n[+] ERROR: Loading EHC module! (%d)\n", ret);
+			//if (verbose) {
+				printf("\n");
+				printf_x(gt("ERROR: Loading EHC module! (%d)"), ret);
+				printf("\n");
+			//}
 			goto err;
 		}
 	}
-	if (verbose) printf(".");
+	if (verbose) {
+		printf(".");
+		if (CFG.ios_mload) {
+			printf("\n");
+			printf_("");
+			print_mload_version();
+		}
+	}
 
 	// re-Initialize Storage
 	if (sd_m) Fat_MountSDHC();
@@ -525,10 +612,13 @@ int ReloadIOS(int subsys, int verbose)
 		// init dip
 		ret = Disc_Init();
 		if (ret < 0) {
-			if (verbose) {
-				printf("\n[+] ERROR:\n");
-				printf("    Could not initialize DIP module! (ret = %d)\n", ret);
-			}
+			//if (verbose) {
+				printf("\n");
+				printf_x(gt("ERROR:"));
+				printf("\n");
+				printf_(gt("Could not initialize DIP module! (ret = %d)"), ret);
+				printf("\n");
+			//}
 			goto err;
 		}
 	}
@@ -552,7 +642,8 @@ void Block_IOS_Reload()
 		if (CFG.game.block_ios_reload) {
 			patch_datas[0]=*((u32 *) (dip_plugin+16*4));
 			mload_set_ES_ioctlv_vector((void *) patch_datas[0]);
-			printf("    IOS Reload: Blocked\n");
+			printf_(gt("IOS Reload: Blocked"));
+			printf("\n");
 			sleep(1);
 		}
 	}
@@ -588,10 +679,10 @@ void load_bca_data(u8 *discid)
 void insert_bca_data()
 {
 	if (!have_bca_data) return;
-	if ((IOS_GetVersion() != 222 && IOS_GetVersion() != 223)
-			|| (IOS_GetRevision() < 4))
+	if (!CFG.ios_mload || IOS_GetRevision() < 4)
 	{
-		printf("ERROR: CIOS222/223 v4 required fro BCA\n");
+		printf(gt("ERROR: CIOS222/223 v4 required for BCA"));
+		printf("\n");
 		sleep(2);
 		return;
 	}

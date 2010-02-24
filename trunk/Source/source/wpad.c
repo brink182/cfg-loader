@@ -1,5 +1,6 @@
 
 // GC, classic controller, nunchuk and guitar support by gannon
+// remapping tweaks by Dr. Clipper
 
 #include <stdio.h>
 #include <ogcsys.h>
@@ -10,24 +11,20 @@
 #include "sys.h"
 #include "wpad.h"
 #include "subsystem.h"
+#include "cfg.h"
 
 /* Constants */
 #define MAX_WIIMOTES	4
-#define MAX_BUTTONS	11
-#define WIIMOTE	0
-#define CLASSIC	1
-#define GCPAD	2
-#define GUITAR	3
-#define NUNCHUK	4
 #define MAX_X	660
 #define MAX_Y	480
 
 extern u8 shutdown;
 extern long long gettime();
 extern u32 diff_msec(long long start,long long end);
-u32 buttonmap[5][MAX_BUTTONS];
 float coord[2] = {320,240};
 bool padMoved = false;
+
+char *button_names[MAX_BUTTONS] = {"UP", "RIGHT", "DOWN", "LEFT", "-", "+", "A", "B", "HOME", "1", "2", "X", "Y", "Z", "C", "L", "R"};
 
 void Do_Shutdown() {
 	Services_Close();
@@ -110,7 +107,7 @@ u32 readPad(int n, bool held) {
 	pad = (held == 1) ? PAD_ButtonsHeld(n) : PAD_ButtonsDown(n);
 	for (i=0; i<MAX_BUTTONS; i++) {
 		if ((pad & buttonmap[GCPAD][i]))
-			buttons |= buttonmap[WIIMOTE][i];
+			buttons |= buttonmap[MASTER][i];
 	}
 	if (WPAD_Probe(n, &type) == WPAD_ERR_NONE) {
 		wii = (held == 1) ? WPAD_ButtonsHeld(n) : WPAD_ButtonsDown(n);
@@ -119,17 +116,17 @@ u32 readPad(int n, bool held) {
 		} else if (type == WPAD_EXP_NUNCHUK) {
 			for (i=0; i<MAX_BUTTONS; i++) {
 				if ((wii & buttonmap[NUNCHUK][i]) || (wii & buttonmap[WIIMOTE][i]))
-					buttons |= buttonmap[WIIMOTE][i];
+					buttons |= buttonmap[MASTER][i];
 			}
 		} else if (type == WPAD_EXP_CLASSIC) {
 			for (i=0; i<MAX_BUTTONS; i++) {
 				if ((wii & buttonmap[CLASSIC][i]) || (wii & buttonmap[WIIMOTE][i]))
-					buttons |= buttonmap[WIIMOTE][i];
+					buttons |= buttonmap[MASTER][i];
 			}
 		} else if (type == WPAD_EXP_GUITARHERO3) {
 			for (i=0; i<MAX_BUTTONS; i++) {
 				if ((wii & buttonmap[GUITAR][i]) || (wii & buttonmap[WIIMOTE][i]))
-					buttons |= buttonmap[WIIMOTE][i];
+					buttons |= buttonmap[MASTER][i];
 			}
 		}
 
@@ -144,71 +141,187 @@ u32 Wpad_Held(int n)
 
 void makeButtonMap(void) {
 
+	buttonmap[MASTER][0] = WPAD_BUTTON_UP;
 	buttonmap[GCPAD][0] = PAD_BUTTON_UP;
 	buttonmap[WIIMOTE][0] = WPAD_BUTTON_UP;
 	buttonmap[CLASSIC][0] = WPAD_CLASSIC_BUTTON_UP;
 	buttonmap[GUITAR][0] = WPAD_GUITAR_HERO_3_BUTTON_STRUM_UP;
-	buttonmap[NUNCHUK][0] = buttonmap[WIIMOTE][0];
+	buttonmap[NUNCHUK][0] = 0;
 	
+	buttonmap[MASTER][1] = WPAD_BUTTON_RIGHT;
 	buttonmap[GCPAD][1] = PAD_BUTTON_RIGHT;
 	buttonmap[WIIMOTE][1] = WPAD_BUTTON_RIGHT;
 	buttonmap[CLASSIC][1] = WPAD_CLASSIC_BUTTON_RIGHT;
-	buttonmap[GUITAR][1] = buttonmap[WIIMOTE][1];
-	buttonmap[NUNCHUK][1] = buttonmap[WIIMOTE][1];
+	buttonmap[GUITAR][1] = 0;
+	buttonmap[NUNCHUK][1] = 0;
 	
+	buttonmap[MASTER][2] = WPAD_BUTTON_DOWN;
 	buttonmap[GCPAD][2] = PAD_BUTTON_DOWN;
 	buttonmap[WIIMOTE][2] = WPAD_BUTTON_DOWN;
 	buttonmap[CLASSIC][2] = WPAD_CLASSIC_BUTTON_DOWN;
 	buttonmap[GUITAR][2] = WPAD_GUITAR_HERO_3_BUTTON_STRUM_DOWN;
-	buttonmap[NUNCHUK][2] = buttonmap[WIIMOTE][2];
+	buttonmap[NUNCHUK][2] = 0;
 	
+	buttonmap[MASTER][3] = WPAD_BUTTON_LEFT;
 	buttonmap[GCPAD][3] = PAD_BUTTON_LEFT;
 	buttonmap[WIIMOTE][3] = WPAD_BUTTON_LEFT;
 	buttonmap[CLASSIC][3] = WPAD_CLASSIC_BUTTON_LEFT;
-	buttonmap[GUITAR][3] = buttonmap[WIIMOTE][3];
-	buttonmap[NUNCHUK][3] = buttonmap[WIIMOTE][3];
+	buttonmap[GUITAR][3] = 0;
+	buttonmap[NUNCHUK][3] = 0;
 	
-	buttonmap[GCPAD][4] = PAD_TRIGGER_L;
+	buttonmap[MASTER][4] = WPAD_BUTTON_MINUS;
+	buttonmap[GCPAD][4] = 0;
 	buttonmap[WIIMOTE][4] = WPAD_BUTTON_MINUS;
 	buttonmap[CLASSIC][4] = WPAD_CLASSIC_BUTTON_MINUS;
 	buttonmap[GUITAR][4] = WPAD_GUITAR_HERO_3_BUTTON_MINUS;
-	buttonmap[NUNCHUK][4] = buttonmap[WIIMOTE][4];
+	buttonmap[NUNCHUK][4] = 0;
 	
-	buttonmap[GCPAD][5] = PAD_TRIGGER_R;
+	buttonmap[MASTER][5] = WPAD_BUTTON_PLUS;
+	buttonmap[GCPAD][5] = 0;
 	buttonmap[WIIMOTE][5] = WPAD_BUTTON_PLUS;
 	buttonmap[CLASSIC][5] = WPAD_CLASSIC_BUTTON_PLUS;
 	buttonmap[GUITAR][5] = WPAD_GUITAR_HERO_3_BUTTON_PLUS;
-	buttonmap[NUNCHUK][5] = buttonmap[WIIMOTE][5];
+	buttonmap[NUNCHUK][5] = 0;
 	
+	buttonmap[MASTER][6] = WPAD_BUTTON_A;
 	buttonmap[GCPAD][6] = PAD_BUTTON_A;
 	buttonmap[WIIMOTE][6] = WPAD_BUTTON_A;
 	buttonmap[CLASSIC][6] = WPAD_CLASSIC_BUTTON_A;
 	buttonmap[GUITAR][6] = WPAD_GUITAR_HERO_3_BUTTON_GREEN;
-	buttonmap[NUNCHUK][6] = WPAD_NUNCHUK_BUTTON_C;
+	buttonmap[NUNCHUK][6] = 0;
 	
+	buttonmap[MASTER][7] = WPAD_BUTTON_B;
 	buttonmap[GCPAD][7] = PAD_BUTTON_B;
 	buttonmap[WIIMOTE][7] = WPAD_BUTTON_B;
 	buttonmap[CLASSIC][7] = WPAD_CLASSIC_BUTTON_B;
 	buttonmap[GUITAR][7] = WPAD_GUITAR_HERO_3_BUTTON_RED;
-	buttonmap[NUNCHUK][7] = WPAD_NUNCHUK_BUTTON_Z;
+	buttonmap[NUNCHUK][7] = 0;
 	
+	buttonmap[MASTER][8] = WPAD_BUTTON_HOME;
 	buttonmap[GCPAD][8] = PAD_BUTTON_START;
 	buttonmap[WIIMOTE][8] = WPAD_BUTTON_HOME;
 	buttonmap[CLASSIC][8] = WPAD_CLASSIC_BUTTON_HOME;
-	buttonmap[GUITAR][8] = WPAD_GUITAR_HERO_3_BUTTON_ORANGE;
-	buttonmap[NUNCHUK][8] = buttonmap[WIIMOTE][8];
+	buttonmap[GUITAR][8] = 0;
+	buttonmap[NUNCHUK][8] = 0;
 	
-	buttonmap[GCPAD][9] = PAD_BUTTON_Y;
+	buttonmap[MASTER][9] = WPAD_BUTTON_1;
+	buttonmap[GCPAD][9] = 0;
 	buttonmap[WIIMOTE][9] = WPAD_BUTTON_1;
-	buttonmap[CLASSIC][9] = WPAD_CLASSIC_BUTTON_Y;
-	buttonmap[GUITAR][9] = WPAD_GUITAR_HERO_3_BUTTON_YELLOW;
-	buttonmap[NUNCHUK][9] = buttonmap[WIIMOTE][9];
+	buttonmap[CLASSIC][9] = 0;
+	buttonmap[GUITAR][9] = 0;
+	buttonmap[NUNCHUK][9] = 0;
 	
-	buttonmap[GCPAD][10] = PAD_BUTTON_X;
+	buttonmap[MASTER][10] = WPAD_BUTTON_2;
+	buttonmap[GCPAD][10] = 0;
 	buttonmap[WIIMOTE][10] = WPAD_BUTTON_2;
-	buttonmap[CLASSIC][10] = WPAD_CLASSIC_BUTTON_X;
-	buttonmap[GUITAR][10] = WPAD_GUITAR_HERO_3_BUTTON_BLUE;
-	buttonmap[NUNCHUK][10] = buttonmap[WIIMOTE][10];
+	buttonmap[CLASSIC][10] = 0;
+	buttonmap[GUITAR][10] = 0;
+	buttonmap[NUNCHUK][10] = 0;
+
+	buttonmap[MASTER][11] = WPAD_BUTTON_X;
+	if (CFG.button_X & CFG_BTN_REMAP) {
+		buttonmap[GCPAD][11] = 0;
+		buttonmap[WIIMOTE][11] = 0;
+		buttonmap[CLASSIC][11] = 0;
+		buttonmap[GUITAR][11] = 0;
+		buttonmap[NUNCHUK][11] = 0;
+		buttonmap[GCPAD][CFG.button_X & ~CFG_BTN_REMAP] |= PAD_BUTTON_X;
+		buttonmap[CLASSIC][CFG.button_X & ~CFG_BTN_REMAP] |= WPAD_CLASSIC_BUTTON_X;
+		buttonmap[GUITAR][CFG.button_X & ~CFG_BTN_REMAP] |= WPAD_GUITAR_HERO_3_BUTTON_YELLOW;
+	} else {
+		buttonmap[GCPAD][11] = PAD_BUTTON_X;
+		buttonmap[WIIMOTE][11] = 0;
+		buttonmap[CLASSIC][11] = WPAD_CLASSIC_BUTTON_X;
+		buttonmap[GUITAR][11] = WPAD_GUITAR_HERO_3_BUTTON_YELLOW;
+		buttonmap[NUNCHUK][11] = 0;
+	}
+
+	buttonmap[MASTER][12] = WPAD_BUTTON_Y;
+	if (CFG.button_Y & CFG_BTN_REMAP) {
+		buttonmap[GCPAD][12] = 0;
+		buttonmap[WIIMOTE][12] = 0;
+		buttonmap[CLASSIC][12] = 0;
+		buttonmap[GUITAR][12] = 0;
+		buttonmap[NUNCHUK][12] = 0;
+		buttonmap[GCPAD][CFG.button_Y & ~CFG_BTN_REMAP] |= PAD_BUTTON_Y;
+		buttonmap[CLASSIC][CFG.button_Y & ~CFG_BTN_REMAP] |= WPAD_CLASSIC_BUTTON_Y;
+		buttonmap[GUITAR][CFG.button_Y & ~CFG_BTN_REMAP] |= WPAD_GUITAR_HERO_3_BUTTON_BLUE;
+	} else {
+		buttonmap[GCPAD][12] = PAD_BUTTON_Y;
+		buttonmap[WIIMOTE][12] = 0;
+		buttonmap[CLASSIC][12] = WPAD_CLASSIC_BUTTON_Y;
+		buttonmap[GUITAR][12] = WPAD_GUITAR_HERO_3_BUTTON_BLUE;
+		buttonmap[NUNCHUK][12] = 0;
+	}
+
+	buttonmap[MASTER][13] = WPAD_BUTTON_Z;
+	if (CFG.button_Z & CFG_BTN_REMAP) {
+		buttonmap[GCPAD][13] = 0;
+		buttonmap[WIIMOTE][13] = 0;
+		buttonmap[CLASSIC][13] = 0;
+		buttonmap[GUITAR][13] = 0;
+		buttonmap[NUNCHUK][13] = 0;
+		buttonmap[GCPAD][CFG.button_Z & ~CFG_BTN_REMAP] |= PAD_TRIGGER_Z;
+		buttonmap[CLASSIC][CFG.button_Z & ~CFG_BTN_REMAP] |= WPAD_CLASSIC_BUTTON_ZL | WPAD_CLASSIC_BUTTON_ZR;
+		buttonmap[GUITAR][CFG.button_Z & ~CFG_BTN_REMAP] |= WPAD_GUITAR_HERO_3_BUTTON_ORANGE;
+		buttonmap[NUNCHUK][CFG.button_Z & ~CFG_BTN_REMAP] |= WPAD_NUNCHUK_BUTTON_Z;
+	} else {
+		buttonmap[GCPAD][13] = PAD_TRIGGER_Z;
+		buttonmap[WIIMOTE][13] = 0;
+		buttonmap[CLASSIC][13] = WPAD_CLASSIC_BUTTON_ZL | WPAD_CLASSIC_BUTTON_ZR;
+		buttonmap[GUITAR][13] = WPAD_GUITAR_HERO_3_BUTTON_ORANGE;
+		buttonmap[NUNCHUK][13] = WPAD_NUNCHUK_BUTTON_Z;
+	}
+
+	buttonmap[MASTER][14] = WPAD_BUTTON_C;
+	if (CFG.button_C & CFG_BTN_REMAP) {
+		buttonmap[GCPAD][14] = 0;
+		buttonmap[WIIMOTE][14] = 0;
+		buttonmap[CLASSIC][14] = 0;
+		buttonmap[GUITAR][14] = 0;
+		buttonmap[NUNCHUK][14] = 0;
+		buttonmap[NUNCHUK][CFG.button_C & ~CFG_BTN_REMAP] |= WPAD_NUNCHUK_BUTTON_C;
+	} else {
+		buttonmap[GCPAD][14] = 0;
+		buttonmap[WIIMOTE][14] = 0;
+		buttonmap[CLASSIC][14] = 0;
+		buttonmap[GUITAR][14] = 0;
+		buttonmap[NUNCHUK][14] = WPAD_NUNCHUK_BUTTON_C;
+	}
+
+	buttonmap[MASTER][15] = WPAD_BUTTON_L;
+	if (CFG.button_L & CFG_BTN_REMAP) {
+		buttonmap[GCPAD][15] = 0;
+		buttonmap[WIIMOTE][15] = 0;
+		buttonmap[CLASSIC][15] = 0;
+		buttonmap[GUITAR][15] = 0;
+		buttonmap[NUNCHUK][15] = 0;
+		buttonmap[GCPAD][CFG.button_L & ~CFG_BTN_REMAP] |= PAD_TRIGGER_L;
+		buttonmap[CLASSIC][CFG.button_L & ~CFG_BTN_REMAP] |= WPAD_CLASSIC_BUTTON_FULL_L;
+	} else {
+		buttonmap[GCPAD][15] = PAD_TRIGGER_L;
+		buttonmap[WIIMOTE][15] = 0;
+		buttonmap[CLASSIC][15] = WPAD_CLASSIC_BUTTON_FULL_L;
+		buttonmap[GUITAR][15] = 0;
+		buttonmap[NUNCHUK][15] = 0;
+	}
+
+	buttonmap[MASTER][16] = WPAD_BUTTON_R;
+	if (CFG.button_R & CFG_BTN_REMAP) {
+		buttonmap[GCPAD][16] = 0;
+		buttonmap[WIIMOTE][16] = 0;
+		buttonmap[CLASSIC][16] = 0;
+		buttonmap[GUITAR][16] = 0;
+		buttonmap[NUNCHUK][16] = 0;
+		buttonmap[GCPAD][CFG.button_R & ~CFG_BTN_REMAP] |= PAD_TRIGGER_R;
+		buttonmap[CLASSIC][CFG.button_R & ~CFG_BTN_REMAP] |= WPAD_CLASSIC_BUTTON_FULL_R;
+	} else {
+		buttonmap[GCPAD][16] = PAD_TRIGGER_R;
+		buttonmap[WIIMOTE][16] = 0;
+		buttonmap[CLASSIC][16] = WPAD_CLASSIC_BUTTON_FULL_R;
+		buttonmap[GUITAR][16] = 0;
+		buttonmap[NUNCHUK][16] = 0;
+	}
 }
 
 void __Wpad_PowerCallback(s32 chan)
@@ -284,7 +397,7 @@ u32 Wpad_WaitButtonsCommon(void)
 	/* Wait for button pressing */
 	buttons = Wpad_WaitButtons();
 	extern void Handle_Home(int disable_screenshot);
-	if (buttons & WPAD_BUTTON_HOME) {
+	if (buttons & CFG.button_exit.mask) {
 		Handle_Home(0);
 		buttons = Wpad_WaitButtons();
 	}
@@ -312,7 +425,7 @@ u32 Wpad_WaitButtonsRpt(void)
 		buttons = Wpad_GetButtons();
 		if (buttons) {
 			held = 0;
-			if (buttons & (WPAD_BUTTON_UP | WPAD_BUTTON_DOWN)) {
+			if (buttons & (WPAD_BUTTON_UP | WPAD_BUTTON_DOWN | WPAD_BUTTON_LEFT | WPAD_BUTTON_RIGHT)) {
 				held = 1;
 				t_start = gettime();
 			}
@@ -321,18 +434,25 @@ u32 Wpad_WaitButtonsRpt(void)
 			for (cnt = 0; cnt < MAX_WIIMOTES; cnt++) {
 				buttons_held |= Wpad_Held(cnt);
 			}
-			if (buttons_held & (WPAD_BUTTON_UP | WPAD_BUTTON_DOWN)) {
+			if (buttons_held & (WPAD_BUTTON_UP | WPAD_BUTTON_DOWN | WPAD_BUTTON_LEFT | WPAD_BUTTON_RIGHT)) {
 				t_now = gettime();
 				ms_diff = diff_msec(t_start, t_now);
-				if (held == 1) wait = 300; else wait = 150;
+				if (held == 1) wait = 300; else if (held == 3) wait = 250; else wait = 150;
 				if (ms_diff > wait) {
 					if (buttons_held & WPAD_BUTTON_UP) {
 						buttons |= WPAD_BUTTON_UP;
+						held = 2;
 					} else if (buttons_held & WPAD_BUTTON_DOWN) {
 						buttons |= WPAD_BUTTON_DOWN;
+						held = 2;
+					} else if (buttons_held & WPAD_BUTTON_LEFT) {
+						buttons |= WPAD_BUTTON_LEFT;
+						held = 3;
+					} else if (buttons_held & WPAD_BUTTON_RIGHT) {
+						buttons |= WPAD_BUTTON_RIGHT;
+						held = 3;
 					}
 					t_start = t_now;
-					held = 2;
 				}
 			} else {
 				held = 0;

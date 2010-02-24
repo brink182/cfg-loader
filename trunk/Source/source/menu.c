@@ -42,6 +42,11 @@
 #include "frag.h"
 #include "xml.h" /* WiiTDB database - Lustar */
 #include "sort.h"
+#include "gettext.h"
+#include "playlog.h"
+
+#define CHANGE(V,M) {V+=change;if(V>M)V=M;if(V<0)V=0;}
+
 
 char CFG_VERSION[] = CFG_VERSION_STR;
 
@@ -80,7 +85,8 @@ static bool unlock_init = true;
 
 /*VIDEO OPTION - hungyip84 */
 char videos[CFG_VIDEO_MAX+1][15] = 
-{{"System Default"},
+{
+{"System Def."},
 {"Game Default"},
 {"Force PAL50"},
 {"Force PAL60"},
@@ -90,7 +96,8 @@ char videos[CFG_VIDEO_MAX+1][15] =
 
 /*LANGUAGE PATCH - FISHEARS*/
 char languages[11][22] =
-{{"Console Default"},
+{
+{"Console Def."},
 {"Japanese"},
 {"English"},
 {"German"},
@@ -100,13 +107,16 @@ char languages[11][22] =
 {"Dutch"},
 {"S. Chinese"},
 {"T. Chinese"},
-{"Korean"}};
+{"Korean"}
+};
 /*LANGUAGE PATCH - FISHEARS*/
 
 int Menu_Global_Options();
 int Menu_Game_Options();
 void Switch_Favorites(bool enable);
 void bench_io();
+
+char action_string[40] = "";
 
 #ifdef FAKE_GAME_LIST
 // Debug Test mode with fake game list
@@ -256,7 +266,7 @@ char *__Menu_PrintTitle(char *name)
 {
 	//static char buffer[MAX_CHARACTERS + 4];
 	static char buffer[200];
-	int len = mbs_len(name);
+	int len = con_len(name);
 
 	/* Clear buffer */
 	memset(buffer, 0, sizeof(buffer));
@@ -265,7 +275,7 @@ char *__Menu_PrintTitle(char *name)
 	if (len >= MAX_CHARACTERS) {
 		//strncpy(buffer, name,  MAX_CHARACTERS - 4);
 		STRCOPY(buffer, name);
-		mbs_trunc(buffer, MAX_CHARACTERS - 4);
+		con_trunc(buffer, MAX_CHARACTERS - 4);
 		strcat(buffer, "...");
 		return buffer;
 	}
@@ -299,22 +309,25 @@ void warn_ios_bugs()
 	// ios == 249
 	if (wbfs_part_fs) {
 		printf(
-			"ERROR: CIOS222 or CIOS223 required for\n"
-			"starting games from a FAT partition!\n\n");
+			gt("ERROR: CIOS222 or CIOS223 required for\n"
+			"starting games from a FAT partition!"));
+		printf("\n\n");
 		warn = true;
 	}
 	if (IOS_GetRevision() < 14) {
 		printf(
-			"NOTE: CIOS249 before rev14:\n"
-			"Possible error #001 is not handled!\n\n");
+			gt("NOTE: CIOS249 before rev14:\n"
+			"Possible error #001 is not handled!"));
+		printf("\n\n");
 		warn = true;
 	}
 	if (IOS_GetRevision() == 13) {
 		printf(
-			"NOTE: You are using CIOS249 rev13:\n"
+			gt("NOTE: You are using CIOS249 rev13:\n"
 			"To quit the game you must reset or\n"
 			"power-off the Wii before you start\n"
-			"another game or it will hang here!\n\n");
+			"another game or it will hang here!"));
+		printf("\n\n");
 		warn = true;
 	}
 	if (IOS_GetRevision() < 12) {
@@ -327,15 +340,17 @@ void warn_ios_bugs()
 	if (IOS_GetRevision() < 10
 			&& wbfsDev == WBFS_DEVICE_SDHC) {
 		printf(
-			"NOTE: CIOS249 before rev10:\n"
-			"Loading games from SDHC not supported!\n\n");
+			gt("NOTE: CIOS249 before rev10:\n"
+			"Loading games from SDHC not supported!"));
+		printf("\n\n");
 		warn = true;
 	}
 	if (IOS_GetRevision() < 9
 			&& wbfsDev == WBFS_DEVICE_USB) {
 		printf(
-			"NOTE: CIOS249 before rev9:\n"
-			"Loading games from USB not supported!\n\n");
+			gt("NOTE: CIOS249 before rev9:\n"
+			"Loading games from USB not supported!"));
+		printf("\n\n");
 		warn = true;
 	}
 	if (warn) sleep(1);
@@ -344,12 +359,12 @@ void warn_ios_bugs()
 void print_dual_layer_note()
 {
 	printf(
-		"NOTE: You are using CIOS249 rev14:\n"
+		gt("NOTE: You are using CIOS249 rev14:\n"
 		"It has known problems with dual layer\n"
 		"games. It is highly recommended that\n"
 		"you use a different IOS or revision\n"
-		"for installation/playback of this game.\n\n"
-		);
+		"for installation/playback of this game."));
+	printf("\n\n");
 }
 
 bool check_device(struct Game_CFG_2 *game_cfg, bool print)
@@ -366,10 +381,14 @@ bool check_device(struct Game_CFG_2 *game_cfg, bool print)
 	}
 	*/
 	if (wbfs_part_idx > 1) {
-		if (ii != CFG_IOS_222_MLOAD && ii != CFG_IOS_223_MLOAD) {
-			if (print) printf(
-				"ERROR: multiple wbfs partitions\n"
-				"supported only with IOS222/223-mload\n\n");
+		if (!is_ios_idx_mload(ii))
+		{
+			if (print) {
+				printf(
+					gt("ERROR: multiple wbfs partitions\n"
+					"supported only with IOS222/223-mload"));
+				printf("\n\n");
+			}
 			return false;
 		}
 	}
@@ -402,7 +421,9 @@ void __Menu_PrintInfo2(struct discHdr *header, u64 comp_size, u64 real_size)
 
 	/* Print game info */
 	printf_("%s\n", get_title(header));
-	printf_("(%.6s) (%.2fGB) %s\n\n", header->id, size, dl_str);
+	printf_("(%.6s) ", header->id);
+	printf("(%.2f%s) ", size, gt("GB"));
+	printf("%s\n\n", dl_str);
 	//printf(" comp: %lld (%.2fMB)\n", comp_size, (f32)comp_size/1024/1024);
 	//printf(" real: %lld (%.2fMB)\n", real_size, (f32)real_size/1024/1024);
 }
@@ -480,10 +501,13 @@ void __Menu_ShowList(void)
 {
 	FgColor(CFG.color_header);
 	if (enable_favorite) {
-		printf_x("Favorite Games:\n");
+		printf_x(gt("Favorite Games"));
+		printf(":\n");
 	} else {
-		if (!CFG.hide_header)
-			printf_x("Select the game you want to boot:\n");
+		if (!CFG.hide_header) {
+			printf_x(gt("Select the game you want to boot"));
+			printf(":\n");
+		}
 	}
 	DefaultColor();
 	if (CFG.console_mark_page && gameStart > 0) {
@@ -523,7 +547,7 @@ void __Menu_ShowList(void)
 			printf("%s", title);
 			// saved mark
 			if (CFG.console_mark_saved) {
-				printf("%*s", (MAX_CHARACTERS - strlen(title)),
+				printf("%*s", (MAX_CHARACTERS - con_len(title)),
 					(CFG_is_saved(header->id)) ? CFG.saved : " ");
 			}
 			printf("\n");
@@ -534,13 +558,19 @@ void __Menu_ShowList(void)
 		} else {
 			printf(" %s  ", CFG.cursor_space);
 		}
-		if (CFG.hide_hddinfo) {
-			int num_page = 1 + (gameCnt - 1) / ENTRIES_PER_PAGE;
-			int cur_page = 1 + gameSelected / ENTRIES_PER_PAGE;
-			printf("%*s %d/%d", MAX_CHARACTERS - 8, " ", cur_page, num_page);
-		}
+		//if (CFG.hide_hddinfo) {
+		FgColor(CFG.color_footer);
+		BgColor(CONSOLE_BG_COLOR);
+		int num_page = 1 + (gameCnt - 1) / ENTRIES_PER_PAGE;
+		int cur_page = 1 + gameSelected / ENTRIES_PER_PAGE;
+		printf(" %-*.*s %d/%d", MAX_CHARACTERS - 8, MAX_CHARACTERS - 8, action_string, cur_page, num_page);
+		if (!CFG.hide_hddinfo) printf("\n");
+		action_string[0] = 0;
+		//}
 	} else {
-		printf(" %s No games found!!\n", CFG.cursor);
+		printf(" ");
+		printf(gt("%s No games found!!"), CFG.cursor);
+		printf("\n");
 	}
 
 	/* Print free/used space */
@@ -549,26 +579,31 @@ void __Menu_ShowList(void)
 	if (!CFG.hide_hddinfo) {
 		// Get free space
 		f32 free, used;
-		printf("\n");
+		//printf("\n");
 		WBFS_DiskSpace(&used, &free);
-		printf_x("Used: %.1fGB Free: %.1fGB [%d]", used, free, gameCnt);
-		int num_page = 1 + (gameCnt - 1) / ENTRIES_PER_PAGE;
-		int cur_page = 1 + gameSelected / ENTRIES_PER_PAGE;
-		printf(" %d/%d", cur_page, num_page);
+		printf_x(gt("Used: %.1fGB Free: %.1fGB [%d]"), used, free, gameCnt);
+		//int num_page = 1 + (gameCnt - 1) / ENTRIES_PER_PAGE;
+		//int cur_page = 1 + gameSelected / ENTRIES_PER_PAGE;
+		//printf(" %d/%d", cur_page, num_page);
 	}
 	if (!CFG.hide_footer) {
 		printf("\n");
 		// (B) GUI (1) Options (2) Favorites
 		// B: GUI 1: Options 2: Favorites
-		char c_gui = 'B', c_opt = '1';
-		if (CFG.buttons == CFG_BTN_OPTIONS_B) {
-			c_gui = '1'; c_opt = 'B';
-		}
+		//char c_gui = 'B', c_opt = '1';
+		//if (CFG.buttons == CFG_BTN_OPTIONS_B) {
+		//	c_gui = '1'; c_opt = 'B';
+		//}
 		printf_("");
-		if (CFG.gui) {
-			printf("%c: GUI ", c_gui);
+		if (CFG.gui && CFG.button_gui) {
+			printf("%s: GUI ", (button_names[CFG.button_gui]));
 		}
-		printf("%c: Options 2: Favorites", c_opt);
+		if (!CFG.disable_options && CFG.button_opt) {
+			printf("%s: Options ", (button_names[CFG.button_opt]));
+		}
+		if (CFG.button_fav) {
+			printf("%s: Favorites", (button_names[CFG.button_fav]));
+		}
 	}
 	if (CFG.db_show_info) {
 		printf("\n");
@@ -582,11 +617,12 @@ void __Menu_ShowList(void)
 /* load game info from XML - lustar */
 void __Menu_ShowGameInfo(bool showfullinfo, u8 *id)
 {
-	FgColor(CFG.color_inactive);
-	LoadGameInfoFromXML(id);
-	PrintGameInfo(showfullinfo);
-	//printf("Play Count: %d\n", getPlayCount(id));
-	DefaultColor();
+	if (LoadGameInfoFromXML(id)) {
+		FgColor(CFG.color_inactive);
+		PrintGameInfo(showfullinfo);
+		//printf("Play Count: %d\n", getPlayCount(id));
+		DefaultColor();
+	}
 }
 
 void __Menu_ShowCover(void)
@@ -625,7 +661,8 @@ void Handle_Home(int disable_screenshot)
 {
 	if (CFG.home == CFG_HOME_EXIT) {
 		Con_Clear();
-		printf("\n    Exiting...");
+		printf("\n");
+		printf_("Exiting...");
 		__console_flush(0);
 		Sys_Exit();
 	} else if (CFG.home == CFG_HOME_SCRSHOT) {
@@ -634,7 +671,8 @@ void Handle_Home(int disable_screenshot)
 		if (disable_screenshot)	CFG.home = CFG_HOME_EXIT;
 	} else if (CFG.home == CFG_HOME_HBC) {
 		Con_Clear();
-		printf("\n    HBC...");
+		printf("\n");
+		printf_("HBC...");
 		__console_flush(0);
 		Sys_HBC();
 	} else { // CFG_HOME_REBOOT
@@ -649,16 +687,23 @@ void Print_SYS_Info()
 	FgColor(CFG.color_inactive);
 	printf_("");
 	Fat_print_sd_mode();
-	printf_("CFG base: %s\n", USBLOADER_PATH);
+	printf_(gt("CFG base: %s"), USBLOADER_PATH);
+	printf("\n");
 	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) {
 		// if last cfg differs, print it out
-		printf_("Additional config:\n");
+		printf_(gt("Additional config:"));
+		printf("\n");
 		printf_("  %s/config.txt\n", LAST_CFG_PATH);
 	}
-	printf_("Loader Version: %s\n", CFG_VERSION);
+	printf_(gt("Loader Version: %s"), CFG_VERSION);
+	printf("\n");
 	printf_("IOS%u (Rev %u) %s\n",
 			IOS_GetVersion(), IOS_GetRevision(),
 			mload_ehc_fat ? "[FAT]" : "");
+	if (CFG.ios_mload) {
+		printf_("  ");
+		print_mload_version();
+	}
 	DefaultColor();
 }
 
@@ -703,10 +748,11 @@ void Menu_Unlock() {
 	}
 	
 	Con_Clear();
-	printf("Configurable Loader %s\n\n", CFG_VERSION);
+	printf(gt("Configurable Loader %s"), CFG_VERSION);
+	printf("\n\n");
 
 	if (CFG.admin_mode_locked) {
-		printf("Enter Code: ");
+		printf(gt("Enter Code: "));
 		t_start = gettime();
 		
 		while (ms_diff < 30000 && !unlocked) {
@@ -740,7 +786,8 @@ void Menu_Unlock() {
 		CFG.disable_options = 0;
 		CFG.confirm_start = 1;
 		CFG.admin_mode_locked = 0;
-		printf("\n\nSUCCESS!");
+		printf("\n\n");
+		printf(gt("SUCCESS!"));
 		sleep(1);
 		//show the hidden games
 		__Menu_GetEntries();
@@ -752,7 +799,8 @@ void Menu_Unlock() {
 		CFG.disable_options = disable_options;
 		CFG.confirm_start = confirm_start;
 		CFG.admin_mode_locked = 1;
-		printf("\n\nLOCKED!");
+		printf("\n\n");
+		printf(gt("LOCKED!"));
 		sleep(1);
 		//reset the hidden games
 		__Menu_GetEntries();
@@ -791,30 +839,32 @@ int Menu_Views()
 		}
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Main Menu:\n\n");
+		printf_x(gt("Main Menu"));
+		printf(":\n\n");
 		
 		DefaultColor();
 		MENU_MARK();
-		printf("<Start Game>\n");
+		printf("<%s>\n", gt("Start Game"));
 		MENU_MARK();
-		printf("<Game Options>\n");
+		printf("<%s>\n", gt("Game Options"));
 		MENU_MARK();
-		printf("<Global Options>\n");
+		printf("<%s>\n", gt("Global Options"));
 		MENU_MARK();
-		printf("<Remove Game>\n");
+		printf("<%s>\n", gt("Remove Game"));
 		MENU_MARK();
-		printf("<Install Game>\n");
+		printf("<%s>\n", gt("Install Game"));
 		MENU_MARK();
-		printf("<Sort Games>\n");
+		printf("<%s>\n", gt("Sort Games"));
 		MENU_MARK();
-		printf("<Filter Games>\n");
+		printf("<%s>\n", gt("Filter Games"));
 		MENU_MARK();
-		printf("<Boot Disc>\n");
+		printf("<%s>\n", gt("Boot Disc"));
    
 		DefaultColor();
 
 		printf("\n");
-		printf_h("Press A to select\n");
+		printf_h(gt("Press %s to select"), (button_names[CFG.button_confirm.num]));
+		printf("\n");
 		DefaultColor();
 		__console_flush(0);
 
@@ -829,8 +879,8 @@ int Menu_Views()
 		int change = -2;
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
 		if (buttons & WPAD_BUTTON_RIGHT) change = +1;
-		if (buttons & WPAD_BUTTON_A) change = 0;
-		#define CHANGE(V,M) {V+=change;if(V>M)V=M;if(V<0)V=0;}
+		if (buttons & CFG.button_confirm.mask) change = 0;
+//		#define CHANGE(V,M) {V+=change;if(V>M)V=M;if(V<0)V=0;}
 
 		if (change > -2) {
 			switch (menu.current) {
@@ -863,10 +913,10 @@ int Menu_Views()
 		}
 
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	
 	return 0;
@@ -892,16 +942,19 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	int redraw_cover = 0;
 	DOL_LIST dol_list;
 	int i;
-
+	int rows, cols, win_size;
+	CON_GetMetrics(&cols, &rows);
+	if ((win_size = rows-9) < 3) win_size = 3;
 	Con_Clear();
 	FgColor(CFG.color_header);
-	printf_x("Selected Game:");
+	printf_x(gt("Selected Game"));
+	printf(":");
 	__console_flush(0);
 	if (disc) {
 		printf(" (%.6s)\n", header->id);
 	} else {
 		WBFS_GameSize(header->id, &size);
-		printf(" (%.6s) (%.2fGB)\n", header->id, size);
+		printf(" (%.6s) (%.2f%s)\n", header->id, size, gt("GB"));
 	}
 	DefaultColor();
 	printf(" %s %s\n\n", CFG.cursor_space, __Menu_PrintTitle(get_title(header)));
@@ -910,7 +963,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	game_cfg2 = CFG_get_game(header->id);
 	if (!game_cfg2) {
-		printf("ERROR game opt\n");
+		printf(gt("ERROR game opt"));
+		printf("\n");
 		sleep(5);
 		return 0;
 	}
@@ -923,8 +977,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	for (;;) {
 		if (wbfs_part_fs && !disc) {
-			if (game_cfg->ios_idx != CFG_IOS_222_MLOAD
-					&& game_cfg->ios_idx != CFG_IOS_223_MLOAD)
+			if (!is_ios_idx_mload(game_cfg->ios_idx))
 			{
 				game_cfg->ios_idx = CFG_IOS_222_MLOAD;
 			}
@@ -934,8 +987,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		opt_saved = game_cfg2->is_saved;
 		// if not mload disable block ios reload opt
 		opt_ios_reload = game_cfg->block_ios_reload;
-		if (game_cfg->ios_idx != CFG_IOS_222_MLOAD &&
-			game_cfg->ios_idx != CFG_IOS_223_MLOAD)
+		if (!is_ios_idx_mload(game_cfg->ios_idx))
 		{
 			active[8] = 0;
 			opt_ios_reload = 0;
@@ -956,15 +1008,17 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Selected Game:");
+		printf_x(gt("Selected Game"));
+		printf(":");
 		if (disc) printf(" (%.6s)\n", header->id);
 		else printf(" (%.6s) (%.2fGB)\n", header->id, size);
 		DefaultColor();
 		printf(" %s %s\n\n", CFG.cursor_space, __Menu_PrintTitle(get_title(header)));
 		FgColor(CFG.color_header);
-		printf_x("Game Options:  %s\n",
-				CFG_is_changed(header->id) ? "[ CHANGED ]" :
-				opt_saved ? "[ SAVED ]" : "");
+		printf_x(gt("Game Options:  %s"),
+				CFG_is_changed(header->id) ? gt("[ CHANGED ]") :
+				opt_saved ? gt("[ SAVED ]") : "");
+		printf("\n");
 		DefaultColor();
 		char c1 = '<', c2 = '>';
 		//if (opt_saved) { c1 = '['; c2 = ']'; }
@@ -978,19 +1032,22 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			}
 	
 			switch (game_cfg->alt_dol) {
-				case 0: STRCOPY(str_alt_dol, "Off"); break;
+				case 0: STRCOPY(str_alt_dol, gt("Off")); break;
 				case 1: STRCOPY(str_alt_dol, "SD"); break;
 				case 2:
 				default:
 					if (*game_cfg->dol_name) {
 						STRCOPY(str_alt_dol, game_cfg->dol_name);
 					} else {
-						STRCOPY(str_alt_dol, "Disc");
+						STRCOPY(str_alt_dol, gt("Disc"));
 					}
 					break;
 			}
 		}
-		char *str_vpatch[] = { "Off", "On", "All" };
+		const char *str_vpatch[3];
+		str_vpatch[0] = gt("Off");
+		str_vpatch[1] = gt("On");
+		str_vpatch[2] = gt("All");
 
 		// start menu draw
 
@@ -998,50 +1055,60 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		menu_jump_active(&menu);
 
 		#define PRINT_OPT_S(N,V) \
-			printf("%s%c %s %c\n", N, c1, V, c2)
+			printf("%s%c %s %c\n", con_align(N,18), c1, V, c2)
+
+		#define PRINT_OPT_A(N,V) \
+			printf("%s%c%s%c\n", con_align(N,18), c1, V, c2)
 
 		#define PRINT_OPT_B(N,V) \
-			PRINT_OPT_S(N,(V?"On":"Off")) 
+			PRINT_OPT_S(N,(V?gt("On"):gt("Off"))) 
 
-		MENU_MARK();
-		PRINT_OPT_S("Favorite:         ", is_favorite(header->id) ? "Yes" : "No");
-		MENU_MARK();
-		PRINT_OPT_S("Language:    ", languages[game_cfg->language]);
-		MENU_MARK();
-		PRINT_OPT_S("Video:       ", videos[game_cfg->video]);
-		MENU_MARK();
-		PRINT_OPT_S("Video Patch:      ", str_vpatch[game_cfg->video_patch]);
-		MENU_MARK();
-		PRINT_OPT_B("VIDTV:            ", game_cfg->vidtv);
-		MENU_MARK();
-		PRINT_OPT_B("Country Fix:      ", game_cfg->country_patch);
-		MENU_MARK();
-		PRINT_OPT_B("Anti 002 Fix:     ", game_cfg->fix_002);
-		MENU_MARK();
-		PRINT_OPT_S("IOS:              ", ios_str(game_cfg->ios_idx));
-		MENU_MARK();
-		PRINT_OPT_B("Block IOS Reload: ", opt_ios_reload);
-		MENU_MARK();
-		printf     ("Alt dol [%d found]:< %s >\n", dol_list.num, str_alt_dol);
-		MENU_MARK();
-		PRINT_OPT_B("Ocarina (cheats): ", game_cfg->ocarina);
-		MENU_MARK();
-		printf("Cheat Codes:     < Manage >\n");
-		MENU_MARK();
-		printf("Cover Image:     %s\n", 
-				imageNotFound ? "< DOWNLOAD >" : "[ FOUND ]");
-		MENU_MARK();
-		printf("Hide Game:        < %s >\n",
-				is_hide_game(header->id) ? "Yes" : "No");
+		menu_window_begin(&menu, win_size, NUM_OPT);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Language:"), languages[game_cfg->language]);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Video:"), videos[game_cfg->video]);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Video Patch:"), str_vpatch[game_cfg->video_patch]);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_B("VIDTV:", game_cfg->vidtv);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_B(gt("Country Fix:"), game_cfg->country_patch);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_B(gt("Anti 002 Fix:"), game_cfg->fix_002);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
+		if (menu_window_mark(&menu))
+			PRINT_OPT_B(gt("Block IOS Reload:"), opt_ios_reload);
+		if (menu_window_mark(&menu))
+		{
+			char tmp[40] = "";
+			snprintf(tmp, 40, "%s [%d]:", gt("Alt dol"), dol_list.num);
+			PRINT_OPT_S(tmp, str_alt_dol);
+		}
+		if (menu_window_mark(&menu))
+			PRINT_OPT_B(gt("Ocarina (cheats):"), game_cfg->ocarina);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_A(gt("Cheat Codes:"), gt("Manage"));
+		if (menu_window_mark(&menu))
+			printf("%s%s\n", con_align(gt("Cover Image:"), 18), 
+				imageNotFound ? gt("< DOWNLOAD >") : gt("[ FOUND ]"));
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
 		DefaultColor();
+		menu_window_end(&menu, cols);
+
+		printf_h(gt("Press %s to start game"), (button_names[CFG.button_confirm.num]));
 		printf("\n");
-		printf_h("Press A to start game\n");
 		bool need_save = !opt_saved || CFG_is_changed(header->id);
 		if (need_save)
-			printf_h("Press 2 to save options\n");
+			printf_h(gt("Press %s to save options"), (button_names[CFG.button_save.num]));
 		else
-			printf_h("Press 2 to discard options\n");
-		printf_h("Press 1 for global options");
+			printf_h(gt("Press %s to discard options"), (button_names[CFG.button_save.num]));
+		printf("\n");
+		printf_h(gt("Press %s for global options"), (button_names[CFG.button_other.num]));
 		DefaultColor();
 		__console_flush(0);
 
@@ -1057,18 +1124,17 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
 		if (buttons & WPAD_BUTTON_RIGHT) change = +1;
-		#define CHANGE(V,M) {V+=change;if(V>M)V=M;if(V<0)V=0;}
 
 		if (change) {
 			switch (menu.current) {
 			case 0:
 				printf("\n\n");
-				printf_x("Saving Settings... ");
+				printf_x(gt("Saving Settings... "));
 				__console_flush(0);
 				if (set_favorite(header->id, change > 0)) {
-					printf("OK");
+					printf(gt("OK"));
 				} else {
-					printf("ERROR");
+					printf(gt("ERROR"));
 					sleep(1);
 				}
 				__console_flush(0);
@@ -1117,16 +1183,16 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				Download_Cover((char*)header->id, change > 0, true);
 				Cache_Invalidate();
 				Gui_DrawCover(header->id);
-				sleep(2);
+				Menu_PrintWait();
 				break;
 			case 13:
 				printf("\n\n");
-				printf_x("Saving Settings... ");
+				printf_x(gt("Saving Settings... "));
 				__console_flush(0);
 				if (set_hide_game(header->id, change > 0)) {
-					printf("OK");
+					printf(gt("OK"));
 				} else {
-					printf("ERROR");
+					printf(gt("ERROR"));
 					sleep(1);
 				}
 				__console_flush(0);
@@ -1134,32 +1200,32 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				break;
 			}
 		}
-		if (buttons & WPAD_BUTTON_A) {
+		if (buttons & CFG.button_confirm.mask) {
 			CFG.confirm_start = 0;
 			Menu_Boot(disc);
 			break;
 		}
-		if (buttons & WPAD_BUTTON_2) {
+		if (buttons & CFG.button_save.mask) {
 			bool ret;
 			printf("\n\n");
 			if (need_save) {
 				ret = CFG_save_game_opt(header->id);
 				if (ret) {
-					printf_x("Options saved for this game.");
-				} else printf("Error saving options!"); 
+					printf_x(gt("Options saved for this game."));
+				} else printf(gt("Error saving options!")); 
 			} else {
 				ret = CFG_discard_game_opt(header->id);
-				if (ret) printf_x("Options discarded for this game.");
-				else printf("Error discarding options!"); 
+				if (ret) printf_x(gt("Options discarded for this game."));
+				else printf(gt("Error discarding options!")); 
 			}
 			sleep(1);
 		}
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_1) { ret_val = 1; break; }
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_other.mask) { ret_val = 1; break; }
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	CFG_release_game(game_cfg2);
 	// refresh favorites list
@@ -1180,7 +1246,7 @@ void Save_Game_List()
 	ret = WBFS_GetCount(&cnt);
 	if (ret < 0) return;
 
-	printf_x("Saving gamelist.txt ... ");
+	printf_x(gt("Saving gamelist.txt ... "));
 	__console_flush(0);
 
 	len = sizeof(struct discHdr) * cnt;
@@ -1205,11 +1271,17 @@ void Save_Game_List()
 
 	error:
 	SAFE_FREE(buffer);
-	printf("ERROR");
+	printf(gt("ERROR"));
 }
 
 int Menu_Global_Options()
 {
+	int rows, cols, win_size = 11;
+	CON_GetMetrics(&cols, &rows);
+	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) win_size += 2;
+	if (CFG.ios_mload) win_size += 1;
+	if ((win_size = rows-win_size) < 3) win_size = 3;
+
 	if (CFG.disable_options) return 0;
 
 	struct discHdr *header = NULL;
@@ -1230,37 +1302,40 @@ int Menu_Global_Options()
 
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Global Options:\n\n");
-
-		MENU_MARK();
-		printf("<Main Menu>\n");
-		MENU_MARK();
-		printf("Profile: %d/%d < %s > (%d)\n",
+		printf_x(gt("Global Options"));
+		printf(":\n\n");
+		DefaultColor();
+		menu_window_begin(&menu, win_size, 9);
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Main Menu"));
+		if (menu_window_mark(&menu))
+			printf("%s%2d/%-2d< %s > (%d)\n", con_align(gt("Profile:"),8),
 				CFG.current_profile + 1, CFG.num_profiles,
 				CFG.profile_names[CFG.current_profile],
 				CFG.num_favorite_game);
-		MENU_MARK();
-		printf("Theme: %2d/%2d < %s >\n",
-				cur_theme + 1, num_theme, *CFG.theme ? CFG.theme : "none");
-		MENU_MARK();
-		printf("Device:      < %s >\n",
+		if (menu_window_mark(&menu))
+			printf("%s%2d/%2d < %s >\n", con_align(gt("Theme:"),7),
+				cur_theme + 1, num_theme, *CFG.theme ? CFG.theme : gt("none"));
+		if (menu_window_mark(&menu))
+			printf("%s< %s >\n", con_align(gt("Device:"),13),
 				(wbfsDev == WBFS_DEVICE_USB) ? "USB" : "SDHC");
-		MENU_MARK();
-		printf("Partition:   < %s >\n", CFG.partition);
-		MENU_MARK();
-		printf("<Download All Missing Covers>\n");
-		MENU_MARK();
-		printf("<Download Game Database>\n"); // download database - lustar
-		MENU_MARK();
-		printf("<Check For Updates>\n");
-		MENU_MARK();
-		printf("<Update titles.txt>\n");
+		if (menu_window_mark(&menu))
+			printf("%s< %s >\n", con_align(gt("Partition:"),13), CFG.partition);
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Download All Missing Covers"));
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Update WiiTDB Game Database")); // download database - lustar
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Update titles.txt"));
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Check For Updates"));
 		DefaultColor();
-
+		menu_window_end(&menu, cols);
+		
+		printf_h(gt("Press %s for game options"), (button_names[CFG.button_other.num]));
 		printf("\n");
-		printf_h("Press 1 for game options\n");
-		printf_h("Press 2 to save global settings\n");
-		printf("\n");
+		printf_h(gt("Press %s to save global settings"), (button_names[CFG.button_save.num]));
+		printf("\n\n");
 		Print_SYS_Info();
 		DefaultColor();
 		__console_flush(0);
@@ -1276,7 +1351,7 @@ int Menu_Global_Options()
 		int change = 0;
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
 		if (buttons & WPAD_BUTTON_RIGHT) change = +1;
-		if (buttons & WPAD_BUTTON_A) change = +1;
+		if (buttons & CFG.button_confirm.mask) change = +1;
 
 		if (change) {
 			switch (menu.current) {
@@ -1304,41 +1379,50 @@ int Menu_Global_Options()
 				Download_All_Covers(change > 0);
 				Cache_Invalidate();
 				if (header) Gui_DrawCover(header->id);
+				Menu_PrintWait();
 				break;
 			case 6:
 				Download_XML();
 				break;
 			case 7:
-				Online_Update();
+				Download_Titles();
 				break;
 			case 8:
-				Download_Titles();
+				Online_Update();
 				break;
 			}
 		}
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_2) {
+		if (buttons & CFG.button_save.mask) {
+			int ret;
 			printf("\n");
-			printf_x("Saving Settings... ");
+			printf_x(gt("Saving Settings... "));
+			printf("\n");
 			__console_flush(0);
-			if (CFG_Save_Global_Settings()) {
-				printf("OK\n");
+			FgColor(CFG.color_inactive);
+			ret = CFG_Save_Global_Settings();
+			DefaultColor();
+			if (ret) {
+				printf_(gt("OK"));
+				printf("\n");
 				Save_Game_List();
 			} else {
-				printf("ERROR");
+				printf_(gt("ERROR"));
 			}
-			sleep(1);
+			printf("\n");
+			//sleep(2);
+			Menu_PrintWait();
 		}
 		if (buttons & WPAD_BUTTON_PLUS) {
 			printf("\n");
 			mem_stat();
 			Menu_PrintWait();
 		}
-		if (buttons & WPAD_BUTTON_1) return 1;
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_other.mask) return 1;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	return 0;
 }
@@ -1357,10 +1441,124 @@ void Menu_Options()
 	}
 }
 
+bool go_gui = false;
+extern int action_alpha;
+
+void DoAction(int action)
+{
+	switch(action) {
+		case CFG_BTN_OPTIONS: 
+			if (!CFG.disable_options) Menu_Options();
+			break;
+		case CFG_BTN_GUI:
+			if (go_gui) {
+				action_string[0] = 0;
+				action_alpha=0;
+			}
+			if (CFG.gui) go_gui = !go_gui;
+			break;
+		case CFG_BTN_REBOOT:
+			Con_Clear();
+			Restart();
+			break;
+		case CFG_BTN_EXIT:
+			Con_Clear();
+			printf("\n");
+			printf_("Exiting...");
+			__console_flush(0);
+			Sys_Exit();
+			break;
+		case CFG_BTN_SCREENSHOT:
+			__console_flush(0);
+			Make_ScreenShot();
+			CFG.home = CFG_HOME_EXIT;
+			break;
+		case CFG_BTN_INSTALL:
+			Menu_Install();
+			break;
+		case CFG_BTN_REMOVE:
+			Menu_Remove();
+			break;
+		case CFG_BTN_MAIN_MENU: 
+			Menu_Views();
+			break;
+		case CFG_BTN_GLOBAL_OPS:
+			if (!CFG.disable_options) Menu_Global_Options();
+			break;
+		case CFG_BTN_PROFILE: 
+			if (CFG.current_profile == CFG.num_profiles-1)
+				CFG.current_profile = 0;
+			else
+				CFG.current_profile++;
+			Switch_Favorites(enable_favorite);
+			
+			sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
+			
+			break;
+		case CFG_BTN_FAVORITES:
+			{
+				extern void reset_sort_default();
+				reset_sort_default();
+				Switch_Favorites(!enable_favorite);
+			}
+			break;
+		case CFG_BTN_BOOT_GAME:
+			Menu_Boot(0);
+			break;
+		case CFG_BTN_BOOT_DISC:
+			Menu_Boot(1);
+			break;
+		case CFG_BTN_THEME:
+			CFG_switch_theme(cur_theme + 1);
+			if (gameCnt) Gui_DrawCover(gameList[gameSelected].id);//redraw_cover = 1;
+			Cache_Invalidate();
+			
+			sprintf(action_string, gt("Theme: %s"), theme_list[cur_theme]);
+			if (go_gui) action_alpha = 0xFF;
+			
+			break;
+		case CFG_BTN_UNLOCK:
+			if (CFG.admin_lock) Menu_Unlock();
+			break;
+		case CFG_BTN_HBC:
+			Con_Clear();
+			printf("\n");
+			printf_("HBC...");
+			__console_flush(0);
+			Sys_HBC();
+			break;
+		case CFG_BTN_SORT:
+			if (sort_desc) {
+				sort_desc = 0;
+				if (sort_index == sortCnt - 1)
+					sort_index = 0;
+				else
+					sort_index = sort_index + 1;
+				sortList(sortTypes[sort_index].sortAsc);
+			} else {
+				sort_desc = 1;
+				sortList(sortTypes[sort_index].sortDsc);
+			}
+			if (gameCnt) Gui_DrawCover(gameList[gameSelected].id);//redraw_cover = 1;
+
+			
+			sprintf(action_string, gt("Sort: %s-%s"), sortTypes[sort_index].name, (sort_desc) ? "DESC":"ASC");
+			
+			break;
+		case CFG_BTN_FILTER:
+			Menu_Filter();
+			break;
+		default:
+			break;
+	}
+}
+
 void __Menu_Controls(void)
 {
-	bool go_gui = false;
-	if (CFG.gui == CFG_GUI_START) goto gui_mode;
+	if (CFG.gui == CFG_GUI_START) {
+		go_gui = true;
+		goto gui_mode;
+	}
 
 	//u32 buttons = Wpad_WaitButtons();
 	u32 buttons = Wpad_WaitButtonsRpt();
@@ -1393,31 +1591,9 @@ void __Menu_Controls(void)
 
 	check_buttons:
 
-	/* HOME button */
-	if (buttons & WPAD_BUTTON_HOME) {
-		Handle_Home(1);
-	}
-
-	/* PLUS (+) button */
-	if (buttons & WPAD_BUTTON_PLUS)
-		Menu_Install();
-
-	/* MINUS (-) button */
-	if (buttons & WPAD_BUTTON_MINUS)
-		Menu_Views();
-	//	Menu_Remove();
-
-	/* A button */
-	if (buttons & WPAD_BUTTON_A)
-		Menu_Boot(0);
-
-	// button 2 - switch favorites
-	if (buttons & WPAD_BUTTON_2) {
-		Switch_Favorites(!enable_favorite);
-	}
 
 	if (CFG.admin_lock) {
-		if (buttons & WPAD_BUTTON_1) {
+		if (buttons & CFG.button_other.mask) {
 
 			static long long t_start;
 			long long t_now;
@@ -1426,7 +1602,7 @@ void __Menu_Controls(void)
 
 			Con_Clear();
 			t_start = gettime();
-			while (!display_unlock && (Wpad_Held(0) & WPAD_BUTTON_1)) {
+			while (!display_unlock && (Wpad_Held(0) & CFG.button_other.mask)) {
 				buttons = Wpad_GetButtons();
 				VIDEO_WaitVSync();
 				t_now = gettime();
@@ -1437,29 +1613,92 @@ void __Menu_Controls(void)
 			if (display_unlock)
 				Menu_Unlock();
 			else
-				buttons = WPAD_BUTTON_1;
+				buttons = buttonmap[MASTER][CFG.button_other.num];
 		}
 	}
-	if (CFG.gui) {
-		if (CFG.buttons == CFG_BTN_OPTIONS_1) {
-			if (buttons & WPAD_BUTTON_B) go_gui = true;
-		} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
-			if (buttons & WPAD_BUTTON_1) go_gui = true;
-		}
+
+	/* A button */
+	//if (buttons & CFG.button_confirm.mask)
+	//	Menu_Boot(0);
+
+	int i;
+	for (i = 4; i < MAX_BUTTONS; i++) {
+			if (buttons & buttonmap[MASTER][i]) 
+				DoAction(*(&CFG.button_M + (i - 4)));
 	}
-	if (!CFG.disable_options) {
-		if (CFG.buttons == CFG_BTN_OPTIONS_1) {
-			if (buttons & WPAD_BUTTON_1) Menu_Options();
-		} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
-			if (buttons & WPAD_BUTTON_B) Menu_Options();
-		} else { 
-			/* ONE (1) button */
-			if (buttons & WPAD_BUTTON_1) {
-				//Menu_Device();
-				Menu_Options();
-			}
-		}
-	}
+		
+	//if (buttons & CFG.button_cancel.mask)
+	//	DoAction(CFG.button_B);
+
+	///* HOME button */
+	//if (buttons & CFG.button_exit.mask) {
+	//	DoAction(CFG.button_H);
+	//	//Handle_Home(1);
+	//}
+
+	///* PLUS (+) button */
+	//if (buttons & WPAD_BUTTON_PLUS)
+	//	DoAction(CFG.button_P);
+	////	Menu_Install();
+
+	///* MINUS (-) button */
+	//if (buttons & WPAD_BUTTON_MINUS)
+	//	DoAction(CFG.button_M);
+	////	Menu_Views();
+	////	Menu_Remove();
+
+	//if (buttons & WPAD_BUTTON_2)
+	//	DoAction(CFG.button_2);
+
+	//if (buttons & CFG.button_other.mask)
+	//	DoAction(CFG.button_1);
+
+	//if (buttons & WPAD_BUTTON_X)
+	//	DoAction(CFG.button_X);
+
+	//if (buttons & WPAD_BUTTON_Y)
+	//	DoAction(CFG.button_Y);
+
+	//if (buttons & WPAD_BUTTON_Z)
+	//	DoAction(CFG.button_Z);
+
+	//if (buttons & WPAD_BUTTON_C)
+	//	DoAction(CFG.button_C);
+
+	//if (buttons & WPAD_BUTTON_L)
+	//	DoAction(CFG.button_L);
+
+	//if (buttons & WPAD_BUTTON_R)
+	//	DoAction(CFG.button_R);
+
+	//// button 2 - switch favorites
+	//if (buttons & CFG.button_save.mask) {
+	//	extern void reset_sort_default();
+	//	reset_sort_default();
+	//	Switch_Favorites(!enable_favorite);
+	//}
+
+
+	//if (CFG.gui) {
+	//	if (CFG.buttons == CFG_BTN_OPTIONS_1) {
+	//		if (buttons & CFG.button_cancel.mask) go_gui = true;
+	//	} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
+	//		if (buttons & CFG.button_other.mask) go_gui = true;
+	//	}
+	//}
+	//if (!CFG.disable_options) {
+	//	if (CFG.buttons == CFG_BTN_OPTIONS_1) {
+	//		if (buttons & CFG.button_other.mask) Menu_Options();
+	//	} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
+	//		if (buttons & CFG.button_cancel.mask) Menu_Options();
+	//	} else { 
+	//		/* ONE (1) button */
+	//		if (buttons & CFG.button_other.mask) {
+	//			//Menu_Device();
+	//			Menu_Options();
+	//		}
+	//	}
+	//}
 	
 	if (go_gui) {
 		gui_mode:;
@@ -1471,26 +1710,27 @@ void __Menu_Controls(void)
 			__Menu_ScrollStartList();
 		}
 		// if only returning to con mode, clear button status
-		if (CFG.buttons == CFG_BTN_OPTIONS_1) {
-			if (buttons & WPAD_BUTTON_B) buttons = 0;
+		/*if (CFG.buttons == CFG_BTN_OPTIONS_1) {
+			if (buttons & CFG.button_cancel.mask) buttons = 0;
 		} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
-			if (buttons & WPAD_BUTTON_1) buttons = 0;
+			if (buttons & CFG.button_other.mask) buttons = 0;
 		}
+		*/
 		// if action started from gui, process it then return to gui
-		if (buttons) {
-			go_gui = true;
-			goto check_buttons;
-		}
+		//if (buttons) {
+		//	go_gui = true;
+		goto check_buttons;
+		//}
 	}
 }
 
-char *get_dev_name(int dev)
+const char *get_dev_name(int dev)
 {
 	switch (dev) {
-		case WBFS_DEVICE_USB: return "USB Mass Storage Device";
-		case WBFS_DEVICE_SDHC: return "SD/SDHC Card";
+		case WBFS_DEVICE_USB: return gt("USB Mass Storage Device");
+		case WBFS_DEVICE_SDHC: return gt("SD/SDHC Card");
 	}
-	return "Unknown";
+	return gt("Unknown");
 }
 
 void print_part(int i, PartList *plist)
@@ -1499,7 +1739,7 @@ void print_part(int i, PartList *plist)
 	PartInfo *pinfo = &plist->pinfo[i];
 	f32 size = entry->size * (plist->sector_size / GB_SIZE);
 	if (plist->num == 1) {
-		printf("RAW");
+		printf(gt("RAW"));
 	} else {
 		printf("%s", i<4 ? "P" : "L");
 		printf("#%d", i+1);
@@ -1511,11 +1751,14 @@ void print_part(int i, PartList *plist)
 	if (pinfo->wbfs_i) {
 		bool is_ext = part_is_extended(entry->type);
 		printf(" ");
-		if (is_ext) printf("EXTEND/");
+		if (is_ext) {
+			printf(gt("EXTEND"));
+			printf("/");
+		}
 		printf("WBFS%d", pinfo->wbfs_i);
 		if (WBFS_Mounted() && wbfs_part_idx == pinfo->wbfs_i) {
 			if (!is_ext) printf("      ");
-			printf("[USED]");
+			printf(gt("[USED]"));
 		}
 	} else if (pinfo->fat_i) {
 		printf(" FAT%d ", pinfo->fat_i);
@@ -1532,7 +1775,7 @@ void print_part(int i, PartList *plist)
 		}
 		//if (wbfsDev == WBFS_DEVICE_USB && entry->sector == wbfs_part_lba) {
 		if (entry->sector == wbfs_part_lba) {
-			printf("[USED]");
+			printf(gt("[USED]"));
 		}
 	} else if (pinfo->ntfs_i) {
 		printf(" NTFS%d ", pinfo->ntfs_i);
@@ -1541,7 +1784,8 @@ void print_part(int i, PartList *plist)
 			printf(" %s", wbfs_fs_drive);
 		}
 		if (entry->sector == wbfs_part_lba) {
-			printf(" [USED]");
+			printf(" ");
+			printf(gt("[USED]"));
 		}
 	} else {
 		char *pt = part_type_name(entry->type);
@@ -1567,7 +1811,7 @@ void Menu_Format_Partition(partitionEntry *entry, bool delete_fs)
 
 	if (CFG.disable_format) return;
 
-	printf_x("%s, please wait...", delete_fs?"Deleting":"Formatting");
+	printf_x(gt("%s, please wait..."), delete_fs?gt("Deleting"):gt("Formatting"));
 	__console_flush(0);
 
 	// remount if overwriting mounted fat
@@ -1602,9 +1846,14 @@ void Menu_Format_Partition(partitionEntry *entry, bool delete_fs)
 		ok = (ret == 0);
 	}
 	if (!ok) {
-		printf("\n    ERROR! (ret = %d)\n", ret);
-	} else
-		printf(" OK!\n");
+		printf("\n");
+		printf_(gt("ERROR! (ret = %d)"), ret);
+		printf("\n");
+	} else {
+		printf(" ");
+		printf(gt("OK!"));
+		printf("\n");
+	}
 
 	// try to remount FAT if was unmounted
 	if (re_usb || re_sd) {
@@ -1614,13 +1863,7 @@ void Menu_Format_Partition(partitionEntry *entry, bool delete_fs)
 	}
 
 	printf("\n");
-	printf("    Press any button to continue...\n");
-
-	// clear button states
-	WPAD_Flush(WPAD_CHAN_ALL);
-
-	/* Wait for any button */
-	Wpad_WaitButtonsCommon();
+	Menu_PrintWait();
 }
 
 void Menu_Partition(bool must_select)
@@ -1637,7 +1880,8 @@ rescan:
 	/* Get partition entries */
 	ret = Partition_GetList(wbfsDev, &plist);
 	if (ret < 0) {
-		printf("[+] ERROR: No partitions found! (ret = %d)\n", ret);
+		printf_x(gt("ERROR: No partitions found! (ret = %d)"), ret);
+		printf("\n");
 		sleep(4);
 		return;
 	}
@@ -1653,7 +1897,8 @@ loop:
 	Con_Clear();
 
 	FgColor(CFG.color_header);
-	printf_x("Select a partition:\n\n");
+	printf_x(gt("Select a partition"));
+	printf(":\n\n");
 	DefaultColor();
 	printf_("[ %s ]\n\n", get_dev_name(wbfsDev));
 
@@ -1676,18 +1921,24 @@ loop:
 		}
 	}
 	printf("\n");
-	printf_h("Press A button to select.\n");
-	printf_h("Press B button to go back.\n");
+	printf_h(gt("Press %s button to select."), (button_names[CFG.button_confirm.num]));
+	printf("\n");
+	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+	printf("\n");
 	if (!CFG.disable_format) {
-		printf_h("Press + button to format WBFS.\n");
-		printf_h("Press - button to delete FS.\n");
+		printf_h(gt("Press %s button to format WBFS."), (button_names[NUM_BUTTON_PLUS]));
+		printf("\n");
+		printf_h(gt("Press %s button to delete FS."), (button_names[NUM_BUTTON_MINUS]));
+		printf("\n");
 		if (invalid_ext >= 0) {
 			printf_("\n");
-			printf_("NOTE: partition P#%d is type EXTEND but\n", invalid_ext+1);
-			printf_("contains a WBFS filesystem. This is an\n");
-			printf_("invalid setup. Press 1 to change the\n");
-			printf_("partition type from EXTEND to data.\n");
-			printf_h("Press 1 button to fix EXTEND/WBFS.\n");
+			printf_(gt("NOTE: partition P#%d is type EXTEND but\n"
+					"contains a WBFS filesystem. This is an\n"
+					"invalid setup. Press %s to change the\n"
+					"partition type from EXTEND to data."), invalid_ext+1, (button_names[CFG.button_other.num]));
+			printf("\n");
+			printf_h(gt("Press %s button to fix EXTEND/WBFS."), (button_names[CFG.button_other.num]));
+			printf("\n");
 		}
 	}
 
@@ -1696,10 +1947,12 @@ loop:
 	menu_move(&menu, buttons);
 
 	// B button
-	if (buttons == WPAD_BUTTON_B) {
+	if (buttons & CFG.button_cancel.mask) {
 		if (must_select) {
 			if (WBFS_Selected()) return;
-			printf_("\nNo partition selected!\n");
+			printf("\n");
+			printf_(gt("No partition selected!"));
+			printf("\n");
 			sleep(2);
 		} else {
 			return;
@@ -1707,19 +1960,21 @@ loop:
 	}
 
 	// A button
-	if (buttons == WPAD_BUTTON_A) {
+	if (buttons & CFG.button_confirm.mask) {
 		i = menu.current;
 		entry = &plist.pentry[i];
 		pinfo = &plist.pinfo[i];
 		int idx = pinfo->wbfs_i;
 		int part_fs = PART_FS_WBFS;
 		if (pinfo->fat_i) {
-			printf("Opening FAT partition...\n");
+			printf(gt("Opening FAT partition..."));
+			printf("\n");
 			idx = pinfo->fat_i;
 			part_fs = PART_FS_FAT;
 		}
 		if (pinfo->ntfs_i) {
-			printf("Opening NTFS partition...\n");
+			printf(gt("Opening NTFS partition..."));
+			printf("\n");
 			idx = pinfo->ntfs_i;
 			part_fs = PART_FS_NTFS;
 		}
@@ -1738,44 +1993,46 @@ loop:
 	}
 
 	// +/- button
-	if ((buttons == WPAD_BUTTON_MINUS || buttons == WPAD_BUTTON_PLUS)
+	if ((buttons & WPAD_BUTTON_MINUS || buttons & WPAD_BUTTON_PLUS)
 			&& !CFG.disable_format)
 	{
 		i = menu.current;
 		entry = &plist.pentry[i];
 		if (part_valid_data(entry)) {
-			char *act = "format";
-			if (buttons == WPAD_BUTTON_MINUS) act = "delete";
+			const char *act = gt("format");
+			if (buttons & WPAD_BUTTON_MINUS) act = gt("delete");
 			printf("\n");
-			printf_x("Are you sure you want to %s\n", act);
-			printf_( "this partition?\n\n");
+			printf_x(gt("Are you sure you want to %s\n"
+					"this partition?"), act);
+			printf("\n\n");
 			printf_("");
 			print_part(i, &plist);
 			printf("\n\n");
 			if (Menu_Confirm(0)) {
 				printf("\n");
-				Menu_Format_Partition(entry, buttons == WPAD_BUTTON_MINUS);
+				Menu_Format_Partition(entry, buttons & WPAD_BUTTON_MINUS);
 				goto rescan;
 			}
 		}
 	}
 	// 1 button
-	if (buttons == WPAD_BUTTON_1
+	if (buttons & CFG.button_other.mask
 		&& !CFG.disable_format
 		&& invalid_ext >= 0)
 	{
 		printf("\n");
-		printf_x("Are you sure you want to FIX\n");
-		printf_( "this partition?\n\n");
+		printf_x(gt("Are you sure you want to FIX\n"
+				"this partition?"));
+		printf("\n\n");
 		printf_("");
 		print_part(invalid_ext, &plist);
 		printf("\n\n");
 		if (Menu_Confirm(0)) {
 			printf("\n");
-			printf_("Fixing EXTEND partition...");
-			ret = Partition_FixEXT(wbfsDev, invalid_ext);
-			printf("%s\n", ret ? "FAIL" : "OK");
-			printf_("Press any button...");
+			printf_(gt("Fixing EXTEND partition..."));
+			ret = Partition_FixEXT(wbfsDev, invalid_ext, plist.sector_size);
+			printf("%s\n", ret ? gt("FAIL") : gt("OK"));
+			printf_(gt("Press any button..."));
 			Wpad_WaitButtonsCommon();
 			goto rescan;
 		}
@@ -1791,24 +2048,28 @@ void Menu_Device(void)
 	static int first_time = 1;
 	int save_wbfsDev = wbfsDev;
 
-	printf("    ");
+	printf_("");
 	Fat_print_sd_mode();
 
 	if (CFG.device == CFG_DEV_USB) {
 		wbfsDev = WBFS_DEVICE_USB;
-		printf("\n    [ USB Mass Storage Device ]\n\n");
+		printf("\n");
+		printf_(gt("[ USB Mass Storage Device ]"));
+		printf("\n\n");
 		goto mount_dev;
 	}
 	if (CFG.device == CFG_DEV_SDHC) {
 		wbfsDev = WBFS_DEVICE_SDHC;
-		printf("\n    [ SD/SDHC Card ]\n\n");
+		printf("\n");
+		printf_(gt("[ SD/SDHC Card ]"));
+		printf("\n\n");
 		goto mount_dev;
 	}
 	restart:
 
 	/* Ask user for device */
 	for (;;) {
-		char *devname = "Unknown!";
+		const char *devname = gt("Unknown");
 
 		/* Set device name */
 		devname = get_dev_name(wbfsDev);
@@ -1820,15 +2081,19 @@ void Menu_Device(void)
 		Con_Clear();
 			
 		FgColor(CFG.color_header);
-		printf("[+] Select WBFS device:\n");
+		printf_x(gt("Select WBFS device:"));
+		printf("\n");
 		DefaultColor();
-		printf("    < %s >\n\n", devname);
+		printf_("< %s >\n\n", devname);
 
 		FgColor(CFG.color_help);
-		printf("    Press LEFT/RIGHT to select device.\n");
-		printf("    Press A button to continue.\n");
+		printf_(gt("Press %s/%s to select device."), (button_names[NUM_BUTTON_LEFT]), (button_names[NUM_BUTTON_RIGHT]));
+		printf("\n");
+		printf_(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+		printf("\n");
 		if (!first_time) {
-			printf("    Press B button to cancel.\n");
+			printf_(gt("Press %s button to cancel."), (button_names[CFG.button_cancel.num]));
+			printf("\n");
 		}
 		printf("\n");
 
@@ -1847,11 +2112,11 @@ void Menu_Device(void)
 		}
 
 		/* A button */
-		if (buttons & WPAD_BUTTON_A)
+		if (buttons & CFG.button_confirm.mask)
 			break;
 
 		// B button
-		if (buttons & WPAD_BUTTON_B) {
+		if (buttons & CFG.button_cancel.mask) {
 		   	if (!first_time && WBFS_Selected()) {
 				wbfsDev = save_wbfsDev;
 				return;
@@ -1862,8 +2127,10 @@ void Menu_Device(void)
 	mount_dev:
 	CFG.device = CFG_DEV_ASK; // next time ask
 
-	printf("[+] Mounting device, please wait...\n");
-	printf("    (%d seconds timeout)\n\n", timeout);
+	printf_x(gt("Mounting device, please wait..."));
+	printf("\n");
+	printf_(gt("(%d seconds timeout)"), timeout);
+	printf("\n\n");
 	fflush(stdout);
 
 	/* Initialize WBFS */
@@ -1872,9 +2139,11 @@ void Menu_Device(void)
 	if (ret < 0) {
 		//Enable the console
 		Gui_Console_Enable();
-		printf_("ERROR! (ret = %d)\n", ret);
-		printf_("Make sure USB port 0 is used!\n");
-		printf_("(The one nearest to the edge)\n");
+		printf_(gt("ERROR! (ret = %d)"), ret);
+		printf("\n");
+		printf_(gt("Make sure USB port 0 is used!\n"
+				"(The one nearest to the edge)"));
+		printf("\n");
 
 		/* Restart wait */
 		Restart_Wait();
@@ -1902,18 +2171,25 @@ void Menu_Device(void)
 		/* Clear console */
 		Con_Clear();
 
-		printf_x("WARNING:\n\n");
+		printf_x(gt("WARNING:"));
+		printf("\n\n");
 
-		printf_("Partition: %s not found!\n", CFG.partition);
-		printf_("Select a different partition\n");
+		printf_(gt("Partition: %s not found!"), CFG.partition);
+		printf("\n");
+		printf_(gt("Select a different partition"));
+		printf("\n");
 		if (!CFG.disable_format) {
-		printf_("or format a WBFS partition.\n");
+			printf_(gt("or format a WBFS partition."));
+			printf("\n");
 		}
 		printf("\n");
 
-		printf_h("Press A button to select a partition.\n");
-		printf_h("Press B button to change device.\n");
-		printf_h("Press Home button to exit.\n\n");
+		printf_h(gt("Press %s button to select a partition."), (button_names[CFG.button_confirm.num]));
+		printf("\n");
+		printf_h(gt("Press %s button to change device."), (button_names[CFG.button_cancel.num]));
+		printf("\n");
+		printf_h(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
+		printf("\n\n");
 
 		// clear button states
 		WPAD_Flush(WPAD_CHAN_ALL);
@@ -1921,8 +2197,8 @@ void Menu_Device(void)
 		/* Wait for user answer */
 		for (;;) {
 			u32 buttons = Wpad_WaitButtonsCommon();
-			if (buttons == WPAD_BUTTON_A) break;
-			if (buttons == WPAD_BUTTON_B) goto restart;
+			if (buttons & CFG.button_confirm.mask) break;
+			if (buttons & CFG.button_cancel.mask) goto restart;
 		}
 
 		// Select or Format partition
@@ -1947,22 +2223,26 @@ void Menu_DumpBCA(u8 *id)
 	char fname[100];
 	memset(BCA_Data, 0, 64);
 	printf_("\n");
-	printf_("Reading BCA...\n\n");
+	printf_(gt("Reading BCA..."));
+	printf("\n\n");
 	ret = WDVD_Read_Disc_BCA(BCA_Data);
 	hex_dump3(BCA_Data, 64);
 	printf_("\n");
 	if (ret) {
-		printf_("ERROR reading BCA!\n\n");
+		printf_(gt("ERROR reading BCA!"));
+		printf("\n\n");
 		goto out;
 	}
 	// save
 	snprintf(D_S(fname), "%s/%.6s.bca", USBLOADER_PATH, (char*)id);
-	if (!Menu_Confirm("save")) return;
+	if (!Menu_Confirm(gt("save"))) return;
 	printf("\n");
-	printf_("Writing: %s\n\n", fname);
+	printf_(gt("Writing: %s"), fname);
+	printf("\n\n");
 	FILE *f = fopen(fname, "wb");
 	if (!f) {
-		printf_("ERROR writing BCA!\n\n");
+		printf_(gt("ERROR writing BCA!"));
+		printf("\n\n");
 		goto out;
 	}
 	fwrite(BCA_Data, 64, 1, f);
@@ -1989,7 +2269,8 @@ void Menu_Install(void)
 	Con_Clear();
 
 	FgColor(CFG.color_header);
-	printf_x("Install game\n\n");
+	printf_x(gt("Install game"));
+	printf("\n\n");
 	DefaultColor();
 	
 	char *nocover = "ZZZZZZ";
@@ -2005,17 +2286,20 @@ void Menu_Install(void)
 	if (ret < 0) {
 		err1:
 		printf("\n");
-		printf_("ERROR! (ret = %d)\n", ret);
+		printf_(gt("ERROR! (ret = %d)"), ret);
+		printf("\n");
 		goto out;
 	}
 	if (!(cover & 0x2)) {
-		printf_("Please insert a game disc...\n\n");
-		printf_h("Press B to go back\n\n");
+		printf_(gt("Please insert a game disc..."));
+		printf("\n\n");
+		printf_h(gt("Press %s to return"), (button_names[CFG.button_cancel.num]));
+		printf("\n\n");
 		do {
 			ret = WDVD_GetCoverStatus(&cover);
 			if (ret < 0) goto err1;
 			u32 buttons = Wpad_GetButtons();
-			if (buttons & WPAD_BUTTON_B) {
+			if (buttons & CFG.button_cancel.mask) {
 				header = gameList[gameSelected];
 				Gui_DrawCover(header.id);
 				return;
@@ -2025,20 +2309,25 @@ void Menu_Install(void)
 	}
 
 	// Open disc
-	printf_x("Opening DVD disc...");
+	printf_x(gt("Opening DVD disc..."));
 
 	ret = Disc_Open();
 	if (ret < 0) {
 		printf("\n");
-		printf_("ERROR! (ret = %d)\n", ret);
+		printf_(gt("ERROR! (ret = %d)"), ret);
+		printf("\n");
 		goto out;
-	} else
-		printf(" OK!\n");
+	} else {
+		printf(" ");
+		printf(gt("OK!"));
+		printf("\n");
+	}
 
 	/* Check disc */
 	ret = Disc_IsWii();
 	if (ret < 0) {
-		printf_x("ERROR: Not a Wii disc!!\n");
+		printf_x(gt("ERROR: Not a Wii disc!!"));
+		printf("\n");
 		goto out;
 	}
 
@@ -2052,12 +2341,17 @@ void Menu_Install(void)
 	printf("\n");
 	__Menu_PrintInfo2(&header, comp_size, real_size);
 
+	// force fat freespace update when installing
+	extern int wbfs_fat_vfs_have;
+	wbfs_fat_vfs_have = 0;
 	// Disk free space
 	f32 free, used, total;
 	WBFS_DiskSpace(&used, &free);
 	total = used + free;
 	//printf_x("WBFS: %.1fGB free of %.1fGB\n\n", free, total);
-	printf_x("%s: %.1fGB free of %.1fGB\n\n", CFG.partition, free, total);
+	printf_x("%s: ", CFG.partition);
+	printf(gt("%.1fGB free of %.1fGB"), free, total);
+	printf("\n\n");
 
 	bench_io();
 
@@ -2067,35 +2361,41 @@ void Menu_Install(void)
 	int way_out = 0;
 	ret = WBFS_CheckGame(header.id);
 	if (ret) {
-		printf_x("ERROR: Game already installed!!\n\n");
+		printf_x(gt("ERROR: Game already installed!!"));
+		printf("\n\n");
 		//goto out;
 		way_out = 1;
 	}
 	// require +128kb for operating safety
 	if ((f32)comp_size + (f32)128*1024 >= free * GB_SIZE) {
-		printf_x("ERROR: not enough free space!!\n\n");
+		printf_x(gt("ERROR: not enough free space!!"));
+		printf("\n\n");
 		//goto out;
 		way_out = 1;
 	}
 
 	// get confirmation
 	retry:
-	if (!way_out)
-		printf_h("Press A button to continue.\n");
-	printf_h("Press 1 button to dump BCA.\n");
-	printf_h("Press B button to go back.\n");
+	if (!way_out) {
+		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+		printf("\n");
+	}
+	printf_h(gt("Press %s button to dump BCA."), (button_names[CFG.button_other.num]));
+	printf("\n");
+	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+	printf("\n");
 	DefaultColor();
 	for (;;) {
 		u32 buttons = Wpad_WaitButtonsCommon();
 		if (!way_out)
-			if (buttons & WPAD_BUTTON_A) break;
-		if (buttons & WPAD_BUTTON_B) {
+			if (buttons & CFG.button_confirm.mask) break;
+		if (buttons & CFG.button_cancel.mask) {
 			WDVD_StopMotor();
 			header = gameList[gameSelected];
 			Gui_DrawCover(header.id);
 			return;
 		}
-		if (buttons & WPAD_BUTTON_1) {
+		if (buttons & CFG.button_other.mask) {
 			Menu_DumpBCA(header.id);
 			if (way_out) {
 				header = gameList[gameSelected];
@@ -2103,14 +2403,17 @@ void Menu_Install(void)
 				return;
 			}
 			Con_Clear();
-			printf_x("Install game\n\n");
+			printf_x(gt("Install game"));
+			printf("\n\n");
 			__Menu_PrintInfo2(&header, comp_size, real_size);
-			printf_x("WBFS: %.1fGB free of %.1fGB\n\n", free, total);
+			printf_x(gt("WBFS: %.1fGB free of %.1fGB"), free, total);
+			printf("\n\n");
 			goto retry;
 		}
 	}
 
-	printf_x("Installing game, please wait...\n\n");
+	printf_x(gt("Installing game, please wait..."));
+	printf("\n\n");
 
 	// Pause the music
 	Music_Pause();
@@ -2122,7 +2425,8 @@ void Menu_Install(void)
 	Music_UnPause();
 
 	if (ret < 0) {
-		printf_x("Installation ERROR! (ret = %d)\n", ret);
+		printf_x(gt("Installation ERROR! (ret = %d)"), ret);
+		printf("\n");
 		goto out;
 	}
 
@@ -2136,8 +2440,10 @@ out:
 	// clear buttons status
 	WPAD_Flush(WPAD_CHAN_ALL);
 	printf("\n");
-	printf_h("Press button A to eject DVD.\n");
-	printf_h("Press any button to continue...\n\n");
+	printf_h(gt("Press button %s to eject DVD."), (button_names[CFG.button_confirm.num]));
+	printf("\n");
+	printf_h(gt("Press any button to continue..."));
+	printf("\n\n");
 
 	/* Wait for any button */
 	u32 buttons = Wpad_WaitButtons();
@@ -2146,8 +2452,9 @@ out:
 	wiilight(0);
 
 	// button A
-	if (buttons & WPAD_BUTTON_A) {
-		printf_("Ejecting DVD...\n");
+	if (buttons & CFG.button_confirm.mask) {
+		printf_(gt("Ejecting DVD..."));
+		printf("\n");
 		WDVD_Eject();
 		sleep(1);
 	}
@@ -2180,51 +2487,38 @@ void Menu_Remove(void)
 	Con_Clear();
 
 	FgColor(CFG.color_header);
-	printf("[+] Are you sure you want to remove this\n");
-	printf("    game?\n\n");
+	printf_x(gt("Are you sure you want to remove this\n"
+			"game?"));
+	printf("\n\n");
 	DefaultColor();
 
 	/* Show game info */
 	__Menu_PrintInfo(header);
 
-	FgColor(CFG.color_help);
-	printf("    Press A button to continue.\n");
-	printf("    Press B button to go back.\n\n\n");
-	DefaultColor();
+	if (!Menu_Confirm(0)) return;
+	printf("\n\n");
 
-	/* Wait for user answer */
-	for (;;) {
-		u32 buttons = Wpad_WaitButtons();
-
-		/* A button */
-		if (buttons & WPAD_BUTTON_A)
-			break;
-
-		/* B button */
-		if (buttons & WPAD_BUTTON_B)
-			return;
-	}
-
-	printf("[+] Removing game, please wait...");
+	printf_x(gt("Removing game, please wait..."));
 	fflush(stdout);
 
 	/* Remove game */
 	ret = WBFS_RemoveGame(header->id);
 	if (ret < 0) {
-		printf("\n    ERROR! (ret = %d)\n", ret);
+		printf("\n");
+		printf_(gt("ERROR! (ret = %d)"), ret);
+		printf("\n");
 		goto out;
-	} else
-		printf(" OK!\n");
+	} else {
+		printf(" ");
+		printf(gt("OK!"));
+	}
 
 	/* Reload entries */
 	__Menu_GetEntries();
 
 out:
 	printf("\n");
-	printf("    Press any button to continue...\n");
-
-	/* Wait for any button */
-	Wpad_WaitButtons();
+	Menu_PrintWait();
 }
 
 extern s32 __WBFS_ReadDVD(void *fp, u32 lba, u32 len, void *iobuf);
@@ -2251,16 +2545,18 @@ void bench_io()
 	int n_wii_sec_per_buf = size_buf / wii_sec_sz;
 
 	//printf("\nread: %d\n", n_wii_sec_per_buf); __console_flush(0);
-	printf("\nRunning benchmark, please wait\n");
+	printf("\n");
+	printf(gt("Running benchmark, please wait"));
+	printf("\n");
 	__console_flush(0);
 
 	used = calloc(n_wii_sec_per_disc,1);
 	d = wd_open_disc(__WBFS_ReadDVD, NULL);
-	if (!d) { printf("unable to open wii disc"); goto out; }
+	if (!d) { printf(gt("unable to open wii disc")); goto out; }
 	wd_build_disc_usage(d,ALL_PARTITIONS,used);
 	wd_close_disc(d);
 	d = 0;
-	printf("linear...\n"); __console_flush(0);
+	printf(gt("linear...")); printf("\n"); __console_flush(0);
 	dbg_time1();
 	for (i=0; i<n_wii_sec_per_disc / n_wii_sec_per_buf; i++) {
 		if (block_used(used,i,n_wii_sec_per_buf)) {
@@ -2276,11 +2572,13 @@ void bench_io()
 	}
 	ms = dbg_time2("64mb read time (ms):");
 	size = count * size_buf;
-	printf("\nlinear read speed: %.2f mb/s\n",
+	printf("\n");
+	printf(gt("linear read speed: %.2f mb/s"),
 			(float)size / ms * 1000 / 1024 / 1024);
+	printf("\n");
 
 	count = 0;
-	printf("random...\n"); __console_flush(0);
+	printf(gt("random...")); printf("\n"); __console_flush(0);
 	dbg_time1();
 	for (i = n_wii_sec_per_disc / n_wii_sec_per_buf - 1; i>0; i--) {
 		if (block_used(used,i,n_wii_sec_per_buf)) {
@@ -2296,17 +2594,20 @@ void bench_io()
 	}
 	ms = dbg_time2("64mb read time (ms):");
 	size = count * size_buf;
-	printf("\nrandom read speed: %.2f mb/s\n",
+	printf("\n");
+	printf(gt("random read speed: %.2f mb/s"),
 			(float)size / ms * 1000 / 1024 / 1024);
+	printf("\n");
 out:
-	printf("\nPress any button\n");
-	Wpad_WaitButtonsCommon();
+	printf("\n");
+	Menu_PrintWait();
 	//exit(0);
 }
 
 void Menu_Boot(bool disc)
 {
 	struct discHdr *header;
+	bool gc = false;
 	if (disc) {
 		char *nocover = "ZZZZZZ";
 		Gui_DrawCover((u8 *)nocover);
@@ -2331,7 +2632,8 @@ void Menu_Boot(bool disc)
 		Disc_SetWBFS(0, NULL);
 	
 		FgColor(CFG.color_header);
-		printf_x("Start this game?\n\n");
+		printf_x(gt("Start this game?"));
+		printf("\n\n");
 		DefaultColor();
 		
 		// Wait for disc
@@ -2340,39 +2642,52 @@ void Menu_Boot(bool disc)
 		if (ret < 0) {
 			err1:
 			printf("\n");
-			printf_("ERROR! (ret = %d)\n", ret);
+			printf_(gt("ERROR! (ret = %d)"), ret);
+			printf("\n");
 			goto out;
 		}
 		if (!(cover & 0x2)) {
-			printf_("Please insert a game disc...\n\n");
-			printf_h("Press B to go back\n\n");
+			printf_(gt("Please insert a game disc..."));
+			printf("\n\n");
+			printf_h(gt("Press %s to return"), (button_names[CFG.button_cancel.num]));
+			printf("\n\n");
 			do {
 				ret = WDVD_GetCoverStatus(&cover);
 				if (ret < 0) goto err1;
 				u32 buttons = Wpad_GetButtons();
-				if (buttons & WPAD_BUTTON_B) goto close;
+				if (buttons & CFG.button_cancel.mask) goto close;
 				VIDEO_WaitVSync();
 			} while(!(cover & 0x2));
 		}
 	
 		// Open disc
-		printf_x("Opening DVD disc...");
+		printf_x(gt("Opening DVD disc..."));
 	
 		ret = Disc_Open();
 		if (ret < 0) {
 			printf("\n");
-			printf_("ERROR! (ret = %d)\n", ret);
+			printf_(gt("ERROR! (ret = %d)"), ret);
+			printf("\n");
 			goto out;
-		} else
-		printf(" OK!\n");
+		} else {
+			printf(" ");
+			printf("OK!");
+			printf("\n");
+		}
 	
 		/* Check disc */
 		ret = Disc_IsWii();
 		if (ret < 0) {
-			printf_x("ERROR: Not a Wii disc!!\n");
-			goto out;
+			ret = Disc_IsGC();
+			if (ret < 0) {
+				printf_x(gt("ERROR: Not a Wii disc!!"));
+				printf("\n");
+				goto out;
+			} else {
+				gc = true;
+			}
 		}
-	
+		
 		/* Read header */
 		Disc_ReadHeader(header);
 		Gui_DrawCover(header->id);
@@ -2382,10 +2697,17 @@ void Menu_Boot(bool disc)
 	// Get game size
 	if (!disc) WBFS_GameSize2(header->id, &comp_size, &real_size);
 	bool dl_warn = check_dual_layer(real_size, game_cfg);
-	bool can_skip = !CFG.confirm_start && !dl_warn
-		&& check_device(game_cfg, false);
+	bool can_skip = !CFG.confirm_start && !dl_warn && check_device(game_cfg, false);
+	bool do_skip = (disc && !CFG.confirm_start) || (!disc && can_skip);
 
-	if ((disc && !CFG.confirm_start) || (!disc && can_skip)) {
+
+	SoundInfo snd;
+	u8 banner_title[84];
+	memset(banner_title, 0, 84);
+	memset(&snd, 0, sizeof(snd));
+	WBFS_Banner(header->id, &snd, banner_title, !do_skip, CFG.write_playlog);
+
+	if (do_skip) {
 		printf("\n");
 		/* Show game info */
 		__Menu_PrintInfo(header);
@@ -2397,7 +2719,8 @@ void Menu_Boot(bool disc)
 	} else {
 		Gui_Console_Enable();
 		FgColor(CFG.color_header);
-		printf_x("Start this game?\n\n");
+		printf_x(gt("Start this game?"));
+		printf("\n\n");
 		DefaultColor();
 	}
 	/* Show game info */
@@ -2415,15 +2738,17 @@ void Menu_Boot(bool disc)
 		check_device(game_cfg, true);
 		if (dl_warn) print_dual_layer_note();
 	}
-	printf_h("Press A button to continue.\n");
-	printf_h("Press B button to go back.\n");
-	printf_h("Press 1 button for options\n\n");
+	printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+	printf("\n");
+	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+	if (!gc) {
+		printf("\n");
+		printf_h(gt("Press %s button for options."), (button_names[CFG.button_other.num]));
+	}
+	printf("\n\n");
 	__console_flush(0);
 
 	// play banner sound
-	SoundInfo snd;
-	memset(&snd, 0, sizeof(snd));
-	WBFS_BannerSound(header->id, &snd);
 	if (snd.dsp_data) {
 		SND_PauseVoice(0, 1); // pause mp3
 		int fmt = (snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
@@ -2437,28 +2762,28 @@ void Menu_Boot(bool disc)
 	u32 buttons;
 	for (;;) {
 		buttons = Wpad_WaitButtons();
-		if (buttons & WPAD_BUTTON_A) break;
-		if (buttons & WPAD_BUTTON_B) break;
-		if (buttons & WPAD_BUTTON_1) break;
-		if (buttons & WPAD_BUTTON_HOME) break;
+		if (buttons & CFG.button_confirm.mask) break;
+		if (buttons & CFG.button_cancel.mask) break;
+		if (!gc && (buttons & CFG.button_other.mask)) break;
+		if (buttons & CFG.button_exit.mask) break;
 	}
 
 	// stop banner sound, resume mp3
 	if (snd.dsp_data) {
 		SND_StopVoice(1);
 		SAFE_FREE(snd.dsp_data);
-		if (buttons & WPAD_BUTTON_A) {
+		if (buttons & CFG.button_confirm.mask) {
 			SND_ChangeVolumeVoice(0, 0, 0);
 		}
 		SND_PauseVoice(0, 0);
 	}
 
-	if (buttons & WPAD_BUTTON_B) goto close;
-	if (buttons & WPAD_BUTTON_HOME) {
+	if (buttons & CFG.button_cancel.mask) goto close;
+	if (buttons & CFG.button_exit.mask) {
 		Handle_Home(0);
 		return;
 	}
-	if (buttons & WPAD_BUTTON_1) {
+	if (!gc && (buttons & CFG.button_other.mask)) {
 		if (disc) Menu_Boot_Options(header, 1);
 		else Menu_Options();
 		return;
@@ -2473,22 +2798,32 @@ void Menu_Boot(bool disc)
 		//dbg_printf("set ios: %d idx: %d\n", CFG.ios, CFG.game.ios_idx);
 	}
 
+	if (CFG.write_playlog && set_playrec(header->id, banner_title) < 0) {
+		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
+		printf("\n");
+		printf_h(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
+		printf("\n");
+		if (!Menu_Confirm(0)) return;
+	}
+
 	printf("\n");
-	printf_x("Booting Wii game, please wait...\n\n");
+	printf_x(gt("Booting Wii game, please wait..."));
+	printf("\n\n");
 
 	// If fat, open wbfs disc and verfy id as a consistency check
 	if (!disc) {
 		if (wbfs_part_fs) {
 			wbfs_disc_t *d = WBFS_OpenDisc(header->id);
 			if (!d) {
-				printf_("ERROR: opening %.6s\n", header->id);
+				printf_(gt("ERROR: opening %.6s"), header->id);
+				printf("\n");
 				goto out;
 			}
 			WBFS_CloseDisc(d);
-			if (CFG.game.ios_idx != CFG_IOS_222_MLOAD &&
-				CFG.game.ios_idx != CFG_IOS_223_MLOAD)
+			if (!is_ios_idx_mload(CFG.game.ios_idx))
 			{
-				printf("Switching to IOS222 for FAT support.\n");
+				printf(gt("Switching to IOS222 for FAT support."));
+				printf("\n");
 				CFG.game.ios_idx = CFG_IOS_222_MLOAD;
 				cfg_ios_set_idx(CFG.game.ios_idx);
 			}
@@ -2505,7 +2840,8 @@ void Menu_Boot(bool disc)
 	if (!disc) {
 		ret = get_frag_list(header->id);
 		if (ret) {
-			printf_("ERROR: get_frag_list: %d\n", ret);
+			printf_(gt("ERROR: get_frag_list: %d"), ret);
+			printf("\n");
 			goto out;
 		}
 	}
@@ -2516,15 +2852,16 @@ void Menu_Boot(bool disc)
 	setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
 	
 	//Incase booting of disc fails, just go back to loader. Bad practice?
-	if (!disc && CFG.game.alt_dol != 1) {
+	if (CFG.game.alt_dol != 1) {
 		// unless we're loading alt.dol from sd
 		// unmount everything
 		Fat_UnmountAll();
 	}
 
-	ret = ReloadIOS(1, 1);
-	if (ret < 0) goto out;
 	if (!disc) {
+		ret = ReloadIOS(1, 1);
+		if (ret < 0) goto out;
+		
 		Block_IOS_Reload();
 	
 		// verify IOS version
@@ -2535,7 +2872,8 @@ void Menu_Boot(bool disc)
 		/* Set WBFS mode */
 		ret = Disc_SetWBFS(wbfsDev, header->id);
 	 	if (ret) {
-	 		printf_("ERROR: SetWBFS: %d\n", ret);
+	 		printf_(gt("ERROR: SetWBFS: %d"), ret);
+			printf("\n");
 	 		goto out;
 	 	}
 		
@@ -2547,40 +2885,46 @@ void Menu_Boot(bool disc)
 		bench_io();
 	
 		if (ret < 0) {
-			printf("    ERROR: Could not open game! (ret = %d)\n", ret);
+			printf_(gt("ERROR: Could not open game! (ret = %d)"), ret);
+			printf("\n");
 			goto out;
 		}
 	}
 
-	switch(CFG.game.language)
-                {
-                        // 0 = CFG_LANG_CONSOLE
-                        case 0: configbytes[0] = 0xCD; break; 
-                        case 1: configbytes[0] = 0x00; break; 
-                        case 2: configbytes[0] = 0x01; break; 
-                        case 3: configbytes[0] = 0x02; break; 
-                        case 4: configbytes[0] = 0x03; break; 
-                        case 5: configbytes[0] = 0x04; break; 
-                        case 6: configbytes[0] = 0x05; break; 
-                        case 7: configbytes[0] = 0x06; break; 
-                        case 8: configbytes[0] = 0x07; break; 
-                        case 9: configbytes[0] = 0x08; break; 
-                        case 10: configbytes[0] = 0x09; break;
-                }
+	if (gc) {
+		WII_Initialize();
+		ret = WII_LaunchTitle(0x0000000100000100ULL);
+	} else {
+		switch(CFG.game.language)
+				{
+						// 0 = CFG_LANG_CONSOLE
+						case 0: configbytes[0] = 0xCD; break; 
+						case 1: configbytes[0] = 0x00; break; 
+						case 2: configbytes[0] = 0x01; break; 
+						case 3: configbytes[0] = 0x02; break; 
+						case 4: configbytes[0] = 0x03; break; 
+						case 5: configbytes[0] = 0x04; break; 
+						case 6: configbytes[0] = 0x05; break; 
+						case 7: configbytes[0] = 0x06; break; 
+						case 8: configbytes[0] = 0x07; break; 
+						case 9: configbytes[0] = 0x08; break; 
+						case 10: configbytes[0] = 0x09; break;
+				}
 
-	/* Boot Wii disc */
-	ret = Disc_WiiBoot();
-
-	printf("    Returned! (ret = %d)\n", ret);
+		/* Boot Wii disc */
+		ret = Disc_WiiBoot(disc);
+	}
+	printf_(gt("Returned! (ret = %d)"), ret);
+	printf("\n");
 
 out:
 	printf("\n");
-	if (disc) printf("    Press any button to continue...\n");
-	else printf("    Press any button to exit...\n");
+	printf_(gt("Press any button to exit..."));
+	printf("\n");
 
 	/* Wait for button */
 	Wpad_WaitButtonsCommon();
-	if (!disc) exit(0);
+	exit(0);
 close:
 	if (disc) {
 		WDVD_StopMotor();
@@ -2610,7 +2954,8 @@ void Direct_Launch()
 
 	//sleep(1);
 	Con_Clear();
-	printf("Configurable Loader %s\n\n", CFG_VERSION);
+	printf(gt("Configurable Loader %s"), CFG_VERSION);
+	printf("\n\n");
 	//sleep(1);
 	for (i=0; i<gameCnt; i++) {
 		if (strncmp(CFG.launch_discid, (char*)gameList[i].id, 6) == 0) {
@@ -2620,8 +2965,10 @@ void Direct_Launch()
 		}
 	}
 	Gui_Console_Enable();
-	printf("Auto-start game: %.6s not found!\n", CFG.launch_discid);
-	printf("Press any button...\n");
+	printf(gt("Auto-start game: %.6s not found!"), CFG.launch_discid);
+	printf("\n");
+	printf(gt("Press any button..."));
+	printf("\n");
 	Wpad_WaitButtons();
 	out:
 	CFG.direct_launch = 0;
@@ -2769,7 +3116,7 @@ void menu_move(struct Menu *m, int buttons)
 	menu_move_wrap(m);
 }
 
-int menu_mark(struct Menu *m)
+void menu_print_mark(struct Menu *m)
 {
 	//if (m->active[m->line_count] && m->current == m->line_count) {
 	if (m->current == m->line_count) {
@@ -2790,55 +3137,178 @@ int menu_mark(struct Menu *m)
 		xx = CFG.cursor_space;
 	}
 	printf(" %s ", xx);
+}
+
+int menu_mark(struct Menu *m)
+{
+	menu_print_mark(m);
 	return m->line_count++;
 }
 
 
-void printf_(char *fmt, ...)
+// size is number of visible lines on screen
+// num_items is number of items in the list
+void menu_window_begin(struct Menu *m, int size, int num_items)
+{
+	if (num_items > size + 1)
+		m->window_size = size;
+	else
+		m->window_size = size + 1;
+	m->window_items = num_items;
+	m->window_begin = m->line_count;
+	// adjust window_pos so that selected line is inside the window
+	// current_pos = position of selected line
+	//   (relative offset from window_begin)
+	int current_pos = m->current - m->window_begin;
+	if (current_pos >= m->window_pos + m->window_size) {
+		if (current_pos > num_items) {
+			m->window_pos = num_items - m->window_size + 1;
+		} else {
+			m->window_pos = current_pos - m->window_size + 1;
+		}
+	} else if (current_pos < m->window_pos) {
+		m->window_pos = current_pos;
+	}
+	if (m->window_pos < 0) m->window_pos = 0;
+	// print page continuation marker
+	// only if needed
+	if (m->window_size < m->window_items) {
+		if (m->window_pos > 0) {
+			printf(" %s +\n", CFG.cursor_space);
+		} else {
+			printf("\n");
+		}
+	}
+}
+
+bool menu_window_mark(struct Menu *m)
+{
+	int pos = m->line_count - m->window_begin;
+	if (pos < m->window_pos) {
+		m->line_count++;
+		return false;
+	}
+
+	if (pos >= m->window_pos + m->window_size) {
+		m->line_count++;
+		return false;
+	}
+
+	menu_mark(m);
+	return true;
+}
+
+void menu_window_end(struct Menu *m, int cols)
+{
+	int pos = m->line_count - m->window_begin;
+	char str[20] = "";
+	int len;
+	printf(" %s ", CFG.cursor_space);
+	if (pos > m->window_pos + m->window_size) {
+		printf("+");
+	} else {
+		printf(" ");
+	}
+	if (m->window_size < m->window_items)
+		sprintf(str, "%s: %d/%d", gt("page"), 
+			    (m->current - m->window_begin) / m->window_size + 1,
+				(m->window_items-1) / m->window_size + 1);
+	len = strlen(str);
+	printf("%*.*s", cols-6-len, cols-6-len, str);
+	printf("\n");
+	// debug
+	//printf("c:%d s:%d b:%d i:%d p:%d\n", m->current, m->window_size,
+	//		m->window_begin, m->window_items, m->window_pos);
+}
+
+
+// indented printf
+// will indent also each \n in string
+void printf_a(const char *fmt, va_list argp)
+{
+	char strbuf[512];
+	char *s, *n;
+	int ret;
+	ret = vsnprintf(strbuf, sizeof(strbuf), fmt, argp);
+	if (ret >= sizeof(strbuf)) {
+		// buffer too small, just print directly
+		vprintf(fmt, argp);
+	} else {
+		// append space also to each \n
+		s = strbuf;
+		do {
+			n = strchr(s, '\n');
+			if (n) *n = 0; // terminate new line
+			printf("%s", s);
+			if (n) {
+				printf("\n");
+				s = n + 1;
+				// only indent if there's more text to print
+				// don't indent if \n is at the end of string
+				if (*s == 0) break;
+				printf("%s", CFG.menu_plus_s);
+			}
+		} while (n);
+	}
+}
+
+void printf_(const char *fmt, ...)
 {
 	va_list argp;
 	printf("%s", CFG.menu_plus_s);
 	va_start(argp, fmt);
-	vprintf(fmt, argp);
+	printf_a(fmt, argp);
 	va_end(argp);
 }
 
-void printf_x(char *fmt, ...)
+void printf_x(const char *fmt, ...)
 {
 	va_list argp;
 	printf("%s", CFG.menu_plus);
 	va_start(argp, fmt);
-	vprintf(fmt, argp);
+	//vprintf(fmt, argp);
+	printf_a(fmt, argp);
 	va_end(argp);
 }
 
-void printf_h(char *fmt, ...)
+void printf_h(const char *fmt, ...)
 {
 	va_list argp;
 	DefaultColor();
 	FgColor(CFG.color_help);
 	printf("%s", CFG.menu_plus_s);
 	va_start(argp, fmt);
-	vprintf(fmt, argp);
+	//vprintf(fmt, argp);
+	printf_a(fmt, argp);
 	va_end(argp);
 	DefaultColor();
 }
 
 int Menu_PrintWait()
 {
-	printf_h("Press any button to continue...\n");
+	printf_h(gt("Press any button to continue..."));
+	printf("\n");
+	// clear button states
+	WPAD_Flush(WPAD_CHAN_ALL);
 	return Wpad_WaitButtonsCommon();
 }
 
-bool Menu_Confirm(char *msg)
+bool Menu_Confirm(const char *msg)
 {
-	printf_h("Press A button to %s.\n", msg ? msg : "continue");
-	printf_h("Press B button to go back.\n");
+	if (msg) {
+		printf_h(gt("Press %s button to %s."), (button_names[CFG.button_confirm.num]), msg);
+	} else {
+		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+	}
+	printf("\n");
+	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+	printf("\n");
+	DefaultColor();
 	WPAD_Flush(WPAD_CHAN_ALL);
 	for (;;) {
 		u32 buttons = Wpad_WaitButtonsCommon();
-		if (buttons == WPAD_BUTTON_A) return true;
-		if (buttons == WPAD_BUTTON_B) return false;
+		if (buttons & CFG.button_confirm.mask) return true;
+		if (buttons & CFG.button_cancel.mask) return false;
 	}
 }
 

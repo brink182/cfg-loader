@@ -18,6 +18,7 @@
 #include "music.h"
 #include "wpad.h"
 #include "video.h"
+#include "gettext.h"
 
 #define FORMAT_MP3 1
 #define FORMAT_MOD 2
@@ -122,7 +123,8 @@ void get_random_file(char *filetype, char *path)
 	
 	if (fileCount==0 && !first_time) goto out;
 	
-	dbg_printf("Music: Looking for %s files in: %s\n", filetype, path);
+	dbg_printf(gt("Music: Looking for %s files in: %s"), filetype, path);
+		dbg_printf("\n");
 
 	// Open directory
 	//snprintf(dirname, sizeof(dirname), "%s", path);
@@ -135,7 +137,8 @@ void get_random_file(char *filetype, char *path)
 			if (match_ext(filename, filetype) && !(filestat.st_mode & S_IFDIR))
 				fileCount++;
 		}
-		dbg_printf("Music: Number of %s files found: %i\n", filetype, fileCount);
+		dbg_printf(gt("Music: Number of %s files found: %i"), filetype, fileCount);
+		dbg_printf("\n");
 
 		first_time = false;
 		//if no files found then no need to continue
@@ -152,7 +155,7 @@ void get_random_file(char *filetype, char *path)
 
 		//check array contents
 		int i;
-		dbg_printf("Music: musicArray contents: ");
+		dbg_printf(gt("Music: musicArray contents: "));
 		for (i=0; i<fileCount; i++)
 			dbg_printf("%i ", musicArray[i]);
 		dbg_printf("\n");
@@ -166,7 +169,8 @@ void get_random_file(char *filetype, char *path)
 		lastPlayed++;
 		if (lastPlayed > fileCount-1) lastPlayed = 0;
 		next = musicArray[lastPlayed];
-		dbg_printf("Music: Next file index to play: %i\n", next);
+		dbg_printf(gt("Music: Next file index to play: %i"), next);
+		dbg_printf("\n");
 		
 		//iterate through and find our file
 		while (!dirnext(dir, filename, &filestat)) {
@@ -204,10 +208,12 @@ s32 get_music_file()
 			|| match_ext(CFG.music_file, ".mod")) {
 			//load a specific file
 			strcpy(music_fname, CFG.music_file);
-			dbg_printf("Music file: %s\n", music_fname);
+			dbg_printf(gt("Music file: %s"), music_fname);
+			dbg_printf("\n");
 			if (strlen(music_fname) < 5) return 0;
 			if (stat(music_fname, &st) != 0) {
-				dbg_printf("File not found! %s\n", music_fname);
+				dbg_printf(gt("File not found! %s"), music_fname);
+				dbg_printf("\n");
 				return 0;
 			}
 			useDir = false;
@@ -237,15 +243,18 @@ s32 get_music_file()
 			get_random_file(".mod", dirpath);
 			//snprintf(music_fname, sizeof(music_fname), "%s/%s", USBLOADER_PATH, "music.mod");
 			if (stat(music_fname, &st) != 0) {
-				dbg_printf("music.mp3 or music.mod not found!\n");
+				dbg_printf(gt("music.mp3 or music.mod not found!"));
+				dbg_printf("\n");
 				return 0;
 			}
 		}
-		dbg_printf("Music file from dir: %s\n", music_fname);
+		dbg_printf(gt("Music file from dir: %s"), music_fname);
+		dbg_printf("\n");
 	}
 
 	music_size = st.st_size;
-	dbg_printf("Music file size: %d\n", music_size);
+	dbg_printf(gt("Music file size: %d"), music_size);
+	dbg_printf("\n");
 	if (music_size <= 0) return 0;
 
 	if (match_ext(music_fname, ".mp3")) {
@@ -260,7 +269,8 @@ s32 get_music_file()
 	music_open();
 	if (!music_f) {
 		if (*CFG.music_file || CFG.debug) {
-			printf("Error opening: %s\n", music_fname);
+			printf(gt("Error opening: %s"), music_fname);
+			printf("\n");
 		   	sleep(2);
 		}
 		return 0;
@@ -298,10 +308,12 @@ void _Music_Start()
 	ASND_Pause(0);
 
 	if (CFG.music == 0) {
-		dbg_printf("Music: Disabled\n");
+		dbg_printf(gt("Music: Disabled"));
+		dbg_printf("\n");
 		return;
 	} else {
-		dbg_printf("Music: Enabled\n");
+		dbg_printf(gt("Music: Enabled"));
+		dbg_printf("\n");
 	}
 	
 	was_playing = false;
@@ -316,12 +328,13 @@ void _Music_Start()
 		MP3Player_Volume(0x80); // of 255
 		//ret = MP3Player_PlayBuffer(music_buf, music_size, NULL);
 		ret = MP3Player_PlayFile(music_f, mp3_reader, NULL);
-		dbg_printf("mp3 play: %s (%d)\n", ret?"error":"ok", ret);
+		dbg_printf("mp3 play: %s (%d)\n", ret? gt("ERROR"):gt("OK"), ret);
 		if (ret) goto err_play;
 		usleep(150000); // wait 150ms and verify if playing
 		if (!MP3Player_IsPlaying()) {
 			err_play:
-			printf("Error playing %s\n", music_fname);
+			printf(gt("Error playing %s"), music_fname);
+			printf("\n");
 			Music_Stop();
 			sleep(1);
 		}
@@ -330,7 +343,8 @@ void _Music_Start()
 
 		music_buf = malloc(music_size);
 		if (!music_buf) {
-			printf("music file too big (%d) %s\n", music_size, music_fname);
+			printf(gt("music file too big (%d) %s"), music_size, music_fname);
+			printf("\n");
 			sleep(1);
 			music_format = 0;
 			return;
@@ -341,7 +355,7 @@ void _Music_Start()
 		fclose(music_f);
 		music_f = NULL;
 		if (ret != 1) {
-			printf("error reading: %s (%d)\n", music_fname, music_size); sleep(2);
+			printf(gt("error reading: %s (%d)"), music_fname, music_size); printf("\n"); sleep(2);
 			free(music_buf);
 			music_buf = NULL;
 			music_size = 0;
@@ -350,7 +364,7 @@ void _Music_Start()
 		}
 		MODPlay_Init(&mod);
 		ret = MODPlay_SetMOD(&mod, music_buf);
-		dbg_printf("mod play: %s (%d)\n", ret?"error":"ok", ret);
+		dbg_printf("mod play: %s (%d)\n", ret?gt("ERROR"):gt("OK"), ret);
 		if (ret < 0 ) {
 			Music_Stop();
 		} else  {
@@ -365,7 +379,9 @@ void Music_Start()
 	_Music_Start();
 	if (CFG.debug) {
 		sleep(1);
-		printf("\n    Press any button to continue...\n\n");
+		printf("\n");
+		printf_(gt("Press any button to continue..."));
+		printf("\n\n");
 		Wpad_WaitButtons();
 		Con_Clear();
 	}

@@ -15,23 +15,20 @@
 #include "wpad.h"
 #include "fat.h"
 #include "util.h"
+#include "gettext.h"
 
 extern int __console_disable;
 
 void print_ios()
 {
-	if (!(CFG.direct_launch && !CFG.intro)) {
-		__console_disable = 0;
-	}
-	if ( (strncasecmp(CFG.partition, "fat", 3) == 0)
-		&& (CFG.game.ios_idx == CFG_IOS_222_MLOAD
-			|| CFG.game.ios_idx == CFG_IOS_223_MLOAD) ) {
-		printf("\n%d-fat", CFG.ios);
+	printf("%*s", 62, "");
+	if ( (strncasecmp(CFG.partition, "fat", 3) == 0) && CFG.ios_mload ) {
+		printf("%d-fat", CFG.ios);
 	} else {
-		printf("\n%s", ios_str(CFG.game.ios_idx));
+		printf("%s", ios_str(CFG.game.ios_idx));
 	}
+	printf("\n");
 	__console_flush(0);
-	__console_disable = 1;
 }
 
 int main(int argc, char **argv)
@@ -48,15 +45,7 @@ int main(int argc, char **argv)
 	Video_SetMode();
 
 	Gui_DrawIntro();
-	__console_disable = 1;
 
-	//CFG.debug = 1;
-	/*if (CFG.debug) {
-		__console_disable = 0;
-		Gui_InitConsole();
-		dbg_printf("Loading IOS%s...", ios_str(CFG.game.ios_idx));
-	}*/
-	
 	/* Load Custom IOS */
 	if (CFG.game.ios_idx == CFG_IOS_249) {
 		ret = IOS_ReloadIOS(249);
@@ -66,8 +55,6 @@ int main(int argc, char **argv)
 		print_ios();
 		ret = ReloadIOS(0, 0);
 	}
-	//dbg_printf("(%d)\n", ret);
-	//__console_disable = 1;
 
 	/* Initialize subsystems */
 	//Subsystem_Init();
@@ -86,6 +73,18 @@ int main(int argc, char **argv)
 		usleep(300000);
 	}
 
+	/* Check if Custom IOS is loaded */
+	if (ret < 0) {
+		__console_disable = 0;
+		printf_x(gt("ERROR:"));
+		printf("\n");
+		printf_(gt("Custom IOS %d could not be loaded! (ret = %d)"), CFG.ios, ret);
+		printf("\n");
+		goto out;
+	}
+	
+	__console_disable = 1;
+
    	// set widescreen as set by CFG.widescreen
 	Video_SetWide();
 
@@ -101,29 +100,18 @@ int main(int argc, char **argv)
 	/* Initialize console */
 	Gui_InitConsole();
 
-	// debug:
-	//__console_disable = 1;
-	//Gui_Console_Enable();
-
 	/* Initialize Wiimote subsystem */
 	Wpad_Init();
 
 	/* Set up config parameters */
-	//dbg_printf("CFG_Setup\n"); //Wpad_WaitButtons();
+	//printf("CFG_Setup\n"); //Wpad_WaitButtons();
 	CFG_Setup(argc, argv);
 
-	/* Check if Custom IOS is loaded */
-	if (ret < 0) {
-		Gui_Console_Enable();
-		printf("[+] ERROR:\n");
-		printf("    Custom IOS %d could not be loaded! (%d)\n", CFG.ios, ret);
-		goto out;
-	}
-	
 	// Notify if ios was reloaded by cfg
 	if (CURR_IOS_IDX != DEFAULT_IOS_IDX) {
-		//Gui_Console_Enable();
-		printf("\n[+] Custom IOS %s Loaded OK\n\n", ios_str(CURR_IOS_IDX));
+		printf("\n");
+		printf_x(gt("Custom IOS %s Loaded OK"), ios_str(CURR_IOS_IDX));
+		printf("\n\n");
 		sleep(2);
 	}
 	
@@ -131,8 +119,10 @@ int main(int argc, char **argv)
 	ret = Disc_Init();
 	if (ret < 0) {
 		Gui_Console_Enable();
-		printf("[+] ERROR:\n");
-		printf("    Could not initialize DIP module! (ret = %d)\n", ret);
+		printf_x(gt("ERROR:"));
+		printf("\n");
+		printf_(gt("Could not initialize DIP module! (ret = %d)"), ret);
+		printf("\n");
 		goto out;
 	}
 
@@ -141,8 +131,9 @@ int main(int argc, char **argv)
 	Menu_Loop();
 
 out:
-	sleep(5);
+	sleep(8);
 	/* Restart */
+	exit(0);
 	Restart_Wait();
 
 	return 0;

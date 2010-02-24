@@ -187,7 +187,7 @@ int wgui_HandleButton(int x, int y, int w, int h, char *txt,
 	state = WGUI_BUTTON_NORMAL;
 	if (over) {
 		state = WGUI_BUTTON_HOVER;
-		if (wpad_button & WPAD_BUTTON_A)
+		if (wpad_button & CFG.button_confirm.mask)
 			state = WGUI_BUTTON_PRESS;
 	}
 	wgui_DrawButton(&tx_button, x, y, w, h, state, txt);
@@ -282,7 +282,7 @@ int wgui_handle_checkbox(wgui_Widget *ww, ir_t *ir, int buttons)
 	if (over) {
 		state = WGUI_BUTTON_HOVER;
 		hoover = 1;
-		if (buttons & WPAD_BUTTON_A) {
+		if (buttons & CFG.button_confirm.mask) {
 			*ww->state = !*ww->state;
 		}
 	}
@@ -363,7 +363,7 @@ void wgui_GameDialog()
 		id = wgui_handle(&dialog, &ir, buttons);
 		Gui_draw_pointer(&ir);
 		Gui_Render();
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	} while (id != ID_BACK);
 
 	wgui_dialog_close(&dialog);

@@ -27,7 +27,9 @@ struct gameXMLinfo
 	char accessories[16][20];
 	char accessoriesReq[16][20];
 };
+
 struct gameXMLinfo *game_info;
+char * getLang(int lang);
 bool ReloadXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN);
 void CloseXMLDatabase();
 bool LoadGameInfoFromXML(u8 * gameid);

@@ -25,7 +25,6 @@ struct block
 extern const struct block emptyblock;
 
 struct block downloadfile(const char *url);
-
-extern int http_progress;
+struct block downloadfile_progress(const char *url, int size);
 
 #endif /* _HTTP_H_ */

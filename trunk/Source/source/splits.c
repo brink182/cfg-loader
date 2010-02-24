@@ -12,12 +12,14 @@
 #include <ctype.h>
 
 #include "splits.h"
+#include "gettext.h"
 
 #define off64_t off_t
 #define FMT_llu "%llu"
 #define FMT_lld "%lld"
 
-#define split_error(x)		do { printf("\nsplit error: %s\n\n",x); } while(0)
+#define split_error(x)		do { printf("\n"); printf(gt("split error: %s"),gt(x)); \
+								 printf("\n\n"); } while(0)
 
 // 1 cluster less than 4gb
 u64 OPT_split_size = (u64)4LL * 1024 * 1024 * 1024 - 32 * 1024;
@@ -50,9 +52,10 @@ int split_open_file(split_info_t *s, int idx)
 	fd = open(fname, mode);
 	if (fd<0) return -1;
 	if (idx > 0 && s->create_mode) {
-		printf("%s Split: %d %s          \n",
-				s->create_mode ? "Create" : "Read",
+		printf(gt("%s Split: %d %s"),
+				s->create_mode ? gt("Create") : gt("Read"),
 				idx, fname);
+		printf("\n");
 	}
 	s->fd[idx] = fd;
 	return fd;
@@ -108,7 +111,8 @@ int split_get_file(split_info_t *s, u32 lba, u32 *sec_count, int fill)
 		int i;
 		for (i=0; i<idx; i++) {
 			if (split_fill(s, i, s->split_size)) {
-				printf("FILL %d\n", i);
+				printf(gt("FILL %d"), i);
+				printf("\n");
 			}
 		}
 		fd = split_open_file(s, idx);

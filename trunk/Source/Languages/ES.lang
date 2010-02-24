@@ -18,7 +18,7 @@ msgstr ""
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr ""
+msgstr "%.1fGB libre de %.1fGB"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -50,7 +50,7 @@ msgstr "%s, por favor espera..."
 
 #, c-format
 msgid "(%d online)"
-msgstr ""
+msgstr "(%d online)"
 
 #, c-format
 msgid "(%d seconds timeout)"
@@ -60,10 +60,10 @@ msgid ".dol too small"
 msgstr ".dol es muy pequeño"
 
 msgid "< ASC  >"
-msgstr ""
+msgstr "< ASC  >"
 
 msgid "< DESC >"
-msgstr ""
+msgstr "< DESC >"
 
 msgid "< DOWNLOAD >"
 msgstr "< DESCARGAR >"
@@ -577,7 +577,7 @@ msgid "Found %s Cover"
 msgstr "Han sido encontradas %s Portadas"
 
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 msgid "Game Options"
 msgstr "Opciones de Juego"
@@ -1079,7 +1079,7 @@ msgstr "Carreras"
 
 #, c-format
 msgid "Rated %s"
-msgstr ""
+msgstr "Evaluado %s"
 
 msgid "Read"
 msgstr "Leer"
@@ -1326,7 +1326,7 @@ msgid "cover"
 msgstr "portada"
 
 msgid "delete"
-msgstr ""
+msgstr "borrar"
 
 #, c-format
 msgid "dest: %p - %p"
@@ -1342,13 +1342,13 @@ msgstr "error leyendo: %s (%d)"
 
 #, c-format
 msgid "for %d players"
-msgstr ""
+msgstr "para %d jugadores"
 
 msgid "for 1 player"
-msgstr ""
+msgstr "para 1 jugador"
 
 msgid "format"
-msgstr ""
+msgstr "formato"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

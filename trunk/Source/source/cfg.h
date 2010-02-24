@@ -11,27 +11,17 @@
 #define CFG_IOS_249       0
 #define CFG_IOS_222_MLOAD 1
 #define CFG_IOS_223_MLOAD 2
-#define CFG_IOS_222_YAL   3
-#define CFG_IOS_223_YAL   4
-#define CFG_IOS_250       5
+#define CFG_IOS_224_MLOAD 3
+#define CFG_IOS_222_YAL   5
+#define CFG_IOS_223_YAL   6
+#define CFG_IOS_250       7
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
-#if 0
+#include "version.h"
 
-#define CFG_VERSION_STR "51"
-#define DEFAULT_IOS_IDX CFG_IOS_249
-#define CFG_DEFAULT_PARTITION "WBFS1"
-#define CFG_HIDE_HDDINFO 0
-
-#else
-
-#define CFG_VERSION_STR "51-fat"
-#define DEFAULT_IOS_IDX CFG_IOS_222_MLOAD
-#define CFG_DEFAULT_PARTITION "FAT1"
-#define CFG_HIDE_HDDINFO 1
-
-#endif
+#define MAX_THEME 100
+extern char theme_list[MAX_THEME][31];
 
 extern int ENTRIES_PER_PAGE;
 extern int MAX_CHARACTERS;
@@ -92,10 +82,10 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_LANG_KOREAN   10
 #define CFG_LANG_MAX      10
 
-#define CFG_BTN_ORIGINAL  0 // obsolete
+/*#define CFG_BTN_ORIGINAL  0 // obsolete
 #define CFG_BTN_ULTIMATE  1 // obsolete
 #define CFG_BTN_OPTIONS_1 2
-#define CFG_BTN_OPTIONS_B 3
+#define CFG_BTN_OPTIONS_B 3*/
 
 #define CFG_DEV_ASK  0
 #define CFG_DEV_USB  1
@@ -126,6 +116,34 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_INSTALL_1_1  2
 
 #define CFG_UNLOCK_PASSWORD "BUDAH12"
+
+#define CFG_BTN_REMAP   0x80
+#define CFG_BTN_M (CFG_BTN_REMAP | NUM_BUTTON_MINUS)
+#define CFG_BTN_P (CFG_BTN_REMAP | NUM_BUTTON_PLUS)
+#define CFG_BTN_A (CFG_BTN_REMAP | NUM_BUTTON_A) 
+#define CFG_BTN_B (CFG_BTN_REMAP | NUM_BUTTON_B)
+#define CFG_BTN_H (CFG_BTN_REMAP | NUM_BUTTON_HOME)
+#define CFG_BTN_1 (CFG_BTN_REMAP | NUM_BUTTON_1)
+#define CFG_BTN_2 (CFG_BTN_REMAP | NUM_BUTTON_2)
+#define CFG_BTN_OPTIONS    0
+#define CFG_BTN_GUI        1
+#define CFG_BTN_REBOOT     2
+#define CFG_BTN_EXIT       3
+#define CFG_BTN_SCREENSHOT 4
+#define CFG_BTN_INSTALL    5
+#define CFG_BTN_REMOVE     6
+#define CFG_BTN_MAIN_MENU  7
+#define CFG_BTN_GLOBAL_OPS 8
+#define CFG_BTN_FAVORITES  9
+#define CFG_BTN_BOOT_DISC 10
+#define CFG_BTN_THEME     11
+#define CFG_BTN_PROFILE   12
+#define CFG_BTN_UNLOCK    13
+#define CFG_BTN_HBC       14
+#define CFG_BTN_NOTHING   15
+#define CFG_BTN_BOOT_GAME 16
+#define CFG_BTN_SORT      17
+#define CFG_BTN_FILTER    18
 
 extern char FAT_DRIVE[];
 extern char USBLOADER_PATH[];
@@ -168,6 +186,12 @@ typedef struct FontColor
 	int shadow_auto;
 } FontColor;
 
+typedef struct MenuButton
+{
+	int mask;
+	int num;
+} MenuButton;
+
 struct CFG
 {
 	char background[200];
@@ -184,9 +208,9 @@ struct CFG
 	// game options:
 	struct Game_CFG game;
 	// misc
-	int home;
+    int home;
 	int debug;
-	int buttons;
+	// int buttons;
 	int device;
 	char partition[16];
 	int hide_header;
@@ -259,8 +283,10 @@ struct CFG
 	char db_url[512];
 	char db_language[50];
 	int db_show_info;
+	int db_ignore_titles;
 	int write_playstats;
 	char sort[20];
+	char translation[50];
 	
 	//int download_wide;
 	int download_id_len;
@@ -313,6 +339,31 @@ struct CFG
 	int disable_nsmb_patch;
 	int disable_bca;
 	int disable_wip;
+	int write_playlog;
+	// order of the following options (until specified point) is important
+	int button_M;
+	int button_P;
+	int button_A;
+	int button_B;
+	int button_H;
+	int button_1;
+	int button_2;
+	int button_X;
+	int button_Y;
+	int button_Z;
+	int button_C;
+	int button_L;
+	int button_R;
+	//order importance ends here
+	int button_gui;
+	int button_opt;
+	int button_fav;
+	struct MenuButton button_confirm;
+	struct MenuButton button_cancel;
+	struct MenuButton button_exit;
+	struct MenuButton button_other;
+	struct MenuButton button_save;
+	int load_unifont;
 };
 
 extern struct CFG CFG;
@@ -425,7 +476,7 @@ void CFG_Default();
 void CFG_Load(int argc, char **argv);
 void CFG_Setup(int argc, char **argv);
 bool CFG_Load_Settings();
-bool CFG_Save_Settings();
+bool CFG_Save_Settings(int verbose);
 bool CFG_Save_Global_Settings();
 void cfg_parsearg_early(int argc, char **argv);
 
@@ -450,6 +501,7 @@ void cfg_setup_cover_style();
 char *ios_str(int idx);
 void cfg_ios(char *name, char *val);
 void cfg_ios_set_idx(int ios_idx);
+bool is_ios_idx_mload(int ios_idx);
 
 bool set_favorite(u8 *id, bool fav);
 bool is_favorite(u8 *id);
@@ -465,7 +517,6 @@ char *get_clock_str(time_t t);
 int readPlayStats(void);
 u32 getPlayCount(u8 *id);
 time_t getLastPlay(u8 *id);
-bool playStatsRead(int i);
 int setPlayStat(u8 *id);
 
 //#define FAKE_GAME_LIST
@@ -476,6 +527,5 @@ extern int fake_games;
 s32 dbg_WBFS_GetCount(u32 *count);
 s32 dbg_WBFS_GetHeaders(void *outbuf, u32 cnt, u32 len);
 #endif
-
 
 #endif

@@ -10,6 +10,7 @@
 #include <sdcard/wiisd_io.h>
 #include <string.h>
 #include <locale.h>
+#include <errno.h>
 
 #include <fat.h>
 #include "ntfs.h"
@@ -19,6 +20,7 @@
 #include "util.h"
 #include "wpad.h"
 #include "menu.h"
+#include "gettext.h"
 
 
 /* Constants */
@@ -80,7 +82,7 @@ s32 Fat_MountSDHC(void)
 	retry:
 	ret = __io_sdhc.startup();
 	if (!ret) {
-		//printf("[+] ERROR: SDHC init! (%d)\n", ret); sleep(1);
+		//printf_x("ERROR: SDHC init! (%d)\n", ret); sleep(1);
 		if (!sdhc_mode_sd) {
 		   sdhc_mode_sd = 1;
 		   goto retry;
@@ -95,7 +97,7 @@ s32 Fat_MountSDHC(void)
 		ret = fatMount(SDHC_MOUNT, &__io_sdhc, 0, FAT_CACHE_SECTORS_SD);
 	}
 	if (!ret) {
-		//printf("[+] ERROR: SDHC/FAT init! (%d)\n", ret); sleep(1);
+		//printf_x("ERROR: SDHC/FAT init! (%d)\n", ret); sleep(1);
 		return -2;
 	}
 
@@ -108,7 +110,7 @@ s32 Fat_MountSDHC(void)
 	// SDHC failed, try SD
 	ret = __io_wiisd.startup();
 	if (!ret) {
-		//printf("[+] ERROR: SD init! (%d)\n", ret); sleep(1);
+		//printf_x("ERROR: SD init! (%d)\n", ret); sleep(1);
 		return -3;
 	}
 	sdhc_mode_sd = 1;
@@ -116,11 +118,11 @@ s32 Fat_MountSDHC(void)
 	ret = fatMount(SDHC_MOUNT, &__io_wiisd, 0, FAT_CACHE_SECTORS_SD);
 	//ret = fatMount(SDHC_MOUNT, &__io_wiisd, 0, FAT_CACHE, FAT_SECTORS);
 	if (!ret) {
-		// printf("[+] ERROR: SD/FAT init! (%d)\n", ret); sleep(1);
+		// printf_x("ERROR: SD/FAT init! (%d)\n", ret); sleep(1);
 		return -4;
 	}
-	//printf("[+] NOTE: SDHC mode not available\n");
-	//printf("[+] NOTE: card in standard SD mode\n\n");
+	//printf_x("NOTE: SDHC mode not available\n");
+	//printf_x("NOTE: card in standard SD mode\n\n");
 
 	fat_sd_mount = 1;
 	fat_sd_sec = _FAT_startSector;
@@ -213,7 +215,7 @@ out:
 
 void Fat_print_sd_mode()
 {
-	printf("FAT32 mount: ");
+	printf(gt("FAT32 mount: "));
 	if (fat_sd_mount) printf("%s ", sdhc_mode_sd ? "sd" : "SD");
 	if (fat_usb_mount) printf("USB-HDD ");
 	if (fat_wbfs_mount) printf("WBFS");
@@ -232,7 +234,7 @@ s32 Fat_MountUSB(void)
 	/* Initialize USB interface */
 	ret = __io_usbstorage.startup();
 	if (!ret) {
-		//printf("[+] ERROR: USB init! (%d)\n", ret); sleep(1);
+		//printf_x("ERROR: USB init! (%d)\n", ret); sleep(1);
 		return -1;
 	}
 
@@ -240,7 +242,7 @@ s32 Fat_MountUSB(void)
 	ret = fatMount(USB_MOUNT, &__io_usbstorage, 0, FAT_CACHE_SECTORS);
 	//ret = fatMount(USB_MOUNT, &__io_usbstorage, 0, FAT_CACHE, FAT_SECTORS);
 	if (!ret) {
-		//printf("[+] ERROR: USB/FAT init! (%d)\n", ret); sleep(1);
+		//printf_x("ERROR: USB/FAT init! (%d)\n", ret); sleep(1);
 		return -2;
 	}
 
@@ -274,13 +276,13 @@ s32 Fat_MountWBFS(u32 sector)
 		/* Initialize WBFS interface */
 		ret = __io_usbstorage.startup();
 		if (!ret) {
-			printf_x("ERROR: USB init! (%d)\n", ret); sleep(1);
+			printf_x(gt("ERROR: USB init! (%d)"), ret); printf("\n"); sleep(1);
 			return -1;
 		}
 		/* Mount device */
 		ret = fatMount(WBFS_MOUNT, &__io_usbstorage, sector, FAT_CACHE_SECTORS);
 		if (!ret) {
-			printf_x("ERROR: USB/FAT mount wbfs! (%d)\n", ret); sleep(1);
+			printf_x(gt("ERROR: USB/FAT mount wbfs! (%d)"), ret); printf("\n"); sleep(1);
 			return -2;
 		}
 	} else if (wbfsDev == WBFS_DEVICE_SDHC) {
@@ -293,7 +295,7 @@ s32 Fat_MountWBFS(u32 sector)
 			//ret = fatMount(SDHC_MOUNT, &__io_wiisd, 0, FAT_CACHE_SECTORS_SD);
 		}
 		if (!ret) {
-			printf_x("ERROR: SD/FAT mount wbfs! (%d)\n", ret); sleep(1);
+			printf_x(gt("ERROR: SD/FAT mount wbfs! (%d)"), ret); printf("\n"); sleep(1);
 			return -5;
 		}
 	}
@@ -301,7 +303,7 @@ s32 Fat_MountWBFS(u32 sector)
 	fat_wbfs_mount = 1;
 	fat_wbfs_sec = _FAT_startSector;
 	if (sector && fat_wbfs_sec != sector) {
-		printf("ERROR: WBFS FAT mount sector %x not %x\n",
+		printf(gt("ERROR: WBFS FAT mount sector %x not %x"),
 				fat_wbfs_sec, sector);
 		sleep(2);
 		Wpad_WaitButtons();
@@ -344,13 +346,15 @@ s32 MountNTFS(u32 sector)
 		/* Initialize WBFS interface */
 		ret = __io_usbstorage.startup();
 		if (!ret) {
-			printf_x("ERROR: USB init! (%d)\n", ret); sleep(1);
+			printf_x(gt("ERROR: USB init! (%d)"), ret); printf("\n"); sleep(1);
 			return -1;
 		}
 		/* Mount device */
 		ret = ntfsMount(NTFS_MOUNT, &__io_usbstorage_ro, sector, FAT_CACHE_SECTORS, NTFS_DEFAULT);
 		if (!ret) {
-			printf_x("ERROR: USB mount NTFS! (%d)\n", ret); sleep(1);
+			printf_x(gt("ERROR: USB mount NTFS! (%d)"), ret);
+			printf("(%d)\n", errno);
+			sleep(2);
 			return -2;
 		}
 	} else if (wbfsDev == WBFS_DEVICE_SDHC) {
@@ -360,7 +364,7 @@ s32 MountNTFS(u32 sector)
 			ret = ntfsMount(NTFS_MOUNT, &__io_sdhc_ro, 0, FAT_CACHE_SECTORS_SD, NTFS_DEFAULT);
 		}
 		if (!ret) {
-			printf_x("ERROR: SD mount NTFS! (%d)\n", ret); sleep(1);
+			printf_x(gt("ERROR: SD mount NTFS! (%d)"), ret); printf("\n"); sleep(1);
 			return -5;
 		}
 	}
@@ -383,7 +387,7 @@ s32 UnmountNTFS(void)
 	if (fs_ntfs_mount == 0) return 0;
 
 	/* Unmount device */
-	fat_Unmount(NTFS_MOUNT);
+	ntfsUnmount(NTFS_MOUNT, true);
 
 	fs_ntfs_mount = 0;
 	fs_ntfs_sec = 0;
@@ -455,7 +459,9 @@ void _FAT_mem_free(void *mem)
 		}	
 	}
 	// FATAL
-	printf("\nFAT: ALLOC ERROR %p %p %p\n", mem, fat_pool, fat_pool + fat_size);
+	printf("\n");
+	printf(gt("FAT: ALLOC ERROR %p %p %p"), mem, fat_pool, fat_pool + fat_size);
+	printf("\n");
 	sleep(5);
 	exit(1);
 }

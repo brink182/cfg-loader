@@ -1,4 +1,5 @@
 #include "dns.h"
+#include "gettext.h"
 
 /**
  * Resolves a domainname to an ip address
@@ -104,7 +105,8 @@ u32 getipbynamecached(char *domain)
 		
 		if(node == NULL)
 		{
-			printf("Configuration error, MAX_DNS_ENTRIES reached while the list is empty\n");
+			printf(gt("Configuration error, MAX_DNS_ENTRIES reached while the list is empty"));
+			printf("\n");
 			exit(1);
 		} else if(previousnode == NULL)
 		{

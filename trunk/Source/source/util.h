@@ -18,6 +18,7 @@ char *strappend(char *dest, char *src, int size);
 bool str_replace(char *str, char *olds, char *news, int size);
 bool str_replace_all(char *str, char *olds, char *news, int size);
 bool trimsplit(char *line, char *part1, char *part2, char delim, int size);
+char* split_tokens(char *dest, char *src, char *delim, int size);
 
 #define dbg_printf if (CFG.debug) printf
 void dbg_time1();
@@ -53,9 +54,16 @@ extern int usort_map[MAX_USORT_MAP];
 extern int ufont_map[];
 int map_ufont(int c);
 
-int mbs_len(char *s);
+int  mbs_len(char *s);
 bool mbs_trunc(char *mbs, int n);
-int mbs_coll(char *a, char *b);
+char*mbs_align(const char *str, int n);
+int  mbs_coll(char *a, char *b);
+
+int  con_char_len(int c);
+int  con_len(char *s);
+bool con_trunc(char *s, int n);
+char*con_align(const char *str, int n);
+
 
 static inline u32 _be32(const u8 *p)
 {
@@ -87,7 +95,12 @@ typedef struct SoundInfo
 	int loop;
 } SoundInfo;
 
-void parse_banner_snd(void *data_hdr, SoundInfo *snd);
+void parse_banner_title(void *banner, u8 *title);
+void parse_banner_snd(void *banner, SoundInfo *snd);
+
+void printf_(const char *fmt, ...);
+void printf_x(const char *fmt, ...);
+void printf_h(const char *fmt, ...);
 
 #endif
 

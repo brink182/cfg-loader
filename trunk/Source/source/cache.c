@@ -12,6 +12,7 @@
 #include "disc.h"
 #include "gui.h"
 #include "cfg.h"
+#include "gettext.h"
 
 #define COVER_CACHE_DATA_SIZE 0x2000000
 
@@ -203,6 +204,7 @@ void* cache_thread(void *arg)
 	int rq_prio;
 	bool resizeToFullCover = false;
 	int cover_height, cover_width;
+	char path[200];
 	//dbg_printf("thread started\n");
 
 	___;
@@ -246,14 +248,14 @@ void* cache_thread(void *arg)
 				//load the cover image
 				if (CFG.cover_style == CFG_COVER_STYLE_FULL) {
 					//try to load the full cover
-					ret = Gui_LoadCover_style((u8*)id, &img, false, CFG_COVER_STYLE_FULL);
+					ret = Gui_LoadCover_style((u8*)id, &img, false, CFG_COVER_STYLE_FULL, path);
 					if (ret < 0) {
 						//try to load the 2D cover
-						ret = Gui_LoadCover_style((u8*)id, &img, true, CFG_COVER_STYLE_2D);
+						ret = Gui_LoadCover_style((u8*)id, &img, true, CFG_COVER_STYLE_2D, path);
 						if (ret && img) resizeToFullCover = true;
 					}
 				} else {
-					ret = Gui_LoadCover((u8*)id, &img, false);
+					ret = Gui_LoadCover_style((u8*)id, &img, false, CFG.cover_style, path);
 				}
 				//sleep(1);//dbg
 				___;
@@ -287,13 +289,20 @@ void* cache_thread(void *arg)
 						(cover_width == COVER_WIDTH)) {
 
 						if (resizeToFullCover) {
-							ccache.cover[cid].tx = Gui_LoadTexture_fullcover(img, COVER_WIDTH, COVER_HEIGHT, COVER_WIDTH_FRONT, buf);
+							ccache.cover[cid].tx = Gui_LoadTexture_fullcover(img, COVER_WIDTH, COVER_HEIGHT, COVER_WIDTH_FRONT, buf, path);
 							resizeToFullCover = false;
 						} else {
-							if (CFG.cover_style == CFG_COVER_STYLE_FULL && CFG.gui_compress_covers)
-								ccache.cover[cid].tx = Gui_LoadTexture_CMPR(img, COVER_WIDTH, COVER_HEIGHT, buf);
-							else
-								ccache.cover[cid].tx = Gui_LoadTexture_RGBA8(img, COVER_WIDTH, COVER_HEIGHT, buf);
+							if (CFG.cover_style == CFG_COVER_STYLE_FULL && CFG.gui_compress_covers) {
+								ccache.cover[cid].tx = Gui_LoadTexture_CMPR(img, COVER_WIDTH, COVER_HEIGHT, buf, path);
+							} else {
+								ccache.cover[cid].tx = Gui_LoadTexture_RGBA8(img, COVER_WIDTH, COVER_HEIGHT, buf, path);
+							}
+							if (!ccache.cover[cid].tx.data && CFG.cover_style == CFG_COVER_STYLE_FULL) {
+								//corrupted image - try to load the 2D cover
+								ret = Gui_LoadCover_style((u8*)id, &img, true, CFG_COVER_STYLE_2D, path);
+								if (ret && img)
+									ccache.cover[cid].tx = Gui_LoadTexture_fullcover(img, COVER_WIDTH, COVER_HEIGHT, COVER_WIDTH_FRONT, buf, path);
+							}
 						}
 					} else {
 						CCDBG(ccdbg.cc_img = NULL);
@@ -637,7 +646,8 @@ int cache_resize_tables()
 
 err:
 	// fatal
-	printf("ERROR: cache: out of memory\n");
+	printf(gt("ERROR: cache: out of memory"));
+	printf("\n");
 	sleep(1);
 	return -1;
 }	
@@ -718,7 +728,9 @@ void Cache_Close()
 		i--;
 	}
 	if (ccache.quit) {
-		printf("\nERROR: Cache Close\n");
+		printf("\n");
+		printf(gt("ERROR: Cache Close"));
+		printf("\n");
 		sleep(5);
 	} else {
 		LWP_JoinThread(ccache.lwp, NULL);

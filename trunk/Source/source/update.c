@@ -36,6 +36,7 @@
 #include "music.h"
 #include "subsystem.h"
 #include "net.h"
+#include "gettext.h"
 
 ////////////////////////////////////////
 //
@@ -166,26 +167,28 @@ void Download_Update(int n, char *app_path, int update_meta)
 	file.data = NULL;
 	u = &updates[n]; 
 
-	printf_("Downloading: %s\n", u->version);
-	printf_("...");
-
-	http_progress = 1;
-	file = downloadfile(u->url);
-	http_progress = 0;
+	printf_(gt("Downloading: %s"), u->version);
 	printf("\n");
+	printf_("[.");
+
+	file = downloadfile_progress(u->url, 1);
+	printf("]\n");
 	
 	if (file.data == NULL || file.size < 500000) {
 		goto err;
 	}
 
 	if (u->size && u->size != file.size) {
-		printf_("Wrong Size: %d (%d)\n", file.size, u->size);
+		printf_(gt("Wrong Size: %d (%d)"), file.size, u->size);
+		printf("\n");
 		goto err;
 	}
 
-	printf_("Complete. Size: %d\n", file.size);
+	printf_(gt("Complete. Size: %d"), file.size);
+	printf("\n");
 
-	printf_("Saving: %s\n", app_path);
+	printf_(gt("Saving: %s"), app_path);
+	printf("\n");
 	// backup
 	char bak_name[200];
 	strcpy(bak_name, app_path);
@@ -197,7 +200,8 @@ void Download_Update(int n, char *app_path, int update_meta)
 	// save new
 	f = fopen(app_path, "wb");
 	if (!f) {
-		printf_("Error opening: %s\n", app_path);
+		printf_(gt("Error opening: %s"), app_path);
+		printf("\n");
 		goto err;
 	}
 	fwrite(file.data, 1, file.size, f);
@@ -207,20 +211,23 @@ void Download_Update(int n, char *app_path, int update_meta)
 		str_replace(meta_xml, "{VERSION}", u->version, sizeof(meta_xml));
 		str_replace(meta_xml, "{DATE}", u->date, sizeof(meta_xml));
 		strcpy(strrchr(app_path, '/')+1, "meta.xml");
-		printf_("Saving: %s\n", app_path);
+		printf_(gt("Saving: %s"), app_path);
+		printf("\n");
 		f = fopen(app_path, "wb");
 		if (!f) {
-			printf_("Error opening: %s\n", app_path);
+			printf_(gt("Error opening: %s"), app_path);
+			printf("\n");
 		} else {
 			fwrite(meta_xml, 1, strlen(meta_xml), f);
 			fclose(f);
 		}
 	}
 
-	printf_("Done.\n\n");
-	printf_("NOTE: loader restart is required\n");
-	printf_("for the update to take effect.\n\n");
-	printf_("Press any button...");
+	printf_(gt("Done."));
+	printf("\n\n");
+	printf_(gt("NOTE: loader restart is required\nfor the update to take effect."));
+	printf("\n\n");
+	printf_(gt("Press any button..."));
 	Wpad_WaitButtonsCommon();
 
 	SAFE_FREE(file.data);
@@ -228,7 +235,8 @@ void Download_Update(int n, char *app_path, int update_meta)
 
 err:
 	SAFE_FREE(file.data);
-	printf_("Error downloading update...\n");
+	printf_(gt("Error downloading update..."));
+	printf("\n");
 	sleep(3);
 }
 
@@ -259,7 +267,8 @@ void Menu_Updates()
 	for (;;) {
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Available Updates:\n");
+		printf_x(gt("Available Updates"));
+		printf(":\n");
 		DefaultColor();
 		menu.line_count = 0;
 		max_desc = 0;
@@ -273,7 +282,8 @@ void Menu_Updates()
 		DefaultColor();
 		FgColor(CFG.color_header);
 		printf("\n");
-		printf_x("Release Notes: (short)\n");
+		printf_x(gt("Release Notes: (short)"));
+		printf("\n");
 		DefaultColor();
 		u = &updates[menu.current]; 
 		for (i=0; i<max_desc; i++) {
@@ -292,33 +302,39 @@ void Menu_Updates()
 
 		if (rows > 17) printf("\n");
 		if (rows > 18) {
-			printf_h("Press A to download and update\n");
-			if (rows > 20)
-			printf_h("Press 1 to update without meta.xml\n");
-			printf_h("Press B to return\n");
+			printf_h(gt("Press %s to download and update"), (button_names[CFG.button_confirm.num]));
+			printf("\n");
+			if (rows > 20) {
+				printf_h(gt("Press %s to update without meta.xml"), (button_names[CFG.button_other.num]));
+				printf("\n");
+			}
+			printf_h(gt("Press %s to return"), (button_names[CFG.button_cancel.num]));
+			printf("\n");
 		} else {
-			printf_h("Press A to download, B to return\n");
+			printf_h(gt("Press %s to download, %s to return"), (button_names[CFG.button_confirm.num]), (button_names[CFG.button_cancel.num]));
+			printf("\n");
 		}
 		if (rows > 19) printf("\n");
 		FgColor(CFG.color_inactive);
-		printf_("Current Version: %s\n", CFG_VERSION);
-		printf_("App. Path: %s", app_dir);
+		printf_(gt("Current Version: %s"), CFG_VERSION);
+		printf("\n");
+		printf_(gt("App. Path: %s"), app_dir);
 		DefaultColor();
 		__console_flush(0);
 
 		u32 buttons = Wpad_WaitButtonsRpt();
 		menu_move(&menu, buttons);
 
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
-		if (buttons & WPAD_BUTTON_A) {
+		if (buttons & CFG.button_cancel.mask) break;
+		if (buttons & CFG.button_confirm.mask) {
 			printf("\n\n");
 			Download_Update(menu.current, app_path, 1);
 			break;
 		}
-		if (buttons & WPAD_BUTTON_1) {
+		if (buttons & CFG.button_other.mask) {
 			printf("\n\n");
 			Download_Update(menu.current, app_path, 0);
 			break;
@@ -335,13 +351,15 @@ void Online_Update()
 
 	DefaultColor();
 	printf("\n");
-	printf_("Checking for updates...\n");
+	printf_(gt("Checking for updates..."));
+	printf("\n");
 
 	if (Init_Net()) {
 		file = downloadfile(updates_url);
 	}
 	if (file.data == NULL || file.size == 0) {
-		printf_("Error downloading updates...\n");
+		printf_(gt("Error downloading updates..."));
+		printf("\n");
 		sleep(3);
 		return;
 	}
@@ -360,7 +378,8 @@ void Online_Update()
 	SAFE_FREE(file.data);
 
 	if (num_updates <= 0) {
-		printf_("No updates found.\n");
+		printf_(gt("No updates found."));
+		printf("\n");
 		goto out;
 	}
 
@@ -372,7 +391,8 @@ void Online_Update()
 	return;
 
 err:
-	printf_("Error downloading updates...\n");
+	printf_(gt("Error downloading updates..."));
+	printf("\n");
 out:
 	sleep(3);
 	SAFE_FREE(file.data);
@@ -392,7 +412,11 @@ void Download_Titles()
 
 	DefaultColor();
 	printf("\n");
-	printf_("Downloading titles.txt ...\n");
+	
+	if (!Init_Net()) goto out;
+
+	printf_(gt("Downloading titles.txt ..."));
+	printf("\n");
 	extern char *get_cc();
 	char *cc = get_cc();
 	if (strcmp(cc, "JA") ==0 || strcmp(cc, "KO") ==0) cc = "EN";
@@ -400,28 +424,31 @@ void Download_Titles()
 	str_replace(url, "{CC}", cc, sizeof(url));
 	printf_("%s\n", url);
 
-	if (Init_Net()) {
-		file = downloadfile(url);
-	}
+	file = downloadfile(url);
 	if (file.data == NULL || file.size == 0) {
-		printf_("Error downloading updates...\n");
+		printf_(gt("Error downloading updates..."));
+		printf("\n");
 		sleep(3);
 		return;
 	}
 
 	snprintf(D_S(fname),"%s/%s", USBLOADER_PATH, "titles.txt");
-	printf_("Saving: %s\n", fname);
+	printf_(gt("Saving: %s"), fname);
+	printf("\n");
 	f = fopen(fname, "wb");
 	if (!f) {
-		printf_("Error opening: %s\n", fname);
+		printf_(gt("Error opening: %s"), fname);
+		printf("\n");
 	} else {
 		fwrite(file.data, 1, file.size, f);
 		fclose(f);
-		printf_("Done.\n\n");
-		printf_("NOTE: loader restart is required\n");
-		printf_("for the update to take effect.\n\n");
+		printf_(gt("Done."));
+		printf("\n\n");
+		printf_(gt("NOTE: loader restart is required\nfor the update to take effect."));
+		printf("\n\n");
 	}
-	printf_("Press any button...");
+out:
+	printf_(gt("Press any button..."));
 	Wpad_WaitButtonsCommon();
 	SAFE_FREE(file.data);
 	return;

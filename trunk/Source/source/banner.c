@@ -14,6 +14,7 @@
 #include "wpad.h"
 #include "wbfs.h"
 #include "libwbfs/libwbfs.h"
+#include "gettext.h"
 
 #define dbg4_printf if (CFG.debug & 4) printf
 
@@ -23,7 +24,7 @@ void dbg_pause()
 	printf("(press button)");
 	int b = Wpad_WaitButtons();
 	printf("*\n");
-	if (b & WPAD_BUTTON_HOME) {
+	if (b & CFG.button_exit.mask) {
 		printf("exit\n");
 		exit(0);
 	}
@@ -228,7 +229,8 @@ u8* decompress_lz77(u8 *data, size_t data_size, size_t* decompressed_size)
 				rep_offset = *in_ptr | (rep_offset << 8);
 				in_ptr++;
 				if (out_ptr-decompressed_data < rep_offset) {
-					dbg4_printf("Inconsistency in LZ77 encoding %x\n", in_ptr-data);
+					dbg4_printf(gt("Inconsistency in LZ77 encoding %x"), in_ptr-data);
+					dbg4_printf("\n");
 				}
 
 				for ( ; rep_length > 0; rep_length--) {
@@ -607,6 +609,11 @@ void parse_aiff(void *data, SoundInfo *snd)
 	snd->loop = 0;
 }
 
+void parse_banner_title(void *banner, u8 *title)
+{
+	memcpy(title, ((IMET*)banner)->names[CONF_GetLanguage()], 84);
+}
+
 void parse_banner_snd(void *banner, SoundInfo *snd)
 {
 	//extern char opening_bnr[];
@@ -621,6 +628,8 @@ void parse_banner_snd(void *banner, SoundInfo *snd)
 	dbg_hex_dump(banner, 128);
 	u8_hdr = data_hdr;
 	dbg4_printf("imet: %.4s\n", ((IMET*)banner)->imet);
+	
+	//printf("Title is: %s\n",banner_title);
 	dbg4_printf("U8: %.4s 0x%x\n", u8_hdr->tag, u8_hdr->rootnode_offset);
 	dbg_pause();
 	if (memcmp(u8_hdr->tag, u8_tag, 4)) return;

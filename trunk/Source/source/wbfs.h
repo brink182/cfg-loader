@@ -55,6 +55,6 @@ typedef struct DOL_LIST
 } DOL_LIST;
 
 int WBFS_GetDolList(u8 *discid, DOL_LIST *list);
-int WBFS_BannerSound(u8 *discid, SoundInfo *snd);
+int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle);
 
 #endif

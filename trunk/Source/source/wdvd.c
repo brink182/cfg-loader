@@ -186,7 +186,7 @@ s32 WDVD_Eject(void)
 	return (ret == 1) ? 0 : -ret;
 }
 
-s32 WDVD_OpenPartition(u64 offset)
+s32 WDVD_OpenPartition(u64 offset, u8 *tmd)
 {
 	u8 *vector = NULL;
 
@@ -206,9 +206,9 @@ s32 WDVD_OpenPartition(u64 offset)
 	/* Open partition */
 	buffer[0] = (u32)(buffer + 0x10);
 	buffer[1] = 0x20;
-	buffer[3] = 0x024A;
-	buffer[6] = (u32)(buffer + 0x380);
-	buffer[7] = 0x49E4;
+	buffer[3] = 0x2a4;
+	buffer[6] = (u32)tmd;
+	buffer[7] = 0x49e4;
 	buffer[8] = (u32)(buffer + 0x360);
 	buffer[9] = 0x20;
 

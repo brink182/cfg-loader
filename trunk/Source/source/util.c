@@ -12,6 +12,7 @@
 #include "console.h"
 #include "menu.h"
 #include "util.h"
+#include "console.h"
 
 /*
 extern void* SYS_GetArena2Lo();
@@ -180,6 +181,7 @@ void wiilight(int enable)
     *_wiilight_reg=val;            
 }
 
+
 int mbs_len(char *s)
 {
 	int count, n;
@@ -207,6 +209,21 @@ bool mbs_trunc(char *mbs, int n)
 	return true;
 }
 
+char *mbs_align(const char *str, int n)
+{
+	static char strbuf[100];
+	if (strlen(str) >= sizeof(strbuf) || n >= sizeof(strbuf)) return (char*)str;
+	// fill with space
+	memset(strbuf, ' ', sizeof(strbuf));
+	// overwrite with str, keeping trailing space
+	memcpy(strbuf, str, strlen(str));
+	// terminate
+	strbuf[sizeof(strbuf)-1] = 0;
+	// truncate multibyte string
+	mbs_trunc(strbuf, n);
+	return strbuf;
+}
+
 int mbs_coll(char *a, char *b)
 {
 	int lena = strlen(a);
@@ -229,6 +246,69 @@ int mbs_coll(char *a, char *b)
 	}
 	return 0;
 }
+
+int con_char_len(int c)
+{
+	int cc;
+	int len;
+	if (c < 512) return 1;
+	cc = map_ufont(c);
+	if (cc != 0) return 1;
+	if (c < 0 || c > 0xFFFF) return 1;
+	if (unifont == NULL) return 1;
+	len = unifont->index[c] & 0x0F;
+	if (len < 1) return 1;
+	if (len > 2) return 2;
+	return len;
+}
+
+int con_len(char *s)
+{
+	int i, len = 0;
+	int n = mbs_len(s);
+	wchar_t wbuf[n+1];
+	wbuf[0] = 0;
+	mbstowcs(wbuf, s, n);
+	wbuf[n] = 0;
+	for (i=0; i<n; i++) {
+		len += con_char_len(wbuf[i]);
+	}
+	return len;
+}
+
+bool con_trunc(char *s, int n)
+{
+	int slen = strlen(s);
+	int i, len = 0;
+	wchar_t wbuf[n+1];
+	wbuf[0] = 0;
+	mbstowcs(wbuf, s, n);
+	wbuf[n] = 0;
+	for (i=0; i<n; i++) {
+		len += con_char_len(wbuf[i]);
+		if (len > n) break;
+	}
+	wbuf[i] = 0; // terminate;
+	wcstombs(s, wbuf, slen+1);
+	return (len > n); // true if truncated
+}
+
+char *con_align(const char *str, int n)
+{
+	static char strbuf[100];
+	if (strlen(str) >= sizeof(strbuf) || n >= sizeof(strbuf)) return (char*)str;
+	// fill with space
+	memset(strbuf, ' ', sizeof(strbuf));
+	// overwrite with str, keeping trailing space
+	memcpy(strbuf, str, strlen(str));
+	// terminate
+	strbuf[sizeof(strbuf)-1] = 0;
+	// truncate multibyte string
+	con_trunc(strbuf, n);
+	while (con_len(strbuf) < n) strcat(strbuf, " ");
+	return strbuf;
+}
+
 
 int map_ufont(int c)
 {

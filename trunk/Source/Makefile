@@ -15,20 +15,32 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
+VERSION		:=	53
+RELEASE		:=	devel
+TARGET		:=	cfg$(VERSION)
 BUILD		:=	build
 SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip
 DATA		:=	data
 INCLUDES	:=	
+GETTEXT		:=	tools/gettext-bin
+UPLOAD		:=  tools/googlecode_upload.py
+GAUTH		?=  -u username -w passwd
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
+FAT_BUILD	:=	0
+ifeq ($(FAT_BUILD),1)
+	BUILD	:=	build_fat
+	TARGET		:=	cfg$(VERSION)-fat
+endif
+BUILD_FLAGS = -DFAT_BUILD=$(FAT_BUILD) -DVERSION=$(VERSION)
 #"-g" tells the compiler to include support for the debugger
 #"-Wall" tells it to warn us about all suspicious-looking code
-CFLAGS	= -Os -Wall $(MACHDEP) $(INCLUDE)
-#CFLAGS	= -g -Wall $(MACHDEP) $(INCLUDE)
+DEBUG_OPT	= -Os
+#DEBUG_OPT	= -g
+CFLAGS	= $(DEBUG_OPT) -Wall $(MACHDEP) $(INCLUDE) $(BUILD_FLAGS)
 CXXFLAGS	=	$(CFLAGS)
 
 # start address:
@@ -36,6 +48,7 @@ CXXFLAGS	=	$(CFLAGS)
 # NeoGammaR4: 0x80dfff00
 # cfg 33-36:  0x80c00000
 # cfg 37-49:  0x80b00000
+# cfg 50-..:  0x80a80000
 LDFLAGS	=	$(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80a80000
 
 #---------------------------------------------------------------------------------
@@ -59,7 +72,7 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-
+export PATH 	:=	$(CURDIR)/$(GETTEXT):$(PATH)
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 
@@ -102,17 +115,37 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
 					-L$(LIBOGC_LIB)
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: $(BUILD) clean
+.PHONY: $(BUILD) lang all clean
 
 #---------------------------------------------------------------------------------
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
+	@echo
+	@echo Building $(TARGET) $(BUILD_FLAGS)
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+
+fat:
+	@make --no-print-directory FAT_BUILD=1
+
+#---------------------------------------------------------------------------------
+lang:
+	@[ -d Languages ] || mkdir -p Languages
+	@echo
+	@echo "Building Language File ($@$(VERSION).pot)"
+	@xgettext --sort-output --no-wrap --no-location -k -kgt -o Languages/$@$(VERSION).pot source/*.c
+
+#---------------------------------------------------------------------------------
+all:
+	@echo Make All
+	@make --no-print-directory build
+	@make --no-print-directory FAT_BUILD=1
+	@make --no-print-directory lang
 
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
+	@rm -fr $(BUILD)_fat $(OUTPUT)-fat.elf $(OUTPUT)-fat.dol
 
 #---------------------------------------------------------------------------------
 run: 
@@ -121,6 +154,64 @@ run:
 # widescreen = [auto], 0, 1
 # home = [reboot], exit, screenshot
 # cover_style = [standard], 3d, disc
+
+DATE=$(shell date +%F)
+SIZE=$(shell stat -c %s cfg$(VERSION).dol 2>/dev/null)
+SIZE_FAT=$(shell stat -c %s cfg$(VERSION)-fat.dol 2>/dev/null)
+
+define ANNOUNCE_SH
+CHANGES=`sed -n '/^cfg v'$(VERSION)' /,/^cfg/{/^cfg/!p}' README-CFG.txt`
+echo "===== updates.txt: ====="
+cat << END
+
+release = $(VERSION) ($(RELEASE))
+size = $(SIZE)
+date = $(DATE)
+url = http://cfg-loader.googlecode.com/files/cfg$(VERSION).dol
+$$CHANGES
+
+release = $(VERSION)-fat ($(RELEASE))
+size = $(SIZE_FAT)
+date = $(DATE)
+url = http://cfg-loader.googlecode.com/files/cfg$(VERSION)-fat.dol
+Same as $(VERSION) but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
+END
+echo "===== forum ====="
+cat << END
+
+[b]cfg v$(VERSION) ($(RELEASE))[/b]
+[url="http://cfg-loader.googlecode.com/files/cfg$(VERSION).dol"]cfg$(VERSION).dol[/url]
+[url="http://cfg-loader.googlecode.com/files/cfg$(VERSION)-fat.dol"]cfg$(VERSION)-fat.dol[/url]
+[url="http://cfg-loader.googlecode.com/files/lang$(VERSION).zip"]lang$(VERSION).zip[/url]
+(or online update)
+
+[pre]Changes:
+cfg v$(VERSION) ($(RELEASE))
+$$CHANGES
+[/pre]
+
+END
+endef
+export ANNOUNCE_SH
+
+announce:
+	@echo "$$ANNOUNCE_SH" | sh
+
+DOLS := cfg$(VERSION)-fat.dol cfg$(VERSION).dol
+ELFS := cfg$(VERSION)-fat.elf cfg$(VERSION).elf
+BINS := $(ELFS) $(DOLS)
+
+upload:
+	for F in $(BINS); do echo uploading $$F ; $(UPLOAD) $(GAUTH) -p cfg-loader -s $$F $$F ; done
+
+upload_lang:
+	echo uploading Languages/lang$(VERSION).zip
+	$(UPLOAD) $(GAUTH) -p cfg-loader -s lang$(VERSION).zip Languages/lang$(VERSION).zip
 
 #---------------------------------------------------------------------------------
 else
@@ -144,7 +235,7 @@ $(OUTPUT).elf: $(OFILES)
 %.ttf.o : %.ttf
 	@echo $(notdir $<)
 	@$(bin2o)
-  
+
 -include $(DEPENDS)
 
 #---------------------------------------------------------------------------------

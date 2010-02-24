@@ -38,6 +38,7 @@
 
 #include "patchcode.h"
 #include "kenobiwii.h"
+#include "gettext.h"
 
 #define FSTDIRTYPE 1
 #define FSTFILETYPE 0
@@ -68,7 +69,7 @@ u32 do_sd_code(char *filename)
 	// fat already initialized in main()
 	ret = fatInitDefault();
 	if (!ret) {
-		printf("[+] SD Error\n");
+		printf_x("SD Error\n");
 		sleep (2);
 		return 0;
 	}
@@ -76,7 +77,8 @@ u32 do_sd_code(char *filename)
 
 	fflush(stdout);
 	
-	printf("[+] Ocarina: Searching codes...\n");
+	printf_x(gt("Ocarina: Searching codes..."));
+	printf("\n");
 
 	for (i=0; i<3; i++) {
 		switch (i) {
@@ -103,7 +105,8 @@ u32 do_sd_code(char *filename)
 		}
 	}
 	if (!fp) {
-		printf("[+] Ocarina: No codes found\n");
+		printf_x(gt("Ocarina: No codes found"));
+		printf("\n");
 		sleep(3);
 		return 0;
 	}
@@ -114,7 +117,8 @@ u32 do_sd_code(char *filename)
 	
 	filebuff = (u8*) malloc (filesize);
 	if(filebuff == 0){
-		printf("[+] Ocarina: Out Of Memory Error\n");
+		printf_x(gt("Ocarina: Out Of Memory Error"));
+		printf("\n");
 		fclose(fp);
 		sleep(2);
 		return 0;
@@ -122,25 +126,30 @@ u32 do_sd_code(char *filename)
 
 	ret = fread(filebuff, 1, filesize, fp);
 	if(ret != filesize){	
-		printf("[+] Ocarina: Code Error\n");
+		printf_x(gt("Ocarina: Code Error"));
+		printf("\n");
 		free(filebuff);
 		fclose(fp);
 		sleep(2);
 		return 0;
 	}
-    printf("[+] Ocarina: Codes found.\n");
+    printf_x(gt("Ocarina: Codes found."));
+	printf("\n");
 
 	// ocarina config options are done elswhere, confirmation optional
 	if (!CFG.confirm_ocarina) goto no_confirm;
 
-	printf("    Press A button to apply codes.\n");
-	printf("    Press B button to skip codes.\n");
+	printf("    ");
+	printf(gt("Press %s button to apply codes."), (button_names[CFG.button_confirm.num]));
+	printf("\n    ");
+	printf(gt("Press %s button to skip codes."), (button_names[CFG.button_cancel.num]));
+	printf("\n");
 	/* Wait for user answer */
 	for (;;) {
 		u32 buttons = Wpad_WaitButtons();
 
 		/* A button */
-		if (buttons & WPAD_BUTTON_A) {
+		if (buttons & CFG.button_confirm.mask) {
 			no_confirm:
 			// HOOKS STUFF - FISHEARS
 			if (CFG.game.ocarina) {
@@ -160,7 +169,7 @@ u32 do_sd_code(char *filename)
 		}
 
 		/* B button */
-		if (buttons & WPAD_BUTTON_B)
+		if (buttons & CFG.button_cancel.mask)
 				break;
 	}
 
@@ -184,7 +193,8 @@ int ocarina_load_code(u8 *id)
 	memset(filename, 0, sizeof(filename));
 	memcpy(filename, id, 6);
 	
-	printf_x("Ocarina: Searching codes...\n");
+	printf_x(gt("Ocarina: Searching codes..."));
+	printf("\n");
 
 	for (i=0; i<3; i++) {
 		switch (i) {
@@ -213,23 +223,27 @@ int ocarina_load_code(u8 *id)
 		}
 	}
 	if (!code_buf) {
-		printf_x("Ocarina: No codes found\n");
+		printf_x(gt("Ocarina: No codes found"));
+		printf("\n");
 		sleep(2);
 		return 0;
 	}
 
-    printf_x("Ocarina: Codes found.\n");
+    printf_x(gt("Ocarina: Codes found."));
+	printf("\n");
 
 	// optional confirmation
 	if (CFG.confirm_ocarina) {
 		Gui_Console_Enable();
-		printf_h("Press A button to apply codes.\n");
-		printf_h("Press B button to skip codes.\n");
+		printf_h(gt("Press %s button to apply codes."), (button_names[CFG.button_confirm.num]));
+		printf("\n");
+		printf_h(gt("Press %s button to skip codes."), (button_names[CFG.button_cancel.num]));
+		printf("\n");
 		/* Wait for user answer */
 		for (;;) {
 			u32 buttons = Wpad_WaitButtons();
-			if (buttons == WPAD_BUTTON_A) break;
-			if (buttons == WPAD_BUTTON_B) {
+			if (buttons & CFG.button_confirm.mask) break;
+			if (buttons & CFG.button_cancel.mask) {
 				SAFE_FREE(code_buf);
 				code_size = 0;
 				break;
@@ -245,7 +259,8 @@ int ocarina_do_code()
 	if (!CFG.game.ocarina) return 0;
 	if (!code_buf) {
 		if (usb_isgeckoalive(EXI_CHANNEL_1)){
-			printf_("USB Gecko found. Debugging is enabled.\n");
+			printf_(gt("USB Gecko found. Debugging is enabled."));
+			printf_("\n");
 		} else {
 			return 0;
 		}

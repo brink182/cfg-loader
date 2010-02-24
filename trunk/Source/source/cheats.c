@@ -37,6 +37,7 @@
 #include "subsystem.h"
 #include "net.h"
 #include "menu.h"
+#include "gettext.h"
 
 ////////////////////////////////////////
 //
@@ -186,7 +187,8 @@ bool parse_cheats(char *buf)
 		if (!get_line()) break;
 		if (strlen(line) == 0) return false;
 		if (cheats.num_cheats >= CHEAT_MAX) {
-			printf("Too many cheats! (%d)\n", cheats.num_cheats);
+			printf(gt("Too many cheats! (%d)"), cheats.num_cheats);
+			printf("\n");
 			goto err2;
 		}
 		cheats.num_cheats++;
@@ -201,7 +203,8 @@ bool parse_cheats(char *buf)
 			{
 				// it's a code.
 			   	if (cheats.num_lines >= CHEAT_MAX_LINES) {
-					printf("Too many code lines!\n");
+					printf(gt("Too many code lines!"));
+					printf("\n");
 					goto err2;
 				}
 			   	cheats.num_lines++;
@@ -233,10 +236,12 @@ bool parse_cheats(char *buf)
 	return true;
 
 err:
-	printf("Unknown syntax!\n");
+	printf(gt("Unknown syntax!"));
+	printf("\n");
 	printf("%d: '%s'\n", line_buf_count, line);
 err2:
-	printf("Press any button...\n");
+	printf(gt("Press any button..."));
+	printf("\n");
 	Wpad_WaitButtons();
 	// reset cheats on error.
 	memset(&cheats, 0, sizeof(cheats));
@@ -294,11 +299,13 @@ int Save_Cheats_GCT(char *id)
 
 	snprintf(D_S(filepath), "%s/codes/%.6s.gct", USBLOADER_PATH, id);
 	printf("\n");
-	printf_("Saving: %s\n", filepath);
+	printf_(gt("Saving: %s"), filepath);
+	printf("\n");
 
 	f = fopen(filepath, "wb");
 	if (!f) {
-		printf_("Error opening: %s\n", filepath);
+		printf_(gt("Error opening: %s"), filepath);
+		printf("\n");
 		sleep(2);
 		return -1;	
 	}
@@ -329,7 +336,8 @@ int Save_Cheats_GCT(char *id)
 	// gct tail
 	fwrite(gct_tail, 1, sizeof(gct_tail), f);
 	fclose(f);
-	printf_("Done.\n");
+	printf_(gt("Done."));
+	printf("\n");
 	sleep(2);
 	//Wpad_WaitButtons();
 
@@ -349,7 +357,8 @@ bool Download_Cheats_TXT(char *id)
 
 	DefaultColor();
 	printf("\n");
-	printf_("Downloading cheats...\n");
+	printf_(gt("Downloading cheats..."));
+	printf("\n");
 
 	extern bool Init_Net();
 	if (!Init_Net()) goto err;
@@ -365,12 +374,14 @@ bool Download_Cheats_TXT(char *id)
 		dbg_printf("url: %s\n", url);
 		file = downloadfile(url);
 		if (file.data == NULL || file.size == 0) {
-			printf_("Error downloading.\n");
+			printf_(gt("Error downloading."));
+			printf("\n");
 			goto err;
 		}
 	}
 
-	printf_("Saving cheats...\n");
+	printf_(gt("Saving cheats..."));
+	printf("\n");
 	snprintf(D_S(filepath), "%s/codes", USBLOADER_PATH);
 	mkdir(filepath, 0777);
 	snprintf(D_S(filepath), "%s/codes/%.6s.txt", USBLOADER_PATH, id);
@@ -378,19 +389,23 @@ bool Download_Cheats_TXT(char *id)
 	f = fopen(filepath, "wb");
 	if (!f) {
 		printf("\n");
-		printf_("Error opening: %s\n", filepath);
+		printf_(gt("Error opening: %s"), filepath);
+		printf("\n");
 		goto err;
 	}
 	fwrite(file.data, 1, file.size, f);
 	fclose(f);
-	printf_("OK\n");
+	printf_(gt("OK"));
+	printf("\n");
 	SAFE_FREE(file.data);
 	sleep(2);
 
 	return true;
 
 err:
-	printf("\nPress any button...\n");
+	printf("\n");
+	printf(gt("Press any button..."));
+	printf("\n");
 	Wpad_WaitButtons();
 	SAFE_FREE(file.data);
 	return false;
@@ -399,7 +414,7 @@ err:
 void print_game_info(struct discHdr *header, int cols)
 {
 	int len;
-	len = cols - strlen(CFG.menu_plus_s) - 7 - 1;
+	len = cols - strlen(CFG.menu_plus_s) - 10;
 	printf_("");
 	printf("(%.6s) ", header->id);
 	printf("%.*s\n", len, get_title(header));
@@ -440,7 +455,6 @@ void Menu_Cheats(struct discHdr *header)
 	int cols_note;
 	int rows_note;
 	int window_size;
-	int window_start;
 	int current_cheat;
 	struct Cheat *cheat = NULL;
 	int i;
@@ -453,7 +467,6 @@ void Menu_Cheats(struct discHdr *header)
 	cols_note = cols - strlen(CFG.menu_plus_s) -1;
 	cols_opt = cols - strlen(CFG.cursor) - 2 -1;
 	window_size = rows - 8 - rows_note - 2 - 1;
-	window_start = 0;
 
 	for (;;) {
 		menu.num_opt = 3 + cheats.num_cheats;
@@ -472,25 +485,30 @@ void Menu_Cheats(struct discHdr *header)
 
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Ocarina Cheat Manager\n");
+		printf_x(gt("Ocarina Cheat Manager"));
+		printf("\n");
 		DefaultColor();
 		print_game_info(header, cols);
-		printf_x("Cheats: ");
+		printf_x(gt("Cheats: "));
 		switch (cheat_state) {
 			case 3:
-				printf("Loading ...\n");
+				printf(gt("Loading ..."));
+				printf("\n");
 				__console_flush(0);
 				cheat_state = Load_Cheats_TXT((char*)header->id);
 				usleep(100000);
 				continue;
 			case 2:
-				printf("no file\n");
+				printf(gt("no file"));
+				printf("\n");
 				break;
 			case 1:
-				printf("parse error\n");
+				printf(gt("parse error"));
+				printf("\n");
 				break;
 			case 0:
-				printf("%d available\n", cheats.num_cheats);
+				printf(gt("%d available"), cheats.num_cheats);
+				printf("\n");
 				break;
 		}
 		printf("\n");
@@ -500,30 +518,17 @@ void Menu_Cheats(struct discHdr *header)
 		//menu_jump_active(&menu);
 
 		MENU_MARK();
-		printf("<Download .txt>\n");
+		printf("<%s>\n", gt("Download .txt"));
 		MENU_MARK();
-		printf("<Save .gct>\n");
+		printf("<%s>\n", gt("Save .gct"));
 		MENU_MARK();
-		printf("<Select all>\n");
+		printf("<%s>\n", gt("Select all"));
 
 		// cheats
 		DefaultColor();
-		if (window_start > 0) {
-			printf(" %s +", CFG.cursor_space);
-		}
-		//printf(" %d %d %d", current_cheat, window_start, window_size);
-		printf("\n");
+		menu_window_begin(&menu, window_size, cheats.num_cheats);
 		for (i=0; i<cheats.num_cheats; i++) {
-			if (i < window_start) {
-				menu.line_count++;
-				continue;
-			}
-			if (i >= window_start + window_size) {
-				DefaultColor();
-				printf(" %s +", CFG.cursor_space);
-				break;
-			}
-			MENU_MARK();
+			if (!menu_window_mark(&menu)) continue;
 			cheat = &cheats.cheat[i];
 			if (cheat->num_codes == 0) {
 				printf("    ");
@@ -536,9 +541,10 @@ void Menu_Cheats(struct discHdr *header)
 			}
 			printf("%.*s\n", cols_opt-4, cheat->title);
 		}
-		// notes
 		DefaultColor();
-		printf("\n");
+		menu_window_end(&menu, cols);
+		// notes
+		FgColor(CFG.color_inactive);
 		current_cheat = menu.current - 3;
 		int printed_notes = 0;
 		if (current_cheat < 0) {
@@ -554,7 +560,9 @@ void Menu_Cheats(struct discHdr *header)
 			printed_notes = n;
 			if (cheat->num_notes > n) {
 				printf_("");
-				printf("(%d more notes)\n", cheat->num_notes - n);
+				printf("(");
+				printf(gt("%d more notes"), cheat->num_notes - n);
+				printf(")\n");
 				printed_notes++;
 			}
 		}
@@ -563,7 +571,8 @@ void Menu_Cheats(struct discHdr *header)
 			printf("\n");
 		}
 		if (printed_notes <= 3) {
-			printf_h("Press B to return\n");
+			printf_h(gt("Press %s to return"), (button_names[CFG.button_cancel.num]));
+			printf("\n");
 		}
 		__console_flush(0);
 
@@ -571,19 +580,9 @@ void Menu_Cheats(struct discHdr *header)
 		u32 buttons = Wpad_WaitButtonsRpt();
 		menu_move(&menu, buttons);
 
-		// window
-		current_cheat = menu.current - 3;
-		if (current_cheat >= window_start + window_size) {
-			window_start = current_cheat - window_size + 1;
-		}
-		if (current_cheat < window_start) {
-			window_start = current_cheat;
-		}
-		if (window_start < 0) window_start = 0;
-
 		// change
 		int change = 0;
-		if (buttons & WPAD_BUTTON_A) change = 1;
+		if (buttons & CFG.button_confirm.mask) change = 1;
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
 		if (buttons & WPAD_BUTTON_RIGHT) change = 1;
 
@@ -608,7 +607,7 @@ void Menu_Cheats(struct discHdr *header)
 			}
 			if (menu.current >= 3 && cheat) {
 				if (cheat->num_codes > 0 && !cheat->editable) {
-					if (buttons & WPAD_BUTTON_A) {
+					if (buttons & CFG.button_confirm.mask) {
 						cheat->enabled = !cheat->enabled;
 					} else if (change < 0) {
 						cheat->enabled = false;
@@ -619,12 +618,10 @@ void Menu_Cheats(struct discHdr *header)
 			}
 		}
 
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	printf("\n");
 }
-
-

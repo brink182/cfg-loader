@@ -1,5 +1,6 @@
 
 // FAT support, banner sounds and alt.dol by oggzee
+// Banner title for playlog by Clipper
 
 #include <stdio.h>
 #include <unistd.h>
@@ -27,6 +28,7 @@
 #include "cfg.h"
 #include "wbfs_fat.h"
 #include "util.h"
+#include "gettext.h"
 
 /* Constants */
 #define MAX_NB_SECTORS	32
@@ -88,10 +90,14 @@ void __WBFS_Spinner(s32 x, s32 max)
 
 	/* Show progress */
 	if (x != max) {
-		printf("    %.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d\r", percent, size, "/-\\|"[(x / 10) % 4], h, m, s);
+		printf_(gt("%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"),
+				percent, size, "/-\\|"[(x / 10) % 4], h, m, s);
+		printf("\r");
 		fflush(stdout);
-	} else
-		printf("    %.2fGB copied in %d:%02d:%02d\n", size, h, m, s);
+	} else {
+		printf_(gt("%.2fGB copied in %d:%02d:%02d"), size, h, m, s);
+		printf("  \n");
+	}
 
 	__console_flush(1);
 }
@@ -316,7 +322,7 @@ s32 WBFS_Init(u32 device, u32 timeout)
 	}
 
 out:
-	printf("    %s\n", ret < 0 ? "ERROR!" : "OK.");
+	printf_("%s\n", ret < 0 ? gt("ERROR!") : gt("OK!"));
 	return ret;
 }
 
@@ -328,6 +334,7 @@ bool WBFS_Close()
 		hdd = NULL;
 	}
 	Fat_UnmountWBFS();
+	UnmountNTFS();
 	wbfs_part_fs = 0;
 	wbfs_part_idx = 0;
 	wbfs_part_lba = 0;
@@ -462,7 +469,8 @@ s32 WBFS_OpenNamed(char *partition)
 
 err:
 	Gui_Console_Enable();
-	printf("Invalid partition: '%s'\n", partition);
+	printf(gt("Invalid partition: '%s'"), partition);
+	printf("\n");
 	__console_flush(0);
 	sleep(2);
 	return -1;
@@ -777,10 +785,12 @@ int WBFS_GetDolList(u8 *discid, DOL_LIST *list)
 	return 0;
 }
 
-int WBFS_BannerSound(u8 *discid, SoundInfo *snd)
+int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle)
 {
 	void *banner = NULL;
 	int size;
+
+	if (!getSound && !getTitle) return 0;
 
 	snd->dsp_data = NULL;
 	wbfs_disc_t* d = WBFS_OpenDisc(discid);
@@ -790,7 +800,8 @@ int WBFS_BannerSound(u8 *discid, SoundInfo *snd)
 	if (!banner || size <= 0) return -1;
 
 	//printf("\nopening.bnr: %d\n", size);
-	parse_banner_snd(banner, snd);
+	if (getTitle) parse_banner_title(banner, title);
+	if (getSound) parse_banner_snd(banner, snd);
 	SAFE_FREE(banner);
 	return 0;
 }

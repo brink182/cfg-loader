@@ -23,7 +23,7 @@ More info : http://frontier-dev.net
 // Prototypes of helper functions
 int pngu_info (IMGCTX ctx);
 int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlpha);
-int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height);
+int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlpha, int force32bit);
 void pngu_free_info (IMGCTX ctx);
 void pngu_read_data_from_buffer (png_structp png_ptr, png_bytep data, png_size_t length);
 void pngu_write_data_to_buffer (png_structp png_ptr, png_bytep data, png_size_t length);
@@ -786,11 +786,7 @@ int PNGU_DecodeToCMPR(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
 	int k;
 
 	//check for alpha channel
-	if ( !(ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY_ALPHA) && !(ctx->prop.imgColorType == PNGU_COLOR_TYPE_RGB_ALPHA) ) {
-		result = pngu_decode_add_alpha (ctx, width, height);
-	} else {
-		result = pngu_decode (ctx, width, height, 0);
-	}
+	result = pngu_decode_add_alpha (ctx, width, height, 0, 1);
 	if (result != PNGU_OK)
 		return result;
 
@@ -843,6 +839,7 @@ void ExtractBlock( PNGU_u8 *inPtr, int y, int x, PNGU_u32 width, int i, PNGU_u8 
 }
 
 /**
+ * by usptactical
  * Converts a 4x4 RGBA8 image to CMPR.
  */ 
 int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr)
@@ -919,10 +916,29 @@ int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf
 }
 
 
-int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height)
+#ifndef SAFE_FREE
+#define SAFE_FREE(p) if(p){free(p);p=NULL;}
+#endif
+
+/**
+ * added by usptactical
+ * handles png error messages
+ */
+void user_error (png_structp png_ptr, png_const_charp c)
+{
+    longjmp (png_ptr->jmpbuf, 1);
+}
+
+
+int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlpha, int force32bit)
 {
 	png_uint_32 rowbytes;
 	int i;
+	int chunk;
+	int rowsLeft;
+	png_bytep *curRow;
+	int mem_err = 0;
+	
 
 	// Read info if it hasn't been read before
 	if (!ctx->infoRead)
@@ -940,13 +956,31 @@ int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height)
 	if ( (ctx->prop.imgColorType == PNGU_COLOR_TYPE_PALETTE) || (ctx->prop.imgColorType == PNGU_COLOR_TYPE_UNKNOWN) )
 		return PNGU_UNSUPPORTED_COLOR_TYPE;
 
+	//*************************************************
+	//* added by usptactical to catch corrupted pngs  *
+	jmp_buf save_jmp;
+	memcpy(save_jmp, png_jmpbuf(ctx->png_ptr), sizeof(save_jmp));
+	if (setjmp(png_jmpbuf(ctx->png_ptr))) {
+		error:
+		memcpy(png_jmpbuf(ctx->png_ptr), save_jmp, sizeof(save_jmp));
+		SAFE_FREE(ctx->row_pointers);
+		SAFE_FREE(ctx->img_data);
+		pngu_free_info (ctx);
+		//printf("*** This is a corrupted image!!\n"); sleep(5);
+		return (mem_err)?PNGU_LIB_ERROR:-666;
+	}
+	//override default error handler to suppress warning messages from libpng
+	png_set_error_fn (ctx->png_ptr, NULL, user_error, user_error);
+	//*************************************************
+
 	// Scale 16 bit samples to 8 bit
 	if (ctx->prop.imgBitDepth == 16)
         png_set_strip_16 (ctx->png_ptr);
 
-	// Add alpha channel filler
-	png_set_filler(ctx->png_ptr, 0xff, PNG_FILLER_AFTER);
-	
+	// Remove alpha channel if we don't need it
+	if (stripAlpha && ((ctx->prop.imgColorType == PNGU_COLOR_TYPE_RGB_ALPHA) || (ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY_ALPHA)))
+        png_set_strip_alpha (ctx->png_ptr);
+
 	// Expand 1, 2 and 4 bit samples to 8 bit
 	if (ctx->prop.imgBitDepth < 8)
         png_set_packing (ctx->png_ptr);
@@ -954,6 +988,10 @@ int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height)
 	// Transform grayscale images to RGB
 	if ( (ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY) || (ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY_ALPHA) )
 		png_set_gray_to_rgb (ctx->png_ptr);
+
+	// Transform RBG images to RGBA
+	if (force32bit && (ctx->prop.imgColorType == PNGU_COLOR_TYPE_GRAY || ctx->prop.imgColorType == PNGU_COLOR_TYPE_RGB))
+		png_set_filler(ctx->png_ptr, 0xFF, PNG_FILLER_AFTER);
 
 	// Flush transformations
 	png_read_update_info (ctx->png_ptr, ctx->info_ptr);
@@ -966,23 +1004,39 @@ int pngu_decode_add_alpha (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height)
 	ctx->img_data = malloc (rowbytes * ctx->prop.imgHeight);
 	if (!ctx->img_data)
 	{
-		pngu_free_info (ctx);
-		return PNGU_LIB_ERROR;
+		mem_err = 1;
+		goto error;
 	}
 
 	ctx->row_pointers = malloc (sizeof (png_bytep) * ctx->prop.imgHeight);
 	if (!ctx->row_pointers)
 	{
-		free (ctx->img_data);
-		pngu_free_info (ctx);
-		return PNGU_LIB_ERROR;
+		mem_err = 1;
+		goto error;
 	}
 
-	for (i = 0; i < ctx->prop.imgHeight; i++)
+	for (i = 0; i < (int)ctx->prop.imgHeight; i++)
 		ctx->row_pointers[i] = ctx->img_data + (i * rowbytes);
 
 	// Transform the image and copy it to our allocated memory
-	png_read_image (ctx->png_ptr, ctx->row_pointers);
+	if (png_get_interlace_type(ctx->png_ptr, ctx->info_ptr) != PNG_INTERLACE_NONE)
+		png_read_image (ctx->png_ptr, ctx->row_pointers);
+	else
+	{
+		rowsLeft = ctx->prop.imgHeight;
+		curRow = ctx->row_pointers;
+		while (rowsLeft > 0)
+		{
+			chunk = rowsLeft > 0x80 ? 0x80 : rowsLeft;
+			png_read_rows(ctx->png_ptr, curRow, NULL, chunk);
+			usleep(1000);
+			curRow += chunk;
+			rowsLeft -= chunk;
+		}
+	}
+
+	// restore default error handling
+	memcpy(png_jmpbuf(ctx->png_ptr), save_jmp, sizeof(save_jmp));
 
 	// Free resources
 	pngu_free_info (ctx);
@@ -1319,14 +1373,12 @@ int pngu_info (IMGCTX ctx)
 	return PNGU_OK;
 }
 
-#ifndef SAFE_FREE
-#define SAFE_FREE(p) if(p){free(p);p=NULL;}
-#endif
 
 int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlpha)
 {
 	png_uint_32 rowbytes;
 	int i;
+	int mem_err = 0;
 
 	// Read info if it hasn't been read before
 	if (!ctx->infoRead)
@@ -1353,8 +1405,14 @@ int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlph
         SAFE_FREE(ctx->row_pointers);
         SAFE_FREE(ctx->img_data);
         pngu_free_info (ctx);
-        return PNGU_LIB_ERROR;
+		//printf("*** This is a corrupted image!!\n"); sleep(5);
+		return (mem_err)?PNGU_LIB_ERROR:-666;
     }
+	//*************************************************
+	//* added by usptactical to catch corrupted pngs  *
+	//override default error handler to suppress warning messages from libpng
+	png_set_error_fn (ctx->png_ptr, NULL, user_error, user_error);
+	//*************************************************
 
 	// Scale 16 bit samples to 8 bit
 	if (ctx->prop.imgBitDepth == 16)
@@ -1383,12 +1441,14 @@ int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlph
 	ctx->img_data = malloc (rowbytes * ctx->prop.imgHeight);
 	if (!ctx->img_data)
 	{
+		mem_err = 1;
         goto error;
 	}
 
 	ctx->row_pointers = malloc (sizeof (png_bytep) * ctx->prop.imgHeight);
 	if (!ctx->row_pointers)
 	{
+		mem_err = 1;
         goto error;
 	}
 

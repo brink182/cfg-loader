@@ -14,6 +14,8 @@
 //#include "kenobiwii.h" /*FISHEARS*/
 #include "dol.h"
 #include "wiip.h"
+#include "gettext.h"
+#include "menu.h"
 
 /*KENOBI! - FISHEARS*/
 extern const unsigned char kenobiwii[];
@@ -315,12 +317,16 @@ s32 Apploader_Run(entry_point *entry)
 		if ( ((dst > mem_start) && (dst < mem_end))
 			|| ((dst+len > mem_start) && (dst+len < mem_end)) )
 		{
-			printf("ERROR: memory overlap!\n");
-			printf("dest: %p - %p\n", dst, dst+len);
-			printf("used: %p - %p\n", mem_start, mem_end);
+			printf(gt("ERROR: memory overlap!"));
+			printf("\n");
+			printf(gt("dest: %p - %p"), dst, dst+len);
+			printf("\n");
+			printf(gt("used: %p - %p"), mem_start, mem_end);
+			printf("\n");
 			sleep(2);
-			printf("press home to exit any to ignore...\n");
-			Wpad_WaitButtonsCommon();
+			printf(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
+			printf("\n");
+			Menu_PrintWait();
 		}
 
 		/* Read data from DVD */
@@ -388,22 +394,27 @@ s32 Apploader_Run(entry_point *entry)
 			
 			if (doloffset == 0)
 			{
-				printf("[+] Alternative .dol:\n");
-				printf("    None found on disc\n");
+				printf_x(gt("Alternative .dol:"));
+				printf("\n");
+				printf_(gt("None found on disc"));
+				printf("\n");
 				sleep(2);
 			} else {
 				*entry = (void*)Load_Dol_from_disc(doloffset);
 				if (*entry == NULL) return -1;
-				printf("    Load OK!\n");
+				printf_(gt("Load OK!"));
+				printf("\n");
 			}
 		} else if (CFG.game.alt_dol == 1)
 		{
 			u32 new_entry;
-			printf("[+] Alternative .dol:\n");
+			printf_x(gt("Alternative .dol:"));
+			printf("\n");
 			new_entry = Load_Dol_from_sd();
 			if (new_entry == 0) {
 				// non-fatal error
-				printf("    Press any button...\n");
+				printf_(gt("Press any button..."));
+				printf("\n");
 				Wpad_WaitButtons();
 				// continue without alt.dol
 			} else if (new_entry == (u32)-1) {
@@ -412,13 +423,15 @@ s32 Apploader_Run(entry_point *entry)
 			} else {
 				// ok.
 				*entry = (void*)new_entry;
-				printf("    Load OK!\n");
+				printf_(gt("Load OK!"));
+				printf("\n");
 			}
 		}
 		__console_flush(0);
 		usleep(500000);
 		if (CFG.debug) {
-			printf("    Press any button...\n");
+			printf_(gt("Press any button..."));
+			printf("\n");
 			Wpad_WaitButtons();
 		}
 	}
@@ -645,7 +658,8 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	dol_header = memalign(32, sizeof(dolheader));
 	if (dol_header == NULL)
 	{
-		printf("Out of memory\n");
+		printf(gt("Out of memory"));
+		printf("\n");
 		sleep(2);
 		return 0;
 	}
@@ -659,7 +673,8 @@ u32 Load_Dol_from_disc(u32 doloffset)
 
 	if (entrypoint == 0)
 	{
-		printf("Invalid .dol\n");
+		printf(gt("Invalid .dol"));
+		printf("\n");
 		sleep(2);
 		free(dol_header);
 		return 0;
@@ -670,7 +685,7 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	u32 len;
 	int sec_idx = 0;
 	
-	printf("    ...");
+	printf_("...");
 	while (load_dol_image(&offset, &pos, &len))
 	{
 		if (len != 0)
@@ -725,8 +740,9 @@ u32 Load_Dol_from_disc_menu()
 	int dolselect = 0;
 
 	if (*CFG.game.dol_name) {
-		printf("[+] Using Saved Alternative .dol:\n");
-		printf("    [%s]\n", CFG.game.dol_name);
+		printf_x(gt("Using Saved Alternative .dol:"));
+		printf("\n");
+		printf_("[%s]\n", CFG.game.dol_name);
 		sleep(1);
 		if (strcmp(CFG.game.dol_name, "main.dol") == 0) {
 			dolselect = 0;
@@ -738,25 +754,31 @@ u32 Load_Dol_from_disc_menu()
 				goto start;
 			}
 		}
-		printf("    Not Found!\n");
+		printf_(gt("Not Found!"));
+		printf("\n");
 	}
 
 	Gui_Console_Enable();
-	printf("[+] Select Alternative .dol:\n");
-	printf("    Press 2 to save selection\n");
-	printf("    Press A to start game\n");
+	printf_x(gt("Select Alternative .dol:"));
+	printf("\n");
+	printf_(gt("Press %s to save selection"), (button_names[CFG.button_save.num]));
+	printf("\n");
+	printf_(gt("Press %s to start game"), (button_names[CFG.button_confirm.num]));
+	printf("\n");
 
 	while (true)
 	{
 		//Con_Clear();
-		//printf("[+] Select Alternative .dol:\n");
+		//printf_x("Select Alternative .dol:\n");
 
 		if (dolselect == 0)
 		{
-			printf("\r    <main.dol>");
+			printf("\r");
+			printf_("<main.dol>");
 		} else
 		{
-			printf("\r    <%s>", fstfilename(dolindex[dolselect-1]));
+			printf("\r");
+			printf_("<%s>", fstfilename(dolindex[dolselect-1]));
 		}
 		printf("          ");
 		
@@ -786,7 +808,7 @@ u32 Load_Dol_from_disc_menu()
 			}
 		}
 
-		if (pressed == WPAD_BUTTON_2)
+		if (pressed & CFG.button_save.mask)
 		{
 			//Con_Clear();
 			printf("\n");
@@ -800,17 +822,22 @@ u32 Load_Dol_from_disc_menu()
 			} else {
 				STRCOPY(CFG.game.dol_name, fstfilename(dolindex[dolselect-1]));
 			}
-			printf("    Saving settings... ");
+			printf_(gt("Saving settings..."));
+			printf("  ");
 			ret = CFG_save_game_opt(gameid);
-			if (ret) printf(" OK.\n");
-			else printf("\n    Error saving settings!\n"); 
+			if (ret) printf(gt("OK!"));
+			else {
+				printf("\n");
+				printf_(gt("Error saving settings!"));
+			}
+			printf("\n");
 			*CFG.game.dol_name = 0;
 
 			sleep(1);
 			goto start;
 		}		
 
-		if (pressed == WPAD_BUTTON_A)
+		if (pressed & CFG.button_confirm.mask)
 		{
 	start:
 			printf("\n");
@@ -841,13 +868,14 @@ u32 Load_Dol_from_sd()
 	memcpy(gameidbuffer4, (char*)0x80000000, 4);		
 	//snprintf(buf, 128, "sd:/NeoGamma/%s.dol", gameidbuffer4);
 	snprintf(fname, sizeof(fname), "%s/%s.dol", USBLOADER_PATH, gameidbuffer4);
-	printf("    %s\n", fname);
+	printf_("%s\n", fname);
 
 	file = fopen(fname, "rb");
 	
 	if(file == NULL) 
 	{
-		printf("    Not found.\n");
+		printf_(gt("Not Found!"));
+		printf("\n");
 		sleep(4);
 		return 0;
 	}
@@ -860,7 +888,8 @@ u32 Load_Dol_from_sd()
 	dol_header = memalign(32, sizeof(dolheader));
 	if (dol_header == NULL)
 	{
-		printf("Out of memory\n");
+		printf(gt("Out of memory"));
+		printf("\n");
 		sleep(2);
 		fclose(file);
 		return 0;
@@ -869,7 +898,8 @@ u32 Load_Dol_from_sd()
 	ret = fread( dol_header, 1, sizeof(dolheader), file);
 	if(ret != sizeof(dolheader))
 	{
-		printf("Error reading dol header\n");
+		printf(gt("Error reading dol header"));
+		printf("\n");
 		sleep(2);
 		free(dol_header);
 		fclose(file);
@@ -880,7 +910,8 @@ u32 Load_Dol_from_sd()
 	
 	if (entrypoint == 0)
 	{
-		printf("Invalid .dol\n");
+		printf(gt("Invalid .dol"));
+		printf("\n");
 		sleep(2);
 		free(dol_header);
 		fclose(file);
@@ -892,12 +923,13 @@ u32 Load_Dol_from_sd()
 	u32 len;
 	int sec_idx = 0;
 	
-	printf("    ...");
+	printf_("...");
 	while (load_dol_image(&offset, &pos, &len))
 	{
 		if(pos+len > filesize)
 		{
-			printf(".dol too small\n");
+			printf(gt(".dol too small"));
+			printf("\n");
 			sleep(2);
 			free(dol_header);
 			fclose(file);
@@ -912,7 +944,8 @@ u32 Load_Dol_from_sd()
 			ret = fread( offset, 1, len, file);
 			if(ret != len)
 			{
-				printf("Error reading .dol\n");
+				printf(gt("Error reading .dol"));
+				printf("\n");
 				sleep(2);
 				free(dol_header);
 				fclose(file);

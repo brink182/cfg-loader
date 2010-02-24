@@ -19,6 +19,7 @@
 #include "net.h"
 #include "xml.h" /* XML - Lustar */
 #include "menu.h"
+#include "gettext.h"
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
@@ -56,6 +57,29 @@ int Net_Init(char *ip){
 	}
 	return false;
 }
+
+/* Initialize Network */
+bool Init_Net()
+{
+	static bool firstTimeDownload = true;
+
+	if(firstTimeDownload == true){
+		char myIP[16];
+		printf_x(gt("Initializing Network..."));
+		printf("\n");
+		if( !Net_Init(myIP) ){
+			printf_(gt("Error Initializing Network."));
+			printf("\n");
+			return false;
+		}
+		printf_(gt("Network connection established."));
+		printf("\n");
+		firstTimeDownload = false;
+	}
+	__console_flush(0);
+	return true;
+}
+
 
 #ifdef DEBUG_NET
 #define debug_printf(fmt, args...) \
@@ -157,7 +181,8 @@ static s32 NWC24iCleanupSocket(void)
 	
 	kd_fd = _net_convert_error(IOS_Open(__kd_fs, 0));
 	if (kd_fd < 0) {
-		debug_printf("IOS_Open(%s) failed with code %d\n", __kd_fs, kd_fd);
+		debug_printf(gt("IOS_Open(%s) failed with code %d"), __kd_fs, kd_fd);
+		printf("\n");
 		return kd_fd;
 	}
   
@@ -177,6 +202,7 @@ void Net_Close(int close_wc24)
 		net_top = -1;
 	}
 }
+
 /*
 
 Channel regions:
@@ -341,7 +367,7 @@ void format_URL(char *game_id, char *url, int size)
 	dbg_printf("URL: %s\n", url);
 }
 
-struct block Download_URL(char *id, char *url_list)
+struct block Download_URL(char *id, char *url_list, int style)
 {
 	struct block file;
 	char *next_url;
@@ -365,7 +391,10 @@ struct block Download_URL(char *id, char *url_list)
 
 	retry_id:
 
-	if (retry_cnt > 0) printf("    Trying (url#%d) ...\n", retry_cnt+1);
+	if (retry_cnt > 0) {
+		printf_(gt("Trying (url#%d) ..."), retry_cnt+1);
+		printf("\n");
+	}
 
 	STRCOPY(url, url_fmt);
 
@@ -394,28 +423,42 @@ struct block Download_URL(char *id, char *url_list)
 	format_URL(id, url, sizeof(url));
 
 	if (url[0] == 0) {
-		printf("    Error: no URL.\n");
+		printf_(gt("Error: no URL."));
+		printf("\n");
 		goto dl_err;
 	}
 
+	printf_("%.35s\n", url);
+	if (strlen(url) > 35) {
+		printf_("%.35s\n", url+35);
+	}
+	printf_("[");
+	__console_flush(0);
+	int chunk = 16;
+	if (style == CFG_COVER_STYLE_FULL) chunk = 32;
+	file = downloadfile_progress(url, chunk);
+	printf("]");
 	__console_flush(0);
 	
-	file = downloadfile(url);
-	
 	if (file.data == NULL || file.size == 0) {
-		printf("%s\n", url);
-		printf("    Error: no data.\n");
+		//printf("%s\n", url);
+		printf("\n");
+		printf_(gt("Error: no data."));
+		printf("\n");
 		goto dl_err;
 	}
-	printf("    Size: %d byte", file.size);
+	//printf(gt("Size: %d "), file.size);
+	printf(" %d", file.size);
 
 	// verify if valid png
 	s32 ret;
 	u32 w, h;
 	ret = __Gui_GetPngDimensions(file.data, &w, &h);
 	if (ret) {
-		printf("\n%s\n", url);
-		printf("    Error: Invalid PNG image!\n");
+		//printf("\n%s\n", url);
+		printf("\n");
+		printf_(gt("Error: Invalid PNG image!"));
+		printf("\n");
 		SAFE_FREE(file.data);
 		goto dl_err;
 	}
@@ -439,6 +482,7 @@ struct block Download_URL(char *id, char *url_list)
 		//sleep(2);
 		if (CFG.debug) { printf("Press any button.\n"); Wpad_WaitButtons(); }
 	}
+	__console_flush(0);
 		
 	return file;
 }
@@ -505,12 +549,14 @@ void Download_Cover_Style(char *id, int style)
 		// save as 4 character ID
 		snprintf(imgName, sizeof(imgName), "%.4s%s.png", id, wide);
 	}
-	printf("    Downloading %s cover... (%s)\n", style_name, imgName);
+	printf("[%.6s] : %s %s", id, style_name, gt("cover"));
+	//printf_(gt("Downloading %s cover... (%s)"), style_name, imgName);
+	printf("\n");
 	snprintf(imgPath, sizeof(imgPath), "%s/%s", path, imgName);
 
 	// try to download image
 	struct block file;
-	file = Download_URL(id, url);
+	file = Download_URL(id, url, style);
 	if (file.data == NULL) {
 		goto dl_err;
 	}
@@ -520,12 +566,14 @@ void Download_Cover_Style(char *id, int style)
 	char drive_root[8];
 	snprintf(drive_root, sizeof(drive_root), "%s/", FAT_DRIVE);
 	if (stat(drive_root, &st)) {
-		printf("    ERROR: %s is not accessible\n", drive_root);
+		printf_(gt("ERROR: %s is not accessible"), drive_root);
+		printf("\n");
 		goto dl_err;
 	}
 	if (stat(path, &st)) {
 		if (mkdir(path, 0777)) {
-			printf("    Cannot create dir: %s\n", path);
+			printf_(gt("Cannot create dir: %s"), path);
+			printf("\n");
 			goto dl_err;
 		}
 	}
@@ -534,17 +582,24 @@ void Download_Cover_Style(char *id, int style)
 	FILE *f;
 	f = fopen(imgPath, "wb");
 	if (!f) {
-		printf("\n    Error opening: %s\n", imgPath);
+		printf("\n");
+		printf_(gt("Error opening: %s"), imgPath);
+		printf("\n");
 		goto dl_err;
 	}
 	int ret = fwrite(file.data,file.size,1,f);
 	fclose (f);
 	free(file.data);
 	if (ret != 1) {
-		printf(" ERROR: writing %s (%d).\n", imgPath, ret);
+		printf(" ");
+		printf(gt("ERROR: writing %s (%d)."), imgPath, ret);
+		printf("\n");
 		remove(imgPath);
 	} else {
-		printf(" Download complete.\n");
+		printf(" ");
+		//printf(gt("Download complete."));
+		printf(gt("OK"));
+		printf("\n\n");
 	}
 	__console_flush(0);
 
@@ -555,48 +610,36 @@ void Download_Cover_Style(char *id, int style)
 	dl_err:
 	__console_flush(0);
 	sleep(2);
-	if (CFG.debug) { printf("Press any button.\n"); Wpad_WaitButtons(); }
-}
-
-/* Initialize Network */
-bool Init_Net()
-{
-	static bool firstTimeDownload = true;
-
-	if(firstTimeDownload == true){
-		char myIP[16];
-		printf("[+] Initializing Network...\n");
-		if( !Net_Init(myIP) ){
-			printf("    Error Initializing Network.\n");
-			return false;
-		}
-		printf("    Network connection established.\n");
-		firstTimeDownload = false;
-	}
-	return true;
+	if (CFG.debug) { printf(gt("Press any button...")); printf("\n"); Wpad_WaitButtons(); }
 }
 
 void Download_Cover_Missing(char *id, int style, bool missing_only, bool verbose)
 {
 	int ret;
 	void *data = NULL;
+	char path[200];
 
 	if (!id) return;
 
 	if (missing_only) {
 		// check if missing
-		ret = Gui_LoadCover_style((u8*)id, &data, false, style);
+		ret = Gui_LoadCover_style((u8*)id, &data, false, style, path);
 		if (ret > 0 && data) {
 			// found. verify if valid png
 			u32 width, height;
 			ret = __Gui_GetPngDimensions(data, &width, &height);
-			SAFE_FREE(data);
 			if (ret == 0 && width > 0 && height > 0) {
-				// all ok.
-				if (verbose) {
-					printf("    Found %s Cover\n", get_style_name(style));
+				GRRLIB_texImg tx_tmp = Gui_LoadTexture_RGBA8(data, width, height, NULL, path);
+				SAFE_FREE(data);
+				if (tx_tmp.data) {
+					SAFE_FREE(tx_tmp.data);
+					if (verbose) {
+						printf_(gt("Found %s Cover"), gt(get_style_name(style)));
+						printf("\n");
+					}
+					return;
 				}
-				return;
+				SAFE_FREE(tx_tmp.data);
 			}
 		}
 	}
@@ -610,17 +653,23 @@ void Download_Cover(char *id, bool missing_only, bool verbose)
 		return;
 
 	if (strlen(id) < 4) {
-		printf("ERROR: Invalid Game ID\n");
+		printf(gt("ERROR: Invalid Game ID"));
+		printf("\n");
 		goto dl_err;
 	}
 
 	if (verbose) {
-		printf("[+] Downloading %s Covers for %.4s\n\n",
-			missing_only ? "Missing" : "", id);
+		if (missing_only) {
+			printf_x(gt("Downloading MISSING covers for %.6s"), id);
+		} else {
+			printf_x(gt("Downloading ALL covers for %.6s"), id);
+		}
+		printf("\n");
 	}
 
 	//the first time no image is found, attempt to init network
 	if(!Init_Net()) goto dl_err;
+	if (verbose) printf("\n");
 
 	if (CFG.download_all) {
 		Download_Cover_Missing(id, CFG_COVER_STYLE_2D, missing_only, verbose);
@@ -641,25 +690,37 @@ void Download_All_Covers(bool missing_only)
 	int i;
 	struct discHdr *header;
 	u32 buttons;
-	printf("\n[+] Downloading All %sCovers\n\n", missing_only?"Missing ":"");
-	printf("    Hold button B to cancel.\n\n");
+	printf("\n");
+	if (missing_only) {
+		printf_x(gt("Downloading ALL MISSING covers"));
+	} else {
+		printf_x(gt("Downloading ALL covers"));
+	}
+	printf("\n\n");
+	printf_(gt("Hold button B to cancel."));
+	printf("\n\n");
 	//dbg_time1();
 	for (i=0; i<gameCnt; i++) {
 		buttons = Wpad_GetButtons();
-		if (buttons & WPAD_BUTTON_B) {
-			printf("\n    Cancelled.\n");
+		if (buttons & CFG.button_cancel.mask) {
+			printf("\n");
+			printf_(gt("Cancelled."));
+			printf("\n");
 			sleep(1);
 			return;
 		}
 		header = &gameList[i];
 		printf("%d / %d %.4s %.25s\n", i, gameCnt, header->id, get_title(header));
+		__console_flush(0);
 		Gui_DrawCover(header->id);
 		Download_Cover((char*)header->id, missing_only, false);
 		Gui_DrawCover(header->id);
 	}
-	printf("\n    Done.\n");
+	printf("\n");
+	printf_(gt("Done."));
+	printf("\n");
 	//unsigned ms = dbg_time2(NULL);
-	//printf("    Time: %.2f seconds\n", (float)ms/1000); Wpad_WaitButtons();
+	//printf_("Time: %.2f seconds\n", (float)ms/1000); Wpad_WaitButtons();
 	sleep(1);
 }
 
@@ -668,81 +729,89 @@ void Download_All_Covers(bool missing_only)
 /* based on Download_Cover by Forsaeken, modified by oggzee */
 void Download_XML()
 {
-	char myIP[16];
 
-	printf("\n[+] Initializing Network...\n");
-	if( !Net_Init(myIP)){
-		printf("    Error Initializing Network.\n");
-		goto dl_err;
-	}
-	printf("    Network connection established.\n");
+	printf("\n");
+	if(!Init_Net()) goto dl_err;
 
 	struct stat st;
 	char drive_root[8];
 	snprintf(drive_root, sizeof(drive_root), "%s/", FAT_DRIVE);
 	if (stat(drive_root, &st)) {
-		printf("    ERROR: %s is not accessible\n", drive_root);
+		printf_(gt("ERROR: %s is not accessible"), drive_root);
+		printf("\n");
 		goto dl_err;
 	}
 
 	char zippath[200];
-	snprintf(zippath, sizeof(zippath), "%s/%s", USBLOADER_PATH, "db_new.zip");
+	snprintf(zippath, sizeof(zippath), "%s/%s", USBLOADER_PATH, "wiitdb_new.zip");
 	char zipurl[100];
 	char * dbl = ((strlen(CFG.db_language) == 2) ? VerifyLangCode(CFG.db_language) : ConvertLangTextToCode(CFG.db_language));
 	strcopy(zipurl, CFG.db_url, sizeof(zipurl));
 	str_replace(zipurl, "{DBL}", dbl, sizeof(zipurl));
 	
 	if (zipurl[0] == 0) {
-		printf("    Error: no URL.\n");
+		printf_(gt("Error: no URL."));
+		printf("\n");
 		goto dl_err;	
 	}
-	printf("[+] Downloading database.\n");
+	printf_x(gt("Downloading database."));
 
-	struct block file = downloadfile(zipurl);
+	struct block file = downloadfile_progress(zipurl,1);
+	printf("\n");
 	
 	if (file.data == NULL) {
-		printf("    Error: no data.\n");
+		printf_(gt("Error: no data."));
+		printf("\n");
 		goto dl_err;
 	}
-	printf("    Size: %d bytes\n", file.size);
+	printf_(gt("Size: %d bytes"), file.size);
+	printf("\n");
 	
 	FILE *f;
 	f = fopen(zippath, "wb");
 	if (!f) {
-		printf("\n    Error opening: %s\n", zippath);
+		printf("\n");
+		printf_(gt("Error opening: %s"), zippath);
+		printf("\n");
 		goto dl_err;
 	}
 	fwrite(file.data,1,file.size,f);
 	fclose (f);
 	free(file.data);
-	
-	printf("    Download complete.\n");
+	printf_(gt("Download complete."));
+	printf("\n");
 
 	/* try to open newly downloaded zipped XML */
-	printf("[+] Updating database.\n");
+	printf_x(gt("Updating database."));
+	printf("\n");
 
 	//FreeXMLMemory();
 	char currentzippath[200];
-	snprintf(currentzippath, sizeof(currentzippath), "%s/wiitdb_%s.zip", USBLOADER_PATH, CFG.partition);
+	snprintf(currentzippath, sizeof(currentzippath), "%s/wiitdb.zip", USBLOADER_PATH);
 	char tmppath[200];
-	snprintf(tmppath, sizeof(tmppath), "%s/wiitdb_%s_old.zip", USBLOADER_PATH, CFG.partition);
+	snprintf(tmppath, sizeof(tmppath), "%s/wiitdb_old.zip", USBLOADER_PATH);
 	remove(tmppath);
 	rename(currentzippath, tmppath);
 	rename(zippath, currentzippath);
 
-	if (ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 1)) {
-		printf("    Database update successful.\n");
+	if (ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0)) {
+		printf_(gt("Database update successful."));
+		printf("\n");
 	} else {
 		// revert to the previous file
 		remove(currentzippath);
 		rename(tmppath, currentzippath);
-		ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 1);
-		printf("    Error opening database, update did not complete.\n");
+		ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0);
+		printf_(gt("Error opening database, update did not complete."));
+		printf("\n");
 		goto dl_err;
 	}
 	
+	__console_flush(0);
+	sleep(2);
 	return;
 	
 	dl_err:
 	sleep(4);
 } /* end download zipped xml */
+

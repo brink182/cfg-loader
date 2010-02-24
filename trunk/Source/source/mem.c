@@ -425,7 +425,7 @@ void mem_stat_str(char * buffer)
 	heap_stats hs1, hs2;
 	heap_stat(&mem1, &hs1);
 	heap_stat(&mem2, &hs2);
-	sprintf(buffer, "\n");
+	*buffer = 0;
 	#define fMB (1024.0 * 1024.0)
 	sprintf(buffer, "%smem1: s:%5.2f u:%5.2f f:%5.2f t:%d,%d\n", buffer,
 			hs1.size / fMB,

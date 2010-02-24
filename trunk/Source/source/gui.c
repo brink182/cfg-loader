@@ -21,8 +21,11 @@
 #include "menu.h"
 
 #include "png.h"
+#include "gettext.h"
+#include "sort.h"
 
 extern void *bg_buf_rgba;
+extern void *bg_buf_ycbr;
 extern bool imageNotFound;
 extern int gui_style;
 extern int grid_rows;
@@ -82,8 +85,6 @@ extern unsigned char pointer[];
 extern unsigned char hourglass[];
 extern unsigned char star_icon[];
 extern unsigned char gui_font[];
-extern unsigned char font_10[];
-extern unsigned char font_12[];
 
 struct M2_texImg t2_bg;
 struct M2_texImg t2_bg_con;
@@ -95,7 +96,6 @@ GRRLIB_texImg tx_hourglass;
 GRRLIB_texImg tx_star;
 GRRLIB_texImg tx_font;
 GRRLIB_texImg tx_font_clock;
-
 
 s32 __Gui_GetPngDimensions(void *img, u32 *w, u32 *h)
 {
@@ -457,8 +457,10 @@ void Gui_DrawBackground(void)
 void Gui_DrawIntro(void)
 {
 	GXRModeObj *rmode = _Video_GetVMode();
+
 	if (CFG.direct_launch && CFG.intro==0) {
-		CON_InitTr(rmode, 560, 424, 80, 48, CONSOLE_BG_COLOR);
+		CON_InitEx(rmode, 32, 16, 640-32*2, 480-16*2);
+		__console_disable = 1;
 		return;
 	}
 	
@@ -473,67 +475,23 @@ void Gui_DrawIntro(void)
 	VIDEO_WaitVSync();
 	Video_DrawRGBA(0, 0, img_buf, rmode->fbWidth, rmode->xfbHeight);
 
-	CON_InitTr(rmode, 560, 424, 80, 48, CONSOLE_BG_COLOR);
+	Video_AllocBg();
+	memcpy(bg_buf_rgba, img_buf, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 4);
+	memcpy(bg_buf_ycbr, _Video_GetFB(-1), BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
+
+	//CON_InitTr(rmode, 552, 424, 88, 48, CONSOLE_BG_COLOR);
+	CON_InitTr(rmode, 32, 16, 640-32*2, 480-16*2, CONSOLE_BG_COLOR);
 	Con_Clear();
-	printf("\nv%s", CFG_VERSION);
+	int i, x, y;
+	x = (640-32*2)/8 - 10; // 62
+	y = (480-16*2)/16 - 2; // 26
+	for (i=0;i<y;i++) printf("\n");
+	printf("%*s", x, "");
+	printf("v%s\n", CFG_VERSION);
 	__console_flush(0);
 	
 	VIDEO_WaitVSync();
 	SAFE_FREE(img_buf);
-}
-
-/**
- * Tries to read the game cover image from disk.  This method uses the file path of 
- *  the currently set CFG.cover_style (e.g. 2d, 3d, full) to look for the images.
- * 
- *  @param *discid the disk id of the cover to load
- *  @param **p_imgData the image
- *  @param load_noimage bool representing if the noimage png should be loaded
- *  @return int
- */
-int Gui_LoadCover(u8 *discid, void **p_imgData, bool load_noimage)
-{
-	int ret = -1;
-	char filepath[200];
-	char *wide = "";
-
-	if (*discid) {
-		if (CFG.widescreen) wide = "_wide";
-		retry_open:
-		/* Generate cover filepath */
-		snprintf(filepath, sizeof(filepath), "%s/%.6s%s.png",
-				CFG.covers_path, discid, wide);
-
-		/* Open cover */
-		ret = Fat_ReadFile(filepath, p_imgData);
-		if (ret <= 0) {
-			// if 6 character id not found, try 4 character id
-			snprintf(filepath, sizeof(filepath), "%s/%.4s%s.png",
-					CFG.covers_path, discid, wide);
-			ret = Fat_ReadFile(filepath, p_imgData);
-		}
-		if (ret <= 0 && *wide) {
-			// retry with non-wide
-			wide = "";
-			goto retry_open;
-		}
-		if (ret <= 0) {
-			imageNotFound = true;
-		}
-	}
-	if (ret <= 0 && load_noimage) {
-		if (CFG.widescreen) wide = "_wide";
-		retry_open2:
-		snprintf(filepath, sizeof(filepath), "%s/noimage%s.png",
-				CFG.covers_path, wide);
-		ret = Fat_ReadFile(filepath, p_imgData);
-		if (ret <= 0 && *wide) {
-			// retry with non-wide noimage
-			wide = "";
-			goto retry_open2;
-		}
-	}
-	return ret;
 }
 
 
@@ -545,16 +503,17 @@ int Gui_LoadCover(u8 *discid, void **p_imgData, bool load_noimage)
  *  @param **p_imgData the image
  *  @param load_noimage bool representing if the noimage png should be loaded
  *  @param cover_style represents the cover style to load
+ *  @param *path for returning the full image path - doesn't return builtin image path
  *  @return int
  */
-int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cover_style)
+int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cover_style, char *path)
 {
 	s32 ret = -1;
 	char filepath[200];
 	char coverpath[200];
 
+	if (path) path = 0;
 	if (*discid) {
-	
 		switch(cover_style){
 			case(CFG_COVER_STYLE_FULL):
 				STRCOPY(coverpath, CFG.covers_path_full);
@@ -572,20 +531,19 @@ int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cov
 		}
 		
 		/* Generate cover filepath for full covers */
-		snprintf(filepath, sizeof(filepath), "%s/%.6s.png",
-			coverpath, discid);
-
+		snprintf(filepath, sizeof(filepath), "%s/%.6s.png", coverpath, discid);
 		/* Open cover */
 		ret = Fat_ReadFile(filepath, p_imgData);
 		if (ret <= 0) {
 		
 			// if 6 character id not found, try 4 character id
-			snprintf(filepath, sizeof(filepath), "%s/%.4s.png",
-				coverpath, discid);
+			snprintf(filepath, sizeof(filepath), "%s/%.4s.png", coverpath, discid);
 			ret = Fat_ReadFile(filepath, p_imgData);
 		}
 		if (ret <= 0) {
 			imageNotFound = true;
+		} else {
+			if (path) strcopy(path, filepath, 200);
 		}
 	}
 	if (ret <= 0 && load_noimage) {
@@ -665,7 +623,7 @@ void Gui_DrawCover(u8 *discid)
 	//}
 	imgData = builtin;
 
-	ret = Gui_LoadCover(discid, &imgData, true);
+	ret = Gui_LoadCover_style(discid, &imgData, true, CFG.cover_style, NULL);
 	if (ret <= 0) imgData = builtin;
 
 	size = ret;
@@ -1071,8 +1029,26 @@ static void C4x4_to_RGBA(const unsigned char *src, unsigned char *dst,
 }
 
 
+/**
+ * Bad Cover image handler:
+ *  - the bad image path is renamed to [path].bad
+ *  - deletes any old bad cover images (if exists)
+ *  - renames bad cover so it will be redownloaded
+ * @param path char * representing the full path to the bad image
+ */
+void Gui_HandleBadCoverImage(char *path)
+{
+	char tmppath[200];
+	if (!path) return;
+	STRCOPY(tmppath, path);
+	STRAPPEND(tmppath, ".bad");
+	remove(tmppath);
+	rename(path, tmppath);
+}
+
+
 GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[],
-		int width, int height, void *dest)
+		int width, int height, void *dest, char *path)
 {
 	PNGUPROP imgProp;
 	IMGCTX ctx = NULL;
@@ -1093,8 +1069,12 @@ GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[],
    	buf1 = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
 	if (buf1 == NULL) goto out;
 
-	PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
-
+	ret = PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
+	if (ret != PNGU_OK) {
+		if (ret == -666) Gui_HandleBadCoverImage(path);
+		goto out;
+	}
+	
 	if (imgProp.imgWidth != width || imgProp.imgHeight != height) {
 	   	buf2 = memalign (32, width * height * 4);
 		if (buf2 == NULL) goto out;
@@ -1168,7 +1148,7 @@ GRRLIB_texImg Convert_to_CMPR(void *img, int width, int height, void *dest)
 
 
 /**
- * Converts a PNG to CMPR
+ * Decodes a PNG to CMPR
  *
  * @param my_png[] PNG image
  * @param width png image width
@@ -1176,7 +1156,7 @@ GRRLIB_texImg Convert_to_CMPR(void *img, int width, int height, void *dest)
  * @param *dest image destination (CMPR-encoded)
  */
 GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
-		int width, int height, void *dest)
+		int width, int height, void *dest, char *path)
 {
 	PNGUPROP imgProp;
 	IMGCTX ctx = NULL;
@@ -1204,7 +1184,11 @@ GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
 		//get RGBA8 version of image
 		buf1 = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
 		if (buf1 == NULL) goto out;
-		PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
+		ret = PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
+		if (ret != PNGU_OK) {
+			if (ret == -666) Gui_HandleBadCoverImage(path);
+			goto out;
+		}
 	   	
 		//allocate for resize to passed in dimensions
 		buf2 = memalign (32, width * height * 4);
@@ -1222,7 +1206,10 @@ GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
 			if (dest == NULL) goto out;
 		}
 		ret = PNGU_DecodeToCMPR (ctx, imgProp.imgWidth, imgProp.imgHeight, dest);
-		if (ret != PNGU_OK) goto out;
+		if (ret != PNGU_OK) {
+			if (ret == -666) Gui_HandleBadCoverImage(path);
+			goto out;
+		}
 
 		my_texture.w = width;
 		my_texture.h = height;
@@ -1242,7 +1229,7 @@ GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
  * Method used by the cache to paste 2d cover images into the nocover_full image
  */
 GRRLIB_texImg Gui_LoadTexture_fullcover(const unsigned char my_png[],
-		int width, int height, int frontCoverWidth, void *dest)
+		int width, int height, int frontCoverWidth, void *dest, char *path)
 {
 	PNGUPROP imgProp;
 	IMGCTX ctx = NULL;
@@ -1265,7 +1252,11 @@ GRRLIB_texImg Gui_LoadTexture_fullcover(const unsigned char my_png[],
 	//allocate for RGBA8 2D cover
    	buf1 = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
 	if (buf1 == NULL) goto out;
-	PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
+	ret = PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
+	if (ret != PNGU_OK) {
+		if (ret == -666) Gui_HandleBadCoverImage(path);
+		goto out;
+	}
 
 	//check if we need to resize
 	if (imgProp.imgWidth != frontCoverWidth || imgProp.imgHeight != height) {
@@ -1461,7 +1452,8 @@ void Gui_Init()
 	VIDEO_WaitVSync();
 	if (GRRLIB_Init_VMode(_Video_GetVMode(), _Video_GetFB(0), _Video_GetFB(1)))
 	{
-		printf("Error GRRLIB init\n");
+		printf(gt("Error GRRLIB init"));
+		printf("\n");
 		sleep(1);
 		return;
 	}
@@ -1621,13 +1613,13 @@ void Gui_TestUnicode()
 		}
 	}
 	y += fh;
-	Gui_Print2(5, y, "Press any button");
+	Gui_Print2(5, y, gt("Press any button..."));
 	Gui_Render();
 	Wpad_WaitButtons();
 }
 
 void Gui_PrintEx2(int x, int y, GRRLIB_texImg font,
-		int color, int color_outline, int color_shadow, char *str)
+		int color, int color_outline, int color_shadow, const char *str)
 {
 	GRRLIB_Print2(x, y, font, color, color_outline, color_shadow, str);
 }
@@ -1659,7 +1651,7 @@ int get_outline_color(int text_color, int outline_color, int outline_auto)
 	return color;
 }
 
-void Gui_PrintEx(int x, int y, GRRLIB_texImg font, FontColor font_color, char *str)
+void Gui_PrintEx(int x, int y, GRRLIB_texImg font, FontColor font_color, const char *str)
 {
 	unsigned outline_color = get_outline_color(
 			font_color.color,
@@ -1699,7 +1691,7 @@ void Gui_PrintAlign(int x, int y, int alignx, int aligny,
 	Gui_PrintEx(xx, yy, font, font_color, str);
 }
 
-void Gui_Print2(int x, int y, char *str)
+void Gui_Print2(int x, int y, const char *str)
 {
 	Gui_PrintEx(x, y, tx_font, CFG.gui_text2, str);
 }
@@ -1790,13 +1782,13 @@ void Grx_Init()
 		// nocover image
 		void *img = NULL;
 		tx_tmp.data = NULL;
-		ret = Gui_LoadCover((u8*)"", &img, true);
+		ret = Gui_LoadCover_style((u8*)"", &img, true, CFG.cover_style, NULL);
 		if (ret > 0 && img) {
-			tx_tmp = Gui_LoadTexture_RGBA8(img, COVER_WIDTH, COVER_HEIGHT, NULL);
+			tx_tmp = Gui_LoadTexture_RGBA8(img, COVER_WIDTH, COVER_HEIGHT, NULL, NULL);
 			free(img);
 		}
 		if (tx_tmp.data == NULL) {
-			tx_tmp = Gui_LoadTexture_RGBA8(coverImg, COVER_WIDTH, COVER_HEIGHT, NULL);
+			tx_tmp = Gui_LoadTexture_RGBA8(coverImg, COVER_WIDTH, COVER_HEIGHT, NULL, NULL);
 		}
 		cache2_tex(&t2_nocover, &tx_tmp);
 
@@ -2060,6 +2052,110 @@ void Repaint_ConBg(bool exiting)
 	free(img_buf); 
 }
 
+extern char action_string[40];
+extern int action_alpha;
+
+int Gui_DoAction(int action)
+{
+	switch(action) {
+		case CFG_BTN_OPTIONS: 
+		case CFG_BTN_GLOBAL_OPS:
+			return !CFG.disable_options;
+		case CFG_BTN_GUI:
+		case CFG_BTN_INSTALL:
+		case CFG_BTN_REMOVE:
+		case CFG_BTN_MAIN_MENU: 
+		case CFG_BTN_UNLOCK:
+		case CFG_BTN_BOOT_DISC:
+		case CFG_BTN_BOOT_GAME:
+		case CFG_BTN_THEME:
+		case CFG_BTN_FILTER:
+			return 1;
+		case CFG_BTN_REBOOT:
+		case CFG_BTN_EXIT:
+		case CFG_BTN_HBC:
+			//exiting = true;
+			__console_disable = 1;
+			return 1;
+		case CFG_BTN_SCREENSHOT:
+			{ 
+				char fn[200];
+				extern bool Save_ScreenShot(char *fn, int size);
+				Save_ScreenShot(fn, sizeof(fn));
+				return 0;
+			}
+		case CFG_BTN_PROFILE: 
+			if (CFG.current_profile == CFG.num_profiles-1)
+				CFG.current_profile = 0;
+			else
+				CFG.current_profile++;
+			extern void Switch_Favorites(bool enable);
+			extern bool enable_favorite;
+			extern void reset_sort_default();
+			reset_sort_default();
+			cache_release_all();
+			Switch_Favorites(enable_favorite);
+			ccache.num_game = gameCnt;
+			if (gui_style == GUI_STYLE_COVERFLOW) {
+				gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
+				//load the covers - alternate right and left
+				cache_request_before_and_after(gameSelected, 5, 1);
+			} else {
+				//grid_init(page_gi);
+				grid_init(0);
+			}
+			sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
+			action_alpha = 0xFF;
+			return(0);
+		case CFG_BTN_FAVORITES:
+			{
+				extern void Switch_Favorites(bool enable);
+				extern bool enable_favorite;
+				extern void reset_sort_default();
+				reset_sort_default();
+				cache_release_all();
+				Switch_Favorites(!enable_favorite);
+				ccache.num_game = gameCnt;
+				if (gui_style == GUI_STYLE_COVERFLOW) {
+					gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
+					//load the covers - alternate right and left
+					cache_request_before_and_after(gameSelected, 5, 1);
+				} else {
+					//grid_init(page_gi);
+					grid_init(0);
+				}
+			}
+			return(0);
+		case CFG_BTN_SORT:
+			if (sort_desc) {
+				sort_desc = 0;
+				if (sort_index == sortCnt - 1)
+					sort_index = 0;
+				else
+					sort_index = sort_index + 1;
+				sortList(sortTypes[sort_index].sortAsc);
+			} else {
+				sort_desc = 1;
+				sortList(sortTypes[sort_index].sortDsc);
+			}
+			if (gui_style == GUI_STYLE_COVERFLOW) {
+				gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
+				//load the covers - alternate right and left
+				cache_request_before_and_after(gameSelected, 5, 1);
+			} else {
+				//grid_init(page_gi);
+				grid_init(0);
+			}
+			sprintf(action_string, gt("Sort: %s-%s"), sortTypes[sort_index].name, (sort_desc) ? "DESC":"ASC");
+			action_alpha = 0xFF;
+			return 0;
+
+		default:
+			return 0;
+	}
+}
+
+
 /**
  * This is the main control loop for the 3D cover modes.
  */
@@ -2182,17 +2278,19 @@ int Gui_Mode()
 		//  HOME Button
 		//----------------------
 
-		if (buttons & WPAD_BUTTON_HOME) {
-			if (CFG.home == CFG_HOME_SCRSHOT) {
-				char fn[200];
-				extern bool Save_ScreenShot(char *fn, int size);
-				Save_ScreenShot(fn, sizeof(fn));
-			} else {
-				exiting = true;
-				__console_disable = 1;
-				break;
-			}
-		}
+		//if ((buttons & CFG.button_exit.mask) && Gui_DoAction(CFG.button_H)) {
+		//	/*if (CFG.home == CFG_HOME_SCRSHOT) {
+		//		char fn[200];
+		//		extern bool Save_ScreenShot(char *fn, int size);
+		//		Save_ScreenShot(fn, sizeof(fn));
+		//	} else {
+		//		exiting = true;
+		//		__console_disable = 1;
+		//		break;
+		//	}*/
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
 
 
 		//----------------------
@@ -2200,11 +2298,11 @@ int Gui_Mode()
 		//----------------------
 
 		if (loadGame) {
-			buttons = WPAD_BUTTON_A;
+			buttons = buttonmap[MASTER][CFG.button_confirm.num];
 			loadGame = false;
 		}
 
-		if (buttons & WPAD_BUTTON_A) {
+		if (buttons & CFG.button_confirm.mask) {
 			if (game_select >= 0) {
 				gameSelected = game_select;
 				break;
@@ -2216,10 +2314,10 @@ int Gui_Mode()
 		//  B Button
 		//----------------------
 
-		if (buttons & WPAD_BUTTON_B) {
-			if (game_select >= 0) gameSelected = game_select;
-			break;
-		}
+		//if ((buttons & CFG.button_cancel.mask) && Gui_DoAction(CFG.button_B)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
 
 
 		//----------------------
@@ -2404,56 +2502,89 @@ int Gui_Mode()
 			} // CFG.gui_lock
 		}
 
+		// need to return to menu for timeout
+		if (CFG.admin_lock) {
+			if (buttons & CFG.button_other.mask) {
+				if (game_select >= 0) gameSelected = game_select;
+				goto return_to_console;
+			}
+		}
 
+		int i;
+
+		for (i = 4; i < MAX_BUTTONS; i++) {
+			if ((buttons & buttonmap[MASTER][i]) && Gui_DoAction(*(&CFG.button_M + (i - 4)))) {
+				if (game_select >= 0) gameSelected = game_select;
+				goto return_to_console;
+			}
+		}
 		//----------------------
 		//  (-) button
 		//----------------------
 
-		if (buttons & WPAD_BUTTON_MINUS) {
-			//remove game
-			if (game_select >= 0) {
-				gameSelected = game_select;
-				//break;
-			}
-			break;
-		}
+		//if ((buttons & WPAD_BUTTON_MINUS) && Gui_DoAction(CFG.button_M)) {
+		//	//remove game
+		//	if (game_select >= 0) {
+		//		gameSelected = game_select;
+		//		//break;
+		//	}
+		//	break;
+		//}
 
-		//----------------------
-		//  (+) button
-		//----------------------
-		if (buttons & WPAD_BUTTON_PLUS) {
-			//add game
-			if (game_select >= 0) gameSelected = game_select;
-			break;
-		}
+		////----------------------
+		////  (+) button
+		////----------------------
+		//if ((buttons & WPAD_BUTTON_PLUS) && Gui_DoAction(CFG.button_P)) {
+		//	//add game
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
 
-		//----------------------
-		//  1 Button
-		//----------------------
-		if (buttons & WPAD_BUTTON_1) {
-			if (game_select >= 0) gameSelected = game_select;
-			break;
-		}
+		////----------------------
+		////  1 Button
+		////----------------------
+		//if ((buttons & CFG.button_other.mask) && Gui_DoAction(CFG.button_1)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
 
 		//----------------------
 		//  2 button
 		//----------------------
-		if (buttons & WPAD_BUTTON_2) {
-			extern void Switch_Favorites(bool enable);
-			extern bool enable_favorite;
-			
-			cache_release_all();
-			Switch_Favorites(!enable_favorite);
-			ccache.num_game = gameCnt;
-			if (gui_style == GUI_STYLE_COVERFLOW) {
-				gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
-				//load the covers - alternate right and left
-				cache_request_before_and_after(gameSelected, 5, 1);
-			} else {
-				//grid_init(page_gi);
-				grid_init(0);
-			}
-		}
+		//if ((buttons & WPAD_BUTTON_2) && Gui_DoAction(CFG.button_2)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;			
+		//}
+
+		//if ((buttons & WPAD_BUTTON_C) && Gui_DoAction(CFG.button_C)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
+
+		//if ((buttons & WPAD_BUTTON_Z) && Gui_DoAction(CFG.button_Z)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
+
+		//if ((buttons & WPAD_BUTTON_X) && Gui_DoAction(CFG.button_X)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
+
+		//if ((buttons & WPAD_BUTTON_Y) && Gui_DoAction(CFG.button_Y)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
+
+		//if ((buttons & WPAD_BUTTON_L) && Gui_DoAction(CFG.button_L)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
+
+		//if ((buttons & WPAD_BUTTON_R) && Gui_DoAction(CFG.button_R)) {
+		//	if (game_select >= 0) gameSelected = game_select;
+		//	break;
+		//}
 
 		//----------------------
 		//  check for other wiimote events
@@ -2507,7 +2638,7 @@ int Gui_Mode()
 
 		fr_cnt++;
 	}
-
+return_to_console:
 	if (gui_style == GUI_STYLE_COVERFLOW) {
 		// this is for when transitioning from coverflow to Console...
 		if (!exiting) {

@@ -18,6 +18,9 @@ static GXRModeObj *vmode = NULL;
 static GXRModeObj vmode_non_wide;
 static int video_wide;
 
+void *bg_buf_rgba = NULL;
+void *bg_buf_ycbr = NULL;
+
 int con_inited = 0;
 
 void _Con_Clear(void);
@@ -297,9 +300,6 @@ bool ScreenShot(char *fname)
     }
     return !ErrorCode;
 }
-
-void *bg_buf_rgba = NULL;
-void *bg_buf_ycbr = NULL;
 
 void Video_DrawBg()
 {

@@ -23,6 +23,11 @@
 
 #include "util.h"
 
+#include "libpng/pngu/pngu.h"
+
+extern void *bg_buf_rgba;
+extern void *bg_buf_ycbr;
+
 //---------------------------------------------------------------------------------
 const devoptab_t dotab_stdout = {
 //---------------------------------------------------------------------------------
@@ -48,8 +53,8 @@ const devoptab_t dotab_stdout = {
 	NULL		// device statvfs_r
 };
 
-//color table
-const unsigned int color_table[] =
+//color table YcbYcr
+const unsigned int color_table_YcbYcr[] =
 {
   0x00800080,		// 30 normal black
   0x246A24BE,		// 31 normal red
@@ -68,6 +73,38 @@ const unsigned int color_table[] =
   0xB2ABB200,		// 36 bright cyan
   0xFF80FF80,		// 37 bright white
 };
+// RGBA
+const unsigned int color_table[] =
+{
+  0x000000FF,		// 30 normal black
+  0x800000FF,		// 31 normal red
+  0x008000FF,		// 32 normal green
+  0x808000FF,		// 33 normal yellow
+  0x000080FF,		// 34 normal blue
+  0x800080FF,		// 35 normal magenta
+  0x008080FF,		// 36 normal cyan
+  0xC0C0C0FF,		// 37 normal white
+  0x808080FF,		// 30 bright black
+  0xFF0000FF,		// 31 bright red
+  0x00FF00FF,		// 32 bright green
+  0xFFFF00FF,		// 33 bright yellow
+  0x0000FFFF,		// 34 bright blue
+  0xFF00FFFF,		// 35 bright magenta
+  0x00FFFFFF,		// 36 bright cyan
+  0xFFFFFFFF,		// 37 bright white
+};
+
+#define RGBA_COLOR_WHITE 0xFFFFFFFF
+#define RGBA_COLOR_BLACK 0x000000FF
+
+struct unifont_header *unifont = NULL;
+u8 *unifont_glyph = NULL;
+
+inline u32 RGB8x2_TO_YCbYCr(u8 *c1, u8 *c2)
+{
+	return PNGU_RGB8_TO_YCbYCr(c1[0], c1[1], c1[2], c2[0], c2[1], c2[2]);
+}
+
 
 static u32 do_xfb_copy = FALSE;
 static struct _console_data_s stdcon;
@@ -81,8 +118,9 @@ struct _c1
    	wchar_t c;
    	int fg, bg;
 };
-static void *_bg_buffer = NULL;
-static unsigned int _bg_color = COLOR_BLACK;
+//static void *_bg_buffer = NULL;
+//static unsigned int _bg_color = COLOR_BLACK;
+static unsigned int _bg_color = RGBA_COLOR_BLACK;
 static int _c_buffer_size = 0;
 static struct _c1 *_c_buffer = NULL;
 static int _tr_enable = 0;
@@ -141,6 +179,7 @@ void __console_flush(int retrace_min)
 
 void __console_bg_grab(void *x_fb)
 {
+	/*
 	u32 ycnt,xcnt, fb_stride;
 	u32 *fb,*ptr;
 	if (x_fb == NULL) x_fb = VIDEO_GetCurrentFramebuffer();
@@ -158,27 +197,155 @@ void __console_bg_grab(void *x_fb)
 		}
 		fb += fb_stride;
 	}
+	*/
 }
 
-static void _bg_console_drawc(int c)
+int console_set_unifont(void *buf, int size)
+{
+	unifont_header *u = (unifont_header*) buf;
+	char *end;
+	if (!buf) return -1;
+	if (size < sizeof(unifont_header) + 4) return -1;
+	/*
+	printf("head: %.8s\n", u->head_tag);
+	printf("index: %.4s\n", u->index_tag);
+	printf("glyph: %.4s\n", u->glyph_tag);
+	printf("max i: %04x\n", u->max_idx);
+	printf("siz g: %04x\n", u->glyph_size);
+	*/
+	if (memcmp(u->head_tag, "UNIFONT", 8)) return -1;
+	if (memcmp(u->index_tag, "INDX", 4)) return -1;
+	if (memcmp(u->glyph_tag, "GLYP", 4)) return -1;
+	if (u->max_idx != 0xFFFF) return -1;
+	if (size < sizeof(unifont_header) + u->glyph_size + 4) return -1;
+	end = buf + sizeof(unifont_header) + u->glyph_size * 16;
+	//printf("end: %.4s\n", end);
+	if (memcmp(end, "END", 4)) return -1;
+	unifont = u;
+	unifont_glyph = buf + sizeof(unifont_header);
+	return 0;
+}
+
+int console_load_unifont(char *fname)
+{
+	FILE *f = NULL;
+	void *buf = NULL;
+	struct stat st;
+	u32 size;
+	s32 ret;
+
+	//printf("load %s\n", fname); Wpad_WaitButtons();
+	ret = stat(fname, &st);
+	if (ret != 0) return -1;
+	size = st.st_size;
+	buf = mem1_alloc(size);
+	if (!buf) return -1;
+	f = fopen(fname, "rb");
+	if (!f) goto err;
+	ret = fread(buf, 1, size, f);
+	fclose(f);
+	if (ret != size) goto err;
+	//printf("unifont: %d\n", size); Wpad_WaitButtons();
+	if (console_set_unifont(buf, size)) goto err;
+	/*printf("unifont: OK\n");
+	printf("機動戦士ガンダム MS戦線\n");
+	printf("機 動 戦 士 ガ ン ダ ム MS 戦 線\n");
+	Wpad_WaitButtons();*/
+	extern void unifont_cache_init();
+	unifont_cache_init();
+
+	return 0;
+err:
+	SAFE_FREE(buf)
+	return -1;
+}
+
+static void _bg_console_draw_glyph(unsigned char *pbits)
 {
 	console_data_s *con;
 	int ay;
 	unsigned int *ptr;
-	unsigned int *bg;
-	unsigned char *pbits;
+	//unsigned char bg[8] = {0,0,0,0,0,0,0,0};
+	unsigned char *bg;
 	unsigned char bits;
 	unsigned int color;
 	unsigned int fgcolor, bgcolor;
 	unsigned int nextline;
+	u8 *c1, *c2;
 
 	if(do_xfb_copy==TRUE) return;
 	if(!curr_con) return;
 	con = curr_con;
+	if(!bg_buf_rgba) return;
 
 	ptr = (unsigned int*)(con->destbuffer + ( con->con_stride *  con->cursor_row * FONT_YSIZE ) + ((con->cursor_col * FONT_XSIZE / 2) * 4));
-	bg = (unsigned int*)(_bg_buffer + ( con->con_stride *  con->cursor_row * FONT_YSIZE ) + ((con->cursor_col * FONT_XSIZE / 2) * 4));
-	pbits = &con->font[c * FONT_YSIZE];
+	//bg = (unsigned char*)(bg_buf_rgba + ( con->target_y + con->cursor_row * FONT_YSIZE )*640*4 + (con->target_x + con->cursor_col * FONT_XSIZE) * 4 );
+	
+	nextline = con->con_stride/4 - 4;
+	fgcolor = con->foreground;
+	bgcolor = con->background;
+
+	for (ay = 0; ay < FONT_YSIZE; ay++)
+	{
+		/* hard coded loop unrolling ! */
+		/* this depends on FONT_XSIZE = 8*/
+#if FONT_XSIZE == 8
+		bits = *pbits++;
+		bg = (unsigned char*)(bg_buf_rgba + ( con->target_y + con->cursor_row * FONT_YSIZE + ay)*640*4 + (con->target_x + con->cursor_col * FONT_XSIZE) * 4 );
+
+		/* bits 1 & 2 */
+		c1 = (bits & 0x80) ? (u8*)&fgcolor : &bg[0];
+		c2 = (bits & 0x40) ? (u8*)&fgcolor : &bg[4];
+		color = RGB8x2_TO_YCbYCr(c1, c2);
+		*ptr++ = color;
+		bg += 8;
+
+		/* bits 3 & 4 */
+		c1 = (bits & 0x20) ? (u8*)&fgcolor : &bg[0];
+		c2 = (bits & 0x10) ? (u8*)&fgcolor : &bg[4];
+		color = RGB8x2_TO_YCbYCr(c1, c2);
+		*ptr++ = color;
+		bg += 8;
+
+		/* bits 5 & 6 */
+		c1 = (bits & 0x08) ? (u8*)&fgcolor : &bg[0];
+		c2 = (bits & 0x04) ? (u8*)&fgcolor : &bg[4];
+		color = RGB8x2_TO_YCbYCr(c1, c2);
+		*ptr++ = color;
+		bg += 8;
+
+		/* bits 7 & 8 */
+		c1 = (bits & 0x02) ? (u8*)&fgcolor : &bg[0];
+		c2 = (bits & 0x01) ? (u8*)&fgcolor : &bg[4];
+		color = RGB8x2_TO_YCbYCr(c1, c2);
+		*ptr++ = color;
+		bg += 8;
+
+		/* next line */
+		ptr += nextline;
+#else
+#endif
+	}
+}
+
+static void _nc_console_draw_glyph(unsigned char *pbits)
+{
+	console_data_s *con;
+	int ay;
+	unsigned int *ptr;
+	unsigned char bits;
+	unsigned int color;
+	unsigned int fgcolor, bgcolor;
+	unsigned int nextline;
+	u8 *c1, *c2;
+
+	if(do_xfb_copy==TRUE) return;
+	if(!curr_con) return;
+	
+	con = curr_con;
+
+	ptr = (unsigned int*)(con->destbuffer + ( con->con_stride *  con->cursor_row * FONT_YSIZE ) + ((con->cursor_col * FONT_XSIZE / 2) * 4));
+	
 	nextline = con->con_stride/4 - 4;
 	fgcolor = con->foreground;
 	bgcolor = con->background;
@@ -191,61 +358,70 @@ static void _bg_console_drawc(int c)
 		bits = *pbits++;
 
 		/* bits 1 & 2 */
-		if ( bits & 0x80)
-			color = fgcolor & 0xFFFF0000;
-		else
-			color = *bg & 0xFFFF0000;
-		if (bits & 0x40)
-			color |= fgcolor  & 0x0000FFFF;
-		else
-			color |= *bg  & 0x0000FFFF;
+		c1 = (bits & 0x80) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		c2 = (bits & 0x40) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		color = RGB8x2_TO_YCbYCr(c1, c2);
 		*ptr++ = color;
-		bg++;
 
 		/* bits 3 & 4 */
-		if ( bits & 0x20)
-			color = fgcolor & 0xFFFF0000;
-		else
-			color = *bg & 0xFFFF0000;
-		if (bits & 0x10)
-			color |= fgcolor  & 0x0000FFFF;
-		else
-			color |= *bg  & 0x0000FFFF;
+		c1 = (bits & 0x20) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		c2 = (bits & 0x10) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		color = RGB8x2_TO_YCbYCr(c1, c2);
 		*ptr++ = color;
-		bg++;
 
 		/* bits 5 & 6 */
-		if ( bits & 0x08)
-			color = fgcolor & 0xFFFF0000;
-		else
-			color = *bg & 0xFFFF0000;
-		if (bits & 0x04)
-			color |= fgcolor  & 0x0000FFFF;
-		else
-			color |= *bg  & 0x0000FFFF;
+		c1 = (bits & 0x08) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		c2 = (bits & 0x04) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		color = RGB8x2_TO_YCbYCr(c1, c2);
 		*ptr++ = color;
-		bg++;
 
 		/* bits 7 & 8 */
-		if ( bits & 0x02)
-			color = fgcolor & 0xFFFF0000;
-		else
-			color = *bg & 0xFFFF0000;
-		if (bits & 0x01)
-			color |= fgcolor  & 0x0000FFFF;
-		else
-			color |= *bg  & 0x0000FFFF;
+		c1 = (bits & 0x02) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		c2 = (bits & 0x01) ? (u8*)&fgcolor : (u8*)&bgcolor;
+		color = RGB8x2_TO_YCbYCr(c1, c2);
 		*ptr++ = color;
-		bg++;
 
 		/* next line */
 		ptr += nextline;
-		bg += nextline;
 #else
 #endif
 	}
+
 }
 
+static void _console_draw_glyph(unsigned char *pbits)
+{
+	if (_tr_enable && curr_con->background == _bg_color) {
+		_bg_console_draw_glyph(pbits);
+	} else {
+		_nc_console_draw_glyph(pbits);
+	}
+}
+
+static void _nc_console_drawc(int c)
+{
+	if (!curr_con) return;
+	unsigned char *pbits;
+	if (c <= 512) {
+		pbits = &curr_con->font[c * FONT_YSIZE];
+		_console_draw_glyph(pbits);
+	} else if (unifont && unifont->index[c]) {
+		u32 off = unifont->index[c] >> 8;
+		u32 len = unifont->index[c] & 0x0F;
+		pbits = &unifont_glyph[off * 16];
+		_console_draw_glyph(pbits);
+		if (len == 2) {
+			if (curr_con->cursor_col + 1 >= curr_con->con_cols) return;
+			curr_con->cursor_col++;
+			pbits = &unifont_glyph[(off+1) * 16];
+			_console_draw_glyph(pbits);
+		}
+	}
+}
+
+
+#if 0
+// YcbYcr
 static void _nc_console_drawc(int c)
 {
 	console_data_s *con;
@@ -329,13 +505,13 @@ static void _nc_console_drawc(int c)
 #else
 #endif
 	}
-
 }
+#endif
 
 static void __console_drawc(int c)
 {
 	if(!curr_con) return;
-	if (_tr_enable && _bg_buffer && _c_buffer) {
+	if (_tr_enable && _c_buffer) {
 		int cidx = curr_con->cursor_row * curr_con->con_cols + curr_con->cursor_col;
 		_c_buffer[cidx].c = c;
 		_c_buffer[cidx].fg = curr_con->foreground;
@@ -347,8 +523,10 @@ static void __console_drawc(int c)
 
 void _c_repaint();
 
+
 void _bg_repaint()
 {
+	/*
 	if (!_bg_buffer) return;
 	// clear
 	unsigned int c;
@@ -358,6 +536,19 @@ void _bg_repaint()
 	p = (unsigned int*)curr_con->destbuffer;
 	bg = _bg_buffer;
 	while(c--) *p++ = *bg++;
+	*/
+	unsigned int y;
+	unsigned int *p;
+	unsigned int *bg;
+	if (!bg_buf_ycbr) return;
+	p = (unsigned int*)curr_con->destbuffer;
+	bg = (unsigned int*)(bg_buf_ycbr + curr_con->target_y * 640 * 2 + curr_con->target_x * 2 );
+	for (y=0; y<curr_con->con_yres; y++) {
+		memcpy(p, bg, curr_con->con_xres * 2);
+		p += curr_con->con_xres / 2;
+		bg += 640/2;
+	}
+
 }
 
 void _bg_scroll()
@@ -404,22 +595,20 @@ static void __console_clear(void)
 {
 	console_data_s *con;
 	unsigned int c;
+	unsigned int color;
 	unsigned int *p;
-	unsigned int *bg;
 
 	if(!curr_con) return;
 	con = curr_con;
 
-	c = (con->con_xres*con->con_yres)/2;
-	p = (unsigned int*)con->destbuffer;
-	if (_tr_enable && _bg_buffer) {
-		bg = _bg_buffer;
-		while(c--)
-			*p++ = *bg++;
+	if (_tr_enable) {
+		_bg_repaint();
 		memset(_c_buffer, 0, _c_buffer_size);
 	} else {
-		while(c--)
-			*p++ = con->background;
+		c = (con->con_xres*con->con_yres)/2;
+		p = (unsigned int*)con->destbuffer;
+		color = RGB8x2_TO_YCbYCr((u8 *)&(con->background), (u8 *)&(con->background));
+		while (c--) *p++ = color;
 	}
 
 	con->cursor_row = 0;
@@ -459,8 +648,10 @@ void __console_init(void *framebuffer,int xstart,int ystart,int xres,int yres,in
 
 	con->font = console_font_8x16;
 
-	con->foreground = COLOR_WHITE;
-	con->background = COLOR_BLACK;
+	//con->foreground = COLOR_WHITE;
+	//con->background = COLOR_BLACK;
+	con->foreground = RGBA_COLOR_WHITE;
+	con->background = RGBA_COLOR_BLACK;
 
 	curr_con = con;
 
@@ -499,12 +690,14 @@ void __console_init_ex(void *conbuffer,int tgt_xstart,int tgt_ystart,int tgt_str
 	//con->font = console_font_8x16;
 	con->font = console_font_512;
 
-	con->foreground = COLOR_WHITE;
-	con->background = COLOR_BLACK;
+	//con->foreground = COLOR_WHITE;
+	//con->background = COLOR_BLACK;
+	con->foreground = RGBA_COLOR_WHITE;
+	con->background = RGBA_COLOR_BLACK;
 
 	curr_con = con;
 
-	if(_tr_enable && _bg_buffer) {
+	if(_tr_enable) {
 		__console_bg_grab(NULL);
 		con->background = _bg_color;
 	}
@@ -716,7 +909,23 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 			// ignore utf8 parse errors
 			if (k < 1) k = 1;
 			// font only contains the first 512 chars
-			if ((unsigned)chr >= 512) chr = map_ufont(chr);
+			if ((unsigned)chr >= 512) {
+				int map_chr = map_ufont(chr);
+				if (map_chr == 0 && (unsigned)chr <= 0xFFFF) {
+					if (unifont && unifont->index[(unsigned)chr]) {
+						// unifont containst almost all unicode chars
+						map_chr = chr;
+						// if len==2 and right border reached: wrap around
+						int len = unifont->index[(unsigned)chr] & 0x0F;
+						if (len > 1 && con->cursor_col + len > con->con_cols) {
+							// insert fake space
+							chr = ' ';
+							goto just_print;
+						}
+					}
+				}
+				chr = map_chr;
+			}
 		}
 		tmp += k;
 		i += k;
@@ -757,6 +966,7 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 					else con->cursor_col += TAB_SIZE;
 					break;
 				default:
+					just_print:
 					__console_drawc(chr);
 					con->cursor_col++;
 
@@ -772,7 +982,7 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 		if( con->cursor_row >= con->con_rows)
 		{
 			/* if bottom border reached scroll */
-			if (_tr_enable && _bg_buffer) {
+			if (_tr_enable) {
 				_bg_scroll();
 			} else {
 				memcpy(con->destbuffer,
@@ -780,9 +990,10 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 					con->con_stride*con->con_yres-FONT_YSIZE);
 
 				unsigned int cnt = (con->con_stride * (FONT_YSIZE * FONT_YFACTOR + FONT_YGAP))/4;
-				unsigned int *ptr = (unsigned int*)(con->destbuffer + con->con_stride * (con->con_yres - FONT_YSIZE));
+				unsigned int *bptr = (unsigned int*)(con->destbuffer + con->con_stride * (con->con_yres - FONT_YSIZE));
+				unsigned int color = RGB8x2_TO_YCbYCr((u8 *)&(con->background), (u8 *)&(con->background));
 				while(cnt--)
-					*ptr++ = con->background;
+					*bptr++ = color;
 			}
 			if (__console_scroll)
 			{
@@ -839,7 +1050,7 @@ void _con_alloc_buf(s32 *conW, s32 *conH)
 	size = w * h * VI_DISPLAY_PIX_SZ;
 	_c_buffer_size = sizeof(struct _c1) * (w / FONT_XSIZE) * (h / FONT_YSIZE);
 	_console_buffer = LARGE_memalign(32, size);
-	_bg_buffer = LARGE_memalign(32, size);
+	//_bg_buffer = LARGE_memalign(32, size);
 	_c_buffer = LARGE_memalign(32, _c_buffer_size);
 }
 

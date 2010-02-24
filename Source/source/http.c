@@ -1,4 +1,5 @@
 #include "http.h"
+#include "gettext.h"
 
 int http_progress = 0;
 
@@ -93,7 +94,8 @@ struct block read_message(s32 connection)
 		//Anything below 0 is an error in the connection
 		if(bytes_read < 0)
 		{
-			printf("Connection error from net_read()  Errorcode: %i\n", bytes_read);
+			printf(gt("Connection error from net_read()  Errorcode: %i"), bytes_read);
+			printf("\n");
 			return emptyblock;
 		}
 		
@@ -121,7 +123,7 @@ struct block read_message(s32 connection)
 
 		// display progress
 		if (http_progress) {
-			while (offset / 102400 > progress_count) {
+			while (offset / http_progress >= progress_count) {
 				printf(".");
 				progress_count++;
 			}
@@ -132,7 +134,11 @@ struct block read_message(s32 connection)
 	buffer.size = offset;
 		
 	//Shrink the size of the buffer so the data fits exactly in it
-	realloc(buffer.data, buffer.size);
+	buffer.data = realloc(buffer.data, buffer.size);
+	if(buffer.data == NULL)
+	{	
+		return emptyblock;
+	}
 	
 	return buffer;
 }
@@ -146,7 +152,8 @@ struct block downloadfile(const char *url)
 	//Check if the url starts with "http://", if not it is not considered a valid url
 	if(strncmp(url, "http://", strlen("http://")) != 0)
 	{
-		printf("URL '%s' doesn't start with 'http://'\n", url);
+		printf(gt("URL '%s' doesn't start with 'http://'"), url);
+		printf("\n");
 		return emptyblock;
 	}
 	
@@ -156,7 +163,8 @@ struct block downloadfile(const char *url)
 	//At the very least the url has to end with '/', ending with just a domain is invalid
 	if(path == NULL)
 	{
-		printf("URL '%s' has no PATH part\n", url);
+		printf(gt("URL '%s' has no PATH part"), url);
+		printf("\n");
 		return emptyblock;
 	}
 	
@@ -165,7 +173,8 @@ struct block downloadfile(const char *url)
 	
 	if(domainlength == 0)
 	{
-		printf("No domain part in URL '%s'\n", url);
+		printf(gt("No domain part in URL '%s'"), url);
+		printf("\n");
 		return emptyblock;
 	}
 	
@@ -178,7 +187,8 @@ struct block downloadfile(const char *url)
 	
 	if(ipaddress == 0)
 	{
-		printf("\ndomain %s could not be resolved", domain);
+		printf("\n");
+		printf(gt("domain %s could not be resolved"), domain);
 		return emptyblock;
 	}
 
@@ -186,7 +196,7 @@ struct block downloadfile(const char *url)
 	s32 connection = server_connect(ipaddress, 80);
 	
 	if(connection < 0) {
-		printf("Error establishing connection");
+		printf(gt("Error establishing connection"));
 		return emptyblock;
 	}
 	
@@ -218,7 +228,8 @@ struct block downloadfile(const char *url)
 						//printf("HTTP response code: %d\n", code);
 						//if (code != 200) {
 						if (code >= 400) {
-							printf("HTTP ERROR: %s\n", htstat);
+							printf(gt("HTTP ERROR: %s"), htstat);
+							printf("\n");
 							free(response.data);
 							return emptyblock;
 						}
@@ -248,7 +259,8 @@ struct block downloadfile(const char *url)
 	
 	if(filestart == NULL)
 	{
-		printf("HTTP Response was without a file\n");
+		printf(gt("HTTP Response was without a file"));
+		printf("\n");
 		free(response.data);
 		return emptyblock;
 	}
@@ -260,7 +272,8 @@ struct block downloadfile(const char *url)
 	
 	if(file.data == NULL)
 	{
-		printf("No more memory to copy file from HTTP response\n");
+		printf(gt("No more memory to copy file from HTTP response"));
+		printf("\n");
 		free(response.data);
 		return emptyblock;
 	}
@@ -272,3 +285,17 @@ struct block downloadfile(const char *url)
 	
 	return file;
 }
+
+struct block downloadfile_progress(const char *url, int size)
+{
+	int x = http_progress;
+	struct block file;
+	if (size == 1) size = 100;
+	size *= 1024;
+	http_progress = size;
+	file = downloadfile(url);
+	http_progress = x;
+	return file;
+}
+
+

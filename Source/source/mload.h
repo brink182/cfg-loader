@@ -27,6 +27,9 @@
 #include "unistd.h"
 
 #define MLOAD_MLOAD_THREAD_ID	0x4D4C4400
+#define MLOAD_GET_IOS_BASE	    0x4D4C4401
+#define MLOAD_GET_MLOAD_VERSION 0x4D4C4402
+
 #define MLOAD_LOAD_MODULE		0x4D4C4480
 #define MLOAD_RUN_MODULE		0x4D4C4481
 #define MLOAD_RUN_THREAD        0x4D4C4482
@@ -38,6 +41,7 @@
 #define MLOAD_MEMSET			0x4D4C4491
 
 #define MLOAD_GET_EHCI_DATA		0x4D4C44A0
+#define MLOAD_GET_LOG			0x4D4C44A1
 
 #define MLOAD_SET_ES_IOCTLV		0x4D4C44B0
 
@@ -188,6 +192,23 @@ void * mload_get_ehci_data();
 // set the dev/es ioctlv in routine
 
 int mload_set_ES_ioctlv_vector(void *starlet_addr);
+
+/*--------------------------------------------------------------------------------------------------------------*/
+
+
+// to get log buffer
+// this function return the size of the log buffer and prepare it to read with mload_read() the datas
+
+int mload_get_log();
+
+/*--------------------------------------------------------------------------------------------------------------*/
+
+
+// to get IOS base for dev/es  to create the cIOS
+
+int mload_get_IOS_base();
+
+int mload_get_version();
 
 /*--------------------------------------------------------------------------------------------------------------*/
 

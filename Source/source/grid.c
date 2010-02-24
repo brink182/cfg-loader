@@ -14,6 +14,7 @@
 #include "wpad.h"
 #include "GRRLIB.h"
 #include "sys.h"
+#include "gettext.h"
 
 
 extern void GRRLIB_DrawSlice(f32 xpos, f32 ypos, GRRLIB_texImg tex,
@@ -105,7 +106,8 @@ void grid_allocate()
 		if (grid_alloc < GRID_SIZE) grid_alloc = GRID_SIZE;
 		grid_state = realloc(grid_state, grid_alloc * sizeof(Grid_State));
 		if (grid_state == NULL) {
-			printf("FATAL: alloc grid(%d)\n", grid_alloc);
+			printf(gt("FATAL: alloc grid(%d)"), grid_alloc);
+			printf("\n");
 			sleep(5);
 			Sys_Exit();
 		}
@@ -930,6 +932,9 @@ void print_style(int change)
 	}
 }
 
+int action_alpha = 0x00;
+extern char action_string[40];
+
 void grid_print_title(int selected)
 {
 	int w;
@@ -963,6 +968,31 @@ void grid_print_title(int selected)
 	center = text_x + max_w / 2;
 
 	static time_t last_time = 0;
+
+	// action
+	if (action_alpha) {
+		FontColor font_color = CFG.gui_text;
+		font_color.color = (font_color.color & 0xFFFFFF00) | action_alpha;
+		if (action_alpha > 0) action_alpha -= 3;
+		if (action_alpha < 0) action_alpha = 0;
+		last_time = 0;
+
+		max_len = max_w / tx_font.tilew;
+		len = strlen(action_string);
+		if (len > max_len) len = max_len;
+		x = center - len * tx_font.tilew / 2;
+		if (style_alpha) {
+			max_w = style_x - x;
+			max_len = max_w / tx_font.tilew;
+			if (len > max_len) len = max_len;
+		}
+		//GRRLIB_Rectangle(text_x, text_y, 600, spacing_text, 0x0000FFFF, 1);
+		//GRRLIB_Rectangle(text_x, text_y+spacing_text, 600, spacing, 0xFF0000FF, 1);
+		//GRRLIB_Rectangle(text_x, text_y-spacing, 600, spacing, 0xFF0000FF, 1);
+		Gui_PrintfEx(x, text_y, tx_font, font_color, "%.*s", len, action_string);
+		return;
+	}
+
 	// clock
 	if (selected < 0) {
 		if (!CFG.clock_style) return;
@@ -980,7 +1010,8 @@ void grid_print_title(int selected)
 	// title
 	max_len = max_w / tx_font.tilew;
 	title = get_title(&gameList[selected]);
-	len = strlen(title);
+	//len = strlen(title);
+	len = con_len(title);
 	if (len > max_len) len = max_len;
 	x = center - len * tx_font.tilew / 2;
 	if (style_alpha) {
@@ -991,7 +1022,11 @@ void grid_print_title(int selected)
 	//GRRLIB_Rectangle(text_x, text_y, 600, spacing_text, 0x0000FFFF, 1);
 	//GRRLIB_Rectangle(text_x, text_y+spacing_text, 600, spacing, 0xFF0000FF, 1);
 	//GRRLIB_Rectangle(text_x, text_y-spacing, 600, spacing, 0xFF0000FF, 1);
-	Gui_Printf(x, text_y, "%.*s", len, title);
+	//Gui_Printf(x, text_y, "%.*s", len, title);
+	char trunc_title[strlen(title)+1];
+	STRCOPY(trunc_title, title);
+	con_trunc(trunc_title, len);
+	Gui_Printf(x, text_y, "%s", trunc_title);
 }
 
 

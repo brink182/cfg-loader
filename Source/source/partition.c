@@ -38,7 +38,10 @@ s32 Partition_GetEntries(u32 device, partitionEntry *outbuf, u32 *outval)
 			return -1;
 
 		/* Read partition table */
-		ret = USBStorage_ReadSectors(0, 1, &table);
+		u8* table_buf = memalign(32, sector_size);
+		ret = USBStorage_ReadSectors(0, 1, table_buf);
+		memcpy(&table, table_buf, sizeof(table));
+		SAFE_FREE(table_buf);
 		if (ret < 0)
 			return ret;
 
@@ -145,7 +148,10 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 	u32 next = 0;
 
 	// Read partition table
-	ret = Device_ReadSectors(device, 0, 1, &table);
+	u8* table_buf = memalign(32, sector_size);
+	ret = Device_ReadSectors(device, 0, 1, table_buf);
+	memcpy(&table, table_buf, sizeof(table));
+	SAFE_FREE(table_buf);
 	if (!ret) return -1;
 	// Check if it's a RAW WBFS disc, without partition table
 	if (get_fs_type(&table) == FS_TYPE_WBFS) {
@@ -173,8 +179,10 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 
 	next = ext;
 	// scan extended partition for logical
+	table_buf = memalign(32, sector_size);
 	for(i=0; i<maxpart-4; i++) {
-		ret = Device_ReadSectors(device, next, 1, &table);
+		ret = Device_ReadSectors(device, next, 1, table_buf);
+		memcpy(&table, table_buf, sizeof(table));
 		if (!ret) break;
 		if (i == 0) {
 			// handle the invalid scenario where wbfs is on an EXTENDED
@@ -199,6 +207,7 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 			}
 		}
 	}
+	SAFE_FREE(table_buf);
 
 	return 0;
 }
@@ -343,11 +352,12 @@ s32 Partition_GetList(u32 device, PartList *plist)
 }
 
 
-int Partition_FixEXT(u32 device, int part)
+int Partition_FixEXT(u32 device, int part, u32 sec_size)
 {
 	static partitionTable table ATTRIBUTE_ALIGN(32);
 	int ret;
 
+	if (sec_size != 512) return -1;
 	if (part < 0 || part > 3) return -1;
 	// Read partition table
 	ret = Device_ReadSectors(device, 0, 1, &table);

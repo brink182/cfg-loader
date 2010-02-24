@@ -18,7 +18,7 @@ msgstr ""
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr ""
+msgstr "%.1fGB中%.1fGB空いています"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -50,7 +50,7 @@ msgstr "%s、お待ちください…"
 
 #, c-format
 msgid "(%d online)"
-msgstr ""
+msgstr "(%d人まで通信可能)"
 
 #, c-format
 msgid "(%d seconds timeout)"
@@ -60,10 +60,10 @@ msgid ".dol too small"
 msgstr ".dolが小さすぎます"
 
 msgid "< ASC  >"
-msgstr ""
+msgstr "< 昇順  >"
 
 msgid "< DESC >"
-msgstr ""
+msgstr "< 降順 >"
 
 msgid "< DOWNLOAD >"
 msgstr "<ダウンロード>"
@@ -241,11 +241,13 @@ msgstr "すべてのカバーをダウンロードしています"
 
 #, c-format
 msgid "Downloading ALL covers for %.6s"
-msgstr "%.6sですべてのカバーをダウンロードしています"
+msgstr "%.6sのすべてのカバーをダウンロードしています"
 
 #, c-format
 msgid "Downloading MISSING covers for %.6s"
-msgstr "%.6sで不足カバーをダウンロードしています"
+msgstr ""
+"%.6sの不足しているカバーを\n"
+"ダウンロードしています"
 
 msgid "Downloading cheats..."
 msgstr "コードをダウンロード中…"
@@ -518,7 +520,7 @@ msgid "FAT mode only supported with ios 222 rev4"
 msgstr "FATモードはIOS222v4でのみサポートされます"
 
 msgid "FAT32 mount: "
-msgstr "FAT32のマウント:"
+msgstr "設定を読み込むデバイス:"
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -571,7 +573,7 @@ msgid "Found %s Cover"
 msgstr "%sのカバーが見つかりました"
 
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 msgid "Game Options"
 msgstr "ゲーム設定"
@@ -681,7 +683,7 @@ msgid ""
 msgstr "端に近い方のUSBポートを使用してください"
 
 msgid "Manage"
-msgstr "管理"
+msgstr "管理画面へ"
 
 msgid "Microphone"
 msgstr "マイク"
@@ -1047,11 +1049,11 @@ msgid "Press button %s to eject DVD."
 msgstr "%sボタンでDVDを取り出します"
 
 msgid "Profile:"
-msgstr "プロファイル:"
+msgstr "ﾌﾟﾛﾌｧｲﾙ:"
 
 #, c-format
 msgid "Profile: %s"
-msgstr "ﾌﾟﾛﾌｧｲﾙ: %s"
+msgstr "プロファイル: %s"
 
 msgid "Publisher"
 msgstr "発売元"
@@ -1070,7 +1072,7 @@ msgstr "レース"
 
 #, c-format
 msgid "Rated %s"
-msgstr ""
+msgstr "レーティング %s"
 
 msgid "Read"
 msgstr "読み込み"
@@ -1317,7 +1319,7 @@ msgid "cover"
 msgstr "カバー"
 
 msgid "delete"
-msgstr ""
+msgstr "削除"
 
 #, c-format
 msgid "dest: %p - %p"
@@ -1333,13 +1335,13 @@ msgstr "読み込みエラー: %s (%d)"
 
 #, c-format
 msgid "for %d players"
-msgstr ""
+msgstr "1～%d人用"
 
 msgid "for 1 player"
-msgstr ""
+msgstr "1人用"
 
 msgid "format"
-msgstr ""
+msgstr "フォーマット"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

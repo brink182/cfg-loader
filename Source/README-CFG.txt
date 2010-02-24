@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v52
+Configurable SD/USB Loader v53
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -33,7 +33,7 @@ Features:
  - SDHC with multiple partitions supported
    (WBFS for games and FAT for resources...)
  - Custom IOS selection for better compatibility with USB drives and other USB devices.
- - cIOS supported: waninkoko's 249 & 250, Hermes 222 & 223 (mload), kwiirk 222 & 223 (yal)
+ - cIOS supported: waninkoko's 249 & 250, Hermes 222, 223 & 224 (mload), kwiirk 222 & 223 (yal)
  - Banner sounds
  - Saving game play time to Wii's play log
  - Multiple WBFS partitions support
@@ -510,6 +510,8 @@ Config file:
 #     theme      # switch to next theme
 #     profile    # switch to next profile
 #     unlock     # access the unlock password dialog immediately
+#     sort       # switch to next sort
+#     filter     # access filter menu
 #   X, Y, Z, C, L & R can also be optionally targetted to emulate one of the buttons
 #   on the Wiimote (A, B, 1, 2, -, +, Home).  This emulation will function everywhere.
 #
@@ -595,29 +597,19 @@ Config file:
 #
 #    cover_url =
 #    cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png
-#    cover_url =+ http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID}.png
 #    cover_url =+ http://boxart.rowdyruff.net/flat/{ID6}.png
-#    cover_url =+ http://awiibit.com/BoxArt160x224/{ID6}.png
-#    cover_url =+ http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png
 #
 #   cover_url_3d =
 #   cover_url_3d =+ http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png
-#   cover_url_3d =+ http://wiicover.gateflorida.com/sites/default/files/cover/3D%20Cover/{ID6}.png
 #   cover_url_3d =+ http://boxart.rowdyruff.net/3d/{ID6}.png
-#   cover_url_3d =+ http://awiibit.com/3dBoxArt176x248/{ID6}.png
-#   cover_url_3d =+ http://www.muntrue.nl/covers/ALL/160/225/3D/{ID6}.png
 #
 #   cover_url_disc =
 #   cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disc/{CC}/{ID6}.png
-#   cover_url_disc =+ http://wiicover.gateflorida.com/sites/default/files/cover/Disc%20Cover/{ID6}.png
+#   cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disccustom/{CC}/{ID6}.png
 #   cover_url_disc =+ http://boxart.rowdyruff.net/fulldisc/{ID6}.png
-#   cover_url_disc =+ http://awiibit.com/WiiDiscArt/{ID6}.png
-#   cover_url_disc =+ http://www.muntrue.nl/covers/ALL/160/160/disc/{ID6}.png
 #
 #   cover_url_full =
 #   cover_url_full =+ http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png
-#   cover_url_full =+ http://wiicover.gateflorida.com/sites/default/files/cover/Full%20Cover/{ID}.png
-#   cover_url_full =+ http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png
 #
 # download_id_len = 4, [6]
 #   Specifies the downloaded cover ID length for the saved file name 
@@ -804,6 +796,14 @@ Config file:
 #   Any filename is supported as long as a corresponding translation 
 #   file exists
 #
+# load_unifont = [0], 1
+#   Specifies if unifont.dat should be loaded or not. unifont.dat contains
+#   all the unicode characters, required for ASIAN language support so that
+#   translation or wiitdb info shows up correctly.
+#   Note: the LATIN unicode set is already embedded into the loader,
+#   so to display German, French, Spanish, etc... unifont.dat is not needed
+#
+#
 # Game Compatibility Options:
 # ===========================
 # 
@@ -835,14 +835,14 @@ Config file:
 # fix_002 = [0], 1
 #   This is the Anti 002 fix.
 #
-# ios = [249], 222-mload, 223-mload, 222-yal, 223-yal, 250
+# ios = [249], 222-mload, 223-mload, 224-mload, 222-yal, 223-yal, 250
 #   Select Custom IOS
 #   Note: 222-yal is for kwiirk's cIOS
 #   Note: 222-mload is for Hermes's cIOS
 #   Note: a few seconds of delay when starting a game with custom ios is expected.
 #
 # block_ios_reload = [0], 1
-#   Required by some games, but works inly with ios: 222-mload, 223-mload
+#   Required by some games, but works inly with ios: 222-mload, 223-mload, 224-mload
 #
 # alt_dol = [0], 1, sd, disc
 #   Alternative .dol loading option (from NeoGamma by WiiPower)
@@ -878,6 +878,52 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+cfg v53 (release)
+
+ * New option: load_unifont = [0], 1
+   Specifies if unifont.dat should be loaded or not. unifont.dat contains
+   all the unicode characters, required for Asian (CJK) language support
+   so that translation or wiitdb info shows up correctly.
+   Note: the Latin unicode set is already embedded into the loader,
+   so to display German, French, Spanish, etc... unifont.dat is not needed
+ * Renamed the included Chinese translation files according to standard:
+   SChinese.lang -> ZH_CN.lang (Simplified Chinese)
+   CHT.lang      -> ZH_TW.lang (Traditional Chinese)
+
+cfg v53b3 (beta3)
+
+ * Fixed crash with cios222 v5
+   (happened with this combination: normal cfg.dol
+    with options: ios=222-mload & partition=wbfs)
+ * Fixed update progress ... notification
+
+cfg v53b2 (beta2)
+
+ * More fixes for handling of corrupted cover images (usptactical)
+ * Minor translation updates
+	
+cfg v53b (beta)
+
+ * Better handling of corrupted cover images - they should not crash
+   the loader anymore and will be renamed to filename.bad (usptactical)
+ * Japanese / Chinese translation and wiitdb support (oggzee)
+   A new font file is required for this: unifont.dat
+ * Removed ISFS from playlog (Clipper)
+ * Scroll option screens if the console size is too small (Clipper)
+ * Removed wiiboxart from URLs. (Clipper)
+ * print cover download url and progress (oggzee)
+ * force fat freespace update when installing (oggzee)
+
+cfg v53a (alpha)
+
+ * cIOS 222/223/224 v5 support
+   Note: only use 222 for loader, 223 and 224 will freeze if used for loader,
+   however 223/224 work fine for games. That means, don't put ios=223-mload in
+   config.txt, but it's ok if it is set for a specific game in options screen.
+ * New option value for ios: 224-mload
+ * Support for HDDs with 4k sectors (WBFS partition only)
+ * Fixed option: home=hbc
 
 cfg v52 (release)
 

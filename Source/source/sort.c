@@ -13,6 +13,7 @@
 #include "wbfs_fat.h"
 #include "sort.h"
 #include "wpad.h"
+#include "gettext.h"
 
 extern struct discHdr *all_gameList;
 extern struct discHdr *gameList;
@@ -24,6 +25,10 @@ s32 filter_index = -1;
 s32 filter_type = -1;
 s32 sort_index = -1;
 bool sort_desc = 0;
+
+s32 default_sort_index = 0;
+bool default_sort_desc = 0;
+s32 default_filter_type = -1;
 
 s32 __sort_play_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_install_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
@@ -52,68 +57,132 @@ s32 __sort_install_date_desc(const void *a, const void *b);
 s32 __sort_play_date_asc(const void *a, const void *b);
 s32 __sort_play_date_desc(const void *a, const void *b);
 
-#define featureCnt 4
-#define accessoryCnt 16
-#define genreCnt 14
-#define sortCnt 9
 
-static char featureTypes[featureCnt][2][25] = {
-	{"online", "Online Content"},
-	{"download", "Downloadable Content"},
-	{"score", "Online Score List"},
-	{"nintendods", "Nintendo DS Connectivity"}
-};
+char *featureTypes[featureCnt][2];
+char *accessoryTypes[accessoryCnt][2];
+char *genreTypes[genreCnt][2];
+struct Sorts sortTypes[sortCnt];
 
-static char accessoryTypes[accessoryCnt][2][20] = {
-	{"wiimote", "Wiimote"},
-	{"nunchuk", "Nunchuk"},
-	{"motionplus", "Motion+"},
-	{"gamecube", "Gamecube"},
-	{"nintendods", "Nintendo DS"},
-	{"classiccontroller", "Classic Controller"},
-	{"wheel", "Wheel"},
-	{"zapper", "Zapper"},
-	{"balanceboard", "Balance Board"},
-	{"wiispeak", "Wii Speak"},
-	{"microphone", "Microphone"},
-	{"guitar", "Guitar"},
-	{"drums", "Drums"},
-	{"dancepad", "Dance Pad"},
-	{"keyboard", "Keyboard"},
-	{"vitalitysensor", "Vitality Sensor"}
-};
+void build_arrays() {
+	featureTypes[0][0] = "online";
+	featureTypes[0][1] = (char *)gt("Online Content");
+	featureTypes[1][0] = "download";
+	featureTypes[1][1] = (char *)gt("Downloadable Content");
+	featureTypes[2][0] = "score";
+	featureTypes[2][1] = (char *)gt("Online Score List");
+	featureTypes[3][0] = "nintendods";
+	featureTypes[3][1] = (char *)gt("Nintendo DS Connectivity");
 
-static char genreTypes[genreCnt][2][20] = {
-	{"action", "Action"},
-	{"adventure", "Adventure"},
-	{"sport", "Sports"},
-	{"racing", "Racing"},
-	{"rhythm", "Rhythm"},
-	{"simulation", "Simulation"},
-	{"platformer", "Platformer"},
-	{"party", "Party"},
-	{"music", "Music"},
-	{"puzzle", "Puzzle"},
-	{"fighting", "Fighting"},
-	{"rpg", "RPG"},
-	{"shooter", "Shooter"},
-	{"strategy", "Strategy"}
-};
+	accessoryTypes[0][0] = "wiimote";
+	accessoryTypes[0][1] = (char *)gt("Wiimote");
+	accessoryTypes[1][0] = "nunchuk";
+	accessoryTypes[1][1] = (char *)gt("Nunchuk");
+	accessoryTypes[2][0] = "motionplus";
+	accessoryTypes[2][1] = (char *)gt("Motion+");
+	accessoryTypes[3][0] = "gamecube";
+	accessoryTypes[3][1] = (char *)gt("Gamecube");
+	accessoryTypes[4][0] = "nintendods";
+	accessoryTypes[4][1] = (char *)gt("Nintendo DS");
+	accessoryTypes[5][0] = "classiccontroller";
+	accessoryTypes[5][1] = (char *)gt("Classic Controller");
+	accessoryTypes[6][0] = "wheel";
+	accessoryTypes[6][1] = (char *)gt("Wheel");
+	accessoryTypes[7][0] = "zapper";
+	accessoryTypes[7][1] = (char *)gt("Zapper");
+	accessoryTypes[8][0] = "balanceboard";
+	accessoryTypes[8][1] = (char *)gt("Balance Board");
+	accessoryTypes[9][0] = "wiispeak";
+	accessoryTypes[9][1] = (char *)gt("Wii Speak");
+	accessoryTypes[10][0] = "microphone";
+	accessoryTypes[10][1] = (char *)gt("Microphone");
+	accessoryTypes[11][0] = "guitar";
+	accessoryTypes[11][1] = (char *)gt("Guitar");
+	accessoryTypes[12][0] = "drums";
+	accessoryTypes[12][1] = (char *)gt("Drums");
+	accessoryTypes[13][0] = "dancepad";
+	accessoryTypes[13][1] = (char *)gt("Dance Pad");
+	accessoryTypes[14][0] = "keyboard";
+	accessoryTypes[14][1] = (char *)gt("Keyboard");
+	accessoryTypes[15][0] = "vitalitysensor";
+	accessoryTypes[15][1] = (char *)gt("Vitality Sensor");
 
-static struct Sorts sortTypes[sortCnt] = {
-	{"title", "Title", __sort_title_asc,	__sort_title_desc},
-	{"players", "Number of Players", __sort_players_asc, __sort_players_desc},
-	{"online_players", "Number of Online Players", __sort_wifiplayers_asc, __sort_wifiplayers_desc},
-	{"publisher", "Publisher", __sort_pub_asc, __sort_pub_desc},
-	{"developer", "Developer", __sort_dev_asc, __sort_dev_desc},
-	{"release", "Release Date", __sort_releasedate_asc, __sort_releasedate_desc},
-	{"play_count", "Play Count", __sort_play_count_asc, __sort_play_count_desc},
-	{"play_date", "Last Play Date", __sort_play_date_asc, __sort_play_date_desc},
-	{"install", "Install Date", __sort_install_date_asc, __sort_install_date_desc}
-};
+	genreTypes[0][0] = "action";
+	genreTypes[0][1] = (char *)gt("Action");
+	genreTypes[1][0] = "adventure";
+	genreTypes[1][1] = (char *)gt("Adventure");
+	genreTypes[2][0] = "sport";
+	genreTypes[2][1] = (char *)gt("Sports");
+	genreTypes[3][0] = "racing";
+	genreTypes[3][1] = (char *)gt("Racing");
+	genreTypes[4][0] = "rhythm";
+	genreTypes[4][1] = (char *)gt("Rhythm");
+	genreTypes[5][0] = "simulation";
+	genreTypes[5][1] = (char *)gt("Simulation");
+	genreTypes[6][0] = "platformer";
+	genreTypes[6][1] = (char *)gt("Platformer");
+	genreTypes[7][0] = "party";
+	genreTypes[7][1] = (char *)gt("Party");
+	genreTypes[8][0] = "music";
+	genreTypes[8][1] = (char *)gt("Music");
+	genreTypes[9][0] = "puzzle";
+	genreTypes[9][1] = (char *)gt("Puzzle");
+	genreTypes[10][0] = "fighting";
+	genreTypes[10][1] = (char *)gt("Fighting");
+	genreTypes[11][0] = "rpg";
+	genreTypes[11][1] = (char *)gt("RPG");
+	genreTypes[12][0] = "shooter";
+	genreTypes[12][1] = (char *)gt("Shooter");
+	genreTypes[13][0] = "strategy";
+	genreTypes[13][1] = (char *)gt("Strategy");
+
+	strcpy(sortTypes[0].cfg_val, "title");
+	strcpy(sortTypes[0].name, gt("Title"));
+	sortTypes[0].sortAsc = __sort_title_asc;
+	sortTypes[0].sortDsc = __sort_title_desc;
+	strcpy(sortTypes[1].cfg_val, "players");
+	strcpy(sortTypes[1].name, gt("Number of Players"));
+	sortTypes[1].sortAsc = __sort_players_asc;
+	sortTypes[1].sortDsc = __sort_players_desc;
+	strcpy(sortTypes[2].cfg_val, "online_players");
+	strcpy(sortTypes[2].name, gt("Number of Online Players"));
+	sortTypes[2].sortAsc = __sort_wifiplayers_asc;
+	sortTypes[2].sortDsc = __sort_wifiplayers_desc;
+	strcpy(sortTypes[3].cfg_val, "publisher");
+	strcpy(sortTypes[3].name, gt("Publisher"));
+	sortTypes[3].sortAsc = __sort_pub_asc;
+	sortTypes[3].sortDsc = __sort_pub_desc;
+	strcpy(sortTypes[4].cfg_val, "developer");
+	strcpy(sortTypes[4].name, gt("Developer"));
+	sortTypes[4].sortAsc = __sort_dev_asc;
+	sortTypes[4].sortDsc = __sort_dev_desc;
+	strcpy(sortTypes[5].cfg_val, "release");
+	strcpy(sortTypes[5].name, gt("Release Date"));
+	sortTypes[5].sortAsc = __sort_releasedate_asc;
+	sortTypes[5].sortDsc = __sort_releasedate_desc;
+	strcpy(sortTypes[6].cfg_val, "play_count");
+	strcpy(sortTypes[6].name, gt("Play Count"));
+	sortTypes[6].sortAsc = __sort_play_count_asc;
+	sortTypes[6].sortDsc = __sort_play_count_desc;
+	strcpy(sortTypes[7].cfg_val, "play_date");
+	strcpy(sortTypes[7].name, gt("Last Play Date"));
+	sortTypes[7].sortAsc = __sort_play_date_asc;
+	sortTypes[7].sortDsc = __sort_play_date_desc;
+	strcpy(sortTypes[8].cfg_val, "install");
+	strcpy(sortTypes[8].name, gt("Install Date"));
+	sortTypes[8].sortAsc = __sort_install_date_asc;
+	sortTypes[8].sortDsc = __sort_install_date_desc;
+
+}
+
+void reset_sort_default() {
+	sort_index = default_sort_index;
+	sort_desc = default_sort_desc;
+	filter_type = default_filter_type;
+}
 
 void __set_default_sort() {
 
+	build_arrays();
 	char tmp[20];
 	bool dsc = 0;
 	int n = 0;
@@ -125,18 +194,18 @@ void __set_default_sort() {
 	}
 	for (; n<sortCnt; n++) {
 		if (!strncmp(sortTypes[n].cfg_val, tmp, strlen(tmp))) {
-			sort_index = n;
+			sort_index = default_sort_index = n;
 			if (!dsc) {
 				default_sort_function = (*sortTypes[sort_index].sortAsc);
-				sort_desc = 0;
+				sort_desc = default_sort_desc = 0;
 			} else {
 				default_sort_function = (*sortTypes[sort_index].sortDsc);
-				sort_desc = 1;
+				sort_desc = default_sort_desc = 1;
 			}
 			return;
 		}
 	}
-	sort_index = 0;
+	sort_index = default_sort_index = 0;
 	default_sort_function =  (*sortTypes[sort_index].sortAsc);
 }
 
@@ -233,7 +302,10 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 		Con_Clear();
 		FgColor(CFG.color_header);
 		printf("\n");
-		printf("No games found!\nLoading previous game list...\n");
+		printf(gt("%s No games found!!"), CFG.cursor);
+		printf("\n");
+		printf(gt("Loading previous game list..."));
+		printf("\n");
 		DefaultColor();
 		__console_flush(0);
 		sleep(1);
@@ -510,6 +582,9 @@ int Menu_Filter()
 	struct discHdr *header = NULL;
 	int redraw_cover = 0;
 	struct Menu menu;
+	int rows, cols, size;
+	CON_GetMetrics(&cols, &rows);
+	if ((size = rows-10) < 3) size = 3;
 	menu_init(&menu, genreCnt+5);
 	for (;;) {
 
@@ -523,27 +598,28 @@ int Menu_Filter()
 		int n;
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Filter by Genre:\n\n");
+		printf_x(gt("Filter by Genre"));
+		printf(":\n\n");
 		MENU_MARK();
-		printf("<Filter by Controller>\n");
+		printf("<%s>\n", gt("Filter by Controller"));
 		MENU_MARK();
-		printf("<Filter by Online Features>\n");
+		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
-		printf("%s All Games\n", ((filter_type == -1) ? "*" : " "));
+		printf("%s %s\n", ((filter_type == -1) ? "*" : " "), gt("All Games"));
 		MENU_MARK();
-		printf("%s Online Play\n", ((filter_type == 0) ? "*": " "));
+		printf("%s %s\n", ((filter_type == 0) ? "*": " "), gt("Online Play"));
 		MENU_MARK();
-		printf("%s Unplayed Games\n", ((filter_type == 1) ? "*": " "));
+		printf("%s %s\n", ((filter_type == 1) ? "*": " "), gt("Unplayed Games"));
+		menu_window_begin(&menu, size, genreCnt);
 		for (n=0;n<genreCnt;n++) {
-			MENU_MARK();
-			printf("%s %s\n", ((filter_index == n && filter_type == 2) ? "*": " "), genreTypes[n][1]);
+			if (menu_window_mark(&menu))
+				printf("%s %s\n", ((filter_index == n && filter_type == 2) ? "*": " "), genreTypes[n][1]);
 		}
-		
 		DefaultColor();
-
-		printf("\n");
-		printf_h("Press A to select filter type\n");
-		printf("\n");
+		menu_window_end(&menu, cols);
+		
+		//printf("\n");
+		printf_h(gt("Press %s to select filter type"), (button_names[CFG.button_confirm.num]));
 		__console_flush(0);
 
 		if (redraw_cover) {
@@ -556,7 +632,7 @@ int Menu_Filter()
 
 		int change = 0;
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
-		if (buttons & WPAD_BUTTON_RIGHT || buttons & WPAD_BUTTON_A || buttons & WPAD_BUTTON_2) change = +1;
+		if (buttons & WPAD_BUTTON_RIGHT || buttons & CFG.button_confirm.mask || buttons & CFG.button_save.mask) change = +1;
 
 		if (change) {
 			if (0 == menu.current) {
@@ -595,10 +671,10 @@ int Menu_Filter()
 		}
 		
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	return 0;
 }
@@ -608,7 +684,10 @@ int Menu_Filter2()
 	struct discHdr *header = NULL;
 	int redraw_cover = 0;
 	struct Menu menu;
-	menu_init(&menu, accessoryCnt+2);
+	int rows, cols, size;
+	CON_GetMetrics(&cols, &rows);
+	if ((size = rows-8) < 3) size = 3;
+	menu_init(&menu, accessoryCnt+3);
 	for (;;) {
 
 		menu.line_count = 0;
@@ -621,20 +700,23 @@ int Menu_Filter2()
 		int n;
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Filter by Controller:\n\n");
+		printf_x(gt("Filter by Controller"));
+		printf(":\n\n");
 		MENU_MARK();
-		printf("<Filter by Genre>\n");
+		printf("<%s>\n", gt("Filter by Genre"));
 		MENU_MARK();
-		printf("<Filter by Online Features>\n");
+		printf("<%s>\n", gt("Filter by Online Features"));
+		MENU_MARK();
+		printf("%s %s\n", ((filter_type == -1) ? "*" : " "), gt("All Games"));
+		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
-			MENU_MARK();
-			printf("%s %s\n", ((filter_index == n && filter_type == 4) ? "*": " "), accessoryTypes[n][1]);
+			if (menu_window_mark(&menu))
+				printf("%s %s\n", ((filter_index == n && filter_type == 4) ? "*": " "), accessoryTypes[n][1]);
 		}
 		DefaultColor();
-
-		printf("\n");
-		printf_h("Press A to select filter type\n");
-		printf("\n");
+		menu_window_end(&menu, cols);
+	
+		printf_h(gt("Press %s to select filter type"), (button_names[CFG.button_confirm.num]));
 		__console_flush(0);
 
 		if (redraw_cover) {
@@ -647,7 +729,7 @@ int Menu_Filter2()
 
 		int change = 0;
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
-		if (buttons & WPAD_BUTTON_RIGHT || buttons & WPAD_BUTTON_A || buttons & WPAD_BUTTON_2) change = +1;
+		if (buttons & WPAD_BUTTON_RIGHT || buttons & CFG.button_confirm.mask || buttons & CFG.button_save.mask) change = +1;
 
 		if (change) {
 			if (0 == menu.current) {
@@ -658,9 +740,13 @@ int Menu_Filter2()
 				Menu_Filter3();
 				redraw_cover = 1;
 				goto end;
+			} else if (2 == menu.current) {
+				showAllGames();
+				filter_type = -1;
+				redraw_cover = 1;
 			}
 			for (n=0;n<accessoryCnt;n++) {
-				if (n+2 == menu.current) {
+				if (n+3 == menu.current) {
 					redraw_cover = 1;
 					if (filter_games(filter_controller, accessoryTypes[n][0], 0) > -1) {
 						filter_type = 4;
@@ -672,10 +758,10 @@ int Menu_Filter2()
 		}
 		
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	end:
 	return 0;
@@ -686,7 +772,10 @@ int Menu_Filter3()
 	struct discHdr *header = NULL;
 	int redraw_cover = 0;
 	struct Menu menu;
-	menu_init(&menu, featureCnt+2);
+	int rows, cols, size;
+	CON_GetMetrics(&cols, &rows);
+	if ((size = rows-8) < 3) size = 3;
+	menu_init(&menu, featureCnt+3);
 	for (;;) {
 
 		menu.line_count = 0;
@@ -699,20 +788,23 @@ int Menu_Filter3()
 		int n;
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Filter by Online Features:\n\n");
+		printf_x(gt("Filter by Online Features"));
+		printf(":\n\n");
 		MENU_MARK();
-		printf("<Filter by Genre>\n");
+		printf("<%s>\n", gt("Filter by Genre"));
 		MENU_MARK();
-		printf("<Filter by Controller>\n");		
+		printf("<%s>\n", gt("Filter by Controller"));		
+		MENU_MARK();
+		printf("%s %s\n", ((filter_type == -1) ? "*" : " "), gt("All Games"));
+		menu_window_begin(&menu, size, featureCnt);
 		for (n=0;n<featureCnt;n++) {
-			MENU_MARK();
+			if (menu_window_mark(&menu))
 			printf("%s %s\n", ((filter_index == n && filter_type == 3) ? "*": " "), featureTypes[n][1]);
 		}
 		DefaultColor();
-
-		printf("\n");
-		printf_h("Press A to select filter type\n");
-		printf("\n");
+		menu_window_end(&menu, cols);
+		
+		printf_h(gt("Press %s to select filter type"), (button_names[CFG.button_confirm.num]));
 		__console_flush(0);
 
 		if (redraw_cover) {
@@ -725,7 +817,7 @@ int Menu_Filter3()
 
 		int change = 0;
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
-		if (buttons & WPAD_BUTTON_RIGHT || buttons & WPAD_BUTTON_A || buttons & WPAD_BUTTON_2) change = +1;
+		if (buttons & WPAD_BUTTON_RIGHT || buttons & CFG.button_confirm.mask || buttons & CFG.button_save.mask) change = +1;
 
 		if (change) {
 			if (0 == menu.current) {
@@ -736,9 +828,13 @@ int Menu_Filter3()
 				Menu_Filter2();
 				redraw_cover = 1;
 				goto end;
+			} else if (2 == menu.current) {
+				showAllGames();
+				filter_type = -1;
+				redraw_cover = 1;
 			}
 			for (n=0;n<featureCnt;n++) {
-				if (2+n == menu.current) {
+				if (3+n == menu.current) {
 					redraw_cover = 1;
 					if (filter_games(filter_features, featureTypes[n][0], 0) > -1) {
 						filter_type = 3;
@@ -750,10 +846,10 @@ int Menu_Filter3()
 		}
 		
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	end:
 	return 0;
@@ -781,21 +877,22 @@ int Menu_Sort()
 		}
 		Con_Clear();
 		FgColor(CFG.color_header);
-		printf_x("Choose a sorting method:\n\n");
+		printf_x(gt("Choose a sorting method"));
+		printf(":\n\n");
 		for (n=0; n<sortCnt; n++) {
 			if (sort_index == n && sort_desc && first_run) {
 				first_run = 0;
 				descend[n] = 1;
 			}
 			MENU_MARK();
-			printf("%s %s", (sort_index == n ? "*": " "), sortTypes[n].name);
-			printf("%*s\n", (MAX_CHARACTERS - (strlen(sortTypes[n].name) + 5)), (!descend[n] ? "< ASC  >" : "< DESC >"));
+			printf("%s ", (sort_index == n ? "*": " "));
+			printf("%s", con_align(sortTypes[n].name,25));
+			printf("%s\n", !descend[n] ? gt("< ASC  >") : gt("< DESC >"));
 		}
 		DefaultColor();
 
 		printf("\n");
-		printf_h("Press A to select sorting method\n");
-		printf("\n");
+		printf_h(gt("Press %s to select sorting method"), (button_names[CFG.button_confirm.num]));
 		__console_flush(0);
 
 		if (redraw_cover) {
@@ -808,7 +905,7 @@ int Menu_Sort()
 
 		int change = 0;
 		if (buttons & WPAD_BUTTON_LEFT || buttons & WPAD_BUTTON_RIGHT) change = -1;
-		if (buttons & WPAD_BUTTON_A || buttons & WPAD_BUTTON_2) change = +1;
+		if (buttons & CFG.button_confirm.mask || buttons & CFG.button_save.mask) change = +1;
 
 		if (change) {
 			for (n=0; n<sortCnt; n++) {
@@ -831,10 +928,10 @@ int Menu_Sort()
 		}
 		
 		// HOME button
-		if (buttons & WPAD_BUTTON_HOME) {
+		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
 		}
-		if (buttons & WPAD_BUTTON_B) break;
+		if (buttons & CFG.button_cancel.mask) break;
 	}
 	return 0;
 }

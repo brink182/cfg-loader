@@ -43,9 +43,10 @@ distribution.
 #define WBFS_BASE (('W'<<24)|('F'<<16)|('S'<<8))
 #define USB_IOCTL_WBFS_OPEN_DISC	        (WBFS_BASE+0x1)
 #define USB_IOCTL_WBFS_READ_DISC	        (WBFS_BASE+0x2)
-#define USB_IOCTL_WBFS_READ_DEBUG	        (WBFS_BASE+0x3)
-#define USB_IOCTL_WBFS_SET_DEVICE	        (WBFS_BASE+0x4)
-#define USB_IOCTL_WBFS_SET_FRAGLIST         (WBFS_BASE+0x5)
+
+#define USB_IOCTL_WBFS_READ_DEBUG	        (WBFS_BASE+0x13)
+#define USB_IOCTL_WBFS_SET_DEVICE	        (WBFS_BASE+0x14)
+#define USB_IOCTL_WBFS_SET_FRAGLIST         (WBFS_BASE+0x15)
 
 #define UMS_HEAPSIZE			0x8000
 #define USB_MEM2_SIZE           0x10000
@@ -74,6 +75,17 @@ u32 USBStorage_GetCapacity(u32 *_sector_size)
 		s32 ret;
 
 		ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_GET_CAPACITY, ":i", &sector_size);
+
+		/*
+		static int first = 1;
+		if (first) {
+			printf("\nSECTORS: %u\n", ret);
+			printf("SEC SIZE: %u\n", sector_size);
+			printf("HDD SIZE: %u GB [%u]\n", ret/1024/1024*sector_size/1024, sector_size);
+			Menu_PrintWait();
+			first = 0;
+		}
+		*/
 
 		if (ret && _sector_size)
 			*_sector_size = sector_size;
@@ -215,18 +227,21 @@ s32 USBStorage_WriteSectors(u32 sector, u32 numSectors, const void *buffer)
 
 // DISC_INTERFACE methods
 
-static bool __io_usb_Startup(void)
-{
-	return USBStorage_Init() >= 0;
-}
-
 static bool __io_usb_IsInserted(void)
 {
 	s32 ret;
+	u32 sec_size;
 	if (fd < 0) return false;
-	ret = USBStorage_GetCapacity(NULL);
+	ret = USBStorage_GetCapacity(&sec_size);
 	if (ret == 0) return false;
+	if (sec_size != 512) return false;
 	return true;
+}
+
+static bool __io_usb_Startup(void)
+{
+	if (USBStorage_Init() < 0) return false;
+	return __io_usb_IsInserted();
 }
 
 int usb_verbose = 0;

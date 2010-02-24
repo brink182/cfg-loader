@@ -13,6 +13,7 @@
 #include "frag.h"
 #include "wpad.h"
 #include "cfg.h"
+#include "gettext.h"
 
 int _FAT_get_fragments (const char *path, _frag_append_t append_fragment, void *callback_data);
 
@@ -216,7 +217,8 @@ int get_frag_list(u8 *id)
 			if (ret) {
 				printf("ntfs getf: %d\n", ret);
 				if (ret == -50 || ret == -500) {
-					printf("Too many fragments! %d\n", fs->num);
+					printf(gt("Too many fragments! %d"), fs->num);
+					printf("\n");
 				}
 				ret_val = ret;
 				goto out;
@@ -279,7 +281,8 @@ int set_frag_list(u8 *id)
 	if (frag_list == NULL) {
 		if (wbfs_part_fs == PART_FS_FAT) {
 			// fall back to old fat method
-			printf("FAT: fallback to old method\n");
+			printf(gt("FAT: fallback to old method"));
+			printf("\n");
 	   		return 0;
 		}
 		// ntfs has no fallback, return error
@@ -303,8 +306,10 @@ int set_frag_list(u8 *id)
 	//usb_debug_dump(0);
 	//printf("r:%d id:%s\n", ret, discid);
 	if (memcmp(id, discid, 6) != 0) {
-		printf("ERROR: setting up fragmens %d %d\n", ret, frag_list->num);
-		printf("ID mismatch: [%.6s] [%.6s]\n", id, discid);
+		printf(gt("ERROR: setting up fragments %d %d"), ret, frag_list->num);
+		printf("\n");
+		printf(gt("ID mismatch: [%.6s] [%.6s]"), id, discid);
+		printf("\n");
 		Wpad_WaitButtonsCommon();
 		return -1;
 	}

@@ -19,7 +19,7 @@ void Online_Update();
 void Download_Titles();
 void Menu_Cheats(struct discHdr *header);
 int  Menu_PrintWait();
-bool Menu_Confirm(char *msg);
+bool Menu_Confirm(const char *msg);
 
 void __Menu_ShowGameInfo(bool showfullinfo, u8 *id); // Lustar
 char *skip_sort_ignore(char *s);
@@ -39,6 +39,10 @@ struct Menu
 	int line_count;
 	char *active;
 	int active_size;
+	int window_size;
+	int window_begin;
+	int window_items;
+	int window_pos;
 };
 
 void menu_init(struct Menu *m, int num_opt);
@@ -53,11 +57,11 @@ void menu_move_wrap(struct Menu *m);
 void menu_move_adir(struct Menu *m, int dir);
 void menu_move_active(struct Menu *m, int buttons);
 
-#define MENU_MARK() menu_mark(&menu)
+void menu_window_begin(struct Menu *m, int size, int num_items);
+bool menu_window_mark(struct Menu *m);
+void menu_window_end(struct Menu *m, int cols);
 
-void printf_(char *fmt, ...);
-void printf_x(char *fmt, ...);
-void printf_h(char *fmt, ...);
+#define MENU_MARK() menu_mark(&menu)
 
 #endif
 

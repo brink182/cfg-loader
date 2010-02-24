@@ -13,6 +13,7 @@ Load game information from XML - Lustar
 #include "menu.h"
 #include "mem.h"
 #include "wpad.h"
+#include "gettext.h"
 
 #include "unzip/unzip.h"
 #include "unzip/miniunz.h"
@@ -58,6 +59,17 @@ static char langcodes[11][3] =
 {"ZH"},
 {"ZH"},
 {"KO"}};
+
+
+void xml_stat()
+{
+	printf("  Games in XML: %d (%d) / %d\n", xmlgameCnt, array_size, all_gameCnt);
+}
+
+char * getLang(int lang) {
+	if (lang < 1 || lang > 10) return "EN";
+	return langcodes[lang+1];
+}
 
 char * unescape(char *input, int size) {
 	str_replace_all(input, "&gt;", ">", size);
@@ -206,6 +218,9 @@ bool OpenXMLFile(char *filename)
 		unz_file_info zipfileinfo;
 		unzGetCurrentFileInfo(unzfile, &zipfileinfo, NULL, 0, NULL, 0, NULL, 0);	
 		int zipfilebuffersize = zipfileinfo.uncompressed_size;
+		if (db_debug) {
+			printf("uncompressed xml: %dkb\n", zipfilebuffersize/1024);
+		}
 		xmlData = mem_alloc(zipfilebuffersize);
 		memset(xmlData, 0, zipfilebuffersize);
 		if (xmlData == NULL) {
@@ -225,7 +240,7 @@ bool OpenXMLFile(char *filename)
 /* convert language text into ISO 639 two-letter language code */
 char *ConvertLangTextToCode(char *languagetxt)
 {
-	if (!strcmp(languagetxt, "") || (!strcasecmp(languagetxt,"japanese")))
+	if (!strcmp(languagetxt, ""))
 		return "EN";
 	int i;
 	for (i=1;i<=10;i++)
@@ -238,7 +253,7 @@ char *ConvertLangTextToCode(char *languagetxt)
 
 char *VerifyLangCode(char *languagetxt)
 {
-	if (!strcmp(languagetxt, "") || (!strcasecmp(languagetxt,"JA")))
+	if (!strcmp(languagetxt, ""))
 		return "EN";
 	int i;
 	for (i=1;i<=10;i++)
@@ -437,63 +452,40 @@ void readWifi(char * start, int n) {
 }
 
 void readTitles(char * start, int n) {
-	char *locStart = strstr(start, "<locale lang=\"");
-	char *locEnd = NULL;
+	char *locStart;
+	char *locEnd = start;
 	char tmpLang[3];
-	char tmpTitle[100];
-	char tmpSynopsis[500];
 	bool foundEn = 0;
 	bool foundCfg = 0;
-	while(locStart != NULL) {
+	while ((locStart = strstr(locEnd, "<locale lang=\"")) != NULL) {
 		strcpy(tmpLang, "");
-		strcpy(tmpTitle, "");
 		locEnd = strstr(locStart, "</locale>");
 		if (locEnd == NULL) {
 			locEnd = strstr(locStart, "\"/>");
 			if (locEnd == NULL) break;
-			strlcpy(tmpLang, locStart+14, 3);
-		} else {
-			strlcpy(tmpLang, locStart+14, 3);
-			if (tmpLang[0] == xmlCfgLang[0] && tmpLang[1] == xmlCfgLang[1]) {
-				char * locTmp = strndup(locStart, locEnd-locStart);
-				char * reset = locTmp;
-				char * titStart = strstr(locTmp, "<title>");
-				if (titStart != NULL) {
-					char * titEnd = strstr(titStart, "</title>");
-					strncpySafe(game_info[n].title, titStart+7, sizeof(game_info[n].title), titEnd-(titStart+7));
-				}
-				titStart = strstr(locTmp, "<synopsis>");
-				if (titStart != NULL) {
-					char * titEnd = strstr(titStart, "</synopsis>");
-					strncpySafe(game_info[n].synopsis, titStart+10, sizeof(game_info[n].synopsis), titEnd-(titStart+10));
-				}
-				locTmp = reset;
-				SAFE_FREE(locTmp);
-				foundCfg = 1;
-			} else if (tmpLang[0] == 'E' && tmpLang[1] == 'N') {
-				char * locTmp = strndup(locStart, locEnd-locStart);
-				char * reset = locTmp;
-				char * titStart = strstr(locTmp, "<title>");
-				if (titStart != NULL) {
-					char * titEnd = strstr(titStart, "</title>");
-					strncpySafe(tmpTitle, titStart+7, sizeof(game_info[n].title), titEnd-(titStart+7));
-				}	
-				titStart = strstr(locTmp, "<synopsis>");
-				if (titStart != NULL) {
-					char * titEnd = strstr(titStart, "</synopsis>");
-					strncpySafe(tmpSynopsis, titStart+10, sizeof(game_info[n].title), titEnd-(titStart+10));
-				}
-				locTmp = reset;
-				SAFE_FREE(locTmp);				
-				foundEn = 1;
+			continue;
+		}
+		strlcpy(tmpLang, locStart+14, 3);
+		foundCfg = (memcmp(tmpLang, xmlCfgLang, 2) == 0);
+		foundEn  = (memcmp(tmpLang, "EN", 2) == 0);
+		if (foundCfg || foundEn) {
+			char * locTmp = strndup(locStart, locEnd-locStart);
+			char * titStart = strstr(locTmp, "<title>");
+			if (titStart != NULL) {
+				char * titEnd = strstr(titStart, "</title>");
+				strncpySafe(game_info[n].title, titStart+7,
+						sizeof(game_info[n].title), titEnd-(titStart+7));
+				unescape(game_info[n].title, sizeof(game_info[n].title));
 			}
+			titStart = strstr(locTmp, "<synopsis>");
+			if (titStart != NULL) {
+				char * titEnd = strstr(titStart, "</synopsis>");
+				strncpySafe(game_info[n].synopsis, titStart+10,
+						sizeof(game_info[n].synopsis), titEnd-(titStart+10));
+			}
+			SAFE_FREE(locTmp);
+			if (foundCfg) break;
 		}
-		if (!foundCfg && foundEn) {
-			strncpy(game_info[n].title, tmpTitle, sizeof(game_info[n].title));
-			strncpy(game_info[n].synopsis, tmpSynopsis, sizeof(game_info[n].synopsis));
-		}
-
-		locStart = strstr(locEnd, "<locale lang=\"");
 	}
 }
 
@@ -514,10 +506,18 @@ void LoadTitlesFromXML(char *langtxt, bool forcejptoen)
 		strcpy(xmlCfgLang,"EN");
 	while (1) {
 		if (xmlgameCnt >= array_size) {
+			void *ptr;
 			array_size++;
-			game_info = (struct gameXMLinfo*)mem1_realloc(game_info, (array_size * sizeof(struct gameXMLinfo)));
-			if (!game_info)
-				return;
+			ptr = mem1_realloc(game_info, (array_size * sizeof(struct gameXMLinfo)));
+			if (!ptr) {
+				array_size--;
+				printf("ERROR: out of memory!\n");
+				mem_stat();
+				xml_stat();
+				sleep(4);
+				break;
+			}
+			game_info = (struct gameXMLinfo*)ptr;
 		}
 		start = strstr(xmlData, "<game");
 		if (start == NULL) {
@@ -529,6 +529,7 @@ void LoadTitlesFromXML(char *langtxt, bool forcejptoen)
 		}
 		tmp = strndup(start, end-start);
 		xmlData = end;
+		memset(&game_info[n], 0, sizeof(game_info[n]));
 		readNode(tmp, game_info[n].id, "<id>", "</id>");//ok
 		if (game_info[n].id[0] == '\0') { //WTF? ERROR
 			printf(" ID NULL\n");
@@ -591,7 +592,7 @@ bool OpenXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN)
 		start = gettime();
 	}
 	bool opensuccess = true;
-	sprintf(xmlcfg_filename, "wiitdb_%s.zip", CFG.partition);
+	sprintf(xmlcfg_filename, "wiitdb.zip");
 
 	char pathname[200];
 	snprintf(pathname, sizeof(pathname), "%s", xmlfilepath);
@@ -600,11 +601,20 @@ bool OpenXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN)
 	opensuccess = OpenXMLFile(pathname);
 	if (!opensuccess) {
 		CloseXMLDatabase();
-		return false;
+		sprintf(xmlcfg_filename, "wiitdb_%s.zip", CFG.partition);
+
+		snprintf(pathname, sizeof(pathname), "%s", xmlfilepath);
+		if (xmlfilepath[strlen(xmlfilepath) - 1] != '/') snprintf(pathname, sizeof(pathname), "%s/",pathname);
+		snprintf(pathname, sizeof(pathname), "%s%s", pathname, xmlcfg_filename);
+		opensuccess = OpenXMLFile(pathname);
+		if (!opensuccess) {
+			CloseXMLDatabase();
+			return false;
+		}
 	}
 	LoadTitlesFromXML(argdblang, argJPtoEN);
 	if (db_debug) {
-		printf("    Load Time: %u ms\n", diff_msec(start, gettime()));
+		printf_("Load Time: %u ms\n", diff_msec(start, gettime()));
 		mem_stat();
 		Wpad_WaitButtons();
 	}
@@ -614,6 +624,7 @@ bool OpenXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN)
 bool ReloadXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN)
 {
 	if (xml_loaded) {
+		if (db_debug) xml_stat();
 		CloseXMLDatabase();
 	}
 	return OpenXMLDatabase(xmlfilepath, argdblang, argJPtoEN);
@@ -622,14 +633,18 @@ bool ReloadXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN)
 int getIndexFromId(u8 * gameid)
 {
 	int n = 0;
-	while (1) {
-		if (n >= xmlgameCnt)
-			return -1;
+	if (gameid == NULL)
+		return -1;
+//	while (1) {
+//		if (n >= xmlgameCnt)
+//			return -1;
+	for (;n<xmlgameCnt;n++) {
 		if (!strcmp(game_info[n].id, (char *)gameid)) {
 			return n;
 		}
-		n++;
+//		n++;
 	}
+	return -1;
 }
 
 bool LoadGameInfoFromXML(u8 * gameid)
@@ -737,15 +752,25 @@ void PrintGameInfo(bool showfullinfo) {
 	strcpy(linebuf,"");
 		
 	if (strcmp(gameinfo.ratingvalue,"") != 0) {
-		snprintf(linebuf, sizeof(linebuf), "Rated %s", gameinfo.ratingvalue);
-		if (!strcmp(gameinfo.ratingtype,"PEGI"))
-			snprintf(linebuf, sizeof(linebuf), "%s+ ", linebuf);
-		snprintf(linebuf, sizeof(linebuf), "%s ", linebuf);
+		char rating[8];
+		STRCOPY(rating, gameinfo.ratingvalue);
+		if (!strcmp(gameinfo.ratingtype,"PEGI")) strcat(rating, "+");
+		snprintf(linebuf, sizeof(linebuf), gt("Rated %s"), rating);
+		strcat(linebuf, " ");
 	}
 	if (gameinfo.players != 0) {
-		snprintf(linebuf, sizeof(linebuf), "%sfor %d player%s", linebuf, gameinfo.players, (gameinfo.players > 1) ? "s" : "");
-		if (gameinfo.wifiplayers > 1)
-			snprintf(linebuf, sizeof(linebuf), "%s (%d online)", linebuf, gameinfo.wifiplayers);
+		char players[32];
+		if (gameinfo.players > 1) {
+			snprintf(D_S(players), gt("for %d players"), gameinfo.players);
+		} else {
+			strcpy(players, gt("for 1 player"));
+		}
+		strcat(linebuf, players);
+		if (gameinfo.wifiplayers > 1) {
+			snprintf(D_S(players), gt("(%d online)"), gameinfo.wifiplayers);
+			strcat(linebuf, " ");
+			strcat(linebuf, players);
+		}
 	}
 	printf("%s",linebuf);
 	strcpy(linebuf,"");
@@ -766,11 +791,11 @@ void PrintGameInfo(bool showfullinfo) {
 		printf("   PLAY: %d\n", gameinfo.players);
 		printf("   ACC: %s\n", gameinfo.accessories[0]);
 		printf("   REQ ACC: %s\n", gameinfo.accessoriesReq[0]);
-		//*/
+		*/
 		//INSERT STUFF HERE
 		if (db_debug) {
 			mem_stat();
-			printf("  Games in XML: %d (%d) / %d\n", xmlgameCnt, array_size, all_gameCnt);
+			xml_stat();
 		}
 		wordWrap(linebuf, gameinfo.synopsis, 40, 8, sizeof(gameinfo.synopsis));
 		printf("\n\n%s\n",linebuf);

@@ -14,5 +14,6 @@ int ReloadIOS(int subsys, int verbose);
 void Block_IOS_Reload();
 void load_bca_data(u8 *discid);
 void insert_bca_data();
+void print_mload_version();
 
 #endif

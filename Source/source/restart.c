@@ -4,11 +4,14 @@
 #include "sys.h"
 #include "wpad.h"
 #include "video.h"
+#include "gettext.h"
+#include "util.h"
 
 
 void Restart(void)
 {
-	printf("\n    Restarting Wii...");
+	printf("\n");
+	printf_(gt("Restarting Wii..."));
 	fflush(stdout);
 	__console_flush(0);
 
@@ -19,8 +22,7 @@ void Restart(void)
 void Restart_Wait(void)
 {
 	printf("\n");
-
-	printf("    Press any button to restart...");
+	printf_(gt("Press any button to restart..."));
 	fflush(stdout);
 
 	/* Wait for button */

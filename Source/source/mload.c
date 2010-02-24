@@ -440,3 +440,47 @@ int ret;
 
 return ret;
 }
+
+/*--------------------------------------------------------------------------------------------------------------*/
+
+// to get log buffer
+// this function return the size of the log buffer and prepare it to read with mload_read() the datas
+
+int mload_get_log()
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_LOG, ":");
+
+return ret;
+
+}
+
+
+/*--------------------------------------------------------------------------------------------------------------*/
+
+// to get IOS base for dev/es  to create the cIOS
+
+int mload_get_IOS_base()
+{
+int ret;
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_IOS_BASE, ":");
+
+return ret;
+
+}
+
+
+int mload_get_version()
+{
+	int ret;
+	if(mload_init()<0) return -1;
+	ret = IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_MLOAD_VERSION, ":");
+	return ret;
+}
+

@@ -12,7 +12,7 @@ extern "C"
 struct Sorts 
 {
 	char cfg_val[20];
-	char name[60];
+	char name[100];
 	int (*sortAsc) (const void *, const void *);
 	int (*sortDsc) (const void *, const void *);
 };
@@ -32,6 +32,17 @@ int Menu_Filter(void);
 int Menu_Filter2(void);
 int Menu_Filter3(void);
 int Menu_Sort(void);
+
+
+#define featureCnt 4
+#define accessoryCnt 16
+#define genreCnt 14
+#define sortCnt 9
+
+extern s32 sort_index;
+extern bool sort_desc;
+extern struct Sorts sortTypes[sortCnt];
+
 
 #ifdef __cplusplus
 }

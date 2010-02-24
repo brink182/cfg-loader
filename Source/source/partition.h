@@ -57,7 +57,7 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *outval, int 
 bool Device_ReadSectors(u32 device, u32 sector, u32 count, void *buffer);
 bool Device_WriteSectors(u32 device, u32 sector, u32 count, void *buffer);
 s32 Partition_GetList(u32 device, PartList *plist);
-int Partition_FixEXT(u32 device, int part);
+int Partition_FixEXT(u32 device, int part, u32 sec_size);
 
 bool  part_is_extended(int type);
 bool  part_is_data(int type);

@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 54b (beta)
+size = 1436224
+date = 2010-02-26
+url = http://cfg-loader.googlecode.com/files/cfg54b.dol
+new option: wiird = [0], 1, 2
+changed option: ocarina = hookname
+wiitdb: fallback to game language
+ if configured language is not found
+wiitdb case color attribute
+
+release = 54b-fat (beta)
+size = 1436224
+date = 2010-02-26
+url = http://cfg-loader.googlecode.com/files/cfg54b-fat.dol
+Same as 54b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 54a2 (alpha2)
 size = 1434848
 date = 2010-02-24
@@ -25,26 +45,6 @@ size = 1434880
 date = 2010-02-24
 url = http://cfg-loader.googlecode.com/files/cfg54a2-fat.dol
 Same as 54a2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 54a (alpha)
-size = 1434720
-date = 2010-02-23
-url = http://cfg-loader.googlecode.com/files/cfg54a.dol
-Gecko OS 1.9 cheat engine
- aka Ocarina 2 aka Bralw+ support
- (by WiiPower)
-write_playlog per-game option
-fixed db_language=AUTO
-
-release = 54a-fat (alpha)
-size = 1434720
-date = 2010-02-23
-url = http://cfg-loader.googlecode.com/files/cfg54a-fat.dol
-Same as 54a but with different
 default options:
   ios=222-mload
   partition=FAT1

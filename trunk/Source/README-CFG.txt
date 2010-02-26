@@ -1,6 +1,6 @@
 
-Configurable SD/USB Loader v53
-==============================
+Configurable SD/USB Loader v54b
+===============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
 
@@ -24,7 +24,7 @@ Features:
  - Cover images download
  - Cover styles: 2d, 3d, disc and full
  - Automatic resize of covers
- - Renaming game titles (using titles.txt, custom_titles.txt and/or wiitdb.zip)
+ - Renaming game titles (using titles.txt, custom-titles.txt and/or wiitdb.zip)
  - Per game configuration of Video mode, Language, Ocarina cheating
  - Light up DVD slot when install finishes, optional eject
  - Childproof and parental guidance
@@ -624,7 +624,7 @@ Config file:
 #   If image is not found with the specified cc code, download is
 #   retried with EN code.
 #
-# titles_url = http://wiitdb.com/titles.txt?LANG={CC}
+# titles_url = http://wiitdb.com/titles.txt?LANG={DBL}
 #   Url for updating titles.txt
 #
 #
@@ -765,11 +765,6 @@ Config file:
 # write_playstats = [1], 0
 #   Write to the play history file.
 #
-# write_playlog = [0], 1
-#   Write gameplay stats to the Wii message board log.
-#   This option won't work when the Wii Menu is skipped before
-#   starting Cfg (e.g., using Priiloader or BootMii autoboot).
-#
 # sort = [title-asc], etc
 #   Change the default sorting method. Default is Title Ascending.
 #
@@ -854,6 +849,11 @@ Config file:
 # ocarina = [0], 1
 #   enable/disable ocarina - cheating engine
 #
+# write_playlog = [0], 1
+#   Write gameplay stats to the Wii message board log.
+#   This option won't work when the Wii Menu is skipped before
+#   starting Cfg (e.g., using Priiloader or BootMii autoboot).
+#
 
 Config file sample:
 -------------------
@@ -878,6 +878,30 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+cfg v54b (beta)
+
+ * wiitdb: fallback to game language if configured language is not found
+ * new option: wiird = [0], 1, 2
+     1 = enable debugger
+     2 = enable debugger and pause start
+ * changed option: ocarina = [0], 1, vbi, wiipad, gcpad, gxdraw, gxflush,
+     ossleep, axframe, nohooks
+     ocarina = 1 is same as ocarina = vbi
+ * support for wiitdb case color attribute (usptactical)
+
+cfg v54a2 (alpha2)
+
+ * Per-game playlog writing now uses the game's language setting to determine 
+   the title to use.
+ * titles_url default now uses {DBL} instead of {CC}. 
+ * Both titles_url and db_url can accept both {CC} and {DBL} tags now.
+
+cfg v54a (alpha)
+
+ * Gecko OS 1.9 cheat engine aka Ocarina 2 aka Bralw+ support (by WiiPower)
+ * Changed write_playlog to be a per-game option (Clipper)
+ * fixed db_language AUTO setting and lang_to_cc function for Chinese languages. (Clipper)
 
 cfg v53 (release)
 
@@ -1061,7 +1085,7 @@ cfg v52b2 (beta2)
  * Titles are extracted from wiitdb.zip but can be overridden 
    with either titles file.
  * The titles precedence (highest to lowest) is as follows:
-     - custom_titles.txt
+     - custom-titles.txt
      - titles.txt
      - wiitdb.zip
      - directory name (FAT & NTFS only)

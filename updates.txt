@@ -13,6 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 54b2 (beta2)
+size = 1436576
+date = 2010-02-27
+url = http://cfg-loader.googlecode.com/files/cfg54b2.dol
+Separate ocarina and hooktype options
+Print a warning if ocarina/wiird
+  enabled but hooks can't be set
+Print "Loading..." translation before
+  freeing unifont
+
+release = 54b2-fat (beta2)
+size = 1436576
+date = 2010-02-27
+url = http://cfg-loader.googlecode.com/files/cfg54b2-fat.dol
+Same as 54b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 54b (beta)
 size = 1436224
 date = 2010-02-26
@@ -28,23 +48,6 @@ size = 1436224
 date = 2010-02-26
 url = http://cfg-loader.googlecode.com/files/cfg54b-fat.dol
 Same as 54b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 54a2 (alpha2)
-size = 1434848
-date = 2010-02-24
-url = http://cfg-loader.googlecode.com/files/cfg54a2.dol
-Playlog uses game language setting
-titles_url default uses {DBL}
-
-release = 54a2-fat (alpha2)
-size = 1434880
-date = 2010-02-24
-url = http://cfg-loader.googlecode.com/files/cfg54a2-fat.dol
-Same as 54a2 but with different
 default options:
   ios=222-mload
   partition=FAT1

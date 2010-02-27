@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v54b
+Configurable SD/USB Loader v54b2
 ===============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -878,6 +878,14 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+cfg v54b2 (beta2)
+
+ * Separate ocarina and hooktype options:
+   ocarina = [0], 1
+   hooktype = nohooks, [vbi], wiipad, gcpad, gxdraw, gxflush, ossleep, axframe
+ * Print a warning if ocarina/wiird enabled but hooks can't be set
+ * Print "Loading..." translation before freeing unifont
 
 cfg v54b (beta)
 

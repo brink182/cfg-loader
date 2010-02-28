@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v54b2
+Configurable SD/USB Loader v54b3
 ===============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -798,6 +798,9 @@ Config file:
 #   Note: the LATIN unicode set is already embedded into the loader,
 #   so to display German, French, Spanish, etc... unifont.dat is not needed
 #
+# wiird = [0], 1, 2
+#   1 = enable debugger
+#   2 = enable debugger and pause start
 #
 # Game Compatibility Options:
 # ===========================
@@ -849,6 +852,9 @@ Config file:
 # ocarina = [0], 1
 #   enable/disable ocarina - cheating engine
 #
+# hooktype = nohooks, [vbi], wiipad, gcpad, gxdraw, gxflush, ossleep, axframe
+#   specify ocarina hook type
+#
 # write_playlog = [0], 1
 #   Write gameplay stats to the Wii message board log.
 #   This option won't work when the Wii Menu is skipped before
@@ -878,6 +884,10 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+cfg v54b3 (beta3)
+
+ * IOS 249 rev18 support
 
 cfg v54b2 (beta2)
 

@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 54b3 (beta3)
+size = 1436960
+date = 2010-02-28
+url = http://cfg-loader.googlecode.com/files/cfg54b3.dol
+IOS 249 rev18 support
+
+release = 54b3-fat (beta3)
+size = 1436960
+date = 2010-02-28
+url = http://cfg-loader.googlecode.com/files/cfg54b3-fat.dol
+Same as 54b3 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 54b2 (beta2)
 size = 1436576
 date = 2010-02-27
@@ -28,26 +44,6 @@ size = 1436576
 date = 2010-02-27
 url = http://cfg-loader.googlecode.com/files/cfg54b2-fat.dol
 Same as 54b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 54b (beta)
-size = 1436224
-date = 2010-02-26
-url = http://cfg-loader.googlecode.com/files/cfg54b.dol
-new option: wiird = [0], 1, 2
-changed option: ocarina = hookname
-wiitdb: fallback to game language
- if configured language is not found
-wiitdb case color attribute
-
-release = 54b-fat (beta)
-size = 1436224
-date = 2010-02-26
-url = http://cfg-loader.googlecode.com/files/cfg54b-fat.dol
-Same as 54b but with different
 default options:
   ios=222-mload
   partition=FAT1

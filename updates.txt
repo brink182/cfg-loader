@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 54 (release)
+size = 1436960
+date = 2010-03-03
+url = http://cfg-loader.googlecode.com/files/cfg54.dol
+Fixed: wiird = 2 (paused start)
+
+release = 54-fat (release)
+size = 1436960
+date = 2010-03-03
+url = http://cfg-loader.googlecode.com/files/cfg54-fat.dol
+Same as 54 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
 release = 54b3 (beta3)
 size = 1436960
 date = 2010-02-28
@@ -24,26 +40,6 @@ size = 1436960
 date = 2010-02-28
 url = http://cfg-loader.googlecode.com/files/cfg54b3-fat.dol
 Same as 54b3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 54b2 (beta2)
-size = 1436576
-date = 2010-02-27
-url = http://cfg-loader.googlecode.com/files/cfg54b2.dol
-Separate ocarina and hooktype options
-Print a warning if ocarina/wiird
-  enabled but hooks can't be set
-Print "Loading..." translation before
-  freeing unifont
-
-release = 54b2-fat (beta2)
-size = 1436576
-date = 2010-02-27
-url = http://cfg-loader.googlecode.com/files/cfg54b2-fat.dol
-Same as 54b2 but with different
 default options:
   ios=222-mload
   partition=FAT1

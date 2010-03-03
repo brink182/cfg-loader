@@ -1,6 +1,6 @@
 
-Configurable SD/USB Loader v54b3
-===============================
+Configurable SD/USB Loader v54
+==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
 
@@ -885,11 +885,15 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
-cfg v54b3 (beta3)
+03-03-2010 cfg v54 (release)
+
+ * Fixed: wiird = 2 (paused start) (by WiiPower)
+
+28-02-2010 cfg v54b3 (beta3)
 
  * IOS 249 rev18 support
 
-cfg v54b2 (beta2)
+27-02-2010 cfg v54b2 (beta2)
 
  * Separate ocarina and hooktype options:
    ocarina = [0], 1
@@ -897,7 +901,7 @@ cfg v54b2 (beta2)
  * Print a warning if ocarina/wiird enabled but hooks can't be set
  * Print "Loading..." translation before freeing unifont
 
-cfg v54b (beta)
+26-02-2010 cfg v54b (beta)
 
  * wiitdb: fallback to game language if configured language is not found
  * new option: wiird = [0], 1, 2
@@ -908,20 +912,20 @@ cfg v54b (beta)
      ocarina = 1 is same as ocarina = vbi
  * support for wiitdb case color attribute (usptactical)
 
-cfg v54a2 (alpha2)
+23-02-2010 cfg v54a2 (alpha2)
 
  * Per-game playlog writing now uses the game's language setting to determine 
    the title to use.
  * titles_url default now uses {DBL} instead of {CC}. 
  * Both titles_url and db_url can accept both {CC} and {DBL} tags now.
 
-cfg v54a (alpha)
+23-02-2010 cfg v54a (alpha)
 
  * Gecko OS 1.9 cheat engine aka Ocarina 2 aka Bralw+ support (by WiiPower)
  * Changed write_playlog to be a per-game option (Clipper)
  * fixed db_language AUTO setting and lang_to_cc function for Chinese languages. (Clipper)
 
-cfg v53 (release)
+23-02-2010 cfg v53 (release)
 
  * New option: load_unifont = [0], 1
    Specifies if unifont.dat should be loaded or not. unifont.dat contains
@@ -933,19 +937,19 @@ cfg v53 (release)
    SChinese.lang -> ZH_CN.lang (Simplified Chinese)
    CHT.lang      -> ZH_TW.lang (Traditional Chinese)
 
-cfg v53b3 (beta3)
+22-02-2010 cfg v53b3 (beta3)
 
  * Fixed crash with cios222 v5
    (happened with this combination: normal cfg.dol
     with options: ios=222-mload & partition=wbfs)
  * Fixed update progress ... notification
 
-cfg v53b2 (beta2)
+21-02-2010 cfg v53b2 (beta2)
 
  * More fixes for handling of corrupted cover images (usptactical)
  * Minor translation updates
 	
-cfg v53b (beta)
+20-02-2010 cfg v53b (beta)
 
  * Better handling of corrupted cover images - they should not crash
    the loader anymore and will be renamed to filename.bad (usptactical)
@@ -957,7 +961,7 @@ cfg v53b (beta)
  * print cover download url and progress (oggzee)
  * force fat freespace update when installing (oggzee)
 
-cfg v53a (alpha)
+16-02-2010 cfg v53a (alpha)
 
  * cIOS 222/223/224 v5 support
    Note: only use 222 for loader, 223 and 224 will freeze if used for loader,
@@ -967,18 +971,18 @@ cfg v53a (alpha)
  * Support for HDDs with 4k sectors (WBFS partition only)
  * Fixed option: home=hbc
 
-cfg v52 (release)
+13-02-2010 cfg v52 (release)
 
  * Left/Right hold repeat in console
  * GUI displays messages for sort, profile and theme switch.
  * Minor cleanups
 
-cfg v52b5 (beta5)
+12-02-2010 cfg v52b5 (beta5)
 
  * Fixed handling of multiline strings in .lang files
  * Minor translation updates
 
-cfg v52b4 (beta4)
+11-02-2010 cfg v52b4 (beta4)
 
  * New actions for buttons: sort (switch sort type), filter (filter menu) (Clipper)
  * Button actions sort, profile and theme will display a message in the console (Clipper)
@@ -991,7 +995,7 @@ cfg v52b4 (beta4)
  * Minor cleanups
 
 
-cfg v52b3 (beta3)
+09-02-2010 cfg v52b3 (beta3)
  * Button remapping options (Dr. Clipper)
    See below for information.
  * Previous home option is now a theme option with overrides
@@ -1097,7 +1101,7 @@ cfg v52b3 (beta3)
      button_Y = global_ops
      button_Z = boot_disc
 
-cfg v52b2 (beta2)
+06-02-2010 cfg v52b2 (beta2)
  * File custom-titles.txt in the base directory is searched 
    for game titles.
  * Titles are extracted from wiitdb.zip but can be overridden 
@@ -1120,7 +1124,7 @@ cfg v52b2 (beta2)
      Note, it is disabled by default as this fix changes your
      Wii's NAND and cannot be used via autoboot methods.
 
-cfg v52b (beta)
+31-01-2010 cfg v52b (beta)
  * Gamecube disc loading
    Just like Wii discs, only original discs supported!
  * Wii disc loading now uses the disc specified IOS.
@@ -1129,7 +1133,7 @@ cfg v52b (beta)
  * Many translatable strings have been improved.
  * Cover URLs updated
 
-cfg v52a2 (alpha 2)
+23-01-2010 cfg v52a2 (alpha 2)
  * Fixed options.
    option: language_path has been removed.
    The path is now fixed at /usb-loader/languages/
@@ -1137,7 +1141,7 @@ cfg v52a2 (alpha 2)
    prevent conflicts with the game language setting.
    option: translation = [AUTO], EN, custom, etc
 
-cfg v52a (alpha)
+23-01-2010 cfg v52a (alpha)
  * Translation files now supported.
    option: language_path = path to language files
    Default: USBLOADER_PATH/languages
@@ -1148,14 +1152,14 @@ cfg v52a (alpha)
  * Database can now be named wiitdb.zip.
    The old naming scheme is still supported however.
 
-cfg v51 (release)
+17-01-2010 cfg v51 (release)
  * New Sort: last play date
    option: sort = play_date
  * Removed empty line from game list when showing database info
  * Secondary sort using titles added. Lists should be consistent
    when there are matching values now
 
-cfg v51b3 (beta3)
+13-01-2010 cfg v51b3 (beta3)
  * Fixed the ambiguity with the game dir layouts (ID_TITLE or TITLE [ID])
  * fat_install_dir = 2 will use the new layout (TITLE [ID]) when
    installing
@@ -1167,7 +1171,7 @@ cfg v51b3 (beta3)
  * Install and disc boot menus will show [?] cover before a disc is 
    read, and game cover for disc if found.
 
-cfg v51b2 (beta2)
+11-01-2010 cfg v51b2 (beta2)
  * More bug fixes
    Loader no longer crashes when trying to sort or filter without
    a database.
@@ -1177,7 +1181,7 @@ cfg v51b2 (beta2)
    Main menu will respect the disable_options configuration.
    sort=play_count now works properly without reloading the game list.
 
-cfg v51b (beta)
+10-01-2010 cfg v51b (beta)
  * Minor bug fixes
    Loader will not wait for a button press in the event a database
    is not found.
@@ -1199,7 +1203,7 @@ cfg v51b (beta)
    This can be used to do things like forcing NTSC covers for 
    PAL games by replacing {CC} with US and {ID6} with {ID3}E{PUB}
 
-cfg v51a (alpha)
+09-01-2010 cfg v51a (alpha) (gannon)
  * Wiitdb support. Can be downloaded inside the loader on the
    global options screen.
  * Enhanced nunchuk support: C mapped to A, Z mapped to B
@@ -1240,15 +1244,15 @@ cfg v51a (alpha)
      ie: sort = players-desc
 
 
-cfg v50c (bugfix)
+21-12-2009 cfg v50c (bugfix)
 
  * Fixed starting games from SD Card with FAT or NTFS
 
-cfg v50 (release)
+16-12-2009 cfg v50 (release)
 
  * Optimizations for highly fragmented files (either fat or ntfs)
 
-cfg v50b2 (beta2)
+15-12-2009 cfg v50b2 (beta2)
 
  * Fixed crash when using flat /wbfs file layout without subdirectories
  * Fixed crashes when starting HBC forwarder discs
@@ -1266,7 +1270,7 @@ cfg v50b2 (beta2)
    it will fallback to the old method
  * Other cleanups
 
-cfg v50b (beta)
+14-12-2009 cfg v50b (beta)
 
  * .iso files on NTFS support
    The file name layout is the same as for .wbfs files:
@@ -1299,12 +1303,12 @@ cfg v50b (beta)
 
  Credits: WiiPower for libntfs modification which returns the list of fragments.
 
-cfg v50a (alpha)
+12-12-2009 cfg v50a (alpha)
 
  * Fix for PeppaPig (from NeoGamma by WiiPower)
  * Fixes and cleanups for NTFS
 
-cfg v50x (experimental)
+10-12-2009 cfg v50x (experimental)
 
  * Rewritten FAT support in ehcmodule with a generic system
  * NTFS support
@@ -1321,14 +1325,14 @@ cfg v50x (experimental)
    To avoid errors caused by modchips when trying to copy the update partition.
  * Minor cosmetic changes to cover download when trying different urls.
 
-cfg v49 (release)
+08-12-2009 cfg v49 (release)
 
  * Fixed install game on SD/FAT
  * Override [w]covers_size theme option with config.txt
  * simple=x will always set hide_hddinfo when using -fat version
  * Only one "#GAMEID" string inside binary - for direct starting
 
-cfg v49b2 (beta2)
+07-12-2009 cfg v49b2 (beta2)
 
  * Improved speed of loading game list when using FAT and /wbfs/id_title/ subdirs
  * Changed default: fat_install_dir=1
@@ -1351,12 +1355,12 @@ cfg v49b2 (beta2)
    - gui_title_top
  * Save cfg loader version when saving gamelist.txt
 
-cfg v49b (beta)
+03-12-2009 cfg v49b (beta)
 
  * Added BCA dump to file from install menu
    (Press + to install and then press 1 to dump BCA)
 
-cfg v49a (alpha)
+01-12-2009 cfg v49a (alpha)
 
  * Games on SDHC with IOS 222/223 for both FAT or WBFS partition
  * Games in subdirs on FAT: /wbfs/GAMEID_TITLE/GAMEID.wbfs
@@ -1378,12 +1382,12 @@ cfg v49a (alpha)
  * Ocarina url fix: /R/ID6 instead of /ID1/ID6 (for SNM*)
 
 
-cfg v48 (release)
+21-11-2009 cfg v48 (release)
 
  * External ehcmodule improvements (by WiiZ)
  * Fixed titles.txt with custom game ids (proper ID6 lookup)
 
-cfg v48b2 (beta2)
+20-11-2009 cfg v48b2 (beta2)
 
  * FAT loading speed optimisations
  * Support for 4gb .wbfs files on FAT - fixed the 2gb limit
@@ -1395,7 +1399,7 @@ cfg v48b2 (beta2)
  * Removed obsolete cover sites: gateflorida.com, awiibit.com
  * Cleanups
 
-cfg v48b (beta)
+16-11-2009 cfg v48b (beta)
 
  * NSMB NTSC patch
  * Make updating meta.xml optional by pressing button 1 in the
@@ -1404,7 +1408,7 @@ cfg v48b (beta)
    changed default: titles_url = http://wiitdb.com/titles.txt?LANG={CC}
  * Presing button A on global options screen works too (same as right)
 
-cfg v48a (alpha)
+15-11-2009 cfg v48a (alpha)
 
  * Profiles - aka multiple favorite groups
    option: profile_names = [default], name2, name3,...
@@ -1425,12 +1429,12 @@ cfg v48a (alpha)
    Can be changed to a localized version like this:
    titles_url = http://wiitdb.com/titles.txt?LANG=FR
 
-cfg v47 (release)
+14-11-2009 cfg v47 (release)
 
  * Minor coverflow fixes
  * Cleanups
 
-cfg v47b3 (beta3)
+12-11-2009 cfg v47b3 (beta3)
 
  * Support for guitar controller in the loader (by gannon)
  * More banner sound fixes (opening.bnr case)
@@ -1440,12 +1444,12 @@ cfg v47b3 (beta3)
  * Increased the updates list length to 8
  * Minor coverflow fixes
 
-cfg v47b2 (beta2)
+09-11-2009 cfg v47b2 (beta2)
 
  * NSMB main.dol patch by WiiPower
  * minor coverflow gui fixes
 
-cfg v47b (beta)
+09-11-2009 cfg v47b (beta)
 
  * GC and classic controller and nunchuk joystick support (by gannon)
  * option: install_partitions = 1:1
@@ -1455,7 +1459,7 @@ cfg v47b (beta)
    (Thanks to RolloS60 from wiicoverflow)
  * Cleanups
 
-cfg v47a (alpha)
+06-11-2009 cfg v47a (alpha)
 
  * Better compatibility with weird WBFS partition setups:
  - WBFS on RAW disk device, without a partition table
@@ -1476,7 +1480,7 @@ cfg v47a (alpha)
    pressing 1, which will change the partition type from EXTEND to
    a known data type (0x0b, which is also used for fat)
 
-cfg v46 (release)
+01-11-2009 cfg v46 (release)
 
  * Support for direct launching of games from fat
    (Useful for game channel launching, using loadstructor or similar tool)
@@ -1487,7 +1491,7 @@ cfg v46 (release)
  * Improved drawing speed in some coverflow gui modes
  * Cleanups
 
-cfg v46b (beta)
+30-10-2009 cfg v46b (beta)
 
  * Added option: partition = [WBFS1], ..., WBFS4, FAT1, ..., FAT9, ask
  * Saving global settings will also save current selected partition
@@ -1499,7 +1503,7 @@ cfg v46b (beta)
  * Added indication in global options if [FAT] module is loaded in IOS
  * Cleanups
 
-cfg v46a2 (alpha2)
+26-10-2009 cfg v46a2 (alpha2)
 
  * Faster loading of game list from a fat partition - should be instant now.
    The only thing that has a slight delay is showing the hdd free space
@@ -1511,22 +1515,22 @@ cfg v46a2 (alpha2)
  * Allow to select partition if no wbfs partition is found and disable_format is on.
  * Minor cleanups in partition selection
 
-cfg v46a (alpha)
+25-10-2009 cfg v46a (alpha)
 
  * Loading games from a FAT32 partitions. The game file has to
    be located and named like this: usb:/wbfs/GAMEID.wbfs
 
-cfg v45 (release)
+16-10-2009 cfg v45 (release)
 
  * full package, no code changes
 
-cfg v45b2 (beta2)
+12-10-2009 cfg v45b2 (beta2)
 
  * Fixed multiple WBFS partition support for drives larger than 1TB
  * Fixed "DVD in drive check" by patching the game (thanks giantpune)
    (only if IOS249 before rev12 or IOS222/223)
 
-cfg v45b (beta)
+12-10-2009 cfg v45b (beta)
 
  * Updated ehcmodule for IOS222-mload from uLoader 3.1
  * Fixed disable_format option
@@ -1542,7 +1546,7 @@ cfg v45b (beta)
  * Partition selection screen improvements
  * The usual minor cleanups
 
-cfg v45a (alpha)
+11-10-2009 cfg v45a (alpha)
 
  * Multiple WBFS partitions support (from uLoader)
    Limitation: max 4 WBFS partitions on same drive supported by ios 222/223
@@ -1564,22 +1568,22 @@ cfg v45a (alpha)
  - CIOS222 : unsupported SDHC WBFS
  * New intro screen (by Milcoi)
 
-cfg v44 (release)
+01-10-2009 cfg v44 (release)
 
  * Full package
  * Updated resources/fonts* with unicode and clock fonts
  * Updated titles.txt (from wiitdb.com)
  * Added localized resources/titles-XX.txt (EN, FR, DE, ES, IT, NL, PT)
 
-cfg v44b6 (beta6)
+28-09-2009 cfg v44b6 (beta6)
 
  * More banner sound fixes (again)
 
-cfg v44b5 (beta5)
+28-09-2009 cfg v44b5 (beta5)
 
  * More banner sound fixes (thanks to Dr.Clipper)
 
-cfg v44b4 (beta4)
+28-09-2009 cfg v44b4 (beta4)
 
  * More banner sound fixes
    all 3 audio formats are implemented, so the few rare
@@ -1587,16 +1591,16 @@ cfg v44b4 (beta4)
  * Clock font can be changed with font_clock.png
    (either from theme or base dir)
 
-cfg v44b3 (beta3)
+27-09-2009 cfg v44b3 (beta3)
 
  * Banner sound fixes
 
-cfg v44b2 (beta2)
+27-09-2009 cfg v44b2 (beta2)
 
  * Play banner sound in the game start confirmation screen
  * option: clock_style=[24],12,12am,0
 
-cfg v44b (beta)
+26-09-2009 cfg v44b (beta)
 
  * Updated ehcmodule for CIOS 222/223 rev4 to uloader 3.0C
  * Fixed ios argument from forwarder
@@ -1607,7 +1611,7 @@ cfg v44b (beta)
  * changed default: gui_text_outline=FF
  * Minor unicode fixes
 
-cfg v44a (alpha)
+22-09-2009 cfg v44a (alpha)
 
  * Improved coverflow gui mode:
  - better transitions between modes and console
@@ -1629,11 +1633,11 @@ cfg v44a (alpha)
  * Scale intro to fullscreen in 576i mode
 
 
-cfg v43 (release)
+16-09-2009 cfg v43 (release)
 
  * minor code cleanups
 
-cfg v43b (beta)
+13-09-2009 cfg v43b (beta)
 
  * Improved antialiasing in coverflow (sharper)
  * Reorganized game options screen:
@@ -1642,24 +1646,24 @@ cfg v43b (beta)
  - Moved alt.dol selection to options menu
  * Minor gui fixes: style switching, screen scale glitch
 
-cfg v42c (bugfix)
+09-09-2009 cfg v42c (bugfix)
 
  * Fixed green bar when loading game with a different cios (222...)
 
-cfg v42 (release)
+08-09-2009 cfg v42 (release)
 
  * Fixed scrolling glitch in options screen
    with themes that have small console size
  * Modified intro screen (based on Milcoi design)
  * Moved larger themes to a separate package
 
-cfg v42b2 (beta2)
+07-09-2009 cfg v42b2 (beta2)
 
  * Fixed coverflow antialiasing in PAL 576i (50Hz) mode
  * Fixed occasional flashing in options screen
  * Intro screen (thanks to Milcoi)
 
-cfg v42b (beta)
+03-09-2009 cfg v42b (beta)
 
  * Antialiasing in CoverFlow GUI modes.
    Can be tuned with option: gui_antialias = [4] {0-4}
@@ -1679,7 +1683,7 @@ cfg v42b (beta)
    options: video = game, video_patch = all
  * Minor fixes (thanks to wiimm)
 
-cfg v42a (alpha)
+01-09-2009 cfg v42a (alpha)
 
  * Ability to force progressive mode: (from NeoGamma)
  - Split 'patch' video mode to a separate option:
@@ -1698,7 +1702,7 @@ cfg v42a (alpha)
  * Allow wiird to work if ocarina is enabled and no codes are found.
 
 
-cfg v41 (release)
+21-08-2009 cfg v41 (release)
 
  * Fixed minor glitch with resized overlays
  * Increased hide game limit to 500
@@ -1709,12 +1713,12 @@ cfg v41 (release)
    - Nature 3D by DonTlaloc
    - Black Cat by Milcoi
 
-cfg v41b (beta)
+18-08-2009 cfg v41b (beta)
 
  * Streamlined steps in game install screen
  * Fixed green screen before starting game (from cloader)
 
-cfg v41a (alpha)
+17-08-2009 cfg v41a (alpha)
 
  * Improved theming:
 
@@ -1739,14 +1743,14 @@ cfg v41a (alpha)
    So that a cover_style or [w]cover_size in front of layout works as expected.
 
 
-cfg v40 (release)
+09-08-2009 cfg v40 (release)
 
  * Increased timeout for entering password to 30 seconds
  * Renamed option admin_lock to admin_unlock as that better describes
    what it does - it allows you to unlock admin functionality
  * Fixed option unlock_password
 
-cfg v40b3 (beta3)
+08-08-2009 cfg v40b3 (beta3)
 
  * uLoader cIOS 222/223 rev3 support
  - both rev2 and rev3 are supported
@@ -1807,20 +1811,20 @@ cfg v40b3 (beta3)
      Then you can remove the hide_game entry completely from config.txt.
  
 
-cfg v39c (bugfix)
+06-08-2009 cfg v39c (bugfix)
 
  * Changed cheats url to: geckocodes.org
  * Fixed SD card access in games
  * GUI page number alignment
 
-cfg v39 (release)
+06-08-2009 cfg v39 (release)
 
  * Fixed running games from SDHC
  * GUI Text improvments:
  - Fixed gui_text_color=black
  - gui_text_outline and gui_text_shadow accept black and white too
 
-cfg v39b (beta)
+05-08-2009 cfg v39b (beta)
 
  * Improved the covers reflection
  * GUI Text improvments:
@@ -1838,7 +1842,7 @@ cfg v39b (beta)
  * Increase max title length in titles.txt to 64
  * url tag CC=ZH For W region game id (Taiwan)
 
-cfg v38 (release)
+01-08-2009 cfg v38 (release)
 
  * Fixed searching for .mp3 files
  * Fine tuned wiimote pointer scrolling in coverflow
@@ -1848,7 +1852,7 @@ cfg v38 (release)
  * Removed a few old themes (ultimate, stars)
  * Updated titles.txt
 
-cfg v38b (beta)
+20-07-2009 cfg v38b (beta)
 
  * Added WiiMote pointer scrolling in coverflow modes - as you move the pointer towards 
    the edge of the screen, the covers automatically move.  Also, the movement speed 
@@ -1866,20 +1870,20 @@ cfg v38b (beta)
  * Always mount USB FAT partition, not just when there is no config.txt on SD.
  * Minor cleanups
 
-cfg v37 (release)
+25-07-2009 cfg v37 (release)
 
  * Fixed USB FAT detection on drives larger than 1TB
    (Also FAT detection shold no longer require that the partition is marked active)
  * Fixed covers not showing in favorites mode
  * Minor cleanups
 
-cfg v37b2 (beta 2)
+24-07-2009 cfg v37b2 (beta 2)
 
  * Fixed some issues with the new libfat
  * Display which covers are already present when downloading
    missing covers for a single game.
 
-cfg v37b (beta)
+23-07-2009 cfg v37b (beta)
 
  * Improved covers loading speed - using new libfat.
    (fixed the issues with usb hdd fat partition in v37ax)
@@ -1892,14 +1896,14 @@ cfg v37b (beta)
  * Changed WiiMote rotation functionality in coverflow: rotate 90 degrees to flip to the 
    back cover and then rotate back up to 0 degrees to flip to the front.
 
-cfg v37ax (alpha-experimental ***SEE NOTE!)
+22-07-2009 cfg v37ax (alpha-experimental ***SEE NOTE!)
 
  * Same changes as v37a, but with new libfat for improved cover loading speed.
    - NOTE: DO NOT USE THIS if your usb-loader directory is on a USB drive!  It will NOT mount your FAT
      partition.  This is just a preview release for people who have all their covers / themes / 
      config.txt on SD.
 
-cfg v37a (alpha)
+22-07-2009 cfg v37a (alpha) (usptactical)
 
  * Full cover image support in all coverflow gui modes
    - NOTE: Full covers will load in all coverflow modes by default.  If no local full cover is found, 
@@ -1913,13 +1917,13 @@ cfg v37a (alpha)
    selected cover will load the game, 1 will go to Game Settings, etc.
  * Visual improvements to cover objects in coverflow mode
  
-cfg v36d (bugfix)
+22-07-2009 cfg v36d (bugfix)
 
  * Fixed error when accessing network and after that using IOS 222/223-mload
  * Improved url tag {CC} region detection for: IT, ES and NL
  * Changed default urls to use {ID6} instead of {ID}
 
-cfg v36c (bugfix)
+22-07-2009 cfg v36c (bugfix)
 
  * Fixed url {CC} tag for US region
  * added option: download_cc_pal = [EN], FR, DE, AU, ...
@@ -1928,7 +1932,7 @@ cfg v36c (bugfix)
    retried with EN code.
  * Changed default urls to wiitdb.com site.
 
-cfg v36 (release)
+20-07-2009 cfg v36 (release)
 
  * Minor cleanups of the Cheat Manager
    Increased limits for cheat codes (per game):
@@ -1937,7 +1941,7 @@ cfg v36 (release)
  * added {CC} tag for urls (Country Code) based on
    game region id expands to one of: EN FR DE JA KO
 
-cfg v36b (beta)
+19-07-2009 cfg v36b (beta)
 
  * Ocarina TXT (Cheat Code Manager)
    (based on wiicmpnc and wiiflow)
@@ -1945,23 +1949,23 @@ cfg v36b (beta)
    (either by binary gameid patch or forwarder param)
  * Online update: size check
 
-cfg v35d (bugfix)
+18-07-2009 cfg v35d (bugfix)
 
 * Fixed crash after installing a game
 
-cfg v35c (bugfix)
+15-07-2009 cfg v35c (bugfix)
 
 * Stability improvements for games that require alt.dol.
   Fixes freezes and glitches in MOH2, FIFA08 (maybe others as well)
 
-cfg v35 (release)
+10-07-2009 cfg v35 (release)
 
  * Force video mode fixes
  * Online update: progress indicator, fixed crash, compact display
  * Reduced size of embedded graphics
  * Minor cleanups
 
-cfg v35rc (release candidate)
+08-07-2009 cfg v35rc (release candidate)
 
  * Stability improvements
  * Added all coverflow modes to gui_style option:
@@ -1972,17 +1976,17 @@ cfg v35rc (release candidate)
  * Increase max favorites to 64
  * Updated covers urls
 
-cfg v35b (beta)
+07-07-2009 cfg v35b (beta)
 
  * Save global settings: theme and device
  * Save selection of alt.dol from disc
 
-cfg v35a6 (alpha6)
+06-07-2009 cfg v35a6 (alpha6)
 
  * Online Update
  * minor fixes
 
-cfg v35a5 (alpha5)
+06-07-2009 cfg v35a5 (alpha5)
 
  * Fixed theme switching
  * Stability fixes
@@ -1992,12 +1996,12 @@ cfg v35a5 (alpha5)
    console_mark_favorite = [0], 1
    console_mark_saved = [0], 1
 
-cfg v35a4 (alpha4)
+05-07-2009 cfg v35a4 (alpha4)
 
  * Disabled ttf font rendering to speed up cover loading and resolve issue when music
    is playing.
  
-cfg v35a3 (alpha3)
+04-07-2009 cfg v35a3 (alpha3)
 
  * Integrated Coverflow Gui mode
    - NOTE: This mode renders the game covers in true 3D so 2D (flat) cover images are needed.
@@ -2010,7 +2014,7 @@ cfg v35a3 (alpha3)
  * Favorites in console mode are now marked with a '*'
  * Games with saved options are now marked with a '#' in the last column of the console.
 
-cfg v35a2 (alpha2)
+03-07-2009 cfg v35a2 (alpha2)
 
  * Fixed =+ with cover_url options
  * Changed default urls to this:
@@ -2041,11 +2045,11 @@ cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disc/US/{ID}.png
  * option: download_all_styles = [1], 0
    Downloading all styles (flat,3d,disc) of covers, or just the current style
 
-cfg v35a (alpha)
+02-07-2009 cfg v35a (alpha)
 
  * Load Alternative .dol from disc (from NeoGamma by WiiPower)
 
-cfg v34 (release)
+01-07-2009 cfg v34 (release)
 
  * Changed default URLS to sites:
    1. wiicover.gateflorida.com
@@ -2071,7 +2075,7 @@ cfg v34 (release)
 
  * Print info when loading external ehcmodule
 
-cfg v34b (beta)
+29-06-2009 cfg v34b (beta)
 
  * Changed the default urls from theotherzone.com to wiiboxart.com
    although, automatic downloading of covers from that site now requires payment,
@@ -2128,20 +2132,20 @@ cfg v34b (beta)
  * Updated Nature theme (by DonTlaloc)
 
 
-cfg v33 (release)
+26-06-2009 cfg v33 (release)
 
  - When switching favorites in gui mode, move to start of the game list
 
-cfg v33b3 (beta3)
+26-06-2009 cfg v33b3 (beta3)
 
  - Fixed game: Wii Sports Resort
    (by disabling "Sam & Max" fix, which was not working properly anyway)
 
-cfg v33b2 (beta2)
+26-06-2009 cfg v33b2 (beta2)
 
  - fixed ocarina
 
-cfg v33b (beta)
+26-06-2009 cfg v33b (beta)
 
  - Favorite Games
    Favorite game is marked in the game options screen. To switch between
@@ -2155,16 +2159,16 @@ cfg v33b (beta)
  - Properly renamed "002 fix" to "Anti 002 fix" in game options screen
  - Fixed crash if ocarina is enabled and MK is started
 
-cfg v32 (release)
+22-06-2009 cfg v32 (release)
 
  - New default theme: BlueMatrix (by Narolez)
  - New HBC icon (by Matriculated)
 
-cfg v32b2 (beta2)
+22-06-2009 cfg v32b2 (beta2)
 
 - fix for alt.dol out of memory issues 
 
-cfg v32b (beta)
+22-06-2009 cfg v32b (beta)
 
  - 002 fix option (002b variant)
  - Updated ios222/223-mload ehci module and dip plugin to uLoader 2.1 version
@@ -2176,7 +2180,7 @@ cfg v32b (beta)
    alt_dol = [0], 1
  - Remeber saved settings for the above game options
 
-cfg v32a2 (alpha2)
+20-06-2009 cfg v32a2 (alpha2)
 
  - Alternative .dol loading option (from NeoGamma by WiiPower)
    Loaded from loader base dir GAMEID.dol (4 letter ID)
@@ -2185,12 +2189,12 @@ cfg v32a2 (alpha2)
  - Updated ios22[23]-mload ehci module from uLoader 2.0
  - Init wpad after ios reload, so that confirm_ocarina doesn't hang
 
-cfg v32a1 (alpha1)
+17-06-2009 cfg v32a1 (alpha1)
 
  - Block IOS Reload option
    (works only with IOS 222-mload or 223-mload)
 
-cfg v31c (bug fixes / minor improvements)
+02-06-2009 cfg v31c (bug fixes / minor improvements)
 
  - cIOS 249 rev13 - 002 fix (by WiiPower)
  - Fixed: power off button in GUI mode
@@ -2199,7 +2203,7 @@ cfg v31c (bug fixes / minor improvements)
    without first displaying the game list in console mode
  - print IOS version and revision in device selection menu
 
-cfg v31 (release)
+01-06-2009 cfg v31 (release)
 
  - option: gui_style = [grid], flow, flow-z
    Set the default GUI style
@@ -2231,7 +2235,7 @@ cfg v31 (release)
  - Per-game save settings: country_patch, ios
 
 
-cfg v31b2 (beta2)
+31-05-2009 cfg v31b2 (beta2)
 
  - GUI: New style: "flow-z"
  - Country Patch for better compatibility with some games (by WiiPower)
@@ -2244,7 +2248,7 @@ cfg v31b2 (beta2)
  - Updated titles.txt
  - Updated Wolf_3D theme gui background
 
-cfg v31b: (beta)
+28-05-2009 cfg v31b: (beta)
 
  - GUI: New style: "grid flow"
    To change gui style mode use button up when in 4 rows mode
@@ -2254,7 +2258,7 @@ cfg v31b: (beta)
  - If custom IOS is specified, load it before storage device init
  - Added game loading progress indication when using custom IOS
 
-cfg v31a: (alpha)
+25-05-2009 cfg v31a: (alpha)
 
  - Support USB drive with a FAT partition for configuration and covers
    (If config.txt is not found on SD, then uses USB FAT partition)
@@ -2272,12 +2276,12 @@ cfg v31a: (alpha)
  - minor GUI fixes
 
 
-cfg v30: (release)
+20-05-2009 cfg v30: (release)
 
  - Fixed crash when switching theme after gui mode
  - Other minor GUI fixes
 
-cfg v30b: (beta)
+20-05-2009 cfg v30b: (beta)
 
  - GUI Mode (beta)
    By default console mode is started.
@@ -2300,20 +2304,20 @@ cfg v30b: (beta)
  - Other minor fixes
 
 
-cfg v30x: (experimental)
+19-05-2009 cfg v30x: (experimental)
 
  - GUI mode (experimental)
  - fixed crash when using some forwarders 
 
-cfg v29d:
+15-05-2009 cfg v29d:
 
  - Fixed option: hide_game=...
 
-cfg v29c:
+12-05-2009 cfg v29c:
 
  - Fixed minor glitch in 576i mode
 
-cfg v29:
+12-05-2009 cfg v29:
 
  - Theme support (See README-CFG.txt for details on how to create themes)
  - option: theme = Theme_Name
@@ -2326,7 +2330,7 @@ cfg v29:
  - Fixed: searching for music.mp3 if base directory is not sd:/usb-loader
  - removed obsolete option: buttons=ultimate
 
-cfg v28:
+05-05-2009 cfg v28:
 
  - Screenshot is saved to screenshot[1..99].png - the first which doesn't exist.
 
@@ -2351,7 +2355,7 @@ cfg v28:
    At max 4 characters are used.
 
 
-cfg v27:
+03-05-2009 cfg v27:
 
  - Clear button status before formatting, so it always asks for confirmation
  - Allow to exit from device menu with button B, if device has already been
@@ -2359,12 +2363,12 @@ cfg v27:
  - Fixed crash on device retry-on-failure timeout (no ios reload)
  - option: ios = [249], 222
 
-cfg v26:
+02-05-2009 cfg v26:
 
  - Fixed PNG transparency
  - Clear button status after install, so it always asks for confimration
 
-cfg v25:
+01-05-2009 cfg v25:
 
  - Automatic resize of covers (4:3 -> wide) if wide cover not found.
  It can actually resize any size to specified size with options:
@@ -2380,13 +2384,13 @@ cfg v25:
  - The supplied noimage.png images in covers/3d and covers/disc
  now use transparency (tnx narolez)
 
-cfg v24:
+30-04-2009 cfg v24:
 
  - Support transparent PNG for covers (used by 3d and disc covers)
  - Changed builtin background and nocover images to match the default provided inSDroot.
  - Changed default layout to large3 (to match builtin background)
 
-cfg v23:
+29-04-2009 cfg v23:
 
  - Game compatibility fixes:
  - Fixed harvest moon & nunchuck problem
@@ -2397,7 +2401,7 @@ cfg v23:
  - Fixed network problems in games when downloading covers from loader.
  - Restart music if it was stopped by usb device retry on failure
 
-cfg v22:
+27-04-2009 cfg v22:
 
  - option: console_transparent = [0], 1
    Enable transparent console.
@@ -2406,7 +2410,7 @@ cfg v22:
  - Added layout=kosaic
 
 
-cfg v21:
+27-04-2009 cfg v21:
 
  - Fixed downloading of NTSC covers.
  - Check if downloaded file is a valid PNG
@@ -2420,7 +2424,7 @@ cfg v21:
    Sets how much moves left/right (if 0 do a end page / next page jump)
 
 
-cfg v20:
+25-04-2009 cfg v20:
 
  - Added option to 'Download All Missing Covers' in the options menu.
    If selected with dpad-right, only missing covers will be donwloaded
@@ -2457,12 +2461,12 @@ cfg v20:
    It will also show some music related info
 
 
-cfg v19:
+24-04-2009 cfg v19:
 
  - Fixed music stuttering
  - Fixed mp3 loop crash
 
-cfg v18:
+23-04-2009 cfg v18:
 
  - Improved USB and SD retry initialize on fail (tnx: Narolez)
  - Improved mp3 loading
@@ -2473,7 +2477,7 @@ cfg v18:
    if option is set to: music = 1 then it will search for music.mp3
    or music.mod whichever is found first in sd:/usb-loader
 
-cfg v17:
+22-04-2009 cfg v17:
 
  - Eject DVD after install is complete if button A is pressed
  - option: hide_game = [0], GAMEID1, GAMEID2, ...
@@ -2489,7 +2493,7 @@ cfg v17:
    Example: pref_game = RHAP, RSSP
  - Show number of games after hdd info
 
-cfg v16:
+21-04-2009 cfg v16:
 
  - fixed music sometimes not working
  - widescreen support
@@ -2506,7 +2510,7 @@ cfg v16:
    like: large3 and ultimate3, so there is no need to specify them manually,
    if one of these layouts are used.
 
-cfg v15:
+20-04-2009 cfg v15:
 
  - Added Force PAL50, PAL60, NTSC video modes (tnx Narolez)
    option: video=pal50, pal60, ntsc
@@ -2516,7 +2520,7 @@ cfg v15:
    Can be disabled with option: music=0
 
 
-cfg v14:
+19-04-2009 cfg v14:
 
  - Colored console text:
    option: colors=[dark], light, mono
@@ -2527,7 +2531,7 @@ cfg v14:
    color_inactive, color_footer, color_help
  - Fixed individual disable_xxx settings. (tnx. Narolez)
 
-cfg v13:
+18-04-2009 cfg v13:
 
  - Support running games from a SD/SDHC Card with a WBFS and FAT32 partition.
    So you can have the loader, covers, background and other configuration files
@@ -2536,7 +2540,7 @@ cfg v13:
  - Minor fixes to download covers from internet (tnx: Don Killah)
  - Fixed simple=1 option
 
-cfg v12:
+18-04-2009 cfg v12:
 
  - fine granularity of simple options:
    added options: disable_remove, disable_install, disable_options, disable_format
@@ -2553,11 +2557,11 @@ cfg v12:
 
 
 
-cfg v11:
+17-04-2009 cfg v11:
 
  - Rebase code to waninkoko SDUSB Loader 1.5
 
-cfg v10:
+16-04-2009 cfg v10:
 
  - load game covers from the options menu (by hungyip84/forsaken)
  - fixed Japan (and other regions) games (tnx: Narolez)
@@ -2566,7 +2570,7 @@ cfg v10:
    Covers that are downloaded from the options menu will be automatically saved
    to a file with 4 letter ID instead of 6.
 
-cfg v9:
+16-04-2009 cfg v9:
 
  - new set of backgrounds to match the new buttons=options mode
  - option: layout=large3 to match the new backgrounds
@@ -2586,7 +2590,7 @@ cfg v9:
  - fixed a crash with odd x coordinates
  - other minor fixes
 
-cfg v8:
+15-04-2009 cfg v8:
 
  - option: device=[ask], usb, sdhc
  - option: confirm_start=[1], 0
@@ -2596,14 +2600,14 @@ cfg v8:
  button 1 - enter options menu
  button 2 - save/discard game options
 
-cfg v7:
+14-04-2009 cfg v7:
 
  - Added per-game saved settings (video, language, ocarina)
    Per-game settings can be saved/forgotten in the start game
    screen with button 2.
    The settings are saved to sd:/usb-loader/settings.cfg
 
-cfg v6:
+13-04-2009 cfg v6:
 
  - option: buttons=[original], ultimate  (change button controls layout.)
    The button layout "ultimate" is:
@@ -2611,17 +2615,17 @@ cfg v6:
        BUTTON 2 - ocarina option
        BUTTON B - language option
 
-cfg v5:
+13-04-2009 cfg v5:
 
  - merge changes from hungyip84 Ultimate V6:
  - language selection (config option: language=...)
  - video modes (config option: video=system, game, patch)
 
-cfg v4:
+13-04-2009 cfg v4:
 
  - Rebase code to waninkoko SDUSB Loader 1.4
 
-cfg v3:
+12-04-2009 cfg v3:
 
  - Rebase code to waninkoko SDUSB Loader 1.3
  - standard SD mode for background and cover access still works
@@ -2634,7 +2638,7 @@ cfg v3:
  - option: console_entries=N (number of shown games in list)
  - option: layout=original2 (waninkoko 1.2-1.3)
 
-cfg v2:
+11-04-2009 cfg v2:
 
  - option: layout=large2 matches usptactical cover coordinates
  - option: layout=ultimate1 (WiiShizza)
@@ -2646,7 +2650,7 @@ cfg v2:
  - show noimage.png if cover missing
  - sd bug fix (56Killer)
 
-cfg v1:
+11-04-2009 cfg v1:
 
 Based on Wanikoko & Kwiirk USB Loader 1.1 + nIxx mod (USBLoader1.1ssorgmod+cover)
 including:

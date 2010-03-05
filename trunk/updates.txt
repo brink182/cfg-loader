@@ -13,6 +13,12 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 55a2x (experimental)
+size = 1443584
+date = 2010-03-05
+url = http://cfg-loader.googlecode.com/files/cfg55a2x.dol
+FAT/NTFS support for cios 249 rev18.
+
 release = 55a (alpha)
 size = 1438144
 date = 2010-03-04

@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 55b (beta)
+size = 1444288
+date = 2010-03-06
+url = http://cfg-loader.googlecode.com/files/cfg55b.dol
+Fixed ios250, Updated 249r18 dip disc
+check fix, Print ios249 base,mload v.
+Rename cfg-fat to cfg-222
+Changed default: hide_hddinfo=1
+Fixed magic word actions for the GUI
+
+release = 55b-222 (beta)
+size = 1444288
+date = 2010-03-06
+url = http://cfg-loader.googlecode.com/files/cfg55b-222.dol
+Same as 55b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 55a3 (alpha)
 size = 1443552
 date = 2010-03-06
@@ -26,32 +45,6 @@ size = 1443552
 date = 2010-03-06
 url = http://cfg-loader.googlecode.com/files/cfg55a3-fat.dol
 Same as 55a3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-
-release = 55a2x (experimental)
-size = 1443584
-date = 2010-03-05
-url = http://cfg-loader.googlecode.com/files/cfg55a2x.dol
-FAT/NTFS support for cios 249 rev18.
-
-release = 55a (alpha)
-size = 1438144
-date = 2010-03-04
-url = http://cfg-loader.googlecode.com/files/cfg55a.dol
-home and button_* actions added:
-'priiloader', 'wii_menu',
-Priiloader magic words and
-Channel IDs (e.g., FDCL)
-
-release = 55a-fat (alpha)
-size = 1438144
-date = 2010-03-04
-url = http://cfg-loader.googlecode.com/files/cfg55a-fat.dol
-Same as 55a but with different
 default options:
   ios=222-mload
   partition=FAT1

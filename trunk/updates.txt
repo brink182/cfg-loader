@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 55a3 (alpha)
+size = 1443552
+date = 2010-03-06
+url = http://cfg-loader.googlecode.com/files/cfg55a3.dol
+249 rev18 fat/ntfs other bases
+Bug fixes for "nothing" and button
+  remap actions
+
+release = 55a3-fat (alpha)
+size = 1443552
+date = 2010-03-06
+url = http://cfg-loader.googlecode.com/files/cfg55a3-fat.dol
+Same as 55a3 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+  hide_hddinfo=1
+
+
 release = 55a2x (experimental)
 size = 1443584
 date = 2010-03-05

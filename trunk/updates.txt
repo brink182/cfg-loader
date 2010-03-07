@@ -18,7 +18,7 @@ size = 1444576
 date = 2010-03-07
 url = http://cfg-loader.googlecode.com/files/cfg55b2.dol
 Games on SD/SDHC FAT/NTFS with
-  cios 249 rev18/19
+  cios 249 rev19
 
 release = 55b2-222 (beta2)
 size = 1444576

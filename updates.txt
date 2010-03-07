@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 55b2 (beta2)
+size = 1444576
+date = 2010-03-07
+url = http://cfg-loader.googlecode.com/files/cfg55b2.dol
+Games on SD/SDHC FAT/NTFS with
+  cios 249 rev18/19
+
+release = 55b2-222 (beta2)
+size = 1444576
+date = 2010-03-07
+url = http://cfg-loader.googlecode.com/files/cfg55b2-222.dol
+Same as 55b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 55b (beta)
 size = 1444288
 date = 2010-03-06
@@ -31,24 +47,6 @@ Same as 55b but with different
 default options:
   ios=222-mload
   partition=FAT1
-
-release = 55a3 (alpha)
-size = 1443552
-date = 2010-03-06
-url = http://cfg-loader.googlecode.com/files/cfg55a3.dol
-249 rev18 fat/ntfs other bases
-Bug fixes for "nothing" and button
-  remap actions
-
-release = 55a3-fat (alpha)
-size = 1443552
-date = 2010-03-06
-url = http://cfg-loader.googlecode.com/files/cfg55a3-fat.dol
-Same as 55a3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
 
 release = 54 (release)
 size = 1436960

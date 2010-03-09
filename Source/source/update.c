@@ -37,6 +37,7 @@
 #include "subsystem.h"
 #include "net.h"
 #include "gettext.h"
+#include "xml.h"
 
 ////////////////////////////////////////
 //
@@ -419,9 +420,11 @@ void Download_Titles()
 	printf("\n");
 	extern char *get_cc();
 	char *cc = get_cc();
-	if (strcmp(cc, "JA") ==0 || strcmp(cc, "KO") ==0) cc = "EN";
+	char * dbl = ((strlen(CFG.db_language) == 2) ? VerifyLangCode(CFG.db_language) : ConvertLangTextToCode(CFG.db_language));
+	//if (strcmp(cc, "JA") ==0 || strcmp(cc, "KO") ==0) cc = "EN";
 	strcpy(url, CFG.titles_url);
 	str_replace(url, "{CC}", cc, sizeof(url));
+	str_replace(url, "{DBL}", dbl, sizeof(url));
 	printf_("%s\n", url);
 
 	file = downloadfile(url);

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
-"PO-Revision-Date: 2010-02-21 22:57+0100\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <Geridian, WiiNero>\n"
 "MIME-Version: 1.0\n"
@@ -608,6 +608,9 @@ msgstr "Kindersicherung:"
 msgid "Hold button B to cancel."
 msgstr "B halten um abzubrechen."
 
+msgid "Hook Type:"
+msgstr "Hook Typ:"
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "ID mismatch: [%.6s] [%.6s]"
@@ -866,6 +869,9 @@ msgstr "Ocarina: Kein Speicher mehr frei"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina: Suche nach Codes..."
+
+msgid "Ocarina: Too many codes"
+msgstr "Ocarina: Zu viele Codes"
 
 msgid "Off"
 msgstr "Aus"
@@ -1278,6 +1284,9 @@ msgstr "Wii Speak"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Write Playlog:"
+msgstr "Schreibe Playlog:"
 
 #, c-format
 msgid "Writing to %s"

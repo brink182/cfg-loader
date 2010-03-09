@@ -18,6 +18,7 @@
 #include "cache.h"
 #include "wpad.h"
 #include "GRRLIB.h"
+#include "xml.h"
 
 //defines for the mouseover detection
 #define MOUSEOVER_COVER_OFFSCREEN 0xFFFFFFFF
@@ -54,6 +55,7 @@
 extern struct discHdr *gameList;
 extern bool loadGame;
 extern bool suppressCoverDrawing;
+
 //AA
 extern struct GRRLIB_texImg aa_texBuffer[4];
 
@@ -1640,11 +1642,48 @@ void convert_2dCoords_into_3dCoords(int x_2d, int y_2d, int zpos, f32 *x_3d, f32
 	v1_direction.z = v1.x * GXView2D_Inverse[0][2] + v1.y * GXView2D_Inverse[1][2] + v1.z * GXView2D_Inverse[2][2];
 	guVecNormalize (&v1_direction);
 
-	//calculate the final 2d postition based on the z position of the 3d object
+	//calculate the final 2d position based on the z position of the 3d object
 	// and the direction into the inverse world
 	k = (zpos - cam.z) / v1_direction.z;
 	*x_3d = cam.x + k * v1_direction.x;
 	*y_3d = cam.y + k * v1_direction.y;
+}
+
+
+/**
+ * Calculates the max difference between two u32 colors (comparing RGB separately) and 
+ *  applies the max difference to the RGB values of the first u32.  Then the u32 val is 
+ *  added to the end result.
+ *
+ *  @param col the color to change
+ *  @param col2 the color to compare the difference and apply to col
+ *  @param val the color to add to col
+ *  @param neg (1 or -1) to determine if val should be added or subtracted
+ */
+u32 addU32Value(u32 col, u32 col2, u32 val, int neg)
+{
+	int r = (int)R(col);
+	int g = (int)G(col);
+	int b = (int)B(col);
+	int rv = (int)R(val);
+	int gv = (int)G(val);
+	int bv = (int)B(val);
+	//get diff between col and col2 RGB
+	int rdiff = r - (int)R(col2);
+	int gdiff = g - (int)G(col2);
+	int bdiff = b - (int)B(col2);
+	//who's got the largest diff?
+	int diff1 = (rdiff > bdiff) ? rdiff : bdiff;
+	int diff = (gdiff > diff1) ? gdiff : diff1;
+	diff = (diff > 0) ? diff : 0;
+	//subtract diff from each color and add val
+	r = r - diff + (rv * neg);
+	r = (r > 255) ? 255 : ((r < 0) ? 0 : r);
+	g = g - diff + (gv * neg);
+	g = (g > 255) ? 255 : ((g < 0) ? 0 : g);
+	b = b - diff + (bv * neg);
+	b = (b > 255) ? 255 : ((b < 0) ? 0 : b);
+	return ((u8)r << 24) | ((u8)g << 16) | ((u8)b << 8) | A(col2);
 }
 
 
@@ -1664,29 +1703,39 @@ void convert_2dCoords_into_3dCoords(int x_2d, int y_2d, int zpos, f32 *x_3d, f32
  */
 void get_boxcover_edge_color(int gi, bool selected, u8 alpha, u32 color, u32 reflectionColorBottom, u32 reflectionColorTop,
 		u32 *edgecolor, u32 *reflectionBottomEdge, u32 *reflectionTopEdge) {
+	u32 col;
+	bool dbColorFound = false;
 	char *gameid;
 	gameid = (char*)gameList[gi].id;
+	
+	//check xml database for color
+	if (xml_getCaseColor(&col, (u8 *)gameid)) {
+		dbColorFound = true;
+		col |= alpha;
+	} else {
+		col = color;
+	}
+
+	//New Super Mario Bros
+	if (strncmp(gameid, "SMN", 3) == 0) col = 0xFF000000 | alpha;
 
 	if (selected) {
-		if (strncmp(gameid, "SMN", 3) == 0) {  //New Super Mario Bros
-			*edgecolor = 0xFF000000 | alpha;  //red
-			*reflectionBottomEdge = (reflectionColorBottom & 0xFF0000FF) + 0x11000000;
-			*reflectionTopEdge = (reflectionColorTop & 0xFF0000FF) + 0x11000000;
-		} else {
-			*edgecolor = color;
-			*reflectionBottomEdge = reflectionColorBottom + 0x11111100;
-			*reflectionTopEdge = reflectionColorTop + 0x11111100;
-		}
+		*edgecolor = col;
+		*reflectionBottomEdge = addU32Value(col, reflectionColorBottom, 0x11111100, 1);
+		*reflectionTopEdge = addU32Value(col, reflectionColorTop, 0x11111100, 1);	
+		//*edgecolor = col;
+		//*reflectionBottomEdge = reflectionColorBottom + 0x11111100;
+		//*reflectionTopEdge = reflectionColorTop + 0x11111100;
 	} else {
-		if (strncmp(gameid, "SMN", 3) == 0) {  //New Super Mario Bros
-			*edgecolor = 0x99000000 | alpha;  //red
-			*reflectionBottomEdge = (reflectionColorBottom & 0xFF0000FF) - 0x11000000;
-			*reflectionTopEdge = (reflectionColorTop & 0xFF0000FF) - 0x11000000;
-		} else {
-			*edgecolor = color;
-			*reflectionBottomEdge = reflectionColorBottom - 0x11111100;
-			*reflectionTopEdge = reflectionColorTop - 0x11111100;
-		}
+		if (dbColorFound)
+			*edgecolor = addU32Value(col, col, 0x22222200, -1);
+		else
+			*edgecolor = col;
+		*reflectionBottomEdge = addU32Value(col, reflectionColorBottom, 0x11111100, -1);
+		*reflectionTopEdge = addU32Value(col, reflectionColorTop, 0x11111100, -1);
+		//*edgecolor = col;
+		//*reflectionBottomEdge = reflectionColorBottom - 0x11111100;
+		//*reflectionTopEdge = reflectionColorTop - 0x11111100;
 	}
 }
 

@@ -53,10 +53,11 @@ void __Disc_SetLowMem(void)
 	*(vu32 *)0x80000060 = 0x38A00040;
 	*(vu32 *)0x800000E4 = 0x80431A80;
 	*(vu32 *)0x800000EC = 0x81800000; // Dev Debugger Monitor Address
-	*(vu32 *)0x800000F0 = 0x81800000; // Dev Debugger Monitor Address
+	*(vu32 *)0x800000F0 = 0x01800000; // Dev Debugger Monitor Address
 	*(vu32 *)0x800000F4 = 0x817E5480;
 	*(vu32 *)0x800000F8 = 0x0E7BE2C0; // bus speed
 	*(vu32 *)0x800000FC = 0x2B73A840; // cpu speed
+	*(vu32 *)0xCD00643C = 0x00000000; // 32Mhz on Bus
 
 	/* Copy disc ID */
 	// online check code, seems offline games clear it?
@@ -393,12 +394,11 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 
 	insert_bca_data();
 
-	util_clear();
-
-	// OCARINA STUFF - FISHEARS
-	if (CFG.game.ocarina) {
-		ocarina_do_code();
+	if (CFG.ios_yal) {
+		printf(gt("Loading ..."));
 	}
+
+	util_clear();
 
 	/* Setup low memory */
 	__Disc_SetLowMem();
@@ -406,10 +406,6 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	// Select an appropiate video mode
 	__Disc_SelectVMode();
 	
-	if (CFG.ios_yal) {
-		printf(gt("Loading ..."));
-	}
-
 /*
     // Removed for now
 	// Load Disc IOS
@@ -437,6 +433,9 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 		return ret;
 	}
 
+	// OCARINA STUFF - FISHEARS
+	ocarina_do_code();
+
 	/* Close subsystems */
 	__console_flush(0);
 	Net_Close(1);
@@ -463,8 +462,34 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	__IOS_ShutdownSubsystems();
 	__exception_closeall();
 
+	appentrypoint = (u32)p_entry;
+	
+	// check if the codehandler is used - if Ocarina and/or debugger is used
+	if (CFG.game.ocarina || CFG.wiird)
+	{
+		__asm__(
+			"lis %r3, appentrypoint@h\n"
+			"ori %r3, %r3, appentrypoint@l\n"
+			"lwz %r3, 0(%r3)\n"
+			"mtlr %r3\n"
+			"lis %r3, 0x8000\n"
+			"ori %r3, %r3, 0x18A8\n"
+			"mtctr %r3\n"
+			"bctr\n"
+		);
+	} else
+	{
+		__asm__(
+			"lis %r3, appentrypoint@h\n"
+			"ori %r3, %r3, appentrypoint@l\n"
+			"lwz %r3, 0(%r3)\n"
+			"mtlr %r3\n"
+			"blr\n"
+		);
+	}
+
 	/* Jump to entry point */
-	p_entry();
+	//p_entry();
 
 	/* Epic failure */
 	while (1);

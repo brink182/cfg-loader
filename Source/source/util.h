@@ -95,7 +95,7 @@ typedef struct SoundInfo
 	int loop;
 } SoundInfo;
 
-void parse_banner_title(void *banner, u8 *title);
+void parse_banner_title(void *banner, u8 *title, s32 lang);
 void parse_banner_snd(void *banner, SoundInfo *snd);
 
 void printf_(const char *fmt, ...);

@@ -26,6 +26,12 @@ Download and Help Forum : http://grrlib.santo.fr
    extern "C" {
 #endif /* __cplusplus */
 
+//	u32 mask = 0x
+#define R(c)  (((c) >>24) &0xFF)  /**< Exract Red   component of colour. */
+#define G(c)  (((c) >>16) &0xFF)  /**< Exract Green component of colour. */
+#define B(c)  (((c) >> 8) &0xFF)  /**< Exract Blue  component of colour. */
+#define A(c)  ( (c)       &0xFF)  /**< Exract Alpha component of colour. */
+
 /**
  * Structure to hold the texture informations.
  */

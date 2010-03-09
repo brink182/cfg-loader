@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: KAVID <Kavid@Sina.com>\n"
 "Language-Team: Simplified Chinese (ZH_CN) <Kavid@Sina.com>\n"
@@ -604,6 +604,9 @@ msgstr "隐藏游戏:"
 msgid "Hold button B to cancel."
 msgstr "按B取消"
 
+msgid "Hook Type:"
+msgstr ""
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "ID不匹配: [%.6s] [%.6s]"
@@ -857,6 +860,9 @@ msgstr "金手指:内存溢出错误"
 
 msgid "Ocarina: Searching codes..."
 msgstr "金手指:搜索作弊码。。。"
+
+msgid "Ocarina: Too many codes"
+msgstr ""
 
 msgid "Off"
 msgstr "关闭"
@@ -1269,6 +1275,9 @@ msgstr "Wii麦克"
 
 msgid "Wiimote"
 msgstr "手柄"
+
+msgid "Write Playlog:"
+msgstr ""
 
 #, c-format
 msgid "Writing to %s"

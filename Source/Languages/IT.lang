@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -606,6 +606,9 @@ msgstr "Nascondi Gioco:"
 msgid "Hold button B to cancel."
 msgstr "Tener premuto B per annullare."
 
+msgid "Hook Type:"
+msgstr "Aggancio Ocarina:"
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "ID discordi: [%.6s] [%.6s]"
@@ -864,6 +867,9 @@ msgstr "Ocarina: Memoria Insufficiente"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina: Sto cercando i codici..."
+
+msgid "Ocarina: Too many codes"
+msgstr "Ocarina: Troppi codici"
 
 msgid "Off"
 msgstr "Disattivato"
@@ -1276,6 +1282,9 @@ msgstr "Wii Speak"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Write Playlog:"
+msgstr "Scrivi Log Giocate"
 
 #, c-format
 msgid "Writing to %s"

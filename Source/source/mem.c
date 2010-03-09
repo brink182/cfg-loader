@@ -17,6 +17,7 @@
 
 #include "mem.h"
 #include "util.h" // required for memcheck
+#include "console.h"
 
 static heap mem1;
 static heap mem2;
@@ -549,6 +550,9 @@ void util_clear()
 	void *game_start = (void*)0x80004000;
 	void *game_end   = (void*)0x80a00000;
 	u32 size;
+
+	// unload unifont
+	console_set_unifont(NULL, 0);
 
 	// clear mem1 main
 	size = game_end - game_start;

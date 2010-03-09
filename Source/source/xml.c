@@ -173,6 +173,17 @@ bool hasGenre(char *genre, u8 * gameid)
 	return 0;
 }
 
+bool xml_getCaseColor(u32 *color, u8 *gameid)
+{
+	int id = getIndexFromId(gameid);
+	if (id < 0) return 0;
+	if (game_info[id].caseColor > 0x0) {
+		*color = game_info[id].caseColor;
+		return 1;
+	}
+	return 0;
+}
+
 bool DatabaseLoaded() {
 	return xml_loaded;
 }
@@ -419,6 +430,20 @@ void readPlayers(char * start, int n) {
 	}
 }
 
+void readCaseColor(char * start, int n) {
+	game_info[n].caseColor = 0x0;
+	char *locStart = strstr(start, "<case color=\"");
+	if (locStart != NULL) {
+		char cc[9];
+		int col, len, num;
+		strcopy(cc, locStart+13, 7);
+		STRAPPEND(cc, "00");  //force alpha to 00
+		num = sscanf(cc,"%8x%n", &col, &len);
+		if (num == 1 && len == 8)
+			game_info[n].caseColor = (u32)col;
+	}
+}
+
 void readWifi(char * start, int n) {
 	char *locStart = strstr(start, "<wi-fi players=\"");
 	char *locEnd = NULL;
@@ -455,8 +480,12 @@ void readTitles(char * start, int n) {
 	char *locStart;
 	char *locEnd = start;
 	char tmpLang[3];
-	bool foundEn = 0;
-	bool foundCfg = 0;
+	int found = 0;
+	int title = 0;
+	int synopsis = 0;
+	char *locTmp;
+	char *titStart;
+	char *titEnd;
 	while ((locStart = strstr(locEnd, "<locale lang=\"")) != NULL) {
 		strcpy(tmpLang, "");
 		locEnd = strstr(locStart, "</locale>");
@@ -466,26 +495,38 @@ void readTitles(char * start, int n) {
 			continue;
 		}
 		strlcpy(tmpLang, locStart+14, 3);
-		foundCfg = (memcmp(tmpLang, xmlCfgLang, 2) == 0);
-		foundEn  = (memcmp(tmpLang, "EN", 2) == 0);
-		if (foundCfg || foundEn) {
-			char * locTmp = strndup(locStart, locEnd-locStart);
-			char * titStart = strstr(locTmp, "<title>");
+		if (memcmp(tmpLang, xmlCfgLang, 2) == 0) {
+			found = 3;
+		} else if (memcmp(tmpLang, "EN", 2) == 0) {
+			found = 2;
+		} else {
+			found = 1;
+		}
+		// 3. get the configured language text
+		// 2. if not found, get english
+		// 1. else get whatever is found
+		locTmp = strndup(locStart, locEnd-locStart);
+		if (title < found) {
+			titStart = strstr(locTmp, "<title>");
 			if (titStart != NULL) {
-				char * titEnd = strstr(titStart, "</title>");
+				titEnd = strstr(titStart, "</title>");
 				strncpySafe(game_info[n].title, titStart+7,
 						sizeof(game_info[n].title), titEnd-(titStart+7));
 				unescape(game_info[n].title, sizeof(game_info[n].title));
+				title = found;
 			}
+		}
+		if (synopsis < found) {
 			titStart = strstr(locTmp, "<synopsis>");
 			if (titStart != NULL) {
-				char * titEnd = strstr(titStart, "</synopsis>");
+				titEnd = strstr(titStart, "</synopsis>");
 				strncpySafe(game_info[n].synopsis, titStart+10,
 						sizeof(game_info[n].synopsis), titEnd-(titStart+10));
+				synopsis = found;
 			}
-			SAFE_FREE(locTmp);
-			if (foundCfg) break;
 		}
+		SAFE_FREE(locTmp);
+		if (synopsis == 3) break;
 	}
 }
 
@@ -568,6 +609,7 @@ void LoadTitlesFromXML(char *langtxt, bool forcejptoen)
 		readNode(tmp, game_info[n].developer, "<developer>", "</developer>");
 		readNode(tmp, game_info[n].publisher, "<publisher>", "</publisher>");
 		readNode(tmp, game_info[n].genre, "<genre>", "</genre>");
+		readCaseColor(tmp, n);
 		readPlayers(tmp, n);
 		//ConvertRating(game_info[n].ratingvalue, gameinfo[n].ratingtype, "ESRB");
 		SAFE_FREE(tmp);
@@ -783,6 +825,7 @@ void PrintGameInfo(bool showfullinfo) {
 		printf("   PUB: %s\n", gameinfo.publisher);
 		printf("   DATE: %d / %d / %d\n", gameinfo.year, gameinfo.month, gameinfo.day);
 		printf("   GEN: %s\n", gameinfo.genre);
+		printf("   COLOR: %s\n", gameinfo.caseColor);
 		printf("   RAT: %s\n", gameinfo.ratingtype);
 		printf("   VAL: %s\n", gameinfo.ratingvalue);
 		printf("   RAT DESC: %s\n", gameinfo.ratingdescriptors[0]);

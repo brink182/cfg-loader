@@ -45,7 +45,7 @@
 #include "gettext.h"
 #include "playlog.h"
 
-#define CHANGE(V,M) {V+=change;if(V>M)V=M;if(V<0)V=0;}
+#define CHANGE(V,M) {V+=change; if(V>(M)) V=(M); if(V<0) V=0;}
 
 
 char CFG_VERSION[] = CFG_VERSION_STR;
@@ -971,7 +971,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	game_cfg = &game_cfg2->curr;
 
 	struct Menu menu;
-	const int NUM_OPT = 14;
+	const int NUM_OPT = 16;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -987,15 +987,18 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		opt_saved = game_cfg2->is_saved;
 		// if not mload disable block ios reload opt
 		opt_ios_reload = game_cfg->block_ios_reload;
-		if (!is_ios_idx_mload(game_cfg->ios_idx))
-		{
+		if (!is_ios_idx_mload(game_cfg->ios_idx)) {
 			active[8] = 0;
 			opt_ios_reload = 0;
 		}
+		// if not ocarina and not wiird, deactivate hooks
+		if (!game_cfg->ocarina && !CFG.wiird) {
+			active[11] = 0;
+		}
 		//if admin lock is off or they're not in admin 
-		// mode then they can't hide/unhide covers
+		// mode then they can't hide/unhide games
 		if (!CFG.admin_lock || CFG.admin_mode_locked) {
-			active[13] = 0;
+			active[14] = 0;
 		}
 
 		//These things shouldn't be changed if using a disc...maybe
@@ -1003,7 +1006,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			active[0] = 0;
 			active[8] = 0;
 			active[9] = 0;
-			active[13] = 0;
+			active[14] = 0;
 		}
 		
 		Con_Clear();
@@ -1091,12 +1094,16 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_B(gt("Ocarina (cheats):"), game_cfg->ocarina);
 		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Hook Type:"), hook_name[game_cfg->hooktype]);
+		if (menu_window_mark(&menu))
 			PRINT_OPT_A(gt("Cheat Codes:"), gt("Manage"));
 		if (menu_window_mark(&menu))
 			printf("%s%s\n", con_align(gt("Cover Image:"), 18), 
 				imageNotFound ? gt("< DOWNLOAD >") : gt("[ FOUND ]"));
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
+		if (menu_window_mark(&menu))
+			PRINT_OPT_B(gt("Write Playlog:"), game_cfg->write_playlog);
 		DefaultColor();
 		menu_window_end(&menu, cols);
 
@@ -1176,16 +1183,19 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				CHANGE(game_cfg->ocarina, 1);
 				break;
 			case 11:
-				Menu_Cheats(header);
+				CHANGE(game_cfg->hooktype, NUM_HOOK-1);
 				break;
 			case 12:
+				Menu_Cheats(header);
+				break;
+			case 13:
 				printf("\n\n");
 				Download_Cover((char*)header->id, change > 0, true);
 				Cache_Invalidate();
 				Gui_DrawCover(header->id);
 				Menu_PrintWait();
 				break;
-			case 13:
+			case 14: // hide game
 				printf("\n\n");
 				printf_x(gt("Saving Settings... "));
 				__console_flush(0);
@@ -1197,6 +1207,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				}
 				__console_flush(0);
 				Gui_DrawCover(header->id);
+				break;
+			case 15:
+				CHANGE(game_cfg->write_playlog, 1);
 				break;
 			}
 		}
@@ -2705,7 +2718,7 @@ void Menu_Boot(bool disc)
 	u8 banner_title[84];
 	memset(banner_title, 0, 84);
 	memset(&snd, 0, sizeof(snd));
-	WBFS_Banner(header->id, &snd, banner_title, !do_skip, CFG.write_playlog);
+	WBFS_Banner(header->id, &snd, banner_title, !do_skip, CFG_read_active_game_setting(header->id).write_playlog);
 
 	if (do_skip) {
 		printf("\n");
@@ -2798,7 +2811,7 @@ void Menu_Boot(bool disc)
 		//dbg_printf("set ios: %d idx: %d\n", CFG.ios, CFG.game.ios_idx);
 	}
 
-	if (CFG.write_playlog && set_playrec(header->id, banner_title) < 0) {
+	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
 		printf_h(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
@@ -2831,9 +2844,7 @@ void Menu_Boot(bool disc)
 	}
 
 	// load stuff before ios reloads & services close
-	if (CFG.game.ocarina) {
-		ocarina_load_code(header->id);
-	}
+	ocarina_load_code(header->id);
 	load_wip_patches(header->id);
 	load_bca_data(header->id);
 

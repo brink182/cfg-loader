@@ -800,7 +800,13 @@ int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle)
 	if (!banner || size <= 0) return -1;
 
 	//printf("\nopening.bnr: %d\n", size);
-	if (getTitle) parse_banner_title(banner, title);
+	if (getTitle) 
+	{
+		s32 lang = CFG_read_active_game_setting(discid).language - 1;
+		if (lang < 0)
+			lang = CONF_GetLanguage();
+		parse_banner_title(banner, title, lang);
+	}
 	if (getSound) parse_banner_snd(banner, snd);
 	SAFE_FREE(banner);
 	return 0;

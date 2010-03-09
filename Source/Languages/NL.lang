@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -604,6 +604,9 @@ msgstr "Spel verbergen:"
 msgid "Hold button B to cancel."
 msgstr "Houd B ingedrukt om te annuleren."
 
+msgid "Hook Type:"
+msgstr "Hook Type"
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "ID verschil: [%.6s] [%.6s]"
@@ -862,6 +865,9 @@ msgstr "Ocarina: te weinig geheugen"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina: Codes zoeken..."
+
+msgid "Ocarina: Too many codes"
+msgstr "Ocarina: teveel codes"
 
 msgid "Off"
 msgstr "Uit"
@@ -1274,6 +1280,9 @@ msgstr "Wii Speak"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Write Playlog:"
+msgstr "Loggen op prikbord:"
 
 #, c-format
 msgid "Writing to %s"

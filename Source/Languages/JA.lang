@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -604,6 +604,9 @@ msgstr "ゲームを隠す:"
 msgid "Hold button B to cancel."
 msgstr "キャンセルするにはBボタンを押してください"
 
+msgid "Hook Type:"
+msgstr "Ocarinaフックタイプ:"
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "IDが一致しません: [%.6s] [%.6s]"
@@ -859,6 +862,9 @@ msgstr "Ocarina:メモリエラー"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina:コードを探しています…"
+
+msgid "Ocarina: Too many codes"
+msgstr "コードが多すぎます"
 
 msgid "Off"
 msgstr "使用しない"
@@ -1271,6 +1277,9 @@ msgstr "Wiiスピーク"
 
 msgid "Wiimote"
 msgstr "Wiiリモコン"
+
+msgid "Write Playlog:"
+msgstr "Wii伝言板に書く:"
 
 #, c-format
 msgid "Writing to %s"

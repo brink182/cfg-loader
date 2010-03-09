@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
-"PO-Revision-Date: 2010-02-22 08:00+0800\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"PO-Revision-Date: 2010-02-28 07:50+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -48,7 +48,7 @@ msgstr "%s, 請等候..."
 
 #, c-format
 msgid "(%d online)"
-msgstr ""
+msgstr "(支援 %d 名玩家連線)"
 
 #, c-format
 msgid "(%d seconds timeout)"
@@ -88,7 +88,7 @@ msgid "Alternative .dol:"
 msgstr "替代的 .dol:"
 
 msgid "Anti 002 Fix:"
-msgstr "消除 002 修復"
+msgstr "抑制 002 修復"
 
 #, c-format
 msgid "App. Path: %s"
@@ -122,7 +122,7 @@ msgid "Available Updates"
 msgstr "可用的更新"
 
 msgid "Balance Board"
-msgstr "平衡板"
+msgstr "平衡器"
 
 msgid "Block IOS Reload:"
 msgstr "封鎖 IOS 重新載入:"
@@ -604,6 +604,9 @@ msgstr "隱藏遊戲:"
 msgid "Hold button B to cancel."
 msgstr "按住按鈕 B 取消."
 
+msgid "Hook Type:"
+msgstr "Ocarina 攔截類型:"
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "ID 不符合: [%.6s] [%.6s]"
@@ -834,7 +837,7 @@ msgid "Nunchuk"
 msgstr "雙節棍控制器"
 
 msgid "OK"
-msgstr "確定"
+msgstr "完成"
 
 msgid "OK!"
 msgstr "確定!"
@@ -859,6 +862,9 @@ msgstr "Ocarina: 記憶體不足錯誤"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina: 正在搜尋密碼..."
+
+msgid "Ocarina: Too many codes"
+msgstr "Ocarina: 太多的密碼"
 
 msgid "Off"
 msgstr "關閉"
@@ -938,7 +944,7 @@ msgstr "請按 %s 鈕繼續."
 
 #, c-format
 msgid "Press %s button to delete FS."
-msgstr "請按 %s 鈕刪除 FS."
+msgstr "請按 %s 鈕刪除檔案系統."
 
 #, c-format
 msgid "Press %s button to dump BCA."
@@ -1072,7 +1078,7 @@ msgstr "競速"
 
 #, c-format
 msgid "Rated %s"
-msgstr ""
+msgstr "分級 %s"
 
 msgid "Read"
 msgstr "讀取"
@@ -1084,7 +1090,7 @@ msgid "Release Date"
 msgstr "發售日期"
 
 msgid "Release Notes: (short)"
-msgstr "發售註釋: (簡短)"
+msgstr "發佈註釋: (簡略)"
 
 msgid "Remove Game"
 msgstr "移除遊戲"
@@ -1272,6 +1278,9 @@ msgstr "Wii 聊天裝置"
 msgid "Wiimote"
 msgstr "遙控器"
 
+msgid "Write Playlog:"
+msgstr "寫入遊戲記錄:"
+
 #, c-format
 msgid "Writing to %s"
 msgstr "正在寫入到 %s"
@@ -1294,7 +1303,7 @@ msgid "[ CHANGED ]"
 msgstr "[ 已變更 ]"
 
 msgid "[ FOUND ]"
-msgstr "[ 已發現 ]"
+msgstr "[ 已找到 ]"
 
 msgid "[ SAVED ]"
 msgstr "[ 已儲存 ]"
@@ -1335,10 +1344,10 @@ msgstr "讀取錯誤: %s (%d)"
 
 #, c-format
 msgid "for %d players"
-msgstr ""
+msgstr "最多 %d 人遊戲"
 
 msgid "for 1 player"
-msgstr ""
+msgstr "單人遊戲"
 
 msgid "format"
 msgstr ""
@@ -1392,21 +1401,3 @@ msgstr "無法開啟 Wii 光碟"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "正在下載 %s 封面為 %.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "正在下載 %s 封面... (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "正在下載所有 %s 封面"
-
-#~ msgid "Missing"
-#~ msgstr "缺少的"
-
-#~ msgid "Missing "
-#~ msgstr "缺少的"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "大小: %d 位元組"

@@ -26,6 +26,7 @@ struct gameXMLinfo
 	int players;
 	char accessories[16][20];
 	char accessoriesReq[16][20];
+	u32 caseColor;
 };
 
 struct gameXMLinfo *game_info;
@@ -43,6 +44,7 @@ bool DatabaseLoaded(void);
 int getControllerTypes(char *controller, u8 * gameid);
 bool hasGenre(char *genre, u8 * gameid);
 bool hasFeature(char *feature, u8 *gameid);
+bool xml_getCaseColor(u32 *color, u8 *gameid);
 
 #ifdef __cplusplus
 }

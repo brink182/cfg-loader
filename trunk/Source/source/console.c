@@ -204,6 +204,8 @@ int console_set_unifont(void *buf, int size)
 {
 	unifont_header *u = (unifont_header*) buf;
 	char *end;
+	unifont = NULL;
+	unifont_glyph = NULL;
 	if (!buf) return -1;
 	if (size < sizeof(unifont_header) + 4) return -1;
 	/*

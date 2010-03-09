@@ -166,6 +166,8 @@ struct Game_CFG
 	int ocarina;
 	int alt_dol;
 	char dol_name[64];
+	int write_playlog;
+	int hooktype;
 };
 
 struct Game_CFG_2
@@ -339,7 +341,7 @@ struct CFG
 	int disable_nsmb_patch;
 	int disable_bca;
 	int disable_wip;
-	int write_playlog;
+	// int write_playlog;
 	// order of the following options (until specified point) is important
 	int button_M;
 	int button_P;
@@ -364,6 +366,7 @@ struct CFG
 	struct MenuButton button_other;
 	struct MenuButton button_save;
 	int load_unifont;
+	int wiird; // wii remote debugger
 };
 
 extern struct CFG CFG;
@@ -511,6 +514,7 @@ bool is_hide_game(u8 *id);
 
 int CFG_filter_favorite(struct discHdr *list, int cnt);
 char* split_token(char *dest, char *src, char delim, int size);
+char* trimcopy(char *dest, char *src, int size);
 
 char *get_clock_str(time_t t);
 
@@ -518,6 +522,18 @@ int readPlayStats(void);
 u32 getPlayCount(u8 *id);
 time_t getLastPlay(u8 *id);
 int setPlayStat(u8 *id);
+
+struct TextMap
+{
+	char *name;
+	int id;
+};
+
+int map_get_num(struct TextMap *map);
+char* map_get_name(struct TextMap *map, int id);
+
+#define NUM_HOOK 8
+extern char *hook_name[NUM_HOOK];
 
 //#define FAKE_GAME_LIST
 

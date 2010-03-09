@@ -2,13 +2,13 @@
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -608,6 +608,9 @@ msgstr "Ocultar Juego:"
 msgid "Hold button B to cancel."
 msgstr "Mantener el botón B para cancelar."
 
+msgid "Hook Type:"
+msgstr "Tipo de Hook:"
+
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "ID desajustada: [%.6s] [%.6s]"
@@ -785,8 +788,8 @@ msgid ""
 "NOTE: loader restart is required\n"
 "for the update to take effect."
 msgstr ""
-"NOTA: Se requiere reiniciar\n"
-"para que la actualización tome efecto."
+"NOTA: Se requiere reiniciar para que\n"
+"la actualización tome efecto."
 
 #, c-format
 msgid ""
@@ -866,6 +869,9 @@ msgstr "Ocarina: Error por Falta de Memoria"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina: Buscando códigos..."
+
+msgid "Ocarina: Too many codes"
+msgstr "Ocarina: Hay muchos códigos"
 
 msgid "Off"
 msgstr "Desactivado"
@@ -1278,6 +1284,9 @@ msgstr "Wii Speak"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Write Playlog:"
+msgstr "Escribir Registro:"
 
 #, c-format
 msgid "Writing to %s"

@@ -23,13 +23,14 @@
 #define __PATCHCODE_H__
 
 // Globals
-u32 hooktype;
-int patched;
-u8 configbytes[2];
-u32 regionfree;
+extern u32 hooktype;
+extern int patched;
+extern u8 configbytes[2];
+extern u32 regionfree;
+extern bool hookpatched;
 
 // Function prototypes
-void dogamehooks(void *addr, u32 len);
+bool dogamehooks(void *addr, u32 len);
 void langpatcher(void *addr, u32 len);
 void vidolpatcher(void *addr, u32 len);
 void patchdebug(void *addr, u32 len);

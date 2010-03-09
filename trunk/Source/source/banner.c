@@ -43,8 +43,8 @@ typedef struct {
 	u8 unk[8];  // 0x0000060000000003 fixed, unknown purpose
 	u32 sizes[3]; // icon.bin, banner.bin, sound.bin
 	u32 flag1; // unknown
-	u8 names[7][84]; // JP, EN, DE, FR, ES, IT, NL
-	u8 zeroes_2[0x348]; // padding
+	u8 names[10][84]; // JP, EN, DE, FR, ES, IT, NL, ZHCN, ZHTW, KO
+	u8 zeroes_2[0x24C]; // padding
 	u8 crypto[16]; // MD5 of 0x40 to 0x640 in header.
 } IMET;
 
@@ -609,9 +609,9 @@ void parse_aiff(void *data, SoundInfo *snd)
 	snd->loop = 0;
 }
 
-void parse_banner_title(void *banner, u8 *title)
+void parse_banner_title(void *banner, u8 *title, s32 lang)
 {
-	memcpy(title, ((IMET*)banner)->names[CONF_GetLanguage()], 84);
+	memcpy(title, ((IMET*)banner)->names[lang], 84);
 }
 
 void parse_banner_snd(void *banner, SoundInfo *snd)

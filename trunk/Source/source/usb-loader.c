@@ -46,6 +46,7 @@ int main(int argc, char **argv)
 
 	Gui_DrawIntro();
 
+	dbg_printf("reaload ios: %d\n", CFG.ios);
 	/* Load Custom IOS */
 	if (CFG.game.ios_idx == CFG_IOS_249) {
 		ret = IOS_ReloadIOS(249);
@@ -55,15 +56,16 @@ int main(int argc, char **argv)
 		print_ios();
 		ret = ReloadIOS(0, 0);
 	}
+	dbg_printf(" = %d\n", ret);
 
 	/* Initialize subsystems */
 	//Subsystem_Init();
 	// delay wpad_init after second reloadIOS
-	//dbg_printf("Fat_MountSDHC\n");
+	dbg_printf("Fat Mount SD\n");
 	Fat_MountSDHC();
 
 	/* Load configuration */
-	//dbg_printf("CFG_Load\n");
+	dbg_printf("CFG Load\n");
 	CFG_Load(argc, argv);
 
 	if (CURR_IOS_IDX != CFG.game.ios_idx) {

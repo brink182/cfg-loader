@@ -65,12 +65,6 @@ struct ID_Title *cfg_title = NULL;
 int num_cfg_game = 0;
 struct Game_CFG_2 cfg_game[MAX_CFG_GAME];
 
-struct TextMap
-{
-	char *name;
-	int id;
-};
-
 struct TextMap map_video[] =
 {
 	{ "system", CFG_VIDEO_SYS },
@@ -190,6 +184,31 @@ struct TextMap map_button_menu[] =
 	{ "L", NUM_BUTTON_L },
 	{ "R", NUM_BUTTON_R },
 	{ NULL, -1 }
+};
+
+struct TextMap map_hook[] =
+{
+	{ "nohooks", 0 },
+	{ "vbi",     1 },
+	{ "wiipad",  2 },
+	{ "gcpad",   3 },
+	{ "gxdraw",  4 },
+	{ "gxflush", 5 },
+	{ "ossleep", 6 },
+	{ "axframe", 7 },
+	{ NULL, -1 }
+};
+
+char *hook_name[NUM_HOOK] =
+{
+	"No Hooks",
+	"VBI",
+	"Wii Pad",
+	"GC Pad",
+	"GXDraw",
+	"GXFlush",
+	"OSSleepThread",
+	"AXNextFrame"
 };
 
 struct playStat {
@@ -1032,23 +1051,24 @@ void CFG_Default()
 	CFG.gui_compress_covers = 1;
 	// default game settings
 	CFG.game.video    = CFG_VIDEO_AUTO;
+	CFG.game.hooktype = 1; // VBI
 	cfg_ios_set_idx(DEFAULT_IOS_IDX);
 	// all other game settings are 0 (memset(0) above)
 	STRCOPY(CFG.sort_ignore, "A,An,The");
 	CFG.clock_style = 24;
 	// profiles
 	CFG.num_profiles = 1;
-	CFG.current_profile = 0;
+	//CFG.current_profile = 0;
 	STRCOPY(CFG.profile_names[0], "default");
-	STRCOPY(CFG.titles_url, "http://wiitdb.com/titles.txt?LANG={CC}");
+	STRCOPY(CFG.titles_url, "http://wiitdb.com/titles.txt?LANG={DBL}");
 	CFG.intro = 1;
 	CFG.fat_install_dir = 1;
 	CFG.db_show_info = 1;
-	CFG.db_ignore_titles = 0;
-	CFG.write_playlog = 0;
+	//CFG.db_ignore_titles = 0;
+	//CFG.write_playlog = 0;
 	CFG.write_playstats = 1;
-	STRCOPY(CFG.db_url, "http://wiitdb.com/wiitdb.zip?LANG={DBL}");
-	STRCOPY(CFG.db_language, get_cc());
+	STRCOPY(CFG.db_url, "http://wiitdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true");
+	STRCOPY(CFG.db_language, auto_cc());
 	STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
 	STRCOPY(CFG.sort, "title-asc");
 }
@@ -1063,6 +1083,13 @@ int map_get_id(struct TextMap *map, char *name, int *id_val)
 		}
 	}
 	return -1;
+}
+
+int map_get_num(struct TextMap *map)
+{
+	int i;
+	for (i=0; map[i].name != NULL; i++);
+	return i;
 }
 
 char* map_get_name(struct TextMap *map, int id)
@@ -1900,6 +1927,9 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 		STRCOPY(game_cfg->dol_name, val);
 	}
 	cfg_bool("ocarina", &game_cfg->ocarina);
+	cfg_map_auto("hooktype", map_hook, &game_cfg->hooktype);
+	cfg_bool("write_playlog", &game_cfg->write_playlog);
+	
 }
 
 bool cfg_set_gbl(char *name, char *val)
@@ -1979,7 +2009,7 @@ void cfg_set(char *name, char *val)
 		strcpy(CFG.db_url,val);
 	if (!strcmp(name, "db_language")) {
 		if (strcmp(val, "auto") == 0 || strcmp(val, "AUTO") == 0) {
-			STRCOPY(CFG.db_language, get_cc());
+			STRCOPY(CFG.db_language, auto_cc());
 		} else {
 			strcpy(CFG.db_language,val);
 		}
@@ -2113,7 +2143,7 @@ void cfg_set(char *name, char *val)
 		}
 	}
 
-	cfg_bool("write_playlog", &CFG.write_playlog);
+	//cfg_bool("write_playlog", &CFG.write_playlog);
 
 	cfg_int_max("fat_install_dir", &CFG.fat_install_dir, 3);
 	cfg_int_max("fs_install_layout", &CFG.fat_install_dir, 3);
@@ -2167,6 +2197,7 @@ void cfg_set(char *name, char *val)
 			STRCOPY(CFG.profile_names[0], "default");
 		}
 	}
+	cfg_int_max("wiird", &CFG.wiird, 2);
 }
 
 
@@ -2606,6 +2637,9 @@ bool CFG_Save_Settings(int verbose)
 			}
 		}
 		SAVE_BOOL(ocarina);
+		s = map_get_name(map_hook, game_cfg->hooktype);
+		SAVE_STR("hooktype", s);
+		SAVE_BOOL(write_playlog);
 		fprintf(f, "\n");
 	}
 	fprintf(f, "# END\n");

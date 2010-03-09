@@ -21,6 +21,7 @@
 #include "wpad.h"
 #include "menu.h"
 #include "gettext.h"
+#include "cfg.h"
 
 
 /* Constants */
@@ -78,11 +79,18 @@ s32 Fat_MountSDHC(void)
 
 	_FAT_mem_init();
 
+	if (IOS_GetVersion() != 249 || IOS_GetRevision() >= 18) {
+		// sdhc device seems to work only on
+		// ios 249 rev <= 17
+		sdhc_mode_sd = 1;
+	}
+
 	/* Initialize SD/SDHC interface */
 	retry:
+	dbg_printf("SD init\n");
 	ret = __io_sdhc.startup();
 	if (!ret) {
-		//printf_x("ERROR: SDHC init! (%d)\n", ret); sleep(1);
+		dbg_printf("ERROR: SDHC init! (%d)\n", ret); sleep(1);
 		if (!sdhc_mode_sd) {
 		   sdhc_mode_sd = 1;
 		   goto retry;
@@ -90,6 +98,7 @@ s32 Fat_MountSDHC(void)
 		return -1;
 	}
 
+	dbg_printf("SD fat mount\n");
 	/* Mount device */
 	if (!sdhc_mode_sd) {
 		ret = fatMount(SDHC_MOUNT, &__io_sdhc, 0, FAT_CACHE_SECTORS);

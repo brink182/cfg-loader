@@ -284,8 +284,8 @@ char *lang_to_cc()
 		case CONF_LANG_ITALIAN:  return "IT";
 		case CONF_LANG_DUTCH:    return "NL";
 		case CONF_LANG_KOREAN:   return "KO";
-		case CONF_LANG_SIMP_CHINESE: return "EN";
-		case CONF_LANG_TRAD_CHINESE: return "EN";
+		case CONF_LANG_SIMP_CHINESE: return "ZHCN";
+		case CONF_LANG_TRAD_CHINESE: return "ZHTW";
 	}
 	return "EN";
 }
@@ -745,8 +745,11 @@ void Download_XML()
 	char zippath[200];
 	snprintf(zippath, sizeof(zippath), "%s/%s", USBLOADER_PATH, "wiitdb_new.zip");
 	char zipurl[100];
+	extern char *get_cc();
+	char *cc = get_cc();
 	char * dbl = ((strlen(CFG.db_language) == 2) ? VerifyLangCode(CFG.db_language) : ConvertLangTextToCode(CFG.db_language));
 	strcopy(zipurl, CFG.db_url, sizeof(zipurl));
+	str_replace(zipurl, "{CC}", cc, sizeof(zipurl));
 	str_replace(zipurl, "{DBL}", dbl, sizeof(zipurl));
 	
 	if (zipurl[0] == 0) {

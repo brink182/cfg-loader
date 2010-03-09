@@ -15,14 +15,14 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	53
+VERSION		:=	54
 RELEASE		:=	devel
 TARGET		:=	cfg$(VERSION)
 BUILD		:=	build
 SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip
 DATA		:=	data
 INCLUDES	:=	
-GETTEXT		:=	tools/gettext-bin
+GETTEXT		:=	tools/gettext
 UPLOAD		:=  tools/googlecode_upload.py
 GAUTH		?=  -u username -w passwd
 
@@ -160,7 +160,7 @@ SIZE=$(shell stat -c %s cfg$(VERSION).dol 2>/dev/null)
 SIZE_FAT=$(shell stat -c %s cfg$(VERSION)-fat.dol 2>/dev/null)
 
 define ANNOUNCE_SH
-CHANGES=`sed -n '/^cfg v'$(VERSION)' /,/^cfg/{/^cfg/!p}' README-CFG.txt`
+CHANGES=`sed -n '/cfg v'$(VERSION)' /,/cfg v/{/cfg v/!p}' README-CFG.txt`
 echo "===== updates.txt: ====="
 cat << END
 
@@ -189,8 +189,8 @@ cat << END
 [url="http://cfg-loader.googlecode.com/files/cfg$(VERSION)-fat.dol"]cfg$(VERSION)-fat.dol[/url]
 [url="http://cfg-loader.googlecode.com/files/lang$(VERSION).zip"]lang$(VERSION).zip[/url]
 (or online update)
-
 [pre]Changes:
+
 cfg v$(VERSION) ($(RELEASE))
 $$CHANGES
 [/pre]

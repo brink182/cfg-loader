@@ -2,14 +2,14 @@
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
-#
+# ################### v53
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 21:09+0100\n"
-"PO-Revision-Date: 2010-01-23 14:18-0500\n"
+"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"PO-Revision-Date: 2010-02-23 23:32-0300\n"
 "Last-Translator: mangojambo <mangojambo@gmail.com>\n"
 "Language-Team: BRAZILIAN PORTUGUESE \n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr ""
+msgstr "%.1fGB livre de %.1fGB"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -101,14 +101,14 @@ msgid ""
 "Are you sure you want to %s\n"
 "this partition?"
 msgstr ""
-"Tem certeza que quer %s\n"
+"Tem certeza que deseja %s\n"
 "esta partição?"
 
 msgid ""
 "Are you sure you want to FIX\n"
 "this partition?"
 msgstr ""
-" Tem certeza que quer CORRIGIR\n"
+" Tem certeza que deseja CORRIGIR\n"
 "esta partição?"
 
 msgid ""
@@ -241,18 +241,18 @@ msgid "Downloadable Content"
 msgstr "Conteúdo Baixável"
 
 msgid "Downloading ALL MISSING covers"
-msgstr ""
+msgstr "Baixando TODAS as capas em falta"
 
 msgid "Downloading ALL covers"
-msgstr ""
+msgstr "Baixando TODAS as capas"
 
 #, c-format
 msgid "Downloading ALL covers for %.6s"
-msgstr ""
+msgstr "Baixando TODAS as capas para %.6s"
 
 #, c-format
 msgid "Downloading MISSING covers for %.6s"
-msgstr ""
+msgstr "Baixando capas em falta para %.6s"
 
 msgid "Downloading cheats..."
 msgstr "Baixando trapaças..."
@@ -578,7 +578,7 @@ msgid "Found %s Cover"
 msgstr "Foram encontradas %s Capas"
 
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 msgid "Game Options"
 msgstr "Opções de Jogo"
@@ -608,6 +608,9 @@ msgstr "Ocultar Jogo:"
 
 msgid "Hold button B to cancel."
 msgstr "Mantenha o botão B pressionado para cancelar."
+
+msgid "Hook Type:"
+msgstr ""
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -868,6 +871,9 @@ msgstr "Ocarina: Erro por Falta de memória"
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina: Buscando códigos..."
 
+msgid "Ocarina: Too many codes"
+msgstr ""
+
 msgid "Off"
 msgstr "Desligado"
 
@@ -946,7 +952,7 @@ msgstr "Pressione o botão %s para continuar."
 
 #, c-format
 msgid "Press %s button to delete FS."
-msgstr "Pressione o botão %s para apagar FS."
+msgstr "Pressione o botão %s para remover FS."
 
 #, c-format
 msgid "Press %s button to dump BCA."
@@ -1080,7 +1086,7 @@ msgstr "Corrida"
 
 #, c-format
 msgid "Rated %s"
-msgstr ""
+msgstr "Avaliado %s"
 
 msgid "Read"
 msgstr "Ler"
@@ -1280,6 +1286,9 @@ msgstr "Wii Speak"
 msgid "Wiimote"
 msgstr "Wiimote"
 
+msgid "Write Playlog:"
+msgstr ""
+
 #, c-format
 msgid "Writing to %s"
 msgstr "Escrevendo a %s"
@@ -1324,10 +1333,10 @@ msgid "calculating space, please wait..."
 msgstr "calculando espaço, por favor aguarde..."
 
 msgid "cover"
-msgstr ""
+msgstr "capa"
 
 msgid "delete"
-msgstr ""
+msgstr "remover"
 
 #, c-format
 msgid "dest: %p - %p"
@@ -1343,13 +1352,13 @@ msgstr "erro lendo: %s (%d)"
 
 #, c-format
 msgid "for %d players"
-msgstr ""
+msgstr "para %d jogadores"
 
 msgid "for 1 player"
-msgstr ""
+msgstr "para 1 jogador"
 
 msgid "format"
-msgstr ""
+msgstr "formatar"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
@@ -1375,7 +1384,7 @@ msgid "or format a WBFS partition."
 msgstr "ou formatar uma partição WBFS."
 
 msgid "page"
-msgstr ""
+msgstr "página"
 
 msgid "parse error"
 msgstr "erro de análise"
@@ -1402,10 +1411,10 @@ msgid "used: %p - %p"
 msgstr "usado: %p - %p"
 
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
-#~ msgstr "IOS %u do disco no se cargó! (ret = %d)"
+#~ msgstr "IOS %u do disco no pode ser carregada (ret = %d)"
 
 #~ msgid "Download Game Database"
-#~ msgstr "Descargar la Base de Dados de Jogos"
+#~ msgstr "Baixar Base de Dados de Jogos"
 
 #~ msgid "Downloading %s Covers for %.4s"
 #~ msgstr "Baixando %s Capas para %.4s"
@@ -1417,7 +1426,7 @@ msgstr "usado: %p - %p"
 #~ msgstr "Baixando todas Capas %s"
 
 #~ msgid "Missing"
-#~ msgstr "Faltantes"
+#~ msgstr "Em Falta"
 
 #~ msgid "Missing "
 #~ msgstr "Faltando "

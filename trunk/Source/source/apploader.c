@@ -11,15 +11,11 @@
 #include "wpad.h"
 #include "cfg.h"
 #include "patchcode.h" /*FISHEARS*/
-//#include "kenobiwii.h" /*FISHEARS*/
 #include "dol.h"
 #include "wiip.h"
 #include "gettext.h"
 #include "menu.h"
 
-/*KENOBI! - FISHEARS*/
-extern const unsigned char kenobiwii[];
-extern const int kenobiwii_size;
 
 /* Apploader function pointers */
 typedef int   (*app_main)(void **dst, int *size, int *offset);

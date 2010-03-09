@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v54
+Configurable SD/USB Loader v55
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -37,7 +37,8 @@ Features:
  - Banner sounds
  - Saving game play time to Wii's play log
  - Multiple WBFS partitions support
- - Loading games from a FAT or NTFS partition (IOS 222/223 required)
+ - Loading games from a FAT or NTFS partition
+   (cIOS 222/223 rev4+ or cIOS 249 rev18+ required)
  - Supported game disc file formats: .wbfs and .iso
  - Configurable
  
@@ -97,8 +98,11 @@ File locations:
   .wip files:      sd:/usb-loader/GAMEID.wip
   .bca files:      sd:/usb-loader/GAMEID.bca
 
-  Games on FAT:    usb:/wbfs/GAMEID.wbfs
+  Games on FAT/NTFS
+    :              usb:/wbfs/GAMEID.wbfs
+  or:              usb:/wbfs/TITLE [GAMEID].wbfs
   or:              usb:/wbfs/GAMEID_TITLE/GAMEID.wbfs
+  or:              usb:/wbfs/TITLE [GAMEID]/GAMEID.wbfs
   (or sd:/ instead of usb:/)
 
 These are default locations, background and covers are configurable.
@@ -397,10 +401,9 @@ Config file:
 # wcovers_coords = x,y (widescreen)
 #
 # hide_header = [0],1 
-# hide_hddinfo = [0],1 
+# hide_hddinfo = 0,[1]
 # hide_footer = [0],1 
 #   These options control the look of main menu.
-#   In -fat version default value of hide_hddinfo=1
 #
 # simple = [0], 1
 #   Using the simple option in a theme will only affect the hide_* options
@@ -461,9 +464,12 @@ Config file:
 # gui_title_top = [0], 1
 #   If 1, gui text appears above covers.  If 0, below.
 #
-# home = [reboot], exit, hbc, screenshot
-#   What to do when home buttin is pressed in the menus
+# home = [reboot], exit, hbc, screenshot, priiloader, wii_menu, 
+#        <magic word>, <channel ID>
+#   What to do when an exit button (typically home) is pressed in the menus
 #   Also changes the operation of button_H in the gui and game list.
+#   <magic word> is a 4 letter magic word for Priiloader
+#   <Channel ID> is a 4 letter channel ID in upper case to launch
 #
 # buttons=[options_1], options_B, original
 #   (change button controls layout in the gui and game list.)
@@ -480,18 +486,18 @@ Config file:
 #       button 1 - options menu
 #       button B - nothing
 #
-# button_B = [gui], <other actions>
-# button_- = [main_menu], <other actions>
-# button_+ = [install], <other actions>
-# button_H = [reboot], <other actions>
-# button_1 = [options], <other actions>
-# button_2 = [favorites], <other actions>
-# button_X = A, B, 1, [2], H, -, +, <action>
-# button_Y = A, B, [1], 2, H, -, +, <action>
-# button_Z = A, [B], 1, 2, H, -, +, <action>
-# button_C = [A], B, 1, 2, H, -, +, <action>
-# button_L = A, B, 1, 2, H, [-], +, <action>
-# button_R = A, B, 1, 2, H, -, [+], <action>
+# button_B = [gui], <other actions>, <magic word>, <channel ID>
+# button_- = [main_menu], <other actions>, <magic word>, <channel ID>
+# button_+ = [install], <other actions>, <magic word>, <channel ID>
+# button_H = [reboot], <other actions>, <magic word>, <channel ID>
+# button_1 = [options], <other actions>, <magic word>, <channel ID>
+# button_2 = [favorites], <other actions>, <magic word>, <channel ID>
+# button_X = A, B, 1, [2], H, -, +, <action>, <magic word>, <channel ID>
+# button_Y = A, B, [1], 2, H, -, +, <action>, <magic word>, <channel ID>
+# button_Z = A, [B], 1, 2, H, -, +, <action>, <magic word>, <channel ID>
+# button_C = [A], B, 1, 2, H, -, +, <action>, <magic word>, <channel ID>
+# button_L = A, B, 1, 2, H, [-], +, <action>, <magic word>, <channel ID>
+# button_R = A, B, 1, 2, H, -, [+], <action>, <magic word>, <channel ID>
 #   These buttons can be mapped to any of the following actions in the game list and gui:
 #     nothing    # does nothing
 #     options    # access game options
@@ -512,6 +518,10 @@ Config file:
 #     unlock     # access the unlock password dialog immediately
 #     sort       # switch to next sort
 #     filter     # access filter menu
+#     priiloader # access Priiloader via magic word Daco
+#     wii_menu   # get Priiloader to launch Wii Menu via magic word Pune
+#     <magic word> # is a 4 letter magic word for Priiloader
+#     <Channel ID> # is a 4 letter channel ID in upper case to launch
 #   X, Y, Z, C, L & R can also be optionally targetted to emulate one of the buttons
 #   on the Wiimote (A, B, 1, 2, -, +, Home).  This emulation will function everywhere.
 #
@@ -637,7 +647,7 @@ Config file:
 # simple = [0], 1
 #   (enable/disable simple/childsafe mode)
 #   setting simple=1 will change all disable_xxx options and
-#   hide_hddinfo and hide_footer to 1 and confirm_start to 0.
+#   hide_footer to 1 and confirm_start to 0.
 #   setting simple=0 will do the opposite.
 #   any of the disable_xxx, hide_xxx and confirm_start options can be set individually.
 #
@@ -884,6 +894,67 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+07-03-2010 cfg v55 (release)
+
+ * No change
+
+07-03-2010 cfg v55b3 (beta3)
+
+ * Fixed occasional hang when trying to start
+   games on FAT/NTFS with cios 249 rev19
+
+07-03-2010 cfg v55b2 (beta2)
+
+ * Games on SD/SDHC FAT/NTFS with cios 249 rev19
+
+06-03-2010 cfg v55b (beta)
+
+ * Fixed ios250 support
+ * Updated 249 r18 dip with disc check fix
+ * Print ios249 base ios (37,38,57,60) and mload version
+ * Rename cfg-fat to cfg-222
+ * Changed option default: hide_hddinfo=1 also for normal cfg.dol
+ * Fixed magic word actions for the GUI
+ * Changed intro
+ * Cleanups
+
+06-03-2010 cfg v55a3 (alpha)
+
+ * 249 rev18 fat/ntfs other base than 38 fix
+ * Bug fixes for "nothing" and button remap actions
+
+05-03-2010 cfg v55a2x (experimental)
+
+ * FAT/NTFS support for cios 249 rev18.
+   NOTE: it overrides the dip plugin which adds frag support
+   thanks to the mload capability in cios 249 rev18
+
+04-03-2010 cfg v55a (alpha)
+
+ * Added new values to the home and button_* options:
+    priiloader - uses the Priiloader magic word "Daco" to go to Priiloader menu
+    wii_menu - uses the Priiloader magic word "Pune" to go to Wii Menu
+    Any other Priiloader magic word can be entered as text (no others exist yet)
+    Any channel ID can be entered, e.g., FDCL for pepxl's forwarder
+
+ Cool Usage Ideas:
+   To go to Wii Menu when using Priiloader:
+     home = wii_menu
+     #OR
+     home = Pune
+   To implement a restart function after updates:
+     home = FDCL #replace with your forwarder's ID
+     button_H = exit
+     # Because of the implementation of the options,
+     # This makes the home button restart Cfg when
+     # used in a menu like the global menu, and 
+     # exit when used in the game list or GUI. 
+   Implement multiple exit types and channel launchers:
+     button_B = FDCL # reboot via forwarder
+     button_1 = HATP # launch PAL Nintendo Channel
+     button_2 = etc.
+
 
 03-03-2010 cfg v54 (release)
 

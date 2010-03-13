@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 56a (alpha)
+size = 1450560
+date = 2010-03-13
+url = http://cfg-loader.googlecode.com/files/cfg56a.dol
+Alt.dol disc plus (.wdm support)
+  (by WiiPower / tueidj)
+New intro (by pepxl)
+
+release = 56a-222 (alpha)
+size = 1450560
+date = 2010-03-13
+url = http://cfg-loader.googlecode.com/files/cfg56a-222.dol
+Same as 56a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 55 (release)
 size = 1444576
 date = 2010-03-09
@@ -24,22 +41,6 @@ size = 1444576
 date = 2010-03-09
 url = http://cfg-loader.googlecode.com/files/cfg55-222.dol
 Same as 55 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 55b3 (beta3)
-size = 1444576
-date = 2010-03-07
-url = http://cfg-loader.googlecode.com/files/cfg55b3.dol
-Fixed occasional hang when starting
-  games on FAT/NTFS with cios 249 rev19
-
-release = 55b3-222 (beta3)
-size = 1444576
-date = 2010-03-07
-url = http://cfg-loader.googlecode.com/files/cfg55b3-222.dol
-Same as 55b3 but with different
 default options:
   ios=222-mload
   partition=FAT1

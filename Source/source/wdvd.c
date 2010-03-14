@@ -3,6 +3,8 @@
 #include <malloc.h>
 #include <ogcsys.h>
 
+#include "cfg.h"
+
 /* Constants */
 #define IOCTL_DI_READID		0x70
 #define IOCTL_DI_READ		0x71
@@ -23,6 +25,10 @@
 #define YAL_DI_OPENPARTITION IOCTL_DI_OPENPART
 #define YAL_DI_SETOFFSETBASE 0xf1
 #define YAL_DI_SETWBFSMODE   0xfe
+
+#define IOCTL_DI_SETFRAG	0xF9
+#define IOCTL_DI_GETMODE	0xFA
+#define IOCTL_DI_HELLO		0xFB
 
 /* Variables */
 static u32 inbuf[8]  ATTRIBUTE_ALIGN(32);
@@ -253,7 +259,11 @@ s32 WDVD_UnencryptedRead(void *buf, u32 len, u64 offset)
 	inbuf[1] = len;
 	inbuf[2] = (u32)(offset >> 2);
 
+	//printf("UNCR-: %p", buf);
+	//hex_dump2(buf, 8);
 	ret = IOS_Ioctl(di_fd, IOCTL_DI_UNENCREAD, inbuf, sizeof(inbuf), buf, len);
+	//printf("=%d : %08x", ret, *((int*)buf));
+	//hex_dump2(buf, 8);
 	if (ret < 0)
 		return ret;
 
@@ -354,6 +364,54 @@ s32 WDVD_Read_Disc_BCA(void *buf)
 
 	return (ret == 1) ? 0 : -ret;
 }
+
+// frag
+
+s32 WDVD_SetFragList(int device, void *fraglist, int size)
+{
+	s32 ret;
+
+	memset(inbuf, 0, sizeof(inbuf));
+
+	/* Set FRAG mode */
+	inbuf[0] = IOCTL_DI_SETFRAG << 24;
+	inbuf[1] = device;
+	inbuf[2] = (u32)fraglist;
+	inbuf[3] = size;
+
+	dbg_printf("SetFragList %d %p %d\n", device, fraglist, size);
+
+	DCFlushRange(fraglist, size);
+	ret = IOS_Ioctl(di_fd, IOCTL_DI_SETFRAG, inbuf, sizeof(inbuf), outbuf, sizeof(outbuf));
+	dbg_printf(" = %d %d %d\n", ret, outbuf[0], outbuf[1]);
+
+	if (ret < 0)
+		return ret;
+
+	return (ret == 1) ? 0 : -ret;
+}
+
+s32 WDVD_hello(u32 *status)
+{
+	s32 ret;
+
+	memset(inbuf, 0, sizeof(inbuf));
+
+	inbuf[0] = IOCTL_DI_HELLO << 24;
+
+	ret = IOS_Ioctl(di_fd, IOCTL_DI_HELLO, inbuf, sizeof(inbuf), outbuf, sizeof(outbuf));
+	if (ret < 0)
+		return ret;
+
+	if (ret == 1) {
+		if (status) memcpy(status, outbuf, sizeof(u32));
+		hex_dump2(outbuf, 12);
+		return 0;
+	}
+
+	return -ret;
+}
+
 
 // YAL / CIOS 222 DI
 

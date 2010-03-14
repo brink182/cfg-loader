@@ -302,12 +302,12 @@ int get_game_ios_idx(struct Game_CFG_2 *game_cfg)
 void warn_ios_bugs()
 {
 	bool warn = false;
-	if (IOS_GetVersion() != 249) {
+	if (!is_ios_type(IOS_TYPE_WANIN)) {
 		CFG.patch_dvd_check = 1;
 		return;
 	}
 	// ios == 249
-	if (wbfs_part_fs) {
+	if (wbfs_part_fs && IOS_GetRevision() < 18) {
 		printf(
 			gt("ERROR: CIOS222 or CIOS223 required for\n"
 			"starting games from a FAT partition!"));
@@ -400,11 +400,11 @@ bool check_dual_layer(u64 real_size, struct Game_CFG_2 *game_cfg)
 	//return true; // dbg
 	if (!is_dual_layer(real_size)) return false;
 	if (game_cfg == NULL) {
-		if ((IOS_GetVersion() == 249) && (IOS_GetRevision() == 14)) return true;
+		if (is_ios_type(IOS_TYPE_WANIN) && (IOS_GetRevision() == 14)) return true;
 		return false;
 	}
 	if (game_cfg->curr.ios_idx != CFG_IOS_249) return false; 
-	if (IOS_GetVersion() == 249) {
+	if (is_ios_type(IOS_TYPE_WANIN)) {
 	   	if (IOS_GetRevision() == 14) return true;
 		return false;
 	}
@@ -675,15 +675,28 @@ void Handle_Home(int disable_screenshot)
 		printf_("HBC...");
 		__console_flush(0);
 		Sys_HBC();
-	} else { // CFG_HOME_REBOOT
+	} else if (CFG.home == CFG_HOME_REBOOT) { 
 		Con_Clear();
 		Restart();
+	} else {
+		// Priiloader magic words, and channels
+		if ((CFG.home & 0xFF) < 'a') {
+			// upper case final letter implies channel
+			Con_Clear();
+			Sys_Channel(CFG.home);
+		} else {
+			// lower case final letter implies magic word
+			Con_Clear();
+			*(vu32*)0x8132FFFB = CFG.home;
+			Restart();
+		}
 	}
 }
 
 void Print_SYS_Info()
 {
 	extern int mload_ehc_fat;
+	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
 	FgColor(CFG.color_inactive);
 	printf_("");
 	Fat_print_sd_mode();
@@ -699,9 +712,9 @@ void Print_SYS_Info()
 	printf("\n");
 	printf_("IOS%u (Rev %u) %s\n",
 			IOS_GetVersion(), IOS_GetRevision(),
-			mload_ehc_fat ? "[FAT]" : "");
-	if (CFG.ios_mload) {
-		printf_("  ");
+			mload_ehc_fat||new_wanin ? "[FRAG]" : "");
+	if (CFG.ios_mload || new_wanin) {
+		printf_("");
 		print_mload_version();
 	}
 	DefaultColor();
@@ -976,12 +989,15 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	menu_init(&menu, NUM_OPT);
 
 	for (;;) {
+		/*
+		// fat on 249?
 		if (wbfs_part_fs && !disc) {
 			if (!is_ios_idx_mload(game_cfg->ios_idx))
 			{
 				game_cfg->ios_idx = CFG_IOS_222_MLOAD;
 			}
 		}
+		*/
 
 		menu_init_active(&menu, active, sizeof(active));
 		opt_saved = game_cfg2->is_saved;
@@ -1459,7 +1475,10 @@ extern int action_alpha;
 
 void DoAction(int action)
 {
+	if (action & CFG_BTN_REMAP) return;
 	switch(action) {
+		case CFG_BTN_NOTHING:
+			break;
 		case CFG_BTN_OPTIONS: 
 			if (!CFG.disable_options) Menu_Options();
 			break;
@@ -1562,6 +1581,17 @@ void DoAction(int action)
 			Menu_Filter();
 			break;
 		default:
+			// Priiloader magic words, and channels
+			if ((action & 0xFF) < 'a') {
+				// upper case final letter implies channel
+				Con_Clear();
+				Sys_Channel(action);
+			} else {
+				// lower case final letter implies magic word
+				Con_Clear();
+				*(vu32*)0x8132FFFB = action;
+				Restart();
+			}
 			break;
 	}
 }
@@ -2833,6 +2863,7 @@ void Menu_Boot(bool disc)
 				goto out;
 			}
 			WBFS_CloseDisc(d);
+			/*
 			if (!is_ios_idx_mload(CFG.game.ios_idx))
 			{
 				printf(gt("Switching to IOS222 for FAT support."));
@@ -2840,6 +2871,7 @@ void Menu_Boot(bool disc)
 				CFG.game.ios_idx = CFG_IOS_222_MLOAD;
 				cfg_ios_set_idx(CFG.game.ios_idx);
 			}
+			*/
 		}
 	}
 

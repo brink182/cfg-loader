@@ -425,6 +425,7 @@ s32 USBStorage_WBFS_SetFragList(void *p, int size)
 	// Device not opened
 	if (fd < 0) return fd;
 	// ioctl
+	DCFlushRange(p, size);
 	ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_WBFS_SET_FRAGLIST, "d:", p, size);
 	return ret;
 }

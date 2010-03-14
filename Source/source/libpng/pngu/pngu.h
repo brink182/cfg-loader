@@ -139,8 +139,8 @@ int PNGU_DecodeToRGBA8 (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffe
 // Macro for decoding an image inside a buffer at given coordinates.
 #define PNGU_DECODE_TO_COORDS_RGBA8(ctx,coordX,coordY,imgWidth,imgHeight,default_alpha,bufferWidth,bufferHeight,buffer)	\
 																											\
-		PNGU_DecodeToRGBA8 (ctx, imgWidth, imgHeight, ((void *) buffer) + (coordY) * (bufferWidth) * 2 +	\
-							(coordX) * 2, (bufferWidth) - (imgWidth), default_alpha)
+		PNGU_DecodeToRGBA8 (ctx, imgWidth, imgHeight, ((void *) buffer) + (coordY) * (bufferWidth) * 4 +	\
+							(coordX) * 4, (bufferWidth) - (imgWidth), default_alpha)
 
 // Expands selected image into a 4x4 tiled RGB565 buffer. You need to specify context, image dimensions
 // and destination address.

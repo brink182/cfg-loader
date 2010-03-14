@@ -163,6 +163,8 @@ struct TextMap map_button[] =
 	{ "unlock",     CFG_BTN_UNLOCK },
 	{ "sort",       CFG_BTN_SORT },
 	{ "filter",     CFG_BTN_FILTER },
+	{ "priiloader", CFG_BTN_PRIILOADER },
+	{ "wii_menu",   CFG_BTN_WII_MENU },
 	{ NULL, -1 }
 };
 
@@ -1580,6 +1582,15 @@ void theme_set_base(char *name, char *val)
 		} else if (strcmp(val, "screenshot")==0) {
 			CFG.button_H = CFG_BTN_SCREENSHOT;
 			CFG.home = CFG_HOME_SCRSHOT;
+		} else if (strcmp(val, "priiloader")==0) {
+			CFG.button_H = CFG_BTN_PRIILOADER;
+			CFG.home = CFG_HOME_PRIILOADER;
+		} else if (strcmp(val, "wii_menu")==0) {
+			CFG.button_H = CFG_BTN_WII_MENU;
+			CFG.home = CFG_HOME_WII_MENU;
+		} else if (strlen(val) == 4) {
+			CFG.button_H = *((int *)val);
+			CFG.home = *((int *)val);
 		}
 	}
 
@@ -1597,19 +1608,32 @@ void theme_set_base(char *name, char *val)
 		}
 	}
 
-	//cfg_map_auto("button_A", map_button, &CFG.button_A);
-	cfg_map_auto("button_B", map_button, &CFG.button_B);
-	cfg_map_auto("button_1", map_button, &CFG.button_1);
-	cfg_map_auto("button_2", map_button, &CFG.button_2);
-	cfg_map_auto("button_H", map_button, &CFG.button_H);
-	cfg_map_auto("button_-", map_button, &CFG.button_M);
-	cfg_map_auto("button_+", map_button, &CFG.button_P);
-	cfg_map_auto("button_Z", map_button, &CFG.button_Z);
-	cfg_map_auto("button_C", map_button, &CFG.button_C);
-	cfg_map_auto("button_Y", map_button, &CFG.button_Y);
-	cfg_map_auto("button_X", map_button, &CFG.button_X);
-	cfg_map_auto("button_L", map_button, &CFG.button_L);
-	cfg_map_auto("button_R", map_button, &CFG.button_R);
+	/*if (strcmp(name, "button_A") && !cfg_map_auto("button_A", map_button, &CFG.button_A) && strlen(val) == 4)
+		CFG.button_A = *((int *)val);*/
+	if (strcmp(name, "button_B") == 0 && !cfg_map_auto("button_B", map_button, &CFG.button_B) && strlen(val) == 4)
+		CFG.button_B = *((int *)val);
+	if (strcmp(name, "button_1") == 0 && !cfg_map_auto("button_1", map_button, &CFG.button_1) && strlen(val) == 4)
+		CFG.button_1 = *((int *)val);
+	if (strcmp(name, "button_2") == 0 && !cfg_map_auto("button_2", map_button, &CFG.button_2) && strlen(val) == 4)
+		CFG.button_2 = *((int *)val);
+	if (strcmp(name, "button_H") == 0 && !cfg_map_auto("button_H", map_button, &CFG.button_H) && strlen(val) == 4)
+		CFG.button_H = *((int *)val);
+	if (strcmp(name, "button_-") == 0 && !cfg_map_auto("button_-", map_button, &CFG.button_M) && strlen(val) == 4)
+		CFG.button_M = *((int *)val);
+	if (strcmp(name, "button_+") == 0 && !cfg_map_auto("button_+", map_button, &CFG.button_P) && strlen(val) == 4)
+		CFG.button_P = *((int *)val);
+	if (strcmp(name, "button_Z") == 0 && !cfg_map_auto("button_Z", map_button, &CFG.button_Z) && strlen(val) == 4)
+		CFG.button_Z = *((int *)val);
+	if (strcmp(name, "button_C") == 0 && !cfg_map_auto("button_C", map_button, &CFG.button_C) && strlen(val) == 4)
+		CFG.button_C = *((int *)val);
+	if (strcmp(name, "button_Y") == 0 && !cfg_map_auto("button_Y", map_button, &CFG.button_Y) && strlen(val) == 4)
+		CFG.button_Y = *((int *)val);
+	if (strcmp(name, "button_X") == 0 && !cfg_map_auto("button_X", map_button, &CFG.button_X) && strlen(val) == 4)
+		CFG.button_X = *((int *)val);
+	if (strcmp(name, "button_L") == 0 && !cfg_map_auto("button_L", map_button, &CFG.button_L) && strlen(val) == 4)
+		CFG.button_L = *((int *)val);
+	if (strcmp(name, "button_R") == 0 && !cfg_map_auto("button_R", map_button, &CFG.button_R) && strlen(val) == 4)
+		CFG.button_R = *((int *)val);
 
 	//cfg_map_auto_token("button_confirm", map_button_menu, &CFG.button_confirm);
 	cfg_map_auto_token("button_cancel", map_button_menu, &CFG.button_cancel);
@@ -2101,11 +2125,11 @@ void cfg_set(char *name, char *val)
 	if (cfg_bool("simple",  &simpl)) {
 		if (simpl == 1) {
 			CFG.confirm_start = 0;
-			if (CFG_HIDE_HDDINFO == 0) {
-				// normal version affects hddinfo
-				// fat version does not change it.
-				CFG.hide_hddinfo = 1;
-			}
+			//if (CFG_HIDE_HDDINFO == 0) {
+			//	// normal version affects hddinfo
+			//	// fat version does not change it.
+			//	CFG.hide_hddinfo = 1;
+			//}
 			CFG.hide_footer = 1;
 			CFG.disable_remove = 1;
 			CFG.disable_install = 1;
@@ -2113,11 +2137,11 @@ void cfg_set(char *name, char *val)
 			CFG.disable_format = 1;
 		} else { // simple == 0
 			CFG.confirm_start = 1;
-			if (CFG_HIDE_HDDINFO == 0) {
-				// normal version affects hddinfo
-				// fat version does not change it.
-				CFG.hide_hddinfo = 0;
-			}
+			//if (CFG_HIDE_HDDINFO == 0) {
+			//	// normal version affects hddinfo
+			//	// fat version does not change it.
+			//	CFG.hide_hddinfo = 0;
+			//}
 			CFG.hide_footer = 0;
 			CFG.disable_remove = 0;
 			CFG.disable_install = 0;

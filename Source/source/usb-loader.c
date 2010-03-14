@@ -16,18 +16,18 @@
 #include "fat.h"
 #include "util.h"
 #include "gettext.h"
+#include "mload.h"
 
 extern int __console_disable;
 
 void print_ios()
 {
 	printf("%*s", 62, "");
-	if ( (strncasecmp(CFG.partition, "fat", 3) == 0) && CFG.ios_mload ) {
+	/*if ( (strncasecmp(CFG.partition, "fat", 3) == 0) && CFG.ios_mload ) {
 		printf("%d-fat", CFG.ios);
-	} else {
+	} else {*/
 		printf("%s", ios_str(CFG.game.ios_idx));
-	}
-	printf("\n");
+	//}
 	__console_flush(0);
 }
 
@@ -48,14 +48,19 @@ int main(int argc, char **argv)
 
 	dbg_printf("reaload ios: %d\n", CFG.ios);
 	/* Load Custom IOS */
+	print_ios();
 	if (CFG.game.ios_idx == CFG_IOS_249) {
 		ret = IOS_ReloadIOS(249);
 		CURR_IOS_IDX = CFG_IOS_249;
+		if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) {
+			load_dip_249();
+			//try_hello();
+		}
 		//usleep(200000); // this seems to cause hdd spin down/up
 	} else {
-		print_ios();
 		ret = ReloadIOS(0, 0);
 	}
+	printf("\n");
 	dbg_printf(" = %d\n", ret);
 
 	/* Initialize subsystems */
@@ -63,6 +68,8 @@ int main(int argc, char **argv)
 	// delay wpad_init after second reloadIOS
 	dbg_printf("Fat Mount SD\n");
 	Fat_MountSDHC();
+
+	//save_dip();
 
 	/* Load configuration */
 	dbg_printf("CFG Load\n");
@@ -73,6 +80,7 @@ int main(int argc, char **argv)
 		usleep(300000);
 		ret = ReloadIOS(0, 0);
 		usleep(300000);
+		printf("\n");
 	}
 
 	/* Check if Custom IOS is loaded */

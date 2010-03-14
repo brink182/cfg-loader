@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
-"PO-Revision-Date: 2010-02-28 07:50+0800\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
+"PO-Revision-Date: 2010-03-03 18:30+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -58,10 +58,10 @@ msgid ".dol too small"
 msgstr ".dol 太小"
 
 msgid "< ASC  >"
-msgstr ""
+msgstr "< 遞增 >"
 
 msgid "< DESC >"
-msgstr ""
+msgstr "< 遞減 >"
 
 msgid "< DOWNLOAD >"
 msgstr "< 下載 >"
@@ -526,9 +526,6 @@ msgstr "FAT32 掛載:"
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: 配置錯誤 %p %p %p"
 
-msgid "FAT: fallback to old method"
-msgstr "FAT: 使用回舊的方法"
-
 #, c-format
 msgid "FATAL: alloc grid(%d)"
 msgstr "嚴重錯誤: 配置資料格(%d)"
@@ -573,7 +570,7 @@ msgid "Found %s Cover"
 msgstr "找到 %s 的封面"
 
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 msgid "Game Options"
 msgstr "遊戲選項"
@@ -605,7 +602,7 @@ msgid "Hold button B to cancel."
 msgstr "按住按鈕 B 取消."
 
 msgid "Hook Type:"
-msgstr "Ocarina 攔截類型:"
+msgstr "攔截類型:"
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -1186,9 +1183,6 @@ msgstr "開始這個遊戲?"
 msgid "Strategy"
 msgstr "戰略"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "切換到 IOS222 的 FAT 支援."
-
 msgid "Theme:"
 msgstr "主題:"
 
@@ -1328,11 +1322,11 @@ msgid "cover"
 msgstr "封面"
 
 msgid "delete"
-msgstr ""
+msgstr "刪除"
 
 #, c-format
 msgid "dest: %p - %p"
-msgstr ""
+msgstr "接收: %p - %p"
 
 #, c-format
 msgid "domain %s could not be resolved"
@@ -1350,7 +1344,7 @@ msgid "for 1 player"
 msgstr "單人遊戲"
 
 msgid "format"
-msgstr ""
+msgstr "格式化"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
@@ -1401,3 +1395,9 @@ msgstr "無法開啟 Wii 光碟"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
+
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT: 使用回舊的方法"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "切換到 IOS222 的 FAT 支援."

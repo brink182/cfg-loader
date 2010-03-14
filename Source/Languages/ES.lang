@@ -2,13 +2,13 @@
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -529,9 +529,6 @@ msgstr "Montar FAT32: "
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOC ERROR %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT: retroceso al método antiguo"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -1193,9 +1190,6 @@ msgstr "¿Iniciar este juego?"
 msgid "Strategy"
 msgstr "Estrategia"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "Cambiar a IOS222 para soporte de FAT."
-
 msgid "Theme:"
 msgstr "Tema:"
 
@@ -1424,6 +1418,9 @@ msgstr "usado: %p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "Descargando las Portadas %s"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT: retroceso al método antiguo"
+
 #~ msgid "Missing"
 #~ msgstr "Faltantes"
 
@@ -1432,3 +1429,6 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Tamaño: %d byte"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "Cambiar a IOS222 para soporte de FAT."

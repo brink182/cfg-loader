@@ -10,9 +10,9 @@
 
 #define VERSION_STR QUOTE(VERSION)
 
-#if defined(FAT_BUILD) && (FAT_BUILD == 1)
+#if defined(BUILD_222) && (BUILD_222 == 1)
 
-   #define CFG_VERSION_STR VERSION_STR"-fat" 
+   #define CFG_VERSION_STR VERSION_STR"-222" 
    #define DEFAULT_IOS_IDX CFG_IOS_222_MLOAD 
    #define CFG_DEFAULT_PARTITION "FAT1" 
    #define CFG_HIDE_HDDINFO 1 
@@ -22,7 +22,8 @@
    #define CFG_VERSION_STR VERSION_STR
    #define DEFAULT_IOS_IDX CFG_IOS_249 
    #define CFG_DEFAULT_PARTITION "WBFS1" 
-   #define CFG_HIDE_HDDINFO 0 
+   //#define CFG_HIDE_HDDINFO 0 
+   #define CFG_HIDE_HDDINFO 1 
 
 #endif 
 #endif 

@@ -472,9 +472,11 @@ void Gui_DrawIntro(void)
 	void *img_buf = memalign(32, rmode->fbWidth * rmode->xfbHeight * 4);
 	if (!img_buf) return;
 	Gui_DecodePNG_scale_to(ctx, img_buf, rmode->fbWidth, rmode->xfbHeight);
+	PNGU_ReleaseImageContext(ctx);
+	ctx = NULL;
+	//
 	VIDEO_WaitVSync();
 	Video_DrawRGBA(0, 0, img_buf, rmode->fbWidth, rmode->xfbHeight);
-
 	Video_AllocBg();
 	memcpy(bg_buf_rgba, img_buf, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 4);
 	memcpy(bg_buf_ycbr, _Video_GetFB(-1), BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
@@ -484,7 +486,7 @@ void Gui_DrawIntro(void)
 	Con_Clear();
 	int i, x, y;
 	x = (640-32*2)/8 - 10; // 62
-	y = (480-16*2)/16 - 2; // 26
+	y = (480-16*2)/16 - 3; // 25
 	for (i=0;i<y;i++) printf("\n");
 	printf("%*s", x, "");
 	printf("v%s\n", CFG_VERSION);
@@ -2057,7 +2059,10 @@ extern int action_alpha;
 
 int Gui_DoAction(int action)
 {
+	if (action & CFG_BTN_REMAP) return 0; 
 	switch(action) {
+		case CFG_BTN_NOTHING:
+			return 0;
 		case CFG_BTN_OPTIONS: 
 		case CFG_BTN_GLOBAL_OPS:
 			return !CFG.disable_options;
@@ -2076,7 +2081,7 @@ int Gui_DoAction(int action)
 		case CFG_BTN_HBC:
 			//exiting = true;
 			__console_disable = 1;
-			return 1;
+			return -1;
 		case CFG_BTN_SCREENSHOT:
 			{ 
 				char fn[200];
@@ -2151,7 +2156,13 @@ int Gui_DoAction(int action)
 			return 0;
 
 		default:
-			return 0;
+			// Magic Word or Channel
+			if ((action & 0xFF) < 'a') {
+				__console_disable = 1;
+				return -1;
+			} else {
+				return 1;
+			}
 	}
 }
 
@@ -2513,8 +2524,9 @@ int Gui_Mode()
 		int i;
 
 		for (i = 4; i < MAX_BUTTONS; i++) {
-			if ((buttons & buttonmap[MASTER][i]) && Gui_DoAction(*(&CFG.button_M + (i - 4)))) {
-				if (game_select >= 0) gameSelected = game_select;
+			if ((buttons & buttonmap[MASTER][i]) && (ret = Gui_DoAction(*(&CFG.button_M + (i - 4))))) {
+				if (ret < 0) exiting = true;
+				else if (game_select >= 0) gameSelected = game_select;
 				goto return_to_console;
 			}
 		}

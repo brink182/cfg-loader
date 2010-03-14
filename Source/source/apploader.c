@@ -298,7 +298,8 @@ s32 Apploader_Run(entry_point *entry)
 	/* Initialize apploader */
 	appldr_init(__noprint);
 
-	if (CFG.ios_yal) printf(".");
+	//if (CFG.ios_yal)
+	printf(".");
 	for (;;) {
 		void *dst = NULL;
 		s32   len = 0, offset = 0;
@@ -327,7 +328,8 @@ s32 Apploader_Run(entry_point *entry)
 
 		/* Read data from DVD */
 		WDVD_Read(dst, len, (u64)(offset << 2));
-		if (CFG.ios_yal) printf(".");
+		//if (CFG.ios_yal)
+		printf(".");
 
 		#if DELAY_PATCH
 		// From NeoGamma: delay patches after load complete
@@ -368,7 +370,8 @@ s32 Apploader_Run(entry_point *entry)
 
 	/* Set entry point from apploader */
 	*entry = appldr_final();
-	if (CFG.ios_yal) printf("\n\n");
+	//if (CFG.ios_yal)
+	printf("\n\n");
 	
 	#if DELAY_PATCH
 	// delayed patching (NeoGamma)

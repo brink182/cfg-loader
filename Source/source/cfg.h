@@ -12,9 +12,9 @@
 #define CFG_IOS_222_MLOAD 1
 #define CFG_IOS_223_MLOAD 2
 #define CFG_IOS_224_MLOAD 3
-#define CFG_IOS_222_YAL   5
-#define CFG_IOS_223_YAL   6
-#define CFG_IOS_250       7
+#define CFG_IOS_222_YAL   4
+#define CFG_IOS_223_YAL   5
+#define CFG_IOS_250       6
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
@@ -63,10 +63,12 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_VIDEO_PATCH_ON  1
 #define CFG_VIDEO_PATCH_ALL 2
 
-#define CFG_HOME_REBOOT 0
-#define CFG_HOME_EXIT   1
-#define CFG_HOME_HBC    2
-#define CFG_HOME_SCRSHOT 3
+#define CFG_HOME_PRIILOADER 0x4461636F
+#define CFG_HOME_WII_MENU   0x50756E65
+#define CFG_HOME_REBOOT     0
+#define CFG_HOME_EXIT       1
+#define CFG_HOME_HBC        2
+#define CFG_HOME_SCRSHOT    3
 
 //char languages[11][22] =
 #define CFG_LANG_CONSOLE   0
@@ -117,7 +119,9 @@ extern int COVER_HEIGHT_FRONT;
 
 #define CFG_UNLOCK_PASSWORD "BUDAH12"
 
-#define CFG_BTN_REMAP   0x80
+#define CFG_BTN_PRIILOADER 0x4461636F
+#define CFG_BTN_WII_MENU   0x50756E65
+#define CFG_BTN_REMAP      0x80
 #define CFG_BTN_M (CFG_BTN_REMAP | NUM_BUTTON_MINUS)
 #define CFG_BTN_P (CFG_BTN_REMAP | NUM_BUTTON_PLUS)
 #define CFG_BTN_A (CFG_BTN_REMAP | NUM_BUTTON_A) 
@@ -125,26 +129,30 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_BTN_H (CFG_BTN_REMAP | NUM_BUTTON_HOME)
 #define CFG_BTN_1 (CFG_BTN_REMAP | NUM_BUTTON_1)
 #define CFG_BTN_2 (CFG_BTN_REMAP | NUM_BUTTON_2)
-#define CFG_BTN_OPTIONS    0
-#define CFG_BTN_GUI        1
-#define CFG_BTN_REBOOT     2
-#define CFG_BTN_EXIT       3
-#define CFG_BTN_SCREENSHOT 4
-#define CFG_BTN_INSTALL    5
-#define CFG_BTN_REMOVE     6
-#define CFG_BTN_MAIN_MENU  7
-#define CFG_BTN_GLOBAL_OPS 8
-#define CFG_BTN_FAVORITES  9
-#define CFG_BTN_BOOT_DISC 10
-#define CFG_BTN_THEME     11
-#define CFG_BTN_PROFILE   12
-#define CFG_BTN_UNLOCK    13
-#define CFG_BTN_HBC       14
-#define CFG_BTN_NOTHING   15
-#define CFG_BTN_BOOT_GAME 16
-#define CFG_BTN_SORT      17
-#define CFG_BTN_FILTER    18
-
+#define CFG_BTN_OPTIONS     0
+#define CFG_BTN_GUI         1
+#define CFG_BTN_REBOOT      2
+#define CFG_BTN_EXIT        3
+#define CFG_BTN_SCREENSHOT  4
+#define CFG_BTN_INSTALL     5
+#define CFG_BTN_REMOVE      6
+#define CFG_BTN_MAIN_MENU   7
+#define CFG_BTN_GLOBAL_OPS  8
+#define CFG_BTN_FAVORITES   9
+#define CFG_BTN_BOOT_DISC  10
+#define CFG_BTN_THEME      11
+#define CFG_BTN_PROFILE    12
+#define CFG_BTN_UNLOCK     13
+#define CFG_BTN_HBC        14
+#define CFG_BTN_NOTHING    15
+#define CFG_BTN_BOOT_GAME  16
+#define CFG_BTN_SORT       17
+#define CFG_BTN_FILTER     18
+/* Warning by Clipper: if the CFG_BTN_* list ever grows longer than 48 actions
+ * (bloody hell, if so), then start using 1 << 8, 2 << 8 and so on.  Any number
+ * in the alpha range could get confused with the channels and/or magic words,
+ * and 128-255 are reserved for button remapping. */
+ 
 extern char FAT_DRIVE[];
 extern char USBLOADER_PATH[];
 extern char APPS_DIR[];
@@ -357,6 +365,7 @@ struct CFG
 	int button_L;
 	int button_R;
 	//order importance ends here
+
 	int button_gui;
 	int button_opt;
 	int button_fav;

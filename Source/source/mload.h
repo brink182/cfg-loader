@@ -220,6 +220,8 @@ int mload_setw(const void * addr, u32 dat);
 int mload_seth(const void * addr, u16 dat);
 int mload_setb(const void * addr, u8 dat);
 
+int wanin_mload_get_IOS_base();
+
 #ifdef __cplusplus
   }
 #endif

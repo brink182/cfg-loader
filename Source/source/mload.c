@@ -484,3 +484,46 @@ int mload_get_version()
 	return ret;
 }
 
+
+
+/* IOS info structure */
+typedef struct {
+	/* Syscall base */
+	u32 syscall;
+
+	/* Module versions */
+	u32 dipVersion;
+	u32 esVersion;
+	u32 ffsVersion;
+	u32 iopVersion;
+} iosInfo;
+
+int wanin_mload_get_IOS_base()
+{
+	int ret;
+	iosInfo ios;
+	memset(&ios, 0, sizeof(ios));
+
+	if(mload_init()<0) return -1;
+	
+	ret= IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_IOS_BASE, ":d", &ios, sizeof(ios));
+	//printf("get_ios_base: %d %x\n", ret, ios.dipVersion);
+	if (ret == 0) {
+		switch(ios.dipVersion) {
+			case 0x48776F72: /* DIP: 07/11/08 14:34:26 */
+				return 37;
+
+			case 0x4888E14C: /* DIP: 07/24/08 20:08:44 */
+				return 38;
+
+			case 0x4A262AF5: /* DIP: 06/03/09 07:49:09 */
+				return 57;
+
+			case 0x492ACA9D: /* DIP: 11/24/08 15:39:09 */
+				return 60;
+		}
+	}
+	return ret;
+}
+
+

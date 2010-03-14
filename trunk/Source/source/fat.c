@@ -22,6 +22,7 @@
 #include "menu.h"
 #include "gettext.h"
 #include "cfg.h"
+#include "sys.h"
 
 
 /* Constants */
@@ -79,9 +80,12 @@ s32 Fat_MountSDHC(void)
 
 	_FAT_mem_init();
 
-	if (IOS_GetVersion() != 249 || IOS_GetRevision() >= 18) {
+	if ( (!is_ios_type(IOS_TYPE_WANIN)) ||
+		 (is_ios_type(IOS_TYPE_WANIN) && 
+		  (IOS_GetRevision() == 18 || IOS_GetRevision() > 100)) )
+	{
 		// sdhc device seems to work only on
-		// ios 249 rev <= 17
+		// ios 249 rev != 18
 		sdhc_mode_sd = 1;
 	}
 

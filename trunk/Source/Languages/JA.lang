@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -18,15 +18,15 @@ msgstr ""
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr "%.1fGB中%.1fGB空いています"
+msgstr "%.1fGB空いています(%.1fGB中)"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
-msgstr "%.2fGB (%c)中%.2f%% ETA: %d:%02d:%02d"
+msgstr "%.2f%%[%.2fGB中](%c)残り%d時間%02d分%02d秒"
 
 #, c-format
 msgid "%.2fGB copied in %d:%02d:%02d"
-msgstr "%d:%02d:%02d中%.2fGBコピーしました"
+msgstr "%d時間%02d分%02d秒で%.2fGBコピーしました"
 
 #, c-format
 msgid "%d available"
@@ -213,7 +213,7 @@ msgid "Developer"
 msgstr "開発者"
 
 msgid "Device:"
-msgstr "デバイス:"
+msgstr "使用デバイス:"
 
 msgid "Disc"
 msgstr "ディスク"
@@ -231,7 +231,7 @@ msgid "Download complete."
 msgstr "ダウンロードしました"
 
 msgid "Downloadable Content"
-msgstr "ダウンロード可能なコンテンツ"
+msgstr "追加データを受信可能"
 
 msgid "Downloading ALL MISSING covers"
 msgstr "すべての不足カバーをダウンロードしています"
@@ -525,9 +525,6 @@ msgstr "設定を読み込むデバイス:"
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOCエラー %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT:古いメソッドへの縮退運転"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -828,7 +825,7 @@ msgid "Not Found!"
 msgstr "見つかりません"
 
 msgid "Number of Online Players"
-msgstr "通信機能使用時のプレイ可能人数"
+msgstr "通信時のプレイ可能人数"
 
 msgid "Number of Players"
 msgstr "プレイ可能人数"
@@ -840,7 +837,7 @@ msgid "OK"
 msgstr "OK"
 
 msgid "OK!"
-msgstr "OK!"
+msgstr "完了しました"
 
 msgid "Ocarina (cheats):"
 msgstr "チート機能:"
@@ -873,7 +870,7 @@ msgid "On"
 msgstr "使用する"
 
 msgid "Online Content"
-msgstr "オンラインコンテンツ"
+msgstr "ネットワーク対応"
 
 msgid "Online Play"
 msgstr "ネットワークプレイ"
@@ -900,7 +897,7 @@ msgid "Out of memory"
 msgstr "メモリ外"
 
 msgid "Partition:"
-msgstr "領域:"
+msgstr "使用領域:"
 
 #, c-format
 msgid "Partition: %s not found!"
@@ -920,11 +917,11 @@ msgstr "ゲームディスクを入れてください…"
 
 #, c-format
 msgid "Press %s button for options."
-msgstr "設定のため%sボタンを押してください"
+msgstr "%sボタンで設定へ移動します"
 
 #, c-format
 msgid "Press %s button to %s."
-msgstr "%sボタンを%sのため押してください"
+msgstr "%sボタンで%sします"
 
 #, c-format
 msgid "Press %s button to apply codes."
@@ -1078,7 +1075,7 @@ msgstr "レース"
 
 #, c-format
 msgid "Rated %s"
-msgstr "レーティング %s"
+msgstr "レーティング[%s]"
 
 msgid "Read"
 msgstr "読み込み"
@@ -1186,9 +1183,6 @@ msgstr "このゲームを始めますか?"
 msgid "Strategy"
 msgstr "戦略ゲーム"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "FATへの対応のためIOS222に変更しています"
-
 msgid "Theme:"
 msgstr "テーマ:"
 
@@ -1270,7 +1264,7 @@ msgid "WBFS: %.1fGB free of %.1fGB"
 msgstr "使用容量: %.1fGB 空き容量: %.1fGB"
 
 msgid "Wheel"
-msgstr "ホイール"
+msgstr "Wiiハンドル"
 
 msgid "Wii Speak"
 msgstr "Wiiスピーク"
@@ -1332,7 +1326,7 @@ msgstr "削除"
 
 #, c-format
 msgid "dest: %p - %p"
-msgstr "デスト: %p - %p"
+msgstr "目的地: %p - %p"
 
 #, c-format
 msgid "domain %s could not be resolved"
@@ -1402,11 +1396,8 @@ msgstr "Wiiディスクを開けません"
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
 
-#~ msgid "Missing"
-#~ msgstr "不足"
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT:古いメソッドへの縮退運転"
 
-#~ msgid "Missing "
-#~ msgstr "不足 "
-
-#~ msgid "Size: %d byte"
-#~ msgstr "サイズ: %dバイト"
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "FATへの対応のためIOS222に変更しています"

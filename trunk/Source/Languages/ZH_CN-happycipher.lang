@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: KAVID <Kavid@Sina.com>\n"
 "Language-Team: Simplified Chinese (ZH_CN) <Kavid@Sina.com>\n"
@@ -525,9 +525,6 @@ msgstr "FAT32加载:"
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT:存储错误 %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT:恢复旧的方法"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -1184,9 +1181,6 @@ msgstr "开始此游戏？"
 msgid "Strategy"
 msgstr "策略"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "切换到IOS222以支持FAT分区"
-
 msgid "Theme:"
 msgstr "主题:"
 
@@ -1409,6 +1403,9 @@ msgstr "已使用: %p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "正在下载所有 %s 封面"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT:恢复旧的方法"
+
 #~ msgid "Missing"
 #~ msgstr "缺失"
 
@@ -1417,3 +1414,6 @@ msgstr "已使用: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "大小:%d 字节"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "切换到IOS222以支持FAT分区"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: KAVID <Kavid@Sina.com>\n"
 "Language-Team: Simplified Chinese (ZH_CN) <Kavid@Sina.com>\n"
@@ -526,9 +526,6 @@ msgstr "FAT32加载:"
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT:存储错误 %p %p %p"
 
-msgid "FAT: fallback to old method"
-msgstr "FAT:恢复旧的方法"
-
 #, c-format
 msgid "FATAL: alloc grid(%d)"
 msgstr "严重错误:存储grid(%d)"
@@ -605,7 +602,7 @@ msgid "Hold button B to cancel."
 msgstr "按B取消"
 
 msgid "Hook Type:"
-msgstr ""
+msgstr "挂钩类型："
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -862,7 +859,7 @@ msgid "Ocarina: Searching codes..."
 msgstr "金手指:搜索作弊码。。。"
 
 msgid "Ocarina: Too many codes"
-msgstr ""
+msgstr "金手指：选择作弊码过多"
 
 msgid "Off"
 msgstr "关闭"
@@ -1002,7 +999,7 @@ msgstr "按%s返回"
 
 #, c-format
 msgid "Press %s to save global settings"
-msgstr "按%s选择全局设置"
+msgstr "按%s保存全局设置"
 
 #, c-format
 msgid "Press %s to save options"
@@ -1184,9 +1181,6 @@ msgstr "开始此游戏？"
 msgid "Strategy"
 msgstr "策略"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "切换到IOS222支持FAT分区"
-
 msgid "Theme:"
 msgstr "主题:"
 
@@ -1277,7 +1271,7 @@ msgid "Wiimote"
 msgstr "手柄"
 
 msgid "Write Playlog:"
-msgstr ""
+msgstr "写游戏运行日志："
 
 #, c-format
 msgid "Writing to %s"
@@ -1409,6 +1403,9 @@ msgstr "已使用: %p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "正在下载所有 %s 封面"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT:恢复旧的方法"
+
 #~ msgid "Missing"
 #~ msgstr "补全"
 
@@ -1417,3 +1414,6 @@ msgstr "已使用: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "大小:%d 字节"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "切换到IOS222支持FAT分区"

@@ -20,6 +20,8 @@ s32 WDVD_GetCoverStatus(u32 *);
 s32 WDVD_SetWBFSMode(u32, u8 *);
 s32 WDVD_Eject(void);
 s32 WDVD_Read_Disc_BCA(void *buf);
+s32 WDVD_SetFragList(int device, void *fraglist, int size);
+s32 WDVD_hello(u32 *status);
 
 // yal
 int YAL_Set_OffsetBase(unsigned int Base);

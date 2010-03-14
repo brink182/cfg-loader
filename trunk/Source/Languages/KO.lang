@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-03-01 HO:MI+ZONE\n"
 "Last-Translator: sarangx <sarangx@naver.com>\n"
 "Language-Team: korea <sarangx@naver.com>\n"
@@ -525,9 +525,6 @@ msgstr "설정을 읽어 들일 장치:"
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOC 오류 %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT: 오래된 메서드에서 저하된 운전"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -1186,9 +1183,6 @@ msgstr "이 게임을 실행할까요?"
 msgid "Strategy"
 msgstr "전략 게임"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "FAT를 지원하기 위해 IOS222으로 변경합니다."
-
 msgid "Theme:"
 msgstr "테마:"
 
@@ -1402,6 +1396,9 @@ msgstr "Wii 디스크를 열 수 없습니다."
 msgid "used: %p - %p"
 msgstr "사용 중: %p - %p"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT: 오래된 메서드에서 저하된 운전"
+
 #~ msgid "Missing"
 #~ msgstr "없음"
 
@@ -1410,3 +1407,6 @@ msgstr "사용 중: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "크기: %d 바이트"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "FAT를 지원하기 위해 IOS222으로 변경합니다."

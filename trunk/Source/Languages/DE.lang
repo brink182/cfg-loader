@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <Geridian, WiiNero>\n"
@@ -529,9 +529,6 @@ msgstr "FAT32 mount: "
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOC ERROR %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT: verwende alte Methode"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -1193,9 +1190,6 @@ msgstr "Spiel starten?"
 msgid "Strategy"
 msgstr "Strategie"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "Wechsle auf IOS222 für FAT-Unterstützung."
-
 msgid "Theme:"
 msgstr "Theme:"
 
@@ -1421,6 +1415,9 @@ msgstr "benutzt: %p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "Lade aller %sCover herunter"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT: verwende alte Methode"
+
 #~ msgid "Missing"
 #~ msgstr "fehlende"
 
@@ -1429,3 +1426,6 @@ msgstr "benutzt: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Größe: %d byte"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "Wechsle auf IOS222 für FAT-Unterstützung."

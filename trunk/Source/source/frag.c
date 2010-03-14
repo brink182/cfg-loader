@@ -14,6 +14,7 @@
 #include "wpad.h"
 #include "cfg.h"
 #include "gettext.h"
+#include "wdvd.h"
 
 int _FAT_get_fragments (const char *path, _frag_append_t append_fragment, void *callback_data);
 
@@ -277,8 +278,10 @@ out:
 
 int set_frag_list(u8 *id)
 {
+	dbg_printf("set_frag_list %s\n", id);
 	if (wbfs_part_fs == PART_FS_WBFS) return 0;
 	if (frag_list == NULL) {
+		/*
 		if (wbfs_part_fs == PART_FS_FAT) {
 			// fall back to old fat method
 			printf(gt("FAT: fallback to old method"));
@@ -286,13 +289,29 @@ int set_frag_list(u8 *id)
 	   		return 0;
 		}
 		// ntfs has no fallback, return error
+		*/
 		return -1;
 	}
 
 	//Wpad_WaitButtonsCommon();
 	// (+1 for header which is same size as fragment)
 	int size = sizeof(Fragment) * (frag_list->num + 1);
-	int ret = USBStorage_WBFS_SetFragList(frag_list, size);
+	int ret;
+	DCFlushRange(frag_list, size);
+	if (CFG.ios_mload) {
+		ret = USBStorage_WBFS_SetFragList(frag_list, size);
+	} else {
+		//USBStorage_Deinit();
+		ret = WDVD_SetFragList(wbfsDev, frag_list, size);
+	}
+	dbg_printf("set_frag: %d\n", ret);
+	
+	/*
+	int x = 66;
+	ret = WDVD_hello(&x);
+	Wpad_WaitButtonsCommon();
+	*/
+
 	if (ret) {
 		printf("set_frag: %d\n", ret);
 		return ret;
@@ -302,7 +321,11 @@ int set_frag_list(u8 *id)
 	// verify id matches
 	char discid[8];
 	memset(discid, 0, sizeof(discid));
-	ret = USBStorage_WBFS_Read(0, 6, discid);
+	if (CFG.ios_mload) {
+		ret = USBStorage_WBFS_Read(0, 8, discid);
+	} else {
+		ret = WDVD_UnencryptedRead(discid, 8, 0);
+	}
 	//usb_debug_dump(0);
 	//printf("r:%d id:%s\n", ret, discid);
 	if (memcmp(id, discid, 6) != 0) {
@@ -313,6 +336,12 @@ int set_frag_list(u8 *id)
 		Wpad_WaitButtonsCommon();
 		return -1;
 	}
+	/*
+	else {
+		printf(gt("ID match: [%.6s] [%.6s]"), id, discid);
+		printf("\n");
+	}
+	*/
 	return 0;
 }
 

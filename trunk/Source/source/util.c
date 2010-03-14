@@ -320,6 +320,7 @@ int map_ufont(int c)
 	return 0;
 }
 
+// FFx y AABB
 void hex_dump1(void *p, int size)
 {
 	char *c = p;
@@ -334,6 +335,7 @@ void hex_dump1(void *p, int size)
 	}	
 }
 
+// FF 40 41 AA BB | .xy..
 void hex_dump2(void *p, int size)
 {
 	int i = 0, j, x = 12;
@@ -353,6 +355,7 @@ void hex_dump2(void *p, int size)
 	}	
 }
 
+// FF4041AABB 
 void hex_dump3(void *p, int size)
 {
 	int i = 0, j, x = 16;

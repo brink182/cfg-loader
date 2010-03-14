@@ -277,6 +277,7 @@ s32 Disc_Wait(void)
 
 s32 Disc_SetWBFS(u32 mode, u8 *id)
 {
+	dbg_printf("SetWBFS %d %s\n", mode, id);
 	int ret;
 	if (CFG.ios_mload) {
 		u32 part = 0;
@@ -318,6 +319,9 @@ s32 Disc_SetWBFS(u32 mode, u8 *id)
 	}
 	if (CFG.ios_yal) {
 		return YAL_Enable_WBFS(id);
+	}
+	if (mode && wbfs_part_fs) {
+		return set_frag_list(id);
 	}
 	/* Set WBFS mode */
 	return WDVD_SetWBFSMode(mode, id);
@@ -394,9 +398,9 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 
 	insert_bca_data();
 
-	if (CFG.ios_yal) {
+	//if (CFG.ios_yal) {
 		printf(gt("Loading ..."));
-	}
+	//}
 
 	util_clear();
 

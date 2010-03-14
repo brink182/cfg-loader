@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -525,9 +525,6 @@ msgstr "FAT32 mount: "
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOC FOUT %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT: terug naar oude methode"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -1189,9 +1186,6 @@ msgstr "Spel starten?"
 msgid "Strategy"
 msgstr "Strategie"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "Schakel over op IOS222 voor FAT ondersteuning."
-
 msgid "Theme:"
 msgstr "Thema:"
 
@@ -1420,6 +1414,9 @@ msgstr "gebruikt: %p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "Alle %s Hoesjes downloaden"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT: terug naar oude methode"
+
 #~ msgid "Missing"
 #~ msgstr "Ontbreekt"
 
@@ -1428,3 +1425,6 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Grootte: %d byte"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "Schakel over op IOS222 voor FAT ondersteuning."

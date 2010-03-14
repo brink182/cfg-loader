@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-28 13:13+0100\n"
+"POT-Creation-Date: 2010-03-09 20:04+0100\n"
 "PO-Revision-Date: 2010-02-23 23:32-0300\n"
 "Last-Translator: mangojambo <mangojambo@gmail.com>\n"
 "Language-Team: BRAZILIAN PORTUGUESE \n"
@@ -530,9 +530,6 @@ msgstr "Montar FAT32: "
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOC ERROR %p %p %p"
-
-msgid "FAT: fallback to old method"
-msgstr "FAT: retroceder ao método antigo"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
@@ -1194,9 +1191,6 @@ msgstr "Iniciar este jogo?"
 msgid "Strategy"
 msgstr "Estratégia"
 
-msgid "Switching to IOS222 for FAT support."
-msgstr "Trocar a IOS222 para suporte de FAT."
-
 msgid "Theme:"
 msgstr "Tema:"
 
@@ -1425,6 +1419,9 @@ msgstr "usado: %p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "Baixando todas Capas %s"
 
+#~ msgid "FAT: fallback to old method"
+#~ msgstr "FAT: retroceder ao método antigo"
+
 #~ msgid "Missing"
 #~ msgstr "Em Falta"
 
@@ -1433,3 +1430,6 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Tamanho: %d byte"
+
+#~ msgid "Switching to IOS222 for FAT support."
+#~ msgstr "Trocar a IOS222 para suporte de FAT."

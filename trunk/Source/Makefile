@@ -15,8 +15,9 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	54
+VERSION		:=	55
 RELEASE		:=	devel
+# to override RELEASE use: make announce RELEASE=beta
 TARGET		:=	cfg$(VERSION)
 BUILD		:=	build
 SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip
@@ -30,17 +31,17 @@ GAUTH		?=  -u username -w passwd
 # options for code generation
 #---------------------------------------------------------------------------------
 
-FAT_BUILD	:=	0
-ifeq ($(FAT_BUILD),1)
-	BUILD	:=	build_fat
-	TARGET		:=	cfg$(VERSION)-fat
+BUILD_222	:=	0
+ifeq ($(BUILD_222),1)
+	BUILD	:=	build_222
+	TARGET		:=	cfg$(VERSION)-222
 endif
-BUILD_FLAGS = -DFAT_BUILD=$(FAT_BUILD) -DVERSION=$(VERSION)
+BUILD_FLAGS = -DBUILD_222=$(BUILD_222) -DVERSION=$(VERSION)
 #"-g" tells the compiler to include support for the debugger
 #"-Wall" tells it to warn us about all suspicious-looking code
 DEBUG_OPT	= -Os
 #DEBUG_OPT	= -g
-CFLAGS	= $(DEBUG_OPT) -Wall $(MACHDEP) $(INCLUDE) $(BUILD_FLAGS)
+CFLAGS	= $(DEBUG_OPT) -Wall $(MACHDEP) $(INCLUDE) $(BUILD_FLAGS) $(DEFINES)
 CXXFLAGS	=	$(CFLAGS)
 
 # start address:
@@ -124,8 +125,8 @@ $(BUILD):
 	@echo Building $(TARGET) $(BUILD_FLAGS)
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-fat:
-	@make --no-print-directory FAT_BUILD=1
+222:
+	@make --no-print-directory BUILD_222=1
 
 #---------------------------------------------------------------------------------
 lang:
@@ -138,14 +139,14 @@ lang:
 all:
 	@echo Make All
 	@make --no-print-directory build
-	@make --no-print-directory FAT_BUILD=1
+	@make --no-print-directory BUILD_222=1
 	@make --no-print-directory lang
 
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
-	@rm -fr $(BUILD)_fat $(OUTPUT)-fat.elf $(OUTPUT)-fat.dol
+	@rm -fr $(BUILD)_222 $(OUTPUT)-222.elf $(OUTPUT)-222.dol
 
 #---------------------------------------------------------------------------------
 run: 
@@ -157,7 +158,7 @@ run:
 
 DATE=$(shell date +%F)
 SIZE=$(shell stat -c %s cfg$(VERSION).dol 2>/dev/null)
-SIZE_FAT=$(shell stat -c %s cfg$(VERSION)-fat.dol 2>/dev/null)
+SIZE_222=$(shell stat -c %s cfg$(VERSION)-222.dol 2>/dev/null)
 
 define ANNOUNCE_SH
 CHANGES=`sed -n '/cfg v'$(VERSION)' /,/cfg v/{/cfg v/!p}' README-CFG.txt`
@@ -170,15 +171,14 @@ date = $(DATE)
 url = http://cfg-loader.googlecode.com/files/cfg$(VERSION).dol
 $$CHANGES
 
-release = $(VERSION)-fat ($(RELEASE))
-size = $(SIZE_FAT)
+release = $(VERSION)-222 ($(RELEASE))
+size = $(SIZE_222)
 date = $(DATE)
-url = http://cfg-loader.googlecode.com/files/cfg$(VERSION)-fat.dol
+url = http://cfg-loader.googlecode.com/files/cfg$(VERSION)-222.dol
 Same as $(VERSION) but with different
 default options:
   ios=222-mload
   partition=FAT1
-  hide_hddinfo=1
 
 END
 echo "===== forum ====="
@@ -186,7 +186,7 @@ cat << END
 
 [b]cfg v$(VERSION) ($(RELEASE))[/b]
 [url="http://cfg-loader.googlecode.com/files/cfg$(VERSION).dol"]cfg$(VERSION).dol[/url]
-[url="http://cfg-loader.googlecode.com/files/cfg$(VERSION)-fat.dol"]cfg$(VERSION)-fat.dol[/url]
+[url="http://cfg-loader.googlecode.com/files/cfg$(VERSION)-222.dol"]cfg$(VERSION)-222.dol[/url]
 [url="http://cfg-loader.googlecode.com/files/lang$(VERSION).zip"]lang$(VERSION).zip[/url]
 (or online update)
 [pre]Changes:
@@ -202,8 +202,8 @@ export ANNOUNCE_SH
 announce:
 	@echo "$$ANNOUNCE_SH" | sh
 
-DOLS := cfg$(VERSION)-fat.dol cfg$(VERSION).dol
-ELFS := cfg$(VERSION)-fat.elf cfg$(VERSION).elf
+DOLS := cfg$(VERSION)-222.dol cfg$(VERSION).dol
+ELFS := cfg$(VERSION)-222.elf cfg$(VERSION).elf
 BINS := $(ELFS) $(DOLS)
 
 upload:

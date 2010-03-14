@@ -130,6 +130,15 @@ void Sys_HBC()
 	exit(0);
 }
 
+void Sys_Channel(u32 channel)
+{
+		int ret = 0;
+	prep_exit();
+	WII_Initialize();
+	//printf("%d\nJODI\n",ret); sleep(1);
+    ret = WII_LaunchTitle(TITLE_ID(0x00010001,channel));
+}
+
 
 // mload from uloader by Hermes
 
@@ -270,9 +279,15 @@ static char mload_ver_str[40];
 void mk_mload_version()
 {
 	mload_ver_str[0] = 0;
-	if (CFG.ios_mload) {
+	if (CFG.ios_mload
+			|| (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) )
+	{
 		if (IOS_GetRevision() >= 4) {
-			sprintf(mload_ver_str, "Base: IOS%d ", mload_get_IOS_base());
+			if (is_ios_type(IOS_TYPE_WANIN)) {
+				sprintf(mload_ver_str, "Base: IOS%d ", wanin_mload_get_IOS_base());
+			} else {
+				sprintf(mload_ver_str, "Base: IOS%d ", mload_get_IOS_base());
+			}
 		}
 		if (IOS_GetRevision() > 4) {
 			int v, s;
@@ -288,7 +303,8 @@ void mk_mload_version()
 
 void print_mload_version()
 {
-	if (CFG.ios_mload) {
+	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
+	if (CFG.ios_mload || new_wanin) {
 		printf("%s", mload_ver_str);
 	}
 }
@@ -496,7 +512,7 @@ int ReloadIOS(int subsys, int verbose)
 	int usb_m = fat_usb_mount;
 
 	if (CURR_IOS_IDX == CFG.game.ios_idx
-		&& CURR_IOS_IDX == CFG_IOS_249) return 0;
+		&& is_ios_type(IOS_TYPE_WANIN)) return 0;
 	
 	if (verbose) {
 		printf_("IOS(%d) ", CFG.ios);
@@ -535,7 +551,7 @@ int ReloadIOS(int subsys, int verbose)
 		return 0;
 	}
 
-	mload_ver_str[0] = 0;
+	*mload_ver_str = 0;
 
 	if (CFG.ios_mload) {
 		load_ext_ehc_module(verbose);
@@ -584,6 +600,11 @@ int ReloadIOS(int subsys, int verbose)
 			goto err;
 		}
 	}
+
+	if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) {
+		load_dip_249();
+	}
+
 	if (verbose) {
 		printf(".");
 		if (CFG.ios_mload) {
@@ -692,5 +713,128 @@ void insert_bca_data()
 	mload_close();
 }
 
+
+// WANINKOKO DIP PLUGIN
+
+#if 0
+void save_dip()
+{
+	//int dip_buf[0x5000/sizeof(int)];
+	void *dip_buf = memalign(32,0x5000);
+	int dip_size = 4000;
+	printf("saving dip\n");
+	if(mload_init()<0) {
+		printf("mload init\n");
+		sleep(3);
+		return;
+	}
+	u32 base;
+	int size;
+	mload_get_load_base(&base, &size);
+	printf("base: %08x %x\n", base, size);
+	printf("mseek\n");
+	mload_seek(0x13800000, SEEK_SET);
+	memset(dip_buf, 0, sizeof(dip_buf));
+	printf("mread\n");
+	mload_read(dip_buf, dip_size);
+	printf("fopen\n");
+	FILE *f = fopen("sd:/dip.bin", "wb");
+	if (!f) {
+		printf("fopen\n");
+		sleep(3);
+		return;
+	}
+	printf("fwrite\n");
+	fwrite(dip_buf, dip_size, 1, f);
+	fclose(f);
+	printf("dip saved\n");
+	mload_close();
+	sleep(3);
+	printf("unmount\n");
+	Fat_UnmountSDHC();
+	printf("exit\n");
+	exit(0);
+}
+
+void try_hello()
+{
+	int ret;
+	printf("mload init\n");
+	if(mload_init()<0) {
+		sleep(3);
+		return;
+	}
+	u32 base;
+	int size;
+   	mload_get_load_base(&base, &size);
+	printf("base: %08x %x\n", base, size);
+	mload_close();
+	printf("disc init:\n");
+	ret = Disc_Init();
+	printf("= %d\n", ret);
+	u32 x = 6;
+	s32 WDVD_hello(u32 *status);
+	ret = WDVD_hello(&x);
+	printf("hello: %d %x %d\n", ret, x, x);
+	ret = WDVD_hello(&x);
+	printf("hello: %d %x %d\n", ret, x, x);
+	sleep(1);
+	//printf("exit\n");
+	//exit(0);
+}
+#endif
+
+#ifndef size_dip249
+#define size_dip249 5276
+#endif
+
+extern u8 dip_plugin_249[size_dip249];
+
+
+void load_dip_249()
+{
+	int ret;
+	if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18)
+	{
+		printf("[FRAG]");
+		if(mload_init()<0) {
+			printf(" ERROR\n");
+			return;
+		}
+		/*
+		u32 base;
+		int size;
+		mload_get_load_base(&base, &size);
+		printf("base: %08x %x\n", base, size);
+		*/
+		ret = mload_module(dip_plugin_249, size_dip249);
+		//printf("load mod: %d\n", ret);
+		mk_mload_version();
+		mload_close();
+		//printf("OK\n");
+	}
+}
+
+
+int get_ios_type()
+{
+	switch (IOS_GetVersion()) {
+		case 249:
+		case 250:
+			return IOS_TYPE_WANIN;
+		case 222:
+		case 223:
+			if (IOS_GetRevision() == 1)
+				return IOS_TYPE_KWIIRK;
+		case 224:
+			return IOS_TYPE_HERMES;
+	}
+	return IOS_TYPE_UNK;
+}
+
+int is_ios_type(int type)
+{
+	return (get_ios_type() == type);
+}
 
 

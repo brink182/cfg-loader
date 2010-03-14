@@ -93,11 +93,17 @@ ehcmodule_frag:
 	.globl introImg
 	.balign 32
 introImg:
-	.incbin "../data/intro"
+	.incbin "../data/intro2"
 
 ##; commented out
 #;	.globl opening_bnr
 #;	.balign 32
 #;opening_bnr:
 #;	.incbin "../data/opening_bnr"
+
+	.globl dip_plugin_249
+	.balign 32
+dip_plugin_249:
+	.incbin "../data/dip_plugin_249"
+
 

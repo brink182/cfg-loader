@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 56b (beta)
+size = 1436288
+date = 2010-03-14
+url = http://cfg-loader.googlecode.com/files/cfg56b.dol
+Sam & Max fix restored for disc.
+CSI: Deadly Intent working from disc
+Alt dol menu with scroll
+Gui text outline fix
+Minor cleanups
+
+release = 56b-222 (beta)
+size = 1436288
+date = 2010-03-14
+url = http://cfg-loader.googlecode.com/files/cfg56b-222.dol
+Same as 56b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 56a (alpha)
 size = 1450560
 date = 2010-03-13

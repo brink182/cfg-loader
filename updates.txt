@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 56b2 (beta2)
+size = 1436672
+date = 2010-03-16
+url = http://cfg-loader.googlecode.com/files/cfg56b2.dol
+Alt dol disc plus enhancements/bugfixes
+Fixed sorting of long multibyte titles
+
+release = 56b2-222 (beta2)
+size = 1436672
+date = 2010-03-16
+url = http://cfg-loader.googlecode.com/files/cfg56b2-222.dol
+Same as 56b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 56b (beta)
 size = 1436288
 date = 2010-03-14

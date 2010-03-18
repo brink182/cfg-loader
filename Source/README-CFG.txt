@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v55
+Configurable SD/USB Loader v56
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -60,21 +60,25 @@ to store configuration and covers)
 Useful links:
 -------------
 
+Step-by-step installation instructions for Wii Homebrew and Cfg:
+http://gwht.wikidot.com
+
 The forwarder can be downloaded from here:
-http://www.yafaze.com/wii/files/USB_LOADER_FORWARDER.rar
+http://gbatemp.net/index.php?showtopic=147638&st=5745&p=2420653&#entry2420653
 And installed with the WAD Manager.
 
 Game cover images can be downloaded from here:
-http://gbatemp.net/index.php?showtopic=147862&st=0
+http://wiitdb.com
 
 Updated titles.txt can found here:
-http://wiki.gbatemp.net/wiki/index.php/USB_Loader_titles.txt
+http://wiitdb.com/titles.txt
 
 
-File locations:
+Default File locations:
 ---------------
 
   config file:     sd:/usb-loader/config.txt
+  settings file:   sd:/usb-loader/settings.cfg
   background image:sd:/usb-loader/background.png
   covers:
     2d:            sd:/usb-loader/covers/*.png
@@ -97,6 +101,7 @@ File locations:
 
   .wip files:      sd:/usb-loader/GAMEID.wip
   .bca files:      sd:/usb-loader/GAMEID.bca
+  .wdm files:      sd:/usb-loader/GAMEID.wdm
 
   Games on FAT/NTFS
     :              usb:/wbfs/GAMEID.wbfs
@@ -395,7 +400,7 @@ Config file:
 #   (color values: 0-15)
 #   Dark:  0=black, 1=red, 2=green, 3=yellow, 4=blue, 5=purple, 6=cyan, 7=bright grey
 #   Bright: 8=grey, 9=red, 10=green, 11=yellow, 12=blue, 13=purple, 14=cyan, 15=white
-#   see: http://img6.imageshack.us/img6/720/colorchart.png
+#   see: http://www.silverpoint.com/leo/color/c-16.gif (0 at top to 15 at bottom)
 #
 # covers_coords = x,y
 # wcovers_coords = x,y (widescreen)
@@ -406,9 +411,9 @@ Config file:
 #   These options control the look of main menu.
 #
 # simple = [0], 1
-#   Using the simple option in a theme will only affect the hide_* options
+#   Using the simple option in a theme will only affect the hide_footer option
 #   it will not change the disable_* options. Use the simple option in the
-#   global config.txt to change also the disable_* options.
+#   global config.txt to change the disable_* options as well.
 #
 # colors = [dark], bright, mono
 #   will select a prefedines set of colors for a dark or bright background
@@ -589,6 +594,8 @@ Config file:
 #   with proper values: {REGION}, {WIDTH}, {HEIGHT}, {ID3}, {ID4}, {ID6}, {ID}, {CC}, {PUB}
 #   {ID} will find automatically the correct ID by trying ID6, ID4 and ID3
 #   Note: {WIDTH} and {HEIGHT} don't work well if download_all_styles is enabled
+#   {PUB} os the last two digits of the ID and can be used to get covers from other
+#   regions.  E.g., replace {ID6} with {ID3}P{PUB} to look for PAL covers.
 #
 #   Multiple URLS can be specified for cover_url_* options
 #   They can be in the same line separated with space, example:
@@ -637,12 +644,12 @@ Config file:
 # titles_url = http://wiitdb.com/titles.txt?LANG={DBL}
 #   Url for updating titles.txt
 #
-#
 # device = [ask], usb, sdhc
 #   Specifies which device to use when starting the loader
 #
 # partition = [WBFS1], ...WBFS4, FAT1, ...FAT9, NTFS1, ...NTFS9, ask
 #   Specifies which partition to use when starting the loader
+#   Note: the -222 version defaults to FAT1 instead.
 #
 # simple = [0], 1
 #   (enable/disable simple/childsafe mode)
@@ -667,7 +674,7 @@ Config file:
 # unlock_password = [BUDAH12]
 #   Set the password for admin unlock
 #
-# install_partitions = [all], only_game, 1:1
+# install_partitions = [only_game], all, 1:1
 #   controls which partitions from DVD are installed to HDD
 #
 # fat_split_size = [4], 2
@@ -736,11 +743,12 @@ Config file:
 # clock_style = [24], 12, 12am, 0
 #   Set clock style, 0 will disable clock
 #
-# sort_ignore = A,An,The
+# sort_ignore = [A,An,The], ...
 #   Which starting words to ignore when sorting titles
+#   Separate words via commas, do not incude the square brackets
 #   Set sort_ignore = 0 for old sort method - to not ignore anything
 #
-# debug = [0], 1, ...
+# debug = [0], 1, 8
 #   Display some diagnostic messages when started
 #   Benchmark mode with debug = 8 and start or install a game
 #
@@ -762,7 +770,7 @@ Config file:
 #   URL to download database from.
 #
 # db_language = [AUTO], EN, JA, German, etc
-#   Language to use for the database. If invalid or not able to be
+#   Language to use for the {DBL} tag. If invalid or not able to be
 #   displayed by the loader this will default to English.
 #   Both country codes (EN) and languages (English) are valid.
 #
@@ -796,7 +804,7 @@ Config file:
 #   To use descending add "-desc" to the option.
 #     ie: sort = players-desc
 #
-# translation = [AUTO], EN, custom, etc
+# translation = [AUTO], EN, custom, etc.
 #   Current auto values: JA, EN, DE, FR, ES, IT, NL, ZH, ZH, KO
 #   Any filename is supported as long as a corresponding translation 
 #   file exists
@@ -841,12 +849,12 @@ Config file:
 #   Country Patch for better compatibility with some games
 #
 # fix_002 = [0], 1
-#   This is the Anti 002 fix.
+#   This is the Anti 002 fix.  It is not needed for new cIOSes (IOS249 rev14+)
 #
 # ios = [249], 222-mload, 223-mload, 224-mload, 222-yal, 223-yal, 250
 #   Select Custom IOS
 #   Note: 222-yal is for kwiirk's cIOS
-#   Note: 222-mload is for Hermes's cIOS
+#   Note: 222-mload is for Hermes's cIOS and is the default for the -222 version
 #   Note: a few seconds of delay when starting a game with custom ios is expected.
 #
 # block_ios_reload = [0], 1
@@ -895,7 +903,34 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
-07-03-2010 cfg v55 (release)
+18-03-2010 cfg v56 (release)
+
+ * omit false DL warning
+
+16-03-2010 cfg v56b2 (beta2)
+
+ * Choosing "Disc" from alt dol menu will prompt for
+   Disc Plus options on launch of game (choose for
+   Metroid Prime Trilogy to be asked which to play)
+ * Disc Plus bug fixes
+ * Fixed sorting of long multibyte titles (oggzee)
+  
+14-03-2010 cfg v56b (beta)
+
+ * Sam & Max fix restored for disc. (Clipper)
+   Gets CSI: Deadly Intent working from disc.
+ * Alt dol menu with scroll (Clipper)
+ * Gui text outline fix
+ * Minor intro update (pepxl)
+ * Minor cleanups
+
+13-03-2010 cfg v56a (alpha)
+
+ * Alt.dol disc plus (from NeoGamma R8.RC4 by WiiPower / tueidj)
+   .wdm files go to: sd:/usb-loader/GAMEID.wdm
+ * New intro (by pepxl)
+
+09-03-2010 cfg v55 (release)
 
  * No change
 

@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 56c (bugfix)
+size = 1436864
+date = 2010-04-06
+url = http://cfg-loader.googlecode.com/files/cfg56c.dol
+Bug fix for alt dol disc plus
+Minor cosmetic changes
+
+release = 56c-222 (bugfix)
+size = 1436864
+date = 2010-04-06
+url = http://cfg-loader.googlecode.com/files/cfg56c-222.dol
+Same as 56c but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 56 (release)
 size = 1436672
 date = 2010-03-18

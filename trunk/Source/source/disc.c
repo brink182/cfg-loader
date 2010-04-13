@@ -22,6 +22,7 @@
 #include "menu.h"
 #include "frag.h"
 #include "gettext.h"
+#include "dolmenu.h"
 
 #include "wpad.h"
 #define ALIGNED(x) __attribute__((aligned(x)))
@@ -46,7 +47,7 @@ int yal_Identify();
 #define        Bus_Speed		((u32*) 0x800000f8)
 #define        CPU_Speed		((u32*) 0x800000fc)
 
-void __Disc_SetLowMem(void)
+void __Disc_SetLowMem(bool dvd)
 {
 	/* Setup low memory */
 	*(vu32 *)0x80000030 = 0x00000000; // Arena Low
@@ -77,7 +78,8 @@ void __Disc_SetLowMem(void)
 	*(vu32*)0x80003190 = 0x00000000;
 	// Fix for Sam & Max (WiiPower)
 	// (only works if started from DVD)
-	//*(vu32*)0x80003184	= 0x80000000;	// Game ID Address
+	// Readded by Dr. Clipper
+	if (dvd) *(vu32*)0x80003184	= 0x80000000;	// Game ID Address
 
 	/* Flush cache */
 	DCFlushRange((void *)0x80000000, 0x3F00);
@@ -405,7 +407,7 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	util_clear();
 
 	/* Setup low memory */
-	__Disc_SetLowMem();
+	__Disc_SetLowMem(dvd);
 
 	// Select an appropiate video mode
 	__Disc_SelectVMode();
@@ -466,8 +468,10 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	__IOS_ShutdownSubsystems();
 	__exception_closeall();
 
+	*(u32*)0xCC003024 = dolparameter; /* Originally from tueidj */
+
 	appentrypoint = (u32)p_entry;
-	
+
 	// check if the codehandler is used - if Ocarina and/or debugger is used
 	if (CFG.game.ocarina || CFG.wiird)
 	{

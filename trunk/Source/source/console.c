@@ -83,8 +83,8 @@ const unsigned int color_table[] =
   0x000080FF,		// 34 normal blue
   0x800080FF,		// 35 normal magenta
   0x008080FF,		// 36 normal cyan
-  0xC0C0C0FF,		// 37 normal white
-  0x808080FF,		// 30 bright black
+  0xB0B0B0FF,		// 37 normal white
+  0x606060FF,		// 30 bright black
   0xFF0000FF,		// 31 bright red
   0x00FF00FF,		// 32 bright green
   0xFFFF00FF,		// 33 bright yellow

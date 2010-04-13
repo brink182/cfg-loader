@@ -1714,8 +1714,8 @@ void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, u32 
 		// + spread
 		__GRRLIB_Print1w(xpos-1, ypos-0, tex, outline, wtext);
 		__GRRLIB_Print1w(xpos+1, ypos-0, tex, outline, wtext);
+		__GRRLIB_Print1w(xpos-0, ypos-1, tex, outline, wtext);
 		__GRRLIB_Print1w(xpos-0, ypos+1, tex, outline, wtext);
-		__GRRLIB_Print1w(xpos+0, ypos+1, tex, outline, wtext);
 	}
 	__GRRLIB_Print1w(xpos, ypos, tex, color, wtext);
     GRRLIB_DrawTile_end(tex);

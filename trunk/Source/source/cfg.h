@@ -152,7 +152,12 @@ extern int COVER_HEIGHT_FRONT;
  * (bloody hell, if so), then start using 1 << 8, 2 << 8 and so on.  Any number
  * in the alpha range could get confused with the channels and/or magic words,
  * and 128-255 are reserved for button remapping. */
- 
+
+#define ALT_DOL_OFF  0
+#define ALT_DOL_SD   1
+#define ALT_DOL_DISC 2
+#define ALT_DOL_PLUS 3
+
 extern char FAT_DRIVE[];
 extern char USBLOADER_PATH[];
 extern char APPS_DIR[];

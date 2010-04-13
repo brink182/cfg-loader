@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -83,7 +83,7 @@ msgstr "すべて"
 msgid "All Games"
 msgstr "すべてのゲーム"
 
-msgid "Alt dol"
+msgid "Alt dol:"
 msgstr "代替dol"
 
 msgid "Alternative .dol:"
@@ -214,9 +214,6 @@ msgstr "開発者"
 
 msgid "Device:"
 msgstr "使用デバイス:"
-
-msgid "Disc"
-msgstr "ディスク"
 
 msgid "Done."
 msgstr "完了しました"
@@ -661,6 +658,9 @@ msgstr "言語:"
 msgid "Last Play Date"
 msgstr "最終プレイ日"
 
+msgid "Launch Methods"
+msgstr ""
+
 msgid "Load OK!"
 msgstr "読み込みました"
 
@@ -1010,10 +1010,6 @@ msgstr "%sボタンで設定を保存します"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "%sボタンで選択を保存します"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "%sボタンで選びます"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1396,8 +1392,17 @@ msgstr "Wiiディスクを開けません"
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "ディスク"
+
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT:古いメソッドへの縮退運転"
+
+#~ msgid "Press %s button to select"
+#~ msgstr "%sボタンで選びます"
+
+#~ msgid "Press %s to select"
+#~ msgstr "%sボタンで選びます"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "FATへの対応のためIOS222に変更しています"

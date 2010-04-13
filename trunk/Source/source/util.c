@@ -196,6 +196,38 @@ int mbs_len(char *s)
 	return count;
 }
 
+int mbs_len_valid(char *s)
+{
+	int count, n;
+	for (count = 0; *s; count++) {
+		n = mblen(s, 4);
+		if (n < 0) {
+			// invalid char, stop
+			break;
+		}
+		s += n;
+	}
+	return count;
+}
+
+char *mbs_copy(char *dest, char *src, int size)
+{
+	char *s;
+	int n;
+	strcopy(dest, src, size);
+	s = dest;
+	while (*s) {
+		n = mblen(s, 4);
+		if (n < 0) {
+			// invalid char, stop
+			*s = 0;
+			break;
+		}
+		s += n;
+	}
+	return dest;
+}
+
 bool mbs_trunc(char *mbs, int n)
 {
 	int len = mbs_len(mbs);
@@ -226,8 +258,10 @@ char *mbs_align(const char *str, int n)
 
 int mbs_coll(char *a, char *b)
 {
-	int lena = strlen(a);
-	int lenb = strlen(b);
+	//int lena = strlen(a);
+	//int lenb = strlen(b);
+	int lena = mbs_len_valid(a);
+	int lenb = mbs_len_valid(b);
 	wchar_t wa[lena+1];
 	wchar_t wb[lenb+1];
 	int wlen, i;

@@ -44,6 +44,7 @@
 #include "sort.h"
 #include "gettext.h"
 #include "playlog.h"
+#include "dolmenu.h"
 
 #define CHANGE(V,M) {V+=change; if(V>(M)) V=(M); if(V<0) V=0;}
 
@@ -409,8 +410,8 @@ bool check_dual_layer(u64 real_size, struct Game_CFG_2 *game_cfg)
 		return false;
 	}
 	// we are in 222 but cfg is 249, we can't know revision here
-	// so we'll just return true
-	return true;
+	// so we'll just return false
+	return false;
 }
 
 
@@ -876,7 +877,8 @@ int Menu_Views()
 		DefaultColor();
 
 		printf("\n");
-		printf_h(gt("Press %s to select"), (button_names[CFG.button_confirm.num]));
+		printf_h(gt("Press %s button to select."),
+				(button_names[CFG.button_confirm.num]));
 		printf("\n");
 		DefaultColor();
 		__console_flush(0);
@@ -939,6 +941,136 @@ int Menu_Game_Options() {
 	return Menu_Boot_Options(&gameList[gameSelected], 0);
 }
 
+void Menu_Alt_Dol(struct discHdr *header, struct Game_CFG *game_cfg, int allow_back)
+{
+	int i;
+	DOL_LIST dol_list;
+	struct Menu menu;
+	int num_opt;
+	int rows, cols, win_size;
+	CON_GetMetrics(&cols, &rows);
+	if ((win_size = rows-5) < 3) win_size = 3;
+
+	f32 size = 0.0;
+
+	WBFS_GameSize(header->id, &size);
+	WBFS_GetDolList(header->id, &dol_list);
+	load_dolmenu((char*)header->id);
+	int dm_num = dolmenubuffer ? dolmenubuffer[0].count : 0;
+	int dm_count = dm_num ? 1+dm_num : 0;
+	num_opt = ALT_DOL_DISC + 1 + dol_list.num + dm_count;
+	char active[num_opt];
+	
+	menu_init(&menu, num_opt);
+	
+	// find out current
+	if (game_cfg->alt_dol < ALT_DOL_DISC) {
+		menu.current = game_cfg->alt_dol;
+	} else if (game_cfg->alt_dol == ALT_DOL_DISC) {
+		if (allow_back)
+			menu.current = ALT_DOL_DISC;
+		else if (dm_num)
+			menu.current = ALT_DOL_DISC + 2 + dol_list.num;
+		else if (dol_list.num)
+			menu.current = ALT_DOL_DISC + 1;
+		else
+			menu.current = 0;
+
+		for (i=0; i<dol_list.num; i++) {
+			if (strcmp(game_cfg->dol_name, dol_list.name[i]) == 0) {
+				menu.current = ALT_DOL_DISC + 1 + i;
+				break;
+			}
+		}
+	} else {
+		// alt.dol plus
+		menu.current = dol_list.num + game_cfg->alt_dol + 1;
+	}
+
+	for (;;) {
+
+		menu_init_active(&menu, active, sizeof(active));
+		active[ALT_DOL_DISC + 1 + dol_list.num] = 0;
+		if (!allow_back) active[ALT_DOL_DISC] = 0;
+		Con_Clear();
+		FgColor(CFG.color_header);
+		printf_x(gt("Selected Game"));
+		printf(":");
+		printf(" (%.6s) (%.2f%s)\n", header->id, size, gt("GB"));
+		DefaultColor();
+		printf(" %s %s\n", CFG.cursor_space, __Menu_PrintTitle(get_title(header)));
+		FgColor(CFG.color_header);
+		printf_x(gt("Launch Methods"));
+		printf(":\n");
+		DefaultColor();
+
+		menu_begin(&menu);
+		menu_window_begin(&menu, win_size, num_opt);
+		if (menu_window_mark(&menu)) {
+			if (allow_back)
+				printf("%s\n", gt("Off"));
+			else
+				printf("main.dol\n");
+		}
+		if (menu_window_mark(&menu))
+			printf("SD\n");
+		if (menu_window_mark(&menu))
+			printf("Disc\n");
+		for (i=0; i<dol_list.num; i++) {
+			if (menu_window_mark(&menu))
+				printf("  %s\n", dol_list.name[i]);
+		}
+		DefaultColor();
+		if (dm_num) {
+			if (menu_window_mark(&menu))
+				printf("Disc Plus:\n");
+			for (i=0; i<dm_num; i++) {
+				if (menu_window_mark(&menu))
+					printf("  %s\n", dolmenubuffer[i+1].name);
+			}
+		}
+		DefaultColor();
+		menu_window_end(&menu, cols);
+		printf_h(gt("Press %s button to select."),
+				(button_names[CFG.button_confirm.num]));
+		if (allow_back) {
+			printf("\n");
+			printf_h(gt("Press %s button to go back."),
+					(button_names[CFG.button_cancel.num]));
+		}
+		__console_flush(0);
+
+		u32 buttons = Wpad_WaitButtonsRpt();
+		int change = 0;
+
+		menu_move_active(&menu, buttons);
+
+		if (buttons & CFG.button_exit.mask) Handle_Home(0);
+		if ((buttons & CFG.button_cancel.mask) && allow_back) return;
+		if (buttons & CFG.button_confirm.mask) change = 1;
+//		if (buttons & WPAD_BUTTON_LEFT) change = 1;
+//		if (buttons & WPAD_BUTTON_RIGHT) change = 1;
+		if (change) {
+			if (menu.current <= ALT_DOL_DISC) {
+				game_cfg->alt_dol = menu.current;
+				*game_cfg->dol_name = 0;
+				return;
+			}
+			i = menu.current - ALT_DOL_DISC -1;
+			if (i < dol_list.num) {
+				game_cfg->alt_dol = ALT_DOL_DISC;
+				STRCOPY(game_cfg->dol_name, dol_list.name[i]);
+				//printf("DN: %s\n", game_cfg->dol_name); sleep(3);
+				return;
+			}
+			i = menu.current - ALT_DOL_PLUS - dol_list.num - 1;
+			game_cfg->alt_dol = ALT_DOL_PLUS + i;
+			STRCOPY(game_cfg->dol_name, dolmenubuffer[i+1].dolname);
+			return;
+		}
+	}
+}
+
 int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	int ret_val = 0;
@@ -953,7 +1085,6 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	int opt_saved, opt_ios_reload; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
-	DOL_LIST dol_list;
 	int i;
 	int rows, cols, win_size;
 	CON_GetMetrics(&cols, &rows);
@@ -972,7 +1103,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	DefaultColor();
 	printf(" %s %s\n\n", CFG.cursor_space, __Menu_PrintTitle(get_title(header)));
 	__console_flush(0);
-	if (!disc) WBFS_GetDolList(header->id, &dol_list);
+	load_dolmenu((char*)header->id);
 
 	game_cfg2 = CFG_get_game(header->id);
 	if (!game_cfg2) {
@@ -1041,26 +1172,19 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		DefaultColor();
 		char c1 = '<', c2 = '>';
 		//if (opt_saved) { c1 = '['; c2 = ']'; }
-		char str_alt_dol[32] = "Off";
+		const char *str_alt_dol = gt("Off");
 		if (!disc) {
-			for (i=0; i<dol_list.num; i++) {
-				if (strcmp(game_cfg->dol_name, dol_list.name[i]) == 0) {
-					game_cfg->alt_dol = 3 + i;
-					break;
-				}
-			}
-	
-			switch (game_cfg->alt_dol) {
-				case 0: STRCOPY(str_alt_dol, gt("Off")); break;
-				case 1: STRCOPY(str_alt_dol, "SD"); break;
-				case 2:
-				default:
-					if (*game_cfg->dol_name) {
-						STRCOPY(str_alt_dol, game_cfg->dol_name);
-					} else {
-						STRCOPY(str_alt_dol, gt("Disc"));
-					}
-					break;
+			if (game_cfg->alt_dol == ALT_DOL_OFF) {
+				str_alt_dol = gt("Off");
+			} else if (game_cfg->alt_dol == ALT_DOL_SD) {
+				str_alt_dol = "SD";
+			} else if (game_cfg->alt_dol == ALT_DOL_DISC) {
+				str_alt_dol = "Disc";
+				if (*game_cfg->dol_name) str_alt_dol = game_cfg->dol_name;
+			} else {
+				// alt.dol plus
+				i = game_cfg->alt_dol - ALT_DOL_PLUS;
+				str_alt_dol = dolmenubuffer[i+1].name;
 			}
 		}
 		const char *str_vpatch[3];
@@ -1070,7 +1194,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 		// start menu draw
 
-		menu.line_count = 0;
+		menu_begin(&menu);
 		menu_jump_active(&menu);
 
 		#define PRINT_OPT_S(N,V) \
@@ -1102,11 +1226,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_B(gt("Block IOS Reload:"), opt_ios_reload);
 		if (menu_window_mark(&menu))
-		{
-			char tmp[40] = "";
-			snprintf(tmp, 40, "%s [%d]:", gt("Alt dol"), dol_list.num);
-			PRINT_OPT_S(tmp, str_alt_dol);
-		}
+			PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
 		if (menu_window_mark(&menu))
 			PRINT_OPT_B(gt("Ocarina (cheats):"), game_cfg->ocarina);
 		if (menu_window_mark(&menu))
@@ -1188,12 +1308,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				CHANGE(game_cfg->block_ios_reload, 1);
 				break;
 			case 9:
-				CHANGE(game_cfg->alt_dol, 2 + dol_list.num);
-				if (game_cfg->alt_dol < 3) {
-					*game_cfg->dol_name = 0;
-				} else {
-					STRCOPY(game_cfg->dol_name, dol_list.name[game_cfg->alt_dol-3]);
-				}
+				if (!disc) Menu_Alt_Dol(header, game_cfg, 1);
 				break;
 			case 10:
 				CHANGE(game_cfg->ocarina, 1);
@@ -2841,6 +2956,13 @@ void Menu_Boot(bool disc)
 		//dbg_printf("set ios: %d idx: %d\n", CFG.ios, CFG.game.ios_idx);
 	}
 
+	if (!disc) {
+		if (CFG.game.alt_dol == ALT_DOL_DISC && *CFG.game.dol_name == 0) {
+			// show alt dol
+			Menu_Alt_Dol(header, &CFG.game, 0);
+		}
+	}
+
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
@@ -2879,6 +3001,7 @@ void Menu_Boot(bool disc)
 	ocarina_load_code(header->id);
 	load_wip_patches(header->id);
 	load_bca_data(header->id);
+	load_dolmenu((char*)header->id);
 
 	if (!disc) {
 		ret = get_frag_list(header->id);
@@ -2909,6 +3032,7 @@ void Menu_Boot(bool disc)
 	
 		// verify IOS version
 		warn_ios_bugs();
+		if (check_dual_layer(real_size, NULL)) print_dual_layer_note();
 	
 		//dbg_time1();
 	

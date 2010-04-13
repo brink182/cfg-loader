@@ -90,10 +90,20 @@ dip_plugin4:
 ehcmodule_frag:
 	.incbin "../data/ehcmodule_frag"
 
+#;	.globl introImg
+#;	.balign 32
+#;introImg:
+#;	.incbin "../data/intro"
+
 	.globl introImg
 	.balign 32
 introImg:
-	.incbin "../data/intro2"
+	.incbin "../data/intro4"
+
+	.globl introImg3
+	.balign 32
+introImg3:
+	.incbin "../data/intro3"
 
 ##; commented out
 #;	.globl opening_bnr

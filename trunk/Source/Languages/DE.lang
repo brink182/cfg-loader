@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
-"PO-Revision-Date: 2010-02-28 13:52+0100\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"PO-Revision-Date: 2010-03-13 15:06+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <Geridian, WiiNero>\n"
 "MIME-Version: 1.0\n"
@@ -83,7 +83,7 @@ msgstr "Alle"
 msgid "All Games"
 msgstr "Alle Spiele"
 
-msgid "Alt dol"
+msgid "Alt dol:"
 msgstr "Alt dol"
 
 msgid "Alternative .dol:"
@@ -220,9 +220,6 @@ msgstr "Entwickler"
 
 msgid "Device:"
 msgstr "Laufwerk:"
-
-msgid "Disc"
-msgstr "Disk"
 
 msgid "Done."
 msgstr "Fertig."
@@ -665,6 +662,9 @@ msgstr "Sprache: "
 msgid "Last Play Date"
 msgstr "Zuletzt gespielt"
 
+msgid "Launch Methods"
+msgstr ""
+
 msgid "Load OK!"
 msgstr "Laden OK!"
 
@@ -1017,10 +1017,6 @@ msgstr "Drücke %s: Optionen speichern"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "Drücke %s: Auswahl speichern"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "Drücke %s: auswählen"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1403,6 +1399,9 @@ msgstr "Kann Wii Disk nicht öffnen"
 msgid "used: %p - %p"
 msgstr "benutzt: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "Disk"
+
 #~ msgid "Download Game Database"
 #~ msgstr "Lade Spieldatenbank"
 
@@ -1423,6 +1422,12 @@ msgstr "benutzt: %p - %p"
 
 #~ msgid "Missing "
 #~ msgstr "fehlende "
+
+#~ msgid "Press %s button to select"
+#~ msgstr "Drücke %s: auswählen"
+
+#~ msgid "Press %s to select"
+#~ msgstr "Drücke %s: auswählen"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Größe: %d byte"

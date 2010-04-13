@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
-"PO-Revision-Date: 2010-03-08 0:27+0100\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"PO-Revision-Date: 2010-03-15 00:54+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
 "MIME-Version: 1.0\n"
@@ -81,7 +81,7 @@ msgstr "Tous"
 msgid "All Games"
 msgstr "Tous les jeux"
 
-msgid "Alt dol"
+msgid "Alt dol:"
 msgstr "dol altern."
 
 msgid "Alternative .dol:"
@@ -218,9 +218,6 @@ msgstr "Développeur"
 
 msgid "Device:"
 msgstr "Périph.:"
-
-msgid "Disc"
-msgstr "Disque"
 
 msgid "Done."
 msgstr "Terminé."
@@ -663,6 +660,9 @@ msgstr "Langue:"
 msgid "Last Play Date"
 msgstr "Date dernier accès au jeu"
 
+msgid "Launch Methods"
+msgstr "Méthodes de lancement"
+
 msgid "Load OK!"
 msgstr "Chargement OK !"
 
@@ -1019,10 +1019,6 @@ msgstr "Faites %s pour sauver les options"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "Appuyez sur %s pour sauver la sélection"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "Appuyez sur %s pour choisir"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1407,6 +1403,9 @@ msgstr "incapable d'ouvrir le disque wii"
 msgid "used: %p - %p"
 msgstr "utilisé: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "Disque"
+
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "L'IOS du disque %u n'a pas pu être chargé ! (ret = %d)"
 
@@ -1430,6 +1429,12 @@ msgstr "utilisé: %p - %p"
 
 #~ msgid "Missing "
 #~ msgstr "manquantes "
+
+#~ msgid "Press %s button to select"
+#~ msgstr "Appuyez sur %s pour choisir"
+
+#~ msgid "Press %s to select"
+#~ msgstr "Appuyez sur %s pour choisir"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Taille: %d octets"

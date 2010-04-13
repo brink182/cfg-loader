@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: KAVID <Kavid@Sina.com>\n"
 "Language-Team: Simplified Chinese (ZH_CN) <Kavid@Sina.com>\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr "%.1fGB 剩余 of %.1fGB"
+msgstr "%.1fGB空间剩余(共%.1fGB)"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -24,11 +24,11 @@ msgstr "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
 
 #, c-format
 msgid "%.2fGB copied in %d:%02d:%02d"
-msgstr "%.2fGB 以复制在 %d:%02d:%02d"
+msgstr "%.2fGB 已复制于 %d:%02d:%02d"
 
 #, c-format
 msgid "%d available"
-msgstr "%d 可用"
+msgstr "%d 个可用"
 
 #, c-format
 msgid "%d more notes"
@@ -55,7 +55,7 @@ msgid "(%d seconds timeout)"
 msgstr "(%d 秒超时)"
 
 msgid ".dol too small"
-msgstr ".dol太小"
+msgstr ".dol 文件尺寸过小"
 
 msgid "< ASC  >"
 msgstr "< 正排序 >"
@@ -67,13 +67,13 @@ msgid "< DOWNLOAD >"
 msgstr "< 下载 >"
 
 msgid "Action"
-msgstr "活动"
+msgstr "动作类"
 
 msgid "Additional config:"
 msgstr "附加设置:"
 
 msgid "Adventure"
-msgstr "冒险"
+msgstr "冒险类"
 
 msgid "All"
 msgstr "全部"
@@ -81,14 +81,14 @@ msgstr "全部"
 msgid "All Games"
 msgstr "全部游戏"
 
-msgid "Alt dol"
-msgstr "ALT DOL"
+msgid "Alt dol:"
+msgstr "多DOL游戏"
 
 msgid "Alternative .dol:"
-msgstr "Alternative .dol:"
+msgstr "多.dol选项:"
 
 msgid "Anti 002 Fix:"
-msgstr "抵制002 修复"
+msgstr "防002 错误修复"
 
 #, c-format
 msgid "App. Path: %s"
@@ -100,7 +100,7 @@ msgid ""
 "this partition?"
 msgstr ""
 "确信想要使用%s\n"
-"分区？"
+"此分区？"
 
 msgid ""
 "Are you sure you want to FIX\n"
@@ -112,20 +112,20 @@ msgstr ""
 msgid ""
 "Are you sure you want to remove this\n"
 "game?"
-msgstr "你是否要删除此游戏？"
+msgstr "是否要删除此游戏？"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
-msgstr "自动开始游戏:%.6s 没有找到！"
+msgstr "自动运行游戏:未找到%.6s ！"
 
 msgid "Available Updates"
-msgstr "有效更新"
+msgstr "可用更新"
 
 msgid "Balance Board"
 msgstr "平衡板"
 
 msgid "Block IOS Reload:"
-msgstr "封锁IOS再次读取:"
+msgstr "阻止IOS重加载:"
 
 msgid "Boot Disc"
 msgstr "运行光盘"
@@ -135,7 +135,7 @@ msgstr "正在运行Wii游戏，请等待......"
 
 #, c-format
 msgid "CFG base: %s"
-msgstr "CFG基础:%s"
+msgstr "CFG根目录:%s"
 
 msgid "Cancelled."
 msgstr "已取消。"
@@ -157,7 +157,7 @@ msgid "Checking for updates..."
 msgstr "正在检测更新"
 
 msgid "Choose a sorting method"
-msgstr "选择一个排序方式"
+msgstr "选择一种排序方式"
 
 msgid "Classic Controller"
 msgstr "经典手柄"
@@ -171,7 +171,7 @@ msgid "Configurable Loader %s"
 msgstr "Configurable Loader %s"
 
 msgid "Configuration error, MAX_DNS_ENTRIES reached while the list is empty"
-msgstr "设置错误，MAX_DNS_ENTRIES已到达并且列表是空的。"
+msgstr "设置错误，已到达MAX_DNS_ENTRIES并且列表是空的。"
 
 #, c-format
 msgid "Connection error from net_read()  Errorcode: %i"
@@ -217,9 +217,6 @@ msgstr "开发人员"
 msgid "Device:"
 msgstr "设备:"
 
-msgid "Disc"
-msgstr "光盘"
-
 msgid "Done."
 msgstr "完成"
 
@@ -227,7 +224,7 @@ msgid "Download .txt"
 msgstr "下载 .txt"
 
 msgid "Download All Missing Covers"
-msgstr "补全游戏封面"
+msgstr "下载所有缺失的游戏封面"
 
 msgid "Download complete."
 msgstr "下载完毕"
@@ -236,14 +233,14 @@ msgid "Downloadable Content"
 msgstr "可下载内容"
 
 msgid "Downloading ALL MISSING covers"
-msgstr "下载所有未下载的封面"
+msgstr "正下载所有未下载的封面"
 
 msgid "Downloading ALL covers"
-msgstr "下载所有封面"
+msgstr "正下载所有封面"
 
 #, c-format
 msgid "Downloading ALL covers for %.6s"
-msgstr "给 %.6s 下载所有封面"
+msgstr "正下载 %.6s 所有封面"
 
 #, c-format
 msgid "Downloading MISSING covers for %.6s"
@@ -263,13 +260,13 @@ msgid "Downloading: %s"
 msgstr "下载中: %s"
 
 msgid "Drums"
-msgstr "Drums"
+msgstr "鼓"
 
 msgid "ERROR"
 msgstr "错误"
 
 msgid "ERROR creating file"
-msgstr "创建文件中错误"
+msgstr "创建文件时错误"
 
 msgid "ERROR game opt"
 msgstr "游戏选项错误"
@@ -296,7 +293,7 @@ msgstr "错误:"
 
 #, c-format
 msgid "ERROR: %s is not accessible"
-msgstr "错误:%s 不可接受"
+msgstr "错误:%s 无法存取"
 
 #, c-format
 msgid "ERROR: Apploader %d"
@@ -331,7 +328,7 @@ msgstr "错误:无效的游戏ID"
 
 #, c-format
 msgid "ERROR: Loading EHC module! (%d)"
-msgstr "错误:读取EHC module! (%d)"
+msgstr "错误:读取EHC模块! (%d)"
 
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
@@ -385,7 +382,7 @@ msgstr "错误:USB/FAT 加载 wbfs分区! (%d)"
 
 #, c-format
 msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "ERROR:WBFS分区表加载扇区 %x 不是 %x"
+msgstr "错误:WBFS分区表加载扇区 %x 不是 %x"
 
 msgid "ERROR: cache: out of memory"
 msgstr "错误:缓存:内存溢出"
@@ -394,14 +391,14 @@ msgid ""
 "ERROR: ehcmodule2 no longer included!\n"
 "external file ehcmodule.elf must be used!"
 msgstr ""
-"ERROR:ehcmodule2 不再被支持\n"
+"错误:ehcmodule2 不再被支持\n"
 "必须使用扩展文件ehcmodule.elf"
 
 msgid ""
 "ERROR: ehcmodule3 no longer included!\n"
 "external file ehcmodule3.elf must be used!"
 msgstr ""
-"ERROR:ehcmodule3 不再被支持\n"
+"错误：已不再包含ehcmodule3\n"
 "必须使用扩展文件ehcmodule3.elf"
 
 #, c-format
@@ -441,7 +438,7 @@ msgid "EXTEND"
 msgstr "扩展"
 
 msgid "Ejecting DVD..."
-msgstr "退出DVD..."
+msgstr "正弹出DVD光盘..."
 
 msgid "Enter Code: "
 msgstr "输入代码:"
@@ -501,7 +498,7 @@ msgid ""
 "Error storing playlog file.\n"
 "Start from the Wii Menu to fix."
 msgstr ""
-"保存playlog文件错误.\n"
+"保存游戏日志错误.\n"
 "退回Wii主菜单修复此问题。"
 
 msgid "Error: Invalid PNG image!"
@@ -617,7 +614,7 @@ msgstr "IOS_Open(%s) 失败由于 code %d"
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
-msgstr "由于LZ777解码 %x 冲突"
+msgstr "由于LZ777编码 %x 冲突"
 
 #, c-format
 msgid "Info file: %s"
@@ -661,6 +658,9 @@ msgstr "语言:"
 msgid "Last Play Date"
 msgstr "最后游戏日期"
 
+msgid "Launch Methods"
+msgstr "运行方式"
+
 msgid "Load OK!"
 msgstr "读取成功！"
 
@@ -691,10 +691,12 @@ msgid "Microphone"
 msgstr "麦克风"
 
 msgid "Motion+"
-msgstr "Motion+"
+msgstr "Wii手柄精度增强器"
 
 msgid "Mounting device, please wait..."
-msgstr "挂在设备中，请等待..."
+msgstr ""
+"\n"
+"挂载设备中，请等待..."
 
 msgid "Music"
 msgstr "音乐"
@@ -761,7 +763,7 @@ msgid ""
 msgstr ""
 "注意:你正在使用CIOS249 rev13:\n"
 "退出游戏必须重启动机器 \n"
-"否则不能运行另外一个游戏”"
+"否则第二次运行游戏会死机！”"
 
 msgid ""
 "NOTE: You are using CIOS249 rev14:\n"
@@ -1008,10 +1010,6 @@ msgstr "按%s 保存选项"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "按 %s保存选择"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "按%s选择"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1394,6 +1392,9 @@ msgstr "不能打开Wii光盘文件"
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "光盘"
+
 #~ msgid "Downloading %s Covers for %.4s"
 #~ msgstr "正在下载 %s 封面为 %.4s"
 
@@ -1411,6 +1412,12 @@ msgstr "已使用: %p - %p"
 
 #~ msgid "Missing "
 #~ msgstr "补全"
+
+#~ msgid "Press %s button to select"
+#~ msgstr "按 %s 进行选择"
+
+#~ msgid "Press %s to select"
+#~ msgstr "按%s选择"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "大小:%d 字节"

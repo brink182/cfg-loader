@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -81,7 +81,7 @@ msgstr "Alle"
 msgid "All Games"
 msgstr "Alle spellen"
 
-msgid "Alt dol"
+msgid "Alt dol:"
 msgstr "Alt dol"
 
 msgid "Alternative .dol:"
@@ -216,9 +216,6 @@ msgstr "Ontwikkelaar"
 
 msgid "Device:"
 msgstr "Apparaat"
-
-msgid "Disc"
-msgstr "Disk"
 
 msgid "Done."
 msgstr "Klaar."
@@ -661,6 +658,9 @@ msgstr "Taal:"
 msgid "Last Play Date"
 msgstr "Laatst gespeeld"
 
+msgid "Launch Methods"
+msgstr ""
+
 msgid "Load OK!"
 msgstr "Laden OK!"
 
@@ -1013,10 +1013,6 @@ msgstr "Druk %s om de opties op te slaan"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "Druk %s om de selectie op te slaan"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "Druk %s om te selecteren"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1399,6 +1395,9 @@ msgstr "kan wii disc niet openen"
 msgid "used: %p - %p"
 msgstr "gebruikt: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "Disk"
+
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "Disk IOS %u kan niet worden geladen! (ret = %d)"
 
@@ -1422,6 +1421,9 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "Missing "
 #~ msgstr "Ontbreekt "
+
+#~ msgid "Press %s to select"
+#~ msgstr "Druk %s om te selecteren"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Grootte: %d byte"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
 "PO-Revision-Date: 2010-02-23 23:32-0300\n"
 "Last-Translator: mangojambo <mangojambo@gmail.com>\n"
 "Language-Team: BRAZILIAN PORTUGUESE \n"
@@ -83,7 +83,7 @@ msgstr "Todos"
 msgid "All Games"
 msgstr "Todos os Jogos"
 
-msgid "Alt dol"
+msgid "Alt dol:"
 msgstr "dol Alternativo: "
 
 msgid "Alternative .dol:"
@@ -221,9 +221,6 @@ msgstr "Desenvolvedor"
 
 msgid "Device:"
 msgstr "Dispositivo:"
-
-msgid "Disc"
-msgstr "Disco"
 
 msgid "Done."
 msgstr "Feito."
@@ -666,6 +663,9 @@ msgstr "Idioma:"
 msgid "Last Play Date"
 msgstr "Data do último jogo"
 
+msgid "Launch Methods"
+msgstr ""
+
 msgid "Load OK!"
 msgstr "Carregado corretamente!"
 
@@ -1018,10 +1018,6 @@ msgstr "Pressione %s para salvar opções"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "Pressione %s para salvar seleção"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "Pressione %s para selecionar"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1404,6 +1400,9 @@ msgstr "não é possível abrir o disco de wii"
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "Disco"
+
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "IOS %u do disco no pode ser carregada (ret = %d)"
 
@@ -1427,6 +1426,9 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Missing "
 #~ msgstr "Faltando "
+
+#~ msgid "Press %s to select"
+#~ msgstr "Pressione %s para selecionar"
 
 #~ msgid "Size: %d byte"
 #~ msgstr "Tamanho: %d byte"

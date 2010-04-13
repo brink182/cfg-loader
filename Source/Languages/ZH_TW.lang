@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 20:04+0100\n"
-"PO-Revision-Date: 2010-03-03 18:30+0800\n"
+"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"PO-Revision-Date: 2010-03-13 15:20+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -81,7 +81,7 @@ msgstr "全部"
 msgid "All Games"
 msgstr "所有遊戲"
 
-msgid "Alt dol"
+msgid "Alt dol:"
 msgstr "替代 dol"
 
 msgid "Alternative .dol:"
@@ -216,9 +216,6 @@ msgstr "開發成員"
 
 msgid "Device:"
 msgstr "裝置:"
-
-msgid "Disc"
-msgstr "光碟"
 
 msgid "Done."
 msgstr "完成"
@@ -661,6 +658,9 @@ msgstr "語言:"
 msgid "Last Play Date"
 msgstr "最後遊戲日期"
 
+msgid "Launch Methods"
+msgstr "執行方式"
+
 msgid "Load OK!"
 msgstr "載入完成!"
 
@@ -1010,10 +1010,6 @@ msgstr "請按 %s 儲存選項"
 #, c-format
 msgid "Press %s to save selection"
 msgstr "請按 %s 儲存選取的"
-
-#, c-format
-msgid "Press %s to select"
-msgstr "請按 %s 選取"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1396,8 +1392,17 @@ msgstr "無法開啟 Wii 光碟"
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
 
+#~ msgid "Disc"
+#~ msgstr "光碟"
+
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: 使用回舊的方法"
+
+#~ msgid "Press %s button to select"
+#~ msgstr "請按 %s 鈕選取"
+
+#~ msgid "Press %s to select"
+#~ msgstr "請按 %s 選取"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "切換到 IOS222 的 FAT 支援."

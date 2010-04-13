@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <malloc.h>
+#include <ctype.h>
 
 #include "apploader.h"
 #include "wdvd.h"
@@ -15,6 +16,7 @@
 #include "wiip.h"
 #include "gettext.h"
 #include "menu.h"
+#include "dolmenu.h"
 
 
 /* Apploader function pointers */
@@ -39,10 +41,14 @@ void maindolpatches(void *dst, int len);
 u32 Load_Dol_from_sd();
 u32 Load_Dol_from_disc_menu();
 u32 Load_Dol_from_disc(u32 doloffset);
+void getdolnames();
+u32 getdoloffsetbyname(char *name);
 bool Remove_001_Protection(void *Address, int Size);
 void Anti_002_fix(void *Address, int Size);
 //u32 load_dol_image (void *dolstart, bool clear_bss);
 
+u32 dolcount = 0;
+u32 dolindex[10];
 
 static void __noprint(const char *fmt, ...)
 {
@@ -387,24 +393,41 @@ s32 Apploader_Run(entry_point *entry)
 	// alternative dol (WiiPower)
 	if (CFG.game.alt_dol)
 	{
-		if (CFG.game.alt_dol >= 2)
+		if (CFG.game.alt_dol >= ALT_DOL_DISC)
 		{
-			u32 doloffset = Load_Dol_from_disc_menu();
-			
-			if (doloffset == 0)
+			u32 doloffset = 0;
+			getdolnames();
+			if (CFG.game.alt_dol >= ALT_DOL_PLUS)
 			{
-				printf_x(gt("Alternative .dol:"));
-				printf("\n");
-				printf_(gt("None found on disc"));
-				printf("\n");
-				sleep(2);
+				int dolm_i = CFG.game.alt_dol - ALT_DOL_PLUS + 1;
+				if (dolm_i <= dolmenubuffer[0].count) {
+					STRCOPY(CFG.game.dol_name, dolmenubuffer[dolm_i].dolname);
+					dolparameter = dolmenubuffer[dolm_i].parameter;
+					printf_x("alt.dol+: %s\n", dolmenubuffer[dolm_i].name);
+					doloffset = getdoloffsetbyname(CFG.game.dol_name);
+					printf_(">> %s (%d)\n", CFG.game.dol_name, dolparameter);
+					printf_("");
+					if (doloffset == 0) sleep(1);
+				}
 			} else {
+				doloffset = Load_Dol_from_disc_menu();
+				if (doloffset == 0)
+				{
+					printf_x(gt("Alternative .dol:"));
+					printf("\n");
+					printf_(gt("None found on disc"));
+					printf("\n");
+					sleep(2);
+				}
+			}
+			if (doloffset)
+			{
 				*entry = (void*)Load_Dol_from_disc(doloffset);
 				if (*entry == NULL) return -1;
 				printf_(gt("Load OK!"));
 				printf("\n");
 			}
-		} else if (CFG.game.alt_dol == 1)
+		} else if (CFG.game.alt_dol == ALT_DOL_SD)
 		{
 			u32 new_entry;
 			printf_x(gt("Alternative .dol:"));
@@ -709,14 +732,13 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	return entrypoint;
 }	
 
-u32 Load_Dol_from_disc_menu()
+void getdolnames()
 {
 	FST_ENTRY *fst = (FST_ENTRY *)*(u32 *)0x80000038;
 	u32 count = fst[0].filelen;
 	int i;
 
-	u32 dolcount = 0;
-	u32 dolindex[10];
+	dolcount = 0;
 
 	for (i=1;i<count;i++)
 	{		
@@ -729,15 +751,60 @@ u32 Load_Dol_from_disc_menu()
 			}
 		}		
 	}
-	
-	if (dolcount == 0)
+}
+
+u32 stringcompare(char *s1, char *s2)
+{
+	u32 index = 0;
+	while (true)
+	{
+		if (s1[index] == 0 || s2[index] == 0)
+		{
+			return 0;
+		}
+		if (s1[index] != '?' && s2[index] != '?' && toupper((u8)s1[index]) != toupper((u8)s2[index]))
+		{
+			return index;
+		}
+		index++;	
+	}
+}
+
+u32 getdoloffsetbyname(char *name)
+{
+	if (stringcompare(name, "main") == 0 && strlen(name) == 4)
 	{
 		return 0;
-	}	
+	}
+
+	u32 i;
+	u32 index = 0;
 	
+	for (i = 0; i < dolcount;i++)
+	{
+		if (stringcompare(fstfilename(dolindex[i]), name) == 0)
+		{
+			if (index != 0)
+			{
+				return 0;
+			}
+			index = dolindex[i];
+		}
+	}
+	//memset(name, 0, 32);
+	//strncpy(name, fstfilename(index), strlen(fstfilename(index)));
+	strcpy(name, fstfilename(index));
+	return fstfileoffset(index);
+}
+
+u32 Load_Dol_from_disc_menu()
+{
+	int i;
 	u32 pressed;
 	int dolselect = 0;
 
+	if (dolcount == 0) return 0;
+	
 	if (*CFG.game.dol_name) {
 		printf_x(gt("Using Saved Alternative .dol:"));
 		printf("\n");
@@ -783,7 +850,7 @@ u32 Load_Dol_from_disc_menu()
 		
 		pressed = 0;
 		
-		pressed = Wpad_WaitButtons();
+		pressed = Wpad_WaitButtonsCommon();
 		
 		if (pressed == WPAD_BUTTON_LEFT)
 		{

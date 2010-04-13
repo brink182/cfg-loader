@@ -1290,7 +1290,8 @@ void title_set(char *id, char *title)
 	struct ID_Title *idt = cfg_get_id_title((u8*)id);
 	if (idt && strncmp(id, (char*)idt->id, 6) == 0) {
 		// replace
-		strcopy(idt->title, title, TITLE_MAX);
+		//strcopy(idt->title, title, TITLE_MAX);
+		mbs_copy(idt->title, title, TITLE_MAX);
 	} else {
 		//cfg_title = realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
 		cfg_title = mem1_realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
@@ -1302,7 +1303,8 @@ void title_set(char *id, char *title)
 		// add
 		memset(&cfg_title[num_title], 0, sizeof(cfg_title[num_title]));
 		strcopy((char*)cfg_title[num_title].id, id, 7);
-		strcopy(cfg_title[num_title].title, title, TITLE_MAX);
+		//strcopy(cfg_title[num_title].title, title, TITLE_MAX);
+		mbs_copy(cfg_title[num_title].title, title, TITLE_MAX);
 		num_title++;
 	}
 }
@@ -1941,6 +1943,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 		if (cfg_bool("alt_dol", &game_cfg->alt_dol)) set = 1;
 		if (cfg_map ("alt_dol", "sd", &game_cfg->alt_dol, 1)) set = 1;
 		if (cfg_map ("alt_dol", "disc", &game_cfg->alt_dol, 2)) set = 1;
+		if (cfg_int_max("alt_dol", &game_cfg->alt_dol, 100)) set = 1;
 		if (!set) {
 			// name specified
 			game_cfg->alt_dol = 2;
@@ -2635,8 +2638,9 @@ bool CFG_Save_Settings(int verbose)
 		fprintf(f, "game:%s = ", cfg_game[i].id);
 		#define SAVE_STR(N, S) \
 			if (S) fprintf(f, "%s:%s; ", N, S)
-		#define SAVE_BOOL(N) \
+		#define SAVE_NUM(N) \
 			fprintf(f, "%s:%d; ", #N, game_cfg->N)
+		#define SAVE_BOOL(N) SAVE_NUM(N)
 		s = map_get_name(map_language, game_cfg->language);
 		SAVE_STR("language", s);
 		s = map_get_name(map_video, game_cfg->video);
@@ -2652,10 +2656,14 @@ bool CFG_Save_Settings(int verbose)
 		s = ios_str(game_cfg->ios_idx);
 		SAVE_STR("ios", s);
 		SAVE_BOOL(block_ios_reload);
-		if (game_cfg->alt_dol < 2) {
+		if (game_cfg->alt_dol < ALT_DOL_DISC) {
 			SAVE_BOOL(alt_dol);
 		} else {
-			SAVE_STR("alt_dol", "disc");
+			if (game_cfg->alt_dol == ALT_DOL_DISC) {
+				SAVE_STR("alt_dol", "disc");
+			} else {
+				SAVE_NUM(alt_dol);
+			}
 			if (*game_cfg->dol_name) {
 				SAVE_STR("dol_name", game_cfg->dol_name);
 			}
@@ -2781,8 +2789,9 @@ void cfg_game_clean(struct Game_CFG *src, struct Game_CFG *dest)
 {
 	*dest = *src;
 	memset(dest->dol_name, 0, sizeof(dest->dol_name));
-	STRCOPY(dest->dol_name, src->dol_name);
-	if (dest->alt_dol > 2) dest->alt_dol = 2;
+	if (dest->alt_dol == ALT_DOL_DISC) {
+		STRCOPY(dest->dol_name, src->dol_name);
+	}
 }
 
 // return true if differ

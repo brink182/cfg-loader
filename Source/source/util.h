@@ -58,6 +58,8 @@ int  mbs_len(char *s);
 bool mbs_trunc(char *mbs, int n);
 char*mbs_align(const char *str, int n);
 int  mbs_coll(char *a, char *b);
+int  mbs_len_valid(char *s);
+char *mbs_copy(char *dest, char *src, int size);
 
 int  con_char_len(int c);
 int  con_len(char *s);

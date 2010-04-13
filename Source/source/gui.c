@@ -78,6 +78,7 @@ extern unsigned char bgImg[];
 //extern unsigned char bgImg_wide[];
 extern unsigned char bg_gui[];
 extern unsigned char introImg[];
+extern unsigned char introImg3[];
 extern unsigned char coverImg[];
 extern unsigned char coverImg_full[];
 //extern unsigned char coverImg_wide[];
@@ -474,6 +475,24 @@ void Gui_DrawIntro(void)
 	Gui_DecodePNG_scale_to(ctx, img_buf, rmode->fbWidth, rmode->xfbHeight);
 	PNGU_ReleaseImageContext(ctx);
 	ctx = NULL;
+	//
+	time_t t = time(NULL);
+	struct tm *ti = localtime(&t);
+	if (ti->tm_mon == 3 && ti->tm_mday == 1) {
+		ctx = Gui_OpenPNG(introImg3, NULL, NULL);
+		if (ctx) {
+			PNGUPROP imgProp;
+			int x, y;
+			PNGU_GetImageProperties(ctx, &imgProp);
+			x = rmode->fbWidth / 2 - imgProp.imgWidth / 2;
+			y = rmode->xfbHeight / 2 - imgProp.imgHeight / 2;
+			PNGU_DECODE_TO_COORDS_RGBA8(ctx, x, y,
+				imgProp.imgWidth, imgProp.imgHeight, 255,
+				rmode->fbWidth, rmode->xfbHeight, img_buf);
+			PNGU_ReleaseImageContext(ctx);
+			ctx = NULL;
+		}
+	}
 	//
 	VIDEO_WaitVSync();
 	Video_DrawRGBA(0, 0, img_buf, rmode->fbWidth, rmode->xfbHeight);

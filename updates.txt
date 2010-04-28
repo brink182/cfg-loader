@@ -19,6 +19,7 @@ date = 2010-04-27
 url = http://cfg-loader.googlecode.com/files/cfg57b.dol
 Added warnings for stubbed IOSes
 Changed warnings for IOS249 <rev18
+Note: this version reports itself as 57a
 
 release = 57b-222 (beta)
 size = 1439072

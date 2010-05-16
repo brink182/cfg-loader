@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 57b2 (beta2)
+size = 1445856
+date = 2010-05-16
+url = http://cfg-loader.googlecode.com/files/cfg57b2.dol
+Theme downloading
+new option: adult_themes
+
+release = 57b2-222 (beta2)
+size = 1445856
+date = 2010-05-16
+url = http://cfg-loader.googlecode.com/files/cfg57b2-222.dol
+Same as 57b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 57b (beta)
 size = 1439072
 date = 2010-04-27

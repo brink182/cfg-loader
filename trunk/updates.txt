@@ -13,7 +13,7 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
-release = 57b4 (devel)
+release = 57b4 (beta4)
 size = 1446816
 date = 2010-05-20
 url = http://cfg-loader.googlecode.com/files/cfg57b4.dol
@@ -21,7 +21,7 @@ Patch for Prince of Persia
 new option: disable_pop_patch
 new option: disable_dvd_patch
 
-release = 57b4-222 (devel)
+release = 57b4-222 (beta4)
 size = 1446816
 date = 2010-05-20
 url = http://cfg-loader.googlecode.com/files/cfg57b4-222.dol
@@ -30,13 +30,13 @@ default options:
   ios=222-mload
   partition=FAT1
 
-release = 57b3 (devel)
+release = 57b3 (beta3)
 size = 1446336
 date = 2010-05-20
 url = http://cfg-loader.googlecode.com/files/cfg57b3.dol
 Fix for large theme downloads
 
-release = 57b3-222 (devel)
+release = 57b3-222 (beta3)
 size = 1446336
 date = 2010-05-20
 url = http://cfg-loader.googlecode.com/files/cfg57b3-222.dol

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"POT-Creation-Date: 2010-05-31 11:09+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,9 @@ msgstr ""
 msgid "Additional config:"
 msgstr ""
 
+msgid "Adult"
+msgstr ""
+
 msgid "Adventure"
 msgstr ""
 
@@ -81,6 +84,9 @@ msgid "All"
 msgstr ""
 
 msgid "All Games"
+msgstr ""
+
+msgid "All themes up to date."
 msgstr ""
 
 msgid "Alt dol:"
@@ -151,6 +157,9 @@ msgstr ""
 msgid "Check For Updates"
 msgstr ""
 
+msgid "Checking for themes..."
+msgstr ""
+
 msgid "Checking for updates..."
 msgstr ""
 
@@ -158,6 +167,9 @@ msgid "Choose a sorting method"
 msgstr ""
 
 msgid "Classic Controller"
+msgstr ""
+
+msgid "Clear Patches:"
 msgstr ""
 
 #, c-format
@@ -188,12 +200,27 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
+msgid "Creator"
+msgstr ""
+
 #, c-format
 msgid "Current Version: %s"
 msgstr ""
 
 #, c-format
+msgid ""
+"Custom IOS %d could not be found!\n"
+"Please install it."
+msgstr ""
+
+#, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
+msgstr ""
+
+#, c-format
+msgid ""
+"Custom IOS %d is a stub!\n"
+"Please reinstall it."
 msgstr ""
 
 #, c-format
@@ -213,6 +240,12 @@ msgid "Developer"
 msgstr ""
 
 msgid "Device:"
+msgstr ""
+
+msgid "Disc"
+msgstr ""
+
+msgid "Disc (Ask)"
 msgstr ""
 
 msgid "Done."
@@ -257,6 +290,13 @@ msgstr ""
 msgid "Downloading: %s"
 msgstr ""
 
+#, c-format
+msgid "Downloading: %s as %s"
+msgstr ""
+
+msgid "Downloads"
+msgstr ""
+
 msgid "Drums"
 msgstr ""
 
@@ -295,11 +335,6 @@ msgstr ""
 
 #, c-format
 msgid "ERROR: Apploader %d"
-msgstr ""
-
-msgid ""
-"ERROR: CIOS222 or CIOS223 required for\n"
-"starting games from a FAT partition!"
 msgstr ""
 
 msgid "ERROR: CIOS222/223 v4 required for BCA"
@@ -380,6 +415,13 @@ msgstr ""
 msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr ""
 
+msgid ""
+"ERROR: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 or higher required\n"
+"for starting games from a FAT partition!\n"
+"Upgrade IOS249 or choose a different IOS."
+msgstr ""
+
 msgid "ERROR: cache: out of memory"
 msgstr ""
 
@@ -442,7 +484,16 @@ msgstr ""
 msgid "Error adding disc!"
 msgstr ""
 
+msgid "Error creating directory..."
+msgstr ""
+
 msgid "Error discarding options!"
+msgstr ""
+
+msgid "Error downloading theme..."
+msgstr ""
+
+msgid "Error downloading themes..."
 msgstr ""
 
 msgid "Error downloading update..."
@@ -455,6 +506,9 @@ msgid "Error downloading."
 msgstr ""
 
 msgid "Error establishing connection"
+msgstr ""
+
+msgid "Error extracting theme..."
 msgstr ""
 
 msgid "Error opening database, update did not complete."
@@ -496,6 +550,10 @@ msgid "Error: no URL."
 msgstr ""
 
 msgid "Error: no data."
+msgstr ""
+
+#, c-format
+msgid "Extracting: %s"
 msgstr ""
 
 msgid "FAIL"
@@ -764,6 +822,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr ""
 
+msgid "New Themes"
+msgstr ""
+
 msgid "Nintendo DS"
 msgstr ""
 
@@ -781,6 +842,9 @@ msgid "No more memory to copy file from HTTP response"
 msgstr ""
 
 msgid "No partition selected!"
+msgstr ""
+
+msgid "No themes found."
 msgstr ""
 
 msgid "No updates found."
@@ -960,6 +1024,10 @@ msgid "Press %s to download and update"
 msgstr ""
 
 #, c-format
+msgid "Press %s to download this theme"
+msgstr ""
+
+#, c-format
 msgid "Press %s to download, %s to return"
 msgstr ""
 
@@ -1012,6 +1080,10 @@ msgid "Press any button..."
 msgstr ""
 
 #, c-format
+msgid "Press button %s to download covers."
+msgstr ""
+
+#, c-format
 msgid "Press button %s to eject DVD."
 msgstr ""
 
@@ -1039,6 +1111,9 @@ msgstr ""
 
 #, c-format
 msgid "Rated %s"
+msgstr ""
+
+msgid "Rating"
 msgstr ""
 
 msgid "Read"
@@ -1147,11 +1222,28 @@ msgstr ""
 msgid "Strategy"
 msgstr ""
 
+msgid "Theme Info"
+msgstr ""
+
+msgid ""
+"Theme may be too large.\n"
+"Reboot of Cfg suggested.\n"
+msgstr ""
+
 msgid "Theme:"
 msgstr ""
 
 #, c-format
 msgid "Theme: %s"
+msgstr ""
+
+msgid "Themes provided by wii.spiffy360.com"
+msgstr ""
+
+msgid "Themes to download"
+msgstr ""
+
+msgid "Themes with updates"
 msgstr ""
 
 msgid "Title"
@@ -1198,6 +1290,9 @@ msgstr ""
 msgid "Update WiiTDB Game Database"
 msgstr ""
 
+msgid "Update themes"
+msgstr ""
+
 msgid "Update titles.txt"
 msgstr ""
 
@@ -1209,6 +1304,9 @@ msgid "Used: %.1fGB Free: %.1fGB [%d]"
 msgstr ""
 
 msgid "Using Saved Alternative .dol:"
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "Video Patch:"

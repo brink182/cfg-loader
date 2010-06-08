@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 57b6 (beta6)
+size = 1450464
+date = 2010-06-08
+url = http://cfg-loader.googlecode.com/files/cfg57b6.dol
+new option: select
+Select last game played on startup
+New button action: random
+bug fixes
+
+release = 57b6-222 (beta6)
+size = 1450496
+date = 2010-06-08
+url = http://cfg-loader.googlecode.com/files/cfg57b6-222.dol
+Same as 57b6 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 57b5 (beta5)
 size = 1447712
 date = 2010-05-25

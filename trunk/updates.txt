@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 57b7 (beta7)
+size = 1562944
+date = 2010-06-13
+url = http://cfg-loader.googlecode.com/files/cfg57b7.dol
+Theme Preview images
+new options: theme_previews
+coverflow scrolling with random
+fixed header click in theme download
+
+release = 57b7-222 (beta7)
+size = 1562976
+date = 2010-06-13
+url = http://cfg-loader.googlecode.com/files/cfg57b7-222.dol
+Same as 57b7 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 57b6 (beta6)
 size = 1450464
 date = 2010-06-08

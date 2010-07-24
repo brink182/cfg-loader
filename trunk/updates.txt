@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 57b8 (beta8)
+size = 1564128
+date = 2010-07-25
+url = http://cfg-loader.googlecode.com/files/cfg57b8.dol
+language selection for write_playlog
+Improved playlog title detection
+Fullscreen theme preview
+Cancel of theme preview download
+Minor optimisations
+
+release = 57b8-222 (beta8)
+size = 1564128
+date = 2010-07-25
+url = http://cfg-loader.googlecode.com/files/cfg57b8-222.dol
+Same as 57b8 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 57b7 (beta7)
 size = 1562944
 date = 2010-06-13

@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 57b9 (beta9)
+size = 1564768
+date = 2010-07-30
+url = http://cfg-loader.googlecode.com/files/cfg57b9.dol
+Added ID of 1.07 HBC
+Allowed hex values for channel ID
+Scrollable list of updates
+
+release = 57b9-222 (beta9)
+size = 1564768
+date = 2010-07-30
+url = http://cfg-loader.googlecode.com/files/cfg57b9-222.dol
+Same as 57b9 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 57b8 (beta8)
 size = 1564128
 date = 2010-07-25
@@ -28,24 +45,6 @@ size = 1564128
 date = 2010-07-25
 url = http://cfg-loader.googlecode.com/files/cfg57b8-222.dol
 Same as 57b8 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 57b7 (beta7)
-size = 1562944
-date = 2010-06-13
-url = http://cfg-loader.googlecode.com/files/cfg57b7.dol
-Theme Preview images
-new options: theme_previews
-coverflow scrolling with random
-fixed header click in theme download
-
-release = 57b7-222 (beta7)
-size = 1562976
-date = 2010-06-13
-url = http://cfg-loader.googlecode.com/files/cfg57b7-222.dol
-Same as 57b7 but with different
 default options:
   ios=222-mload
   partition=FAT1
@@ -112,22 +111,6 @@ default options:
   partition=FAT1
   hide_hddinfo=1
 
-release = 54b3 (beta3)
-size = 1436960
-date = 2010-02-28
-url = http://cfg-loader.googlecode.com/files/cfg54b3.dol
-IOS 249 rev18 support
-
-release = 54b3-fat (beta3)
-size = 1436960
-date = 2010-02-28
-url = http://cfg-loader.googlecode.com/files/cfg54b3-fat.dol
-Same as 54b3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
 release = 53 (release)
 size = 1426752
 date = 2010-02-23
@@ -140,23 +123,6 @@ size = 1426816
 date = 2010-02-23
 url = http://cfg-loader.googlecode.com/files/cfg53-fat.dol
 Same as 53 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-  hide_hddinfo=1
-
-release = 53b3 (beta3)
-size = 1426752
-date = 2010-02-22
-url = http://cfg-loader.googlecode.com/files/cfg53b3.dol
-Fixed crash with cios222 v5
-Fixed update progress notification
-
-release = 53b3-fat (beta3)
-size = 1426784
-date = 2010-02-22
-url = http://cfg-loader.googlecode.com/files/cfg53b3-fat.dol
-Same as 53b3 but with different
 default options:
   ios=222-mload
   partition=FAT1

@@ -62,6 +62,13 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_VIDEO_PATCH_OFF 0
 #define CFG_VIDEO_PATCH_ON  1
 #define CFG_VIDEO_PATCH_ALL 2
+#define CFG_VIDEO_PATCH_SNEEK 3
+#define CFG_VIDEO_PATCH_SNEEK_ALL 4
+#define CFG_VIDEO_PATCH_MAX 4
+
+#define CFG_CLEAN_OFF 0
+#define CFG_CLEAN_ON  1
+#define CFG_CLEAN_ALL 2
 
 #define CFG_HOME_PRIILOADER 0x4461636F
 #define CFG_HOME_WII_MENU   0x50756E65
@@ -148,6 +155,7 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_BTN_BOOT_GAME  16
 #define CFG_BTN_SORT       17
 #define CFG_BTN_FILTER     18
+#define CFG_BTN_RANDOM     19
 /* Warning by Clipper: if the CFG_BTN_* list ever grows longer than 48 actions
  * (bloody hell, if so), then start using 1 << 8, 2 << 8 and so on.  Any number
  * in the alpha range could get confused with the channels and/or magic words,
@@ -157,6 +165,20 @@ extern int COVER_HEIGHT_FRONT;
 #define ALT_DOL_SD   1
 #define ALT_DOL_DISC 2
 #define ALT_DOL_PLUS 3
+
+#define CFG_SELECT_PREVIOUS 0
+#define CFG_SELECT_START    1
+#define CFG_SELECT_MIDDLE   2
+#define CFG_SELECT_END      3
+#define CFG_SELECT_MOST     4
+#define CFG_SELECT_LEAST    5
+#define CFG_SELECT_RANDOM   6
+
+#define CFG_PLAYLOG_OFF      0
+#define CFG_PLAYLOG_ON       1
+#define CFG_PLAYLOG_JAPANESE 2
+#define CFG_PLAYLOG_ENGLISH  3
+extern char *playlog_name[4];
 
 extern char FAT_DRIVE[];
 extern char USBLOADER_PATH[];
@@ -181,6 +203,7 @@ struct Game_CFG
 	char dol_name[64];
 	int write_playlog;
 	int hooktype;
+	int clean;
 };
 
 struct Game_CFG_2
@@ -320,8 +343,6 @@ struct CFG
 	int admin_mode_locked;
 	//int ios_idx;
 	int ios, ios_yal, ios_mload;
-	char theme[32];
-	char theme_path[200];
 	// gui
 	int gui;
 	int gui_transit;
@@ -350,8 +371,10 @@ struct CFG
 	char launch_discid[8];
 	//int current_partition;
 	int patch_dvd_check;
+	int disable_dvd_patch;
 	char titles_url[100];
 	int disable_nsmb_patch;
+	int disable_pop_patch;
 	int disable_bca;
 	int disable_wip;
 	// int write_playlog;
@@ -381,6 +404,22 @@ struct CFG
 	struct MenuButton button_save;
 	int load_unifont;
 	int wiird; // wii remote debugger
+	u32 return_to;
+	int delay_patch;
+	//themes
+	char theme[32];
+	char theme_path[200];
+	int adult_themes;
+	int theme_previews;
+	int theme_previewX;
+	int theme_previewY;
+	int theme_previewW;
+	int theme_previewH;
+	int w_theme_previewX;
+	int w_theme_previewY;
+	int w_theme_previewW;
+	int w_theme_previewH;
+	int select;
 };
 
 extern struct CFG CFG;
@@ -496,6 +535,7 @@ bool CFG_Load_Settings();
 bool CFG_Save_Settings(int verbose);
 bool CFG_Save_Global_Settings();
 void cfg_parsearg_early(int argc, char **argv);
+bool cfg_parsefile(char *fname, void (*set_func)(char*, char*));
 
 char *cfg_get_title(u8 *id);
 char *get_title(struct discHdr *header);
@@ -545,6 +585,8 @@ struct TextMap
 
 int map_get_num(struct TextMap *map);
 char* map_get_name(struct TextMap *map, int id);
+
+extern struct TextMap map_video_patch[];
 
 #define NUM_HOOK 8
 extern char *hook_name[NUM_HOOK];

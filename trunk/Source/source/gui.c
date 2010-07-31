@@ -706,6 +706,7 @@ out:
 		free(imgData);
 }
 
+
 int Load_Theme_Image(char *name, void **img_buf)
 {
 	char path[200];
@@ -1381,6 +1382,126 @@ GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h,
 	return my_texture;
 }
 
+/**
+ * Reads a JPG file from disk and decompresses it into a 4x4 RGBA
+ * @param path The absolute path to the jpg file
+ * @return GRRLIB_texImg
+ */
+GRRLIB_texImg Gui_LoadJPGFromPath(char *path)
+{
+	s32  ret;
+	void *imgData = NULL;
+	GRRLIB_texImg tx;
+
+	//init the tex
+	tx.data = NULL;
+	tx.h = 0;
+	tx.w = 0;
+	
+	//read in the file
+	ret = Fat_ReadFile(path, &imgData);
+	if (ret <= 0 || imgData==NULL) goto out;
+
+	//load the image
+	tx = GRRLIB_LoadTextureJPG(imgData);
+	if (tx.w == -666) Gui_HandleBadCoverImage(path);
+		
+out:
+	SAFE_FREE(imgData);
+	return tx;
+}
+
+/**
+ * Draws a 4x4 RGBA image onto the screen.
+ * To be used in console mode only.
+ * @param tx The image to draw
+ * @param xpos The X position
+ * @param ypos The Y position
+ * @param dest_w The desired image width to draw
+ * @param dest_h The desired image height to draw
+ * @return void
+ */
+void Gui_DrawImage_Console(GRRLIB_texImg *tx, int xpos, int ypos, int dest_w, int dest_h)
+{
+	void *buf1 = NULL;
+	void *buf2 = NULL;
+	int width4, height4;
+
+	//anything to draw?
+	if (tx->data == NULL) return;
+	
+	//make sure final dimensions are divisible by 4
+	width4 = (dest_w + 3) >> 2 << 2;
+	height4 = (dest_h + 3) >> 2 << 2;
+
+	//allocate temp storage for resize
+	buf1 = mem_alloc (tx->w * tx->h * 4);  
+	if (buf1 == NULL) goto out;
+	buf2 = memalign (32, width4 * height4 * 4);
+	if (buf2 == NULL) goto out;
+
+	//convert to RGBA, resize and draw
+	C4x4_to_RGBA(tx->data, buf1, tx->w, tx->h);
+	ResizeRGBA(buf1, tx->w, tx->h, buf2, width4, height4);
+	Video_DrawRGBA(xpos, ypos, buf2, width4, height4);
+out:
+	SAFE_FREE(buf1);
+	SAFE_FREE(buf2);
+}
+
+/**
+ * Draws the theme preview image
+ * @param id The id(name) of the theme to draw
+ **/
+void Gui_DrawThemePreviewX(char *name, int id, int X, int Y, int W, int H)
+{
+	char theme_path[200];
+	GRRLIB_texImg tx;
+
+	//did we get a name to draw?
+	if ((name == NULL) || (strlen(name) < 1)) return;
+	//create the image path - images are in ./theme_previews dir
+	snprintf(D_S(theme_path), "%s/theme_previews/%d.jpg", USBLOADER_PATH, id);
+	//try to read in the image
+	tx = Gui_LoadJPGFromPath(theme_path);
+	if (tx.data == NULL) {
+		//draw nocover image
+		tx = Gui_LoadTexture_RGBA8(coverImg, COVER_WIDTH, COVER_HEIGHT, NULL, NULL);
+	}
+		
+	//draw the image
+	if (CFG.debug == 3) printf("X:%d  Y:%d  W:%d  H:%d\n", X, Y, W, H);
+	Gui_DrawImage_Console(&tx, X, Y, W, H);
+	SAFE_FREE(tx.data);
+}
+
+void Gui_DrawThemePreview(char *name, int id)
+{
+	Gui_DrawThemePreviewX(name, id,
+			CFG.theme_previewX, CFG.theme_previewY, CFG.theme_previewW, CFG.theme_previewH); 
+}
+
+void Gui_DrawThemePreviewLarge(char *name, int id)
+{
+	int con_h = 16 * 3;
+	// 2 lines of pixels will be overwritten by console
+	// intentional, because the jpg->rgba->c4x4->rgba conversion will
+	// corrupt the bottom 2 lines because h (250) is not a multiple of 4
+	// hence con_h+2
+	int h = 480 - con_h + 2;
+	int w = (640 * h / 480) / 2 * 2;
+	int x = (640 - w) / 2 / 2 * 2;
+	int y = 0;
+	Video_Clear(COLOR_BLACK);
+	Gui_DrawThemePreviewX(name, id, x, y, w, h); 
+	CON_InitEx(_Video_GetVMode(), 0, 480-con_h, 640, con_h);
+	printf("%15s %s: %s\n", " ", gt("Theme"), name);
+	printf("%15s %s", " ", gt("Press any button..."));
+	__console_flush(0);
+	Wpad_WaitButtonsCommon();
+	Gui_InitConsole();
+	Video_DrawBg();
+}
 
 void cache2_tex_alloc(struct M2_texImg *dest, int w, int h)
 {
@@ -2076,7 +2197,7 @@ void Repaint_ConBg(bool exiting)
 extern char action_string[40];
 extern int action_alpha;
 
-int Gui_DoAction(int action)
+int Gui_DoAction(int action, ir_t *ir)
 {
 	if (action & CFG_BTN_REMAP) return 0; 
 	switch(action) {
@@ -2108,6 +2229,7 @@ int Gui_DoAction(int action)
 				Save_ScreenShot(fn, sizeof(fn));
 				return 0;
 			}
+			
 		case CFG_BTN_PROFILE: 
 			if (CFG.current_profile == CFG.num_profiles-1)
 				CFG.current_profile = 0;
@@ -2131,6 +2253,7 @@ int Gui_DoAction(int action)
 			sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
 			action_alpha = 0xFF;
 			return(0);
+			
 		case CFG_BTN_FAVORITES:
 			{
 				extern void Switch_Favorites(bool enable);
@@ -2150,6 +2273,7 @@ int Gui_DoAction(int action)
 				}
 			}
 			return(0);
+			
 		case CFG_BTN_SORT:
 			if (sort_desc) {
 				sort_desc = 0;
@@ -2173,6 +2297,40 @@ int Gui_DoAction(int action)
 			sprintf(action_string, gt("Sort: %s-%s"), sortTypes[sort_index].name, (sort_desc) ? "DESC":"ASC");
 			action_alpha = 0xFF;
 			return 0;
+			
+		case CFG_BTN_RANDOM:
+			//pick a random cover and scroll to it
+			if (gui_style == GUI_STYLE_COVERFLOW) {
+				int i, newIdx, ret, buttons;
+				//this is needed so the easing slowdown doesn't occur in Coverflow_drawCovers
+				extern int rotating_with_wiimote;
+
+				newIdx = (rand() >> 16) % gameCnt;
+				i = abs(gameSelected - newIdx);
+				if (i > gameCnt/2) {
+					//wrap around scrolling
+					i = (newIdx > gameSelected) ? CF_TRANS_ROTATE_LEFT : CF_TRANS_ROTATE_RIGHT;
+				} else { 
+					i = (newIdx < gameSelected) ? CF_TRANS_ROTATE_LEFT : CF_TRANS_ROTATE_RIGHT;
+				}
+				//init rotation
+				while (1) {
+					buttons = Wpad_GetButtons();
+					rotating_with_wiimote = 1;
+					ret = Coverflow_init_transition(i, 100, gameCnt, false);
+					if (ret > 0) gameSelected = ret;
+					cache_release_all();
+					cache_request_before_and_after(gameSelected, 5, 1);
+					Coverflow_drawCovers(ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, gameCnt, false);
+					if (CFG.debug == 3) GRRLIB_Printf(50, 360, tx_font, CFG.gui_text.color, 1, "looking for: %d  gameCnt: %d", newIdx, gameCnt);
+					Gui_Render();
+					if (ret == newIdx) break;
+					if ((buttons & WPAD_BUTTON_B) || (buttons & WPAD_BUTTON_A)) break;
+				}
+				return 0;
+			} else {
+				return 1;
+			}
 
 		default:
 			// Magic Word or Channel
@@ -2543,7 +2701,7 @@ int Gui_Mode()
 		int i;
 
 		for (i = 4; i < MAX_BUTTONS; i++) {
-			if ((buttons & buttonmap[MASTER][i]) && (ret = Gui_DoAction(*(&CFG.button_M + (i - 4))))) {
+			if ((buttons & buttonmap[MASTER][i]) && (ret = Gui_DoAction(*(&CFG.button_M + (i - 4)), &ir))) {
 				if (ret < 0) exiting = true;
 				else if (game_select >= 0) gameSelected = game_select;
 				goto return_to_console;

@@ -48,6 +48,9 @@ void Gui_DrawCover(u8 *discid);
 int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cover_style, char *path);
 s32 __Gui_DrawPng(void *img, u32 x, u32 y);
 void Gui_LoadBackground(void);
+void Gui_DrawThemePreview(char *name, int id);
+void Gui_DrawThemePreviewLarge(char *name, int id);
+
 
 GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[], int, int, void *dest, char *path);
 GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[], int, int, void *dest, char *path);

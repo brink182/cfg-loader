@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"POT-Creation-Date: 2010-07-30 03:03+0200\n"
 "PO-Revision-Date: 2010-03-01 HO:MI+ZONE\n"
 "Last-Translator: sarangx <sarangx@naver.com>\n"
 "Language-Team: korea <sarangx@naver.com>\n"
@@ -74,6 +74,9 @@ msgstr "액션"
 msgid "Additional config:"
 msgstr "추가설정:"
 
+msgid "Adult"
+msgstr ""
+
 msgid "Adventure"
 msgstr "어드벤처"
 
@@ -82,6 +85,9 @@ msgstr "모두"
 
 msgid "All Games"
 msgstr "모든 게임"
+
+msgid "All themes up to date."
+msgstr ""
 
 msgid "Alt dol:"
 msgstr "DOL 대체"
@@ -151,6 +157,9 @@ msgstr "치트:"
 msgid "Check For Updates"
 msgstr "업데이트 확인"
 
+msgid "Checking for themes..."
+msgstr ""
+
 msgid "Checking for updates..."
 msgstr "업데이트 확인 중.."
 
@@ -159,6 +168,9 @@ msgstr "정렬 방법을 선택하세요."
 
 msgid "Classic Controller"
 msgstr "클래식 콘트롤러"
+
+msgid "Clear Patches:"
+msgstr ""
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -188,13 +200,28 @@ msgstr "표지그림:"
 msgid "Create"
 msgstr "만들기"
 
+msgid "Creator"
+msgstr ""
+
 #, c-format
 msgid "Current Version: %s"
 msgstr "현재버젼: %s"
 
 #, c-format
+msgid ""
+"Custom IOS %d could not be found!\n"
+"Please install it."
+msgstr ""
+
+#, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
 msgstr "cIOS %d를 찾을 수없습니다. (리턴값 = %d)"
+
+#, c-format
+msgid ""
+"Custom IOS %d is a stub!\n"
+"Please reinstall it."
+msgstr ""
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
@@ -214,6 +241,12 @@ msgstr "개발사"
 
 msgid "Device:"
 msgstr "장치:"
+
+msgid "Disc"
+msgstr "디스크"
+
+msgid "Disc (Ask)"
+msgstr ""
 
 msgid "Done."
 msgstr "완료"
@@ -244,6 +277,9 @@ msgstr "%.6s의 모든 표지를 내려받기 중"
 msgid "Downloading MISSING covers for %.6s"
 msgstr "%.6s의 누락된 표지를 내려받기합니다."
 
+msgid "Downloading Theme previews..."
+msgstr ""
+
 msgid "Downloading cheats..."
 msgstr "치트코드를 내려받기 중..."
 
@@ -256,6 +292,13 @@ msgstr "titles.txt를 내려받기 중…"
 #, c-format
 msgid "Downloading: %s"
 msgstr "내려받기 중: %s"
+
+#, c-format
+msgid "Downloading: %s as %s"
+msgstr ""
+
+msgid "Downloads"
+msgstr ""
 
 msgid "Drums"
 msgstr "타타콘(드럼)"
@@ -296,13 +339,6 @@ msgstr "오류: %s 에 접근할 수 없습니다.."
 #, c-format
 msgid "ERROR: Apploader %d"
 msgstr "오류:APPLOADER %d"
-
-msgid ""
-"ERROR: CIOS222 or CIOS223 required for\n"
-"starting games from a FAT partition!"
-msgstr ""
-"FAT 영역에서 게임을 실행하기 위해서는\n"
-"cIOS222또는 223이 필요합니다."
 
 msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "오류: BCA는 cIOS222/223v4이 필요합니다."
@@ -382,6 +418,13 @@ msgstr "오류: USB/FAT에 WBFS를 탑재(%d)"
 msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr "오류: WBFS FAT 섹터연결을 %x로 함. 정상: %x"
 
+msgid ""
+"ERROR: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 or higher required\n"
+"for starting games from a FAT partition!\n"
+"Upgrade IOS249 or choose a different IOS."
+msgstr ""
+
 msgid "ERROR: cache: out of memory"
 msgstr "오류: 메모리 부족"
 
@@ -450,8 +493,20 @@ msgstr "네트워크 초기화 실퍠"
 msgid "Error adding disc!"
 msgstr "디스크 추가 실패"
 
+msgid "Error creating directory..."
+msgstr ""
+
 msgid "Error discarding options!"
 msgstr "설정 취소하기 실퍠"
+
+msgid "Error downloading theme preview..."
+msgstr ""
+
+msgid "Error downloading theme..."
+msgstr ""
+
+msgid "Error downloading themes..."
+msgstr ""
 
 msgid "Error downloading update..."
 msgstr "업데이트 내려받기 실패"
@@ -464,6 +519,9 @@ msgstr "내려받기 실패"
 
 msgid "Error establishing connection"
 msgstr "연결 설정 중 실패"
+
+msgid "Error extracting theme..."
+msgstr ""
 
 msgid "Error opening database, update did not complete."
 msgstr "데이터베이스 열기 실패로 업데이트가 완료되지 않았습니다."
@@ -507,6 +565,10 @@ msgstr "오류: 주소가 없습니다."
 
 msgid "Error: no data."
 msgstr "오류: 데이터가 없습니다."
+
+#, c-format
+msgid "Extracting: %s"
+msgstr ""
 
 msgid "FAIL"
 msgstr "실패"
@@ -793,6 +855,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "네트워크에 연결 되었습니다."
 
+msgid "New Themes"
+msgstr ""
+
 msgid "Nintendo DS"
 msgstr "닌텐도 DS"
 
@@ -811,6 +876,9 @@ msgstr "HTTP를 복사할 수 있는 메모리가 부족합니다."
 
 msgid "No partition selected!"
 msgstr "영역이 선택되지 않았습니다."
+
+msgid "No themes found."
+msgstr ""
 
 msgid "No updates found."
 msgstr "업데이트를 찾지 못했습니다."
@@ -973,6 +1041,10 @@ msgid "Press %s button to skip codes."
 msgstr "%s 버튼 코드를 건너뜁니다."
 
 #, c-format
+msgid "Press %s for fullscreen preview"
+msgstr ""
+
+#, c-format
 msgid "Press %s for game options"
 msgstr "%s 버튼 게임 설정 화면으로 이동합니다."
 
@@ -987,6 +1059,10 @@ msgstr "%s 버튼 설정을 취소합니다."
 #, c-format
 msgid "Press %s to download and update"
 msgstr "%s 버튼 내려받기와 업데이트합니다."
+
+#, c-format
+msgid "Press %s to download this theme"
+msgstr ""
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1041,6 +1117,10 @@ msgid "Press any button..."
 msgstr "아무키나 누르세요."
 
 #, c-format
+msgid "Press button %s to download covers."
+msgstr ""
+
+#, c-format
 msgid "Press button %s to eject DVD."
 msgstr "%s 버튼 DVD를 꺼냅니다."
 
@@ -1069,6 +1149,9 @@ msgstr "레이싱"
 #, c-format
 msgid "Rated %s"
 msgstr "게임등급 %s"
+
+msgid "Rating"
+msgstr ""
 
 msgid "Read"
 msgstr "읽기"
@@ -1176,12 +1259,32 @@ msgstr "이 게임을 실행할까요?"
 msgid "Strategy"
 msgstr "전략 게임"
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme Info"
+msgstr ""
+
+msgid ""
+"Theme may be too large.\n"
+"Reboot of Cfg suggested.\n"
+msgstr ""
+
 msgid "Theme:"
 msgstr "테마:"
 
 #, c-format
 msgid "Theme: %s"
 msgstr "테마: %s"
+
+msgid "Themes provided by wii.spiffy360.com"
+msgstr ""
+
+msgid "Themes to download"
+msgstr ""
+
+msgid "Themes with updates"
+msgstr ""
 
 msgid "Title"
 msgstr "타이틀"
@@ -1227,6 +1330,9 @@ msgstr "실행 안한 게임"
 msgid "Update WiiTDB Game Database"
 msgstr "WiiTDB 게임 테이터베이스 업데이트"
 
+msgid "Update themes"
+msgstr ""
+
 msgid "Update titles.txt"
 msgstr "titles.txt 업데이트"
 
@@ -1239,6 +1345,9 @@ msgstr "사용: 여유공간: %.1fGB 전체공간: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
 msgstr "저장된 대체 .dol을 사용하고 있습니다."
+
+msgid "Version"
+msgstr ""
 
 msgid "Video Patch:"
 msgstr "비디오 패치:"
@@ -1389,8 +1498,12 @@ msgstr "Wii 디스크를 열 수 없습니다."
 msgid "used: %p - %p"
 msgstr "사용 중: %p - %p"
 
-#~ msgid "Disc"
-#~ msgstr "디스크"
+#~ msgid ""
+#~ "ERROR: CIOS222 or CIOS223 required for\n"
+#~ "starting games from a FAT partition!"
+#~ msgstr ""
+#~ "FAT 영역에서 게임을 실행하기 위해서는\n"
+#~ "cIOS222또는 223이 필요합니다."
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: 예전 방법으로 대체"

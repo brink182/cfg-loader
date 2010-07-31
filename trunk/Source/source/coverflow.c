@@ -111,7 +111,7 @@ static int grx_cover_init = 0;
 static int cover_init = 0;
 static bool showingFrontCover = true;
 static bool spinCover_dpad_used = false;
-//u32 selectedColor;  //uncomment for testing color under pointer
+u32 selectedColor;
 
 //vars for the floating cover functionality
 f32 float_speed_increment = 0.03;
@@ -126,7 +126,7 @@ bool float_yrot_up = false;
 bool float_zrot_up = true;
 
 static int rotation_start_index = 0;
-static int rotating_with_wiimote = 0;
+int rotating_with_wiimote = 0;
 
 Mtx GXview2D;
 
@@ -384,7 +384,7 @@ u32 calculateNewColor(u32 startPos, u32 endPos, int index, int totalFrames, int 
 		case 5: a = easeOutExpo(index, a1, a2 - a1, totalFrames); break;
 	}
 	
-	if (totalFrames/2 > index)
+	if ((totalFrames/2) > index)
 		color = (startPos & 0xFFFFFF00) | (u8)a;
 	else
 		color = (endPos & 0xFFFFFF00) | (u8)a;
@@ -442,7 +442,7 @@ int setCoverIndexing(int coverCount, int index) {
  *  @return f32 representing the radian
  */
 f32 degToRad (f32 degree) {
-	return (degree * M_PI) / 180;
+	return (degree * M_PI) / 180.f;
 }
 
 
@@ -1464,13 +1464,10 @@ void draw_phantom_cover (CoverPos *cover, u32 color) {
  *  @return void
  */
 void set_cover_stencil_colors() {
-	int i, j;
-	for (i=0; i<CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers; i++) {
-		coverCoords_left[i].stencil_color = 0xFFFF00FF | ((u16)(i*256));
-	}
-	i = 256 * CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers;
-	for (j=0; j<CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers; j++) {
-		coverCoords_right[j].stencil_color = 0xFFFF00FF | ((u16)(j*256+i));
+	int i;
+	for (i=1; i<=CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers; i++) {
+		coverCoords_left[i-1].stencil_color = GRRLIB_GetColor((u8)i, 0xFF, 0xFF, 0xFF);
+		coverCoords_right[i-1].stencil_color = GRRLIB_GetColor((u8)255-i, 0xFF, 0xFF, 0xFF);
 	}
 	coverCoords_center.stencil_color = MOUSEOVER_COVER_OFFSCREEN;
 }
@@ -1482,24 +1479,24 @@ void set_cover_stencil_colors() {
  */
 void capture_cover_positions() {
 	int i;
-	
-	//draw the covers with different colors
-	for (i=CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers-1; i>=0; i--) {
-		draw_phantom_cover(&coverCoords_left[i].themePos, coverCoords_left[i].stencil_color);
-		draw_phantom_cover(&coverCoords_right[i].themePos, coverCoords_right[i].stencil_color);
-	}
-	draw_phantom_cover(&coverCoords_center.themePos, coverCoords_center.stencil_color);
-	
-	//now take a picture of the covers
+
 	if (t2_screenshot.tx.data == NULL) {
 		// first time, allocate
-		cache2_tex_alloc_fullscreen(&t2_screenshot);
+		int src_size = 16384;  //= 128 * 128
+		t2_screenshot.tx.data = LARGE_realloc(t2_screenshot.tx.data, src_size);
+		t2_screenshot.size = src_size;
+		t2_screenshot.tx.w = 128;
+		t2_screenshot.tx.h = 128;
 	}
-	GX_DrawDone();
-	GRRLIB_Screen2Texture_buf(&t2_screenshot.tx);
-
-	//reset the viewpoint to 2D
-	set2DProjectionMatrix();
+	
+	GRRLIB_prepareStencil();
+	//draw the covers with different colors
+	for (i=CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers-1; i>=0; i--) {
+		draw_phantom_cover(&coverCoords_left[i].currentPos, coverCoords_left[i].stencil_color);
+		draw_phantom_cover(&coverCoords_right[i].currentPos, coverCoords_right[i].stencil_color);
+	}
+	draw_phantom_cover(&coverCoords_center.currentPos, coverCoords_center.stencil_color);
+	GRRLIB_renderStencil_buf(&t2_screenshot.tx);
 }
 
 
@@ -1572,10 +1569,11 @@ int get_selected_cover_index() {
  */
 int is_over_cover(ir_t *ir) {
 	int selected_gi, i;
-	u32 selectedColor;
 	
+	capture_cover_positions();
 	//grab the color under the pointer
-	selectedColor = GRRLIB_GetPixelFromtexImg(ir->sx, ir->sy, t2_screenshot.tx);
+	i = GRRLIB_stencilVal(ir->sx, ir->sy, t2_screenshot.tx);
+	selectedColor = GRRLIB_GetColor((u8)i, 0xFF, 0xFF, 0xFF);
 	if (selectedColor == coverCoords_center.stencil_color) {
 		set_selected_state(0);
 		selected_gi = coverCoords_center.gi;
@@ -1596,6 +1594,7 @@ int is_over_cover(ir_t *ir) {
 	
 	selected_gi = get_selected_cover_index();
 	out:;
+	GRRLIB_ResetVideo();
 	return selected_gi;
 }
 
@@ -1921,10 +1920,10 @@ void Coverflow_draw_title(int selectedCover, int xpos, ir_t *ir) {
 	
 	//check if we're showing the back cover
 	if (!showingFrontCover) {
-		title_y = 436;
+		title_y = 436.f;
 	}
 	if (CFG.gui_title_top) {
-		title_y = 24 + 2; // 24 = overscan
+		title_y = 24.f + 2.f; // 24 = overscan
 	}
 	if (do_clock) {
 		int x = BACKGROUND_WIDTH/2;
@@ -2139,7 +2138,7 @@ int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool dra
 
 		//if moving to/from console mode then fade the backgrounds
 		if (CFG_cf_global.transition == CF_TRANS_MOVE_TO_CONSOLE || CFG_cf_global.transition == CF_TRANS_MOVE_FROM_CONSOLE) {
-			alpha = 255 * CFG_cf_global.frameIndex / CFG_cf_global.frameCount;
+			alpha = 255 * (int)round((float)CFG_cf_global.frameIndex / CFG_cf_global.frameCount);
 			Gui_set_camera(NULL, 0);
 			if (CFG_cf_global.transition == CF_TRANS_MOVE_TO_CONSOLE) {
 				GRRLIB_DrawImg(0, 0, t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
@@ -2238,11 +2237,11 @@ int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool dra
 		GRRLIB_Printf(50, 55, tx_font, CFG.gui_text.color, 1, "center  start.yrot:%f end.yrot:%f", coverCoords_center.startPos.yrot, coverCoords_center.endPos.yrot);
 		GRRLIB_Printf(50, 70, tx_font, CFG.gui_text.color, 1, "trans? %i, framecount: %i, frameindex: %i  ease: %i", CFG_cf_global.transition, CFG_cf_global.frameCount, CFG_cf_global.frameIndex, ease);
 		//to see the mouseover screenshot image:
-		//GRRLIB_DrawImg(0, 0, t2_screenshot.tx, 0, 1, 1, 0xFFFFFFFF);
+		//GRRLIB_DrawImg_format(0, 0, t2_screenshot.tx, GX_TF_I8, 0, 1, 1, 0xFFFFFFFF);
 		//currently selected color and cover index:
-		//GRRLIB_Printf(200, 410, tx_font, CFG.gui_text.color, 1.0, "cover(gi): %i  color: %X", selectedCover, selectedColor);
+		GRRLIB_Printf(200, 410, tx_font, CFG.gui_text.color, 1.0, "cover(gi): %i  color: %X", selectedCover, selectedColor);
 		//mouse pointer position:
-		GRRLIB_Printf(50, 430, tx_font, CFG.gui_text.color, 1.0, "sx: %.2f  sy: %.2f  angle: %.2f v: %d %d %d", ir->sx, ir->sy, ir->angle,	ir->raw_valid, ir->smooth_valid, ir->valid);
+		//GRRLIB_Printf(50, 430, tx_font, CFG.gui_text.color, 1.0, "sx: %.2f  sy: %.2f  angle: %.2f v: %d %d %d", ir->sx, ir->sy, ir->angle,	ir->raw_valid, ir->smooth_valid, ir->valid);
 	}
 	
 	return selectedCover;
@@ -2693,7 +2692,7 @@ int Coverflow_initCoverObjects(int coverCount, int selectedCoverIndex, bool them
 	coverCoords_center.themePos.z = CFG_cf_theme[CFG_cf_global.theme].cover_center_zpos;
 	coverCoords_center.themePos.xrot = CFG_cf_theme[CFG_cf_global.theme].cover_center_xrot;
 	coverCoords_center.themePos.yrot = CFG_cf_theme[CFG_cf_global.theme].cover_center_yrot;
-	coverCoords_center.themePos.yrot = CFG_cf_theme[CFG_cf_global.theme].cover_center_yrot;
+	coverCoords_center.themePos.zrot = CFG_cf_theme[CFG_cf_global.theme].cover_center_zrot;
 	coverCoords_center.themePos.alpha = 255;
 	coverCoords_center.themePos.reflection_bottom = CFG_cf_theme[CFG_cf_global.theme].reflections_color_bottom;
 	coverCoords_center.themePos.reflection_top = CFG_cf_theme[CFG_cf_global.theme].reflections_color_top;

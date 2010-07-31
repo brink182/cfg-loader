@@ -18,7 +18,6 @@
 #include "menu.h"
 #include "dolmenu.h"
 
-
 /* Apploader function pointers */
 typedef int   (*app_main)(void **dst, int *size, int *offset);
 typedef void  (*app_init)(void (*report)(const char *fmt, ...));
@@ -267,13 +266,11 @@ s32 Apploader_Run(entry_point *entry)
 	u32 appldr_len;
 	s32 ret;
 
-	#if DELAY_PATCH
 	void* dst_array[64];
 	int len_array[64];
 	int last_index = -1;
-	int fststart;
-	#endif
-
+	int fststart = 0;
+	
 	wipreset();
 
 	/* Read apploader header */
@@ -303,6 +300,10 @@ s32 Apploader_Run(entry_point *entry)
 
 	/* Initialize apploader */
 	appldr_init(__noprint);
+
+	// dolStart, dolEnd added for giantpune's return-to patch by Dr. Clipper
+	u32 dolStart = 0x90000000;
+    u32 dolEnd = 0x0;
 
 	//if (CFG.ios_yal)
 	printf(".");
@@ -334,61 +335,79 @@ s32 Apploader_Run(entry_point *entry)
 
 		/* Read data from DVD */
 		WDVD_Read(dst, len, (u64)(offset << 2));
+
 		//if (CFG.ios_yal)
 		printf(".");
 
-		#if DELAY_PATCH
-		// From NeoGamma: delay patches after load complete
-		last_index++;
-		dst_array[last_index] = dst;
-		len_array[last_index] = len;
-		#else
-		maindolpatches(dst, len);
-		#endif
+		if (CFG.delay_patch) {
+			// From NeoGamma: delay patches after load complete
+			last_index++;
+			dst_array[last_index] = dst;
+			len_array[last_index] = len;
+		} else {
+			maindolpatches(dst, len);
+		}
 
+		// dolStart, dolEnd added for giantpune's return-to patch by Dr. Clipper
+        if( (u32)dst < dolStart )dolStart = (u32)dst;
+        if( (u32)dst + len > dolEnd ) dolEnd = (u32)dst + len;
 		DCFlushRange(dst, len);
 	}
 
-	#if DELAY_PATCH
-	dst_array[last_index+1] = (void *)0x81800000;
 	int j = 0;
-	fststart = 0;
-	while ( j <= last_index && (u32)dst_array[last_index-j] + len_array[last_index-j] == (u32)dst_array[last_index-j+1]) 
-	{
-		fststart = last_index - j;
-		j++;
-	}		
-	if (fststart == 0)
-	{
-		for (j = 4; j <= last_index; j++)
+	if (CFG.delay_patch) {
+		dst_array[last_index+1] = (void *)0x81800000;
+		
+		fststart = 0;
+		while ( j <= last_index && (u32)dst_array[last_index-j] + len_array[last_index-j] == (u32)dst_array[last_index-j+1]) 
 		{
-			if ((u32)dst_array[j] == *(u32 *)0x80000038)
-			{
-				fststart = j;
-			}
-		}
+			fststart = last_index - j;
+			j++;
+		}		
 		if (fststart == 0)
 		{
-			fststart = last_index;
+			for (j = 4; j <= last_index; j++)
+			{
+				if ((u32)dst_array[j] == *(u32 *)0x80000038)
+				{
+					fststart = j;
+				}
+			}
+			if (fststart == 0)
+			{
+				fststart = last_index;
+			}
 		}
 	}
-	#endif
+
+	
+
 
 	/* Set entry point from apploader */
 	*entry = appldr_final();
 	//if (CFG.ios_yal)
 	printf("\n\n");
 	
-	#if DELAY_PATCH
-	// delayed patching (NeoGamma)
-	for (j=3;j<fststart;j++)
-	{
-		maindolpatches(dst_array[j], len_array[j]);
-	}	
-	#endif
+	if (CFG.delay_patch) {
+		// delayed patching (NeoGamma)
+		for (j=3;j<fststart;j++)
+		{
+			maindolpatches(dst_array[j], len_array[j]);
+		}	
+	}
 	
 	do_wip_patches();
 	wipreset();
+
+	// giantpune's return-to patch added by Dr. Clipper
+    if( CFG.return_to && !CFG.game.clean)
+    {
+        if( PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to) )
+        {
+            //gprintf("return-to patched\n" );
+            DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
+        }
+    }
 
 	// alternative dol (WiiPower)
 	if (CFG.game.alt_dol)
@@ -510,6 +529,40 @@ void __Patch_CoverRegister(void *buffer, u32 len)
 	}
 }
 
+// PoP patch by Dr. Clipper (thanks giantpune, WiiCrazy)
+bool PrinceOfPersiaPatch()
+{
+	if (memcmp("SPX", (char *)0x80000000, 3) == 0 || memcmp("RPW", (char *)0x80000000, 3) == 0) {
+		u8 *p = (u8 *)0x807AEB6A;
+		*p++ = 0x6F;
+		*p++ = 0x6A;
+		*p++ = 0x7A;
+		*p++ = 0x6B;
+		p = (u8 *)0x807AEB75;
+		*p++ = 0x69;
+		*p++ = 0x39;
+		*p++ = 0x7C;
+		*p++ = 0x7A;
+		p = (u8 *)0x807AEB82;
+		*p++ = 0x68;
+		*p++ = 0x6B;
+		*p++ = 0x73;
+		*p++ = 0x76;
+		p = (u8 *)0x807AEB92;
+		*p++ = 0x75;
+		*p++ = 0x70;
+		*p++ = 0x80;
+		*p++ = 0x71;
+		p = (u8 *)0x807AEB9D;
+		*p++ = 0x6F;
+		*p++ = 0x3F;
+		*p++ = 0x82;
+		*p++ = 0x80;
+		return true;
+	}
+	return false;
+}
+
 // NSMB patch by WiiPower
 bool NewSuperMarioBrosPatch(void *Address, int Size)
 {
@@ -544,6 +597,26 @@ bool NewSuperMarioBrosPatch(void *Address, int Size)
 	return false;
 }
 
+// from sneek by crediar
+void sneek_video_patch(void *addr, u32 len)
+{
+	u8 *addr_start = addr;
+	u8 *addr_end = addr+len;
+	
+	while(addr_start < addr_end)
+	{
+		if( *(vu32*)(addr_start) == 0x3C608000 )
+		{
+			if( ((*(vu32*)(addr_start+4) & 0xFC1FFFFF ) == 0x800300CC) && ((*(vu32*)(addr_start+8) >> 24) == 0x54 ) )
+			{
+				//dbgprintf("DIP:[patcher] Found VI pattern:%08X\n", (u32)(addr_start) | 0x80000000 );
+				*(vu32*)(addr_start+4) = 0x5400F0BE | ((*(vu32*)(addr_start+4) & 0x3E00000) >> 5	);
+			}
+		}
+		addr_start += 4;
+	}
+}
+
 void patch_video_modes(void *dst, int len)
 {
 	GXRModeObj** table = NULL;
@@ -551,9 +624,19 @@ void patch_video_modes(void *dst, int len)
 	{
 		Search_and_patch_Video_To(dst, len, vmodes, disc_vmode);
 	}
+	else if (CFG.game.video_patch == CFG_VIDEO_PATCH_SNEEK)
+	{
+		sneek_video_patch(dst, len);
+	}
+	else if (CFG.game.video_patch == CFG_VIDEO_PATCH_SNEEK_ALL)
+	{
+		sneek_video_patch(dst, len);
+		Search_and_patch_Video_To(dst, len, vmodes, disc_vmode);
+	}
 	else 
 	{
-		if (CFG.game.video_patch && (CFG.game.video == CFG_VIDEO_SYS))
+		if (CFG.game.video_patch == CFG_VIDEO_PATCH_ON
+			&& (CFG.game.video == CFG_VIDEO_SYS))
 		{
 			switch(CONF_GetVideo())
 			{
@@ -598,20 +681,22 @@ void maindolpatches(void *dst, int len)
 
 	wipregisteroffset((u32)dst, len);
 
-	patch_video_modes(dst, len);
-	
-	if (CFG.game.ocarina) {
+	if (CFG.game.clean != CFG_CLEAN_ALL) {
+		patch_video_modes(dst, len);
+	}
+
+	if (CFG.game.ocarina && CFG.game.clean != CFG_CLEAN_ALL) {
 		dogamehooks(dst,len);
 	}
-	if (CFG.game.vidtv) {
+	if (CFG.game.vidtv && CFG.game.clean != CFG_CLEAN_ALL) {
 		vidolpatcher(dst,len);
 	}
 	/*LANGUAGE PATCH - FISHEARS*/
-	if (CFG.game.language != CFG_LANG_CONSOLE) {
+	if (CFG.game.language != CFG_LANG_CONSOLE && CFG.game.clean != CFG_CLEAN_ALL) {
 		langpatcher(dst,len);
 	}
 	// Country Patch by WiiPower
-	if(CFG.game.country_patch) {
+	if(CFG.game.country_patch && CFG.game.clean != CFG_CLEAN_ALL) {
 		PatchCountryStrings(dst, len);
 	}
 
@@ -620,12 +705,16 @@ void maindolpatches(void *dst, int len)
 	   	Anti_002_fix(dst, len);
 	}
 	// disc in drive check
-	if (CFG.patch_dvd_check) {
+	if (CFG.patch_dvd_check  && !CFG.disable_dvd_patch && !CFG.game.clean) {
 		__Patch_CoverRegister(dst, len);
 	}
 	// NSMB patch by WiiPower
 	if (!CFG.disable_nsmb_patch) {
 		NewSuperMarioBrosPatch(dst, len);
+	}
+	// PoP patch
+	if (!CFG.disable_pop_patch) {
+		PrinceOfPersiaPatch();
 	}
 
 	DCFlushRange(dst, len);
@@ -705,6 +794,11 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	void *offset;
 	u32 pos;
 	u32 len;
+
+	// dolStart, dolEnd added by Dr. Clipper for giantpune's return-to patch
+	u32 dolStart = 0x90000000;
+    u32 dolEnd = 0x0;
+
 	int sec_idx = 0;
 	
 	printf_("...");
@@ -720,6 +814,13 @@ u32 Load_Dol_from_disc(u32 doloffset)
 			ret = WDVD_Read(offset, len, (doloffset<<2) + pos);
 
 			maindolpatches(offset, len);
+
+            if( (u32)offset < dolStart )
+                dolStart = (u32)offset;
+
+            if( (u32)offset + len > dolEnd )
+                dolEnd = (u32)offset + len;
+
 			Remove_001_Protection(offset, len);
 		}
 		sec_idx++;
@@ -727,6 +828,12 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	}
 	printf("\n");
 	
+	// giantpune's return-to patch added by Dr. Clipper
+	if( PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to && !CFG.game.clean) )
+    {
+            // gprintf("return-to patched\n" );
+            DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
+    }
 	free(dol_header);
 
 	return entrypoint;
@@ -764,7 +871,7 @@ u32 stringcompare(char *s1, char *s2)
 		}
 		if (s1[index] != '?' && s2[index] != '?' && toupper((u8)s1[index]) != toupper((u8)s2[index]))
 		{
-			return index;
+			return -1;
 		}
 		index++;	
 	}
@@ -987,6 +1094,11 @@ u32 Load_Dol_from_sd()
 	void *offset;
 	u32 pos;
 	u32 len;
+
+	// dolStart, dolEnd added by Dr. Clipper for giantpune's return-to patch
+	u32 dolStart = 0x90000000;
+    u32 dolEnd = 0x0;
+
 	int sec_idx = 0;
 	
 	printf_("...");
@@ -1018,6 +1130,13 @@ u32 Load_Dol_from_sd()
 				return -1;
 			}
 			maindolpatches(offset, len);
+
+            if( (u32)offset < dolStart )
+                dolStart = (u32)offset;
+
+            if( (u32)offset + len > dolEnd )
+                dolEnd = (u32)offset + len;
+
 			Remove_001_Protection(offset, len);
 		}	
 		sec_idx++;
@@ -1025,6 +1144,13 @@ u32 Load_Dol_from_sd()
 	}
 	printf("\n");
 	
+	// giantpune's return-to patch added by Dr. Clipper
+	if( PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to  && !CFG.game.clean) )
+    {
+            // gprintf("return-to patched\n" );
+            DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
+    }
+
 	free(dol_header);
 	fclose(file);
 

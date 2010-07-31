@@ -126,11 +126,13 @@ bool is_code(char *line)
 	if (strlen(line) < 17) return false;
 	if (strlen(line) > 17 && line[17] != ' ') return false;
 	if (line[8] != ' ') return false;
-	// check if all alphanum
-	for (i=0; i<17; i++) {
-		if (i==8) continue; // space
-		// is alpha numeric?
-		if (!isalnum(line[i])) return true;
+	// check if address is valid
+	for (i=0; i<8; i++) {
+		if (!isxdigit(line[i])) return false;
+	}
+	// check if value is hex
+	for (i=9; i<17; i++) {
+		if (!isalnum(line[i])) return false;
 	}
 	return true;
 }
@@ -142,8 +144,7 @@ bool is_editable(char *line)
 {
 	int i;
 	if (!is_code(line)) return false;
-	for (i=0; i<17; i++) {
-		if (i==8) continue; // space
+	for (i=9; i<17; i++) {
 		// is hex digit?
 		if (!isxdigit(line[i])) return true;
 	}

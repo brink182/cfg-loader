@@ -310,8 +310,10 @@ void warn_ios_bugs()
 	// ios == 249
 	if (wbfs_part_fs && IOS_GetRevision() < 18) {
 		printf(
-			gt("ERROR: CIOS222 or CIOS223 required for\n"
-			"starting games from a FAT partition!"));
+			gt("ERROR: cIOS249rev18, cIOS222v4,\n"
+			   "cIOS223v4, cIOS224v5 or higher required\n"
+			   "for starting games from a FAT partition!\n"
+			   "Upgrade IOS249 or choose a different IOS."));
 		printf("\n\n");
 		warn = true;
 	}
@@ -838,7 +840,7 @@ int Menu_Views()
 
 	for (;;) {
 
-		menu.line_count = 0;
+		menu_begin(&menu);
 		menu_init_active(&menu, active, sizeof(active));
 
 		//if admin lock is off or they're not in admin 
@@ -1014,8 +1016,12 @@ void Menu_Alt_Dol(struct discHdr *header, struct Game_CFG *game_cfg, int allow_b
 		}
 		if (menu_window_mark(&menu))
 			printf("SD\n");
-		if (menu_window_mark(&menu))
-			printf("Disc\n");
+		if (menu_window_mark(&menu)) {
+			if (allow_back)
+				printf("%s\n", gt("Disc (Ask)"));
+			else
+				printf("%s\n", gt ("Disc"));
+		}
 		for (i=0; i<dol_list.num; i++) {
 			if (menu_window_mark(&menu))
 				printf("  %s\n", dol_list.name[i]);
@@ -1082,7 +1088,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	struct Game_CFG_2 *game_cfg2 = NULL;
 	struct Game_CFG *game_cfg = NULL;
-	int opt_saved, opt_ios_reload; 
+	int opt_saved, opt_ios_reload, opt_language, opt_video, opt_video_patch, opt_vidtv, opt_country_patch, opt_ocarina; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
 	int i;
@@ -1115,7 +1121,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	game_cfg = &game_cfg2->curr;
 
 	struct Menu menu;
-	const int NUM_OPT = 16;
+	const int NUM_OPT = 17;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -1138,6 +1144,29 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			active[8] = 0;
 			opt_ios_reload = 0;
 		}
+		// clean options
+		opt_language = game_cfg->language;
+		opt_video = game_cfg->video;
+		opt_video_patch = game_cfg->video_patch;
+		opt_vidtv = game_cfg->vidtv;
+		opt_country_patch = game_cfg->country_patch;
+		opt_ocarina = game_cfg->ocarina;
+		if (game_cfg->clean == CFG_CLEAN_ALL) {
+			opt_language = CFG_LANG_CONSOLE;
+			opt_video = CFG_VIDEO_GAME;
+			opt_video_patch = CFG_VIDEO_PATCH_OFF;
+			opt_vidtv = 0;
+			opt_country_patch = 0;
+			opt_ocarina = 0;
+			active[1] = 0;
+			active[2] = 0;
+			active[3] = 0;
+			active[4] = 0;
+			active[5] = 0;
+			active[10] = 0;
+			active[11] = 0;
+		}
+
 		// if not ocarina and not wiird, deactivate hooks
 		if (!game_cfg->ocarina && !CFG.wiird) {
 			active[11] = 0;
@@ -1187,10 +1216,14 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				str_alt_dol = dolmenubuffer[i+1].name;
 			}
 		}
-		const char *str_vpatch[3];
+		const char *str_vpatch[CFG_VIDEO_PATCH_MAX+1];
 		str_vpatch[0] = gt("Off");
 		str_vpatch[1] = gt("On");
 		str_vpatch[2] = gt("All");
+		str_vpatch[CFG_VIDEO_PATCH_SNEEK] =
+			map_get_name(map_video_patch, CFG_VIDEO_PATCH_SNEEK);
+		str_vpatch[CFG_VIDEO_PATCH_SNEEK_ALL] =
+			map_get_name(map_video_patch, CFG_VIDEO_PATCH_SNEEK_ALL);
 
 		// start menu draw
 
@@ -1212,13 +1245,13 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Language:"), languages[game_cfg->language]);
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Video:"), videos[game_cfg->video]);
+			PRINT_OPT_S(gt("Video:"), videos[opt_video]);
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Video Patch:"), str_vpatch[game_cfg->video_patch]);
+			PRINT_OPT_S(gt("Video Patch:"), str_vpatch[opt_video_patch]);
 		if (menu_window_mark(&menu))
-			PRINT_OPT_B("VIDTV:", game_cfg->vidtv);
+			PRINT_OPT_B("VIDTV:", opt_vidtv);
 		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Country Fix:"), game_cfg->country_patch);
+			PRINT_OPT_B(gt("Country Fix:"), opt_country_patch);
 		if (menu_window_mark(&menu))
 			PRINT_OPT_B(gt("Anti 002 Fix:"), game_cfg->fix_002);
 		if (menu_window_mark(&menu))
@@ -1228,7 +1261,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
 		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Ocarina (cheats):"), game_cfg->ocarina);
+			PRINT_OPT_B(gt("Ocarina (cheats):"), opt_ocarina);
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Hook Type:"), hook_name[game_cfg->hooktype]);
 		if (menu_window_mark(&menu))
@@ -1239,7 +1272,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Write Playlog:"), game_cfg->write_playlog);
+			PRINT_OPT_S(gt("Write Playlog:"), playlog_name[game_cfg->write_playlog]);
+		if (menu_window_mark(&menu))
+			PRINT_OPT_S(gt("Clear Patches:"), str_vpatch[game_cfg->clean]);
 		DefaultColor();
 		menu_window_end(&menu, cols);
 
@@ -1290,7 +1325,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				CHANGE(game_cfg->video, CFG_VIDEO_MAX);
 				break;
 			case 3:
-				CHANGE(game_cfg->video_patch, 2);
+				CHANGE(game_cfg->video_patch, CFG_VIDEO_PATCH_MAX);
 				break;
 			case 4:
 				CHANGE(game_cfg->vidtv, 1);
@@ -1340,7 +1375,10 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				Gui_DrawCover(header->id);
 				break;
 			case 15:
-				CHANGE(game_cfg->write_playlog, 1);
+				CHANGE(game_cfg->write_playlog, 3);
+				break;
+			case 16:
+				CHANGE(game_cfg->clean, 2);
 				break;
 			}
 		}
@@ -1432,11 +1470,11 @@ int Menu_Global_Options()
 	int redraw_cover = 0;
 
 	struct Menu menu;
-	menu_init(&menu, 9);
+	menu_init(&menu, 10);
 
 	for (;;) {
 
-		menu.line_count = 0;
+		menu_begin(&menu);
 
 		if (gameCnt) {
 			header = &gameList[gameSelected];
@@ -1449,7 +1487,7 @@ int Menu_Global_Options()
 		printf_x(gt("Global Options"));
 		printf(":\n\n");
 		DefaultColor();
-		menu_window_begin(&menu, win_size, 9);
+		menu_window_begin(&menu, win_size, 10);
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Main Menu"));
 		if (menu_window_mark(&menu))
@@ -1471,6 +1509,8 @@ int Menu_Global_Options()
 			printf("<%s>\n", gt("Update WiiTDB Game Database")); // download database - lustar
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Update titles.txt"));
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Update themes"));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Check For Updates"));
 		DefaultColor();
@@ -1532,6 +1572,9 @@ int Menu_Global_Options()
 				Download_Titles();
 				break;
 			case 8:
+				Theme_Update();
+				break;
+			case 9:
 				Online_Update();
 				break;
 			}
@@ -1694,6 +1737,10 @@ void DoAction(int action)
 			break;
 		case CFG_BTN_FILTER:
 			Menu_Filter();
+			break;
+		case CFG_BTN_RANDOM:
+			gameSelected = (rand() >> 16) % gameCnt;
+			__Menu_ScrollStartList();
 			break;
 		default:
 			// Priiloader magic words, and channels
@@ -2593,10 +2640,15 @@ void Menu_Install(void)
 
 	/* Turn on the Slot Light */
 	wiilight(1);
-
+	
+	bool coversdone = false;
 out:
 	// clear buttons status
 	WPAD_Flush(WPAD_CHAN_ALL);
+	if (!coversdone) {
+		printf("\n");
+		printf_h(gt("Press button %s to download covers."), (button_names[CFG.button_other.num]));
+	}
 	printf("\n");
 	printf_h(gt("Press button %s to eject DVD."), (button_names[CFG.button_confirm.num]));
 	printf("\n");
@@ -2615,6 +2667,10 @@ out:
 		printf("\n");
 		WDVD_Eject();
 		sleep(1);
+	} else if (!coversdone && (buttons & CFG.button_other.mask)) {
+		Download_Cover((char *)header.id, true, true);
+		coversdone = true;
+		goto out;
 	}
 	header = gameList[gameSelected];
 	Gui_DrawCover(header.id);
@@ -2954,6 +3010,33 @@ void Menu_Boot(bool disc)
 		CFG.game = game_cfg->curr;
 		cfg_ios_set_idx(CFG.game.ios_idx);
 		//dbg_printf("set ios: %d idx: %d\n", CFG.ios, CFG.game.ios_idx);
+		
+	    /* Check for stub IOS */
+        ret = checkIOS(CFG.ios);
+        
+        if (ret == -1) {
+		    printf_x(gt("ERROR:"));
+		    printf("\n");
+		    printf_(gt("Custom IOS %d is a stub!\nPlease reinstall it."), CFG.ios);
+		    printf("\n");
+			printf_(gt("Press any button..."));
+			printf("\n");
+
+			/* Wait for button */
+			Wpad_WaitButtonsCommon();
+		    goto close;
+        } else if (ret == -2) {
+		    printf_x(gt("ERROR:"));
+		    printf("\n");
+			printf_(gt("Custom IOS %d could not be found!\nPlease install it."), CFG.ios);
+		    printf("\n");
+			printf_(gt("Press any button..."));
+			printf("\n");
+
+			/* Wait for button */
+			Wpad_WaitButtonsCommon();
+		    goto close;
+	    }
 	}
 
 	if (!disc) {
@@ -2998,7 +3081,8 @@ void Menu_Boot(bool disc)
 	}
 
 	// load stuff before ios reloads & services close
-	ocarina_load_code(header->id);
+	if (CFG.game.clean != CFG_CLEAN_ALL)
+		ocarina_load_code(header->id);
 	load_wip_patches(header->id);
 	load_bca_data(header->id);
 	load_dolmenu((char*)header->id);
@@ -3017,7 +3101,6 @@ void Menu_Boot(bool disc)
 
 	setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
 	
-	//Incase booting of disc fails, just go back to loader. Bad practice?
 	if (CFG.game.alt_dol != 1) {
 		// unless we're loading alt.dol from sd
 		// unmount everything
@@ -3025,9 +3108,10 @@ void Menu_Boot(bool disc)
 	}
 
 	if (!disc) {
+
 		ret = ReloadIOS(1, 1);
 		if (ret < 0) goto out;
-		
+
 		Block_IOS_Reload();
 	
 		// verify IOS version
@@ -3166,6 +3250,60 @@ void Menu_Loop(void)
 
 	// Init Favorites
 	Switch_Favorites(CFG.start_favorites);
+
+	switch(CFG.select) {
+		case CFG_SELECT_PREVIOUS: 
+			{
+			int i;
+			time_t ret, last=0;
+			for (i = 0; i < gameCnt; i++) {
+				if ((ret = getLastPlay(gameList[i].id)) >= last) {
+					last = ret;
+					gameSelected = i;
+				}
+			}
+			break;
+			}
+		case CFG_SELECT_START:
+			gameSelected = 0;
+			break;
+		case CFG_SELECT_MIDDLE:
+			gameSelected = (gameCnt-1)/2;
+			break;
+		case CFG_SELECT_END:
+			gameSelected = gameCnt - 1;
+			break;
+		case CFG_SELECT_MOST:
+			{
+			int i;
+			u32 ret, last=0;
+			for (i = 0; i < gameCnt; i++) {
+				if ((ret = getPlayCount(gameList[i].id)) >= last) {
+					last = ret;
+					gameSelected = i;
+				}
+			}
+			break;
+			}
+		case CFG_SELECT_LEAST:
+			{
+			int i;
+			u32 ret, last=0xFFFFFFFF;
+			for (i = 0; i < gameCnt; i++) {
+				if ((ret = getPlayCount(gameList[i].id)) < last) {
+					last = ret;
+					gameSelected = i;
+				}
+			}
+			break;
+			}
+		case CFG_SELECT_RANDOM:
+			gameSelected = (rand() >> 16) % gameCnt;
+			break;
+
+	}
+	// scroll start list
+	__Menu_ScrollStartList();
 
 	// Start GUI
 	if (CFG.gui == CFG_GUI_START) goto skip_list;

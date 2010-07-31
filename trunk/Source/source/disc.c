@@ -440,7 +440,8 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	}
 
 	// OCARINA STUFF - FISHEARS
-	ocarina_do_code();
+	if (CFG.game.clean != CFG_CLEAN_ALL)
+		ocarina_do_code();
 
 	/* Close subsystems */
 	__console_flush(0);
@@ -473,7 +474,7 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	appentrypoint = (u32)p_entry;
 
 	// check if the codehandler is used - if Ocarina and/or debugger is used
-	if (CFG.game.ocarina || CFG.wiird)
+	if ((CFG.game.ocarina || CFG.wiird) && CFG.game.clean != CFG_CLEAN_ALL)
 	{
 		__asm__(
 			"lis %r3, appentrypoint@h\n"

@@ -15,6 +15,7 @@ void Menu_Loop(void);
 void Menu_Options(void);
 void Menu_Partition(bool must_select);
 void Handle_Home(int disable_screenshot);
+void Theme_Update();
 void Online_Update();
 void Download_Titles();
 void Menu_Cheats(struct discHdr *header);
@@ -56,6 +57,7 @@ void menu_move_cap(struct Menu *m);
 void menu_move_wrap(struct Menu *m);
 void menu_move_adir(struct Menu *m, int dir);
 void menu_move_active(struct Menu *m, int buttons);
+char m_active(struct Menu *m, int i);
 
 void menu_window_begin(struct Menu *m, int size, int num_items);
 bool menu_window_mark(struct Menu *m);

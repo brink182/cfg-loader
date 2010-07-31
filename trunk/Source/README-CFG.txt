@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v56
+Configurable SD/USB Loader v57
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -16,9 +16,10 @@ Features:
 ---------
 
  - SDHC and USB HDD device support
- - GUI (Grid / Coverflow) and Console mode (switchable runtime)
+ - GUI (Grid / Coverflow) and Console mode (switchable at runtime)
  - Background Music (.mp3 or .mod)
- - Themes (switchable runtime)
+ - Themes (switchable at runtime)
+ - Themes Browser
  - Widescreen (auto-detect)
  - Transparency (covers and console)
  - Cover images download
@@ -87,6 +88,7 @@ Default File locations:
     full:          sd:/usb-loader/covers/full/*.png
   titles file:     sd:/usb-loader/titles.txt
   themes:          sd:/usb-loader/themes/THEME_NAME/theme.txt
+  theme preview:   sd:/usp-loader/themes/*.jpg
 
   ocarina cheat codes are searched in:
                    sd:/usb-loader/codes/*.gct
@@ -469,6 +471,14 @@ Config file:
 # gui_title_top = [0], 1
 #   If 1, gui text appears above covers.  If 0, below.
 #
+# preview_coords = x,y,width,height
+# wpreview_coords = x,y,width,height   (widescreen)
+#   Settings for the Theme Preview image.
+#   If X and/or Y is set to -1, the Cover X and/or Y position is used.
+#   Either W or H (or both) should be set to zero to maintain the correct 
+#   aspect ratios.  If both are set to zero, the Cover width is used and the 
+#   height is scaled accordingly.
+#
 # home = [reboot], exit, hbc, screenshot, priiloader, wii_menu, 
 #        <magic word>, <channel ID>
 #   What to do when an exit button (typically home) is pressed in the menus
@@ -820,6 +830,20 @@ Config file:
 #   1 = enable debugger
 #   2 = enable debugger and pause start
 #
+# select = [previous], start, middle, end, most, least, random
+#   Selects which game is picked by default on startup.
+#   The new default is the previous game played (to get old
+#   operation, set select=start).
+#   'start', 'middle' and 'end' refer to position in the list.
+#   'most' and 'least' refer to number of plays (in Cfg).
+#   'random' selects a different game each time.
+#
+# adult_themes = [0], 1
+#   determines if adult themes can be downloaded
+#
+# theme_previews = [1], 0
+#   determines if the theme preview images should be downloaded and displayed
+#
 # Game Compatibility Options:
 # ===========================
 # 
@@ -833,14 +857,14 @@ Config file:
 # language = [console], japanese, english, german, french, spanish,
 #            italian, dutch, s.chinese, t.chinese, korean
 #
-# video_patch = [0], 1, all
+# video_patch = [0], 1, all, sneek, sneek+all
+#   'video_patch = 1': This will patch NTSC -> PAL modes if console is PAL
+#   and PAL -> NTSC modes if console is NTSC
+#   This will not change interlaced / progressive mode
 #   'video_patch = all' will force all modes to the selected video mode.
 #   This will also force progressive / interlaced mode, depending on what
 #   is configured in wii settings. This can be used for example to force
 #   progressive mode if the game will otherwise use interlaced mode (MPT)
-#   'video_patch = 1': This will patch NTSC -> PAL modes if console is PAL
-#   and PAL -> NTSC modes if console is NTSC
-#   This will not change interlaced / progressive mode
 #
 # vidtv = [0], 1
 #   Required by some games (Japanese,...)
@@ -873,11 +897,36 @@ Config file:
 # hooktype = nohooks, [vbi], wiipad, gcpad, gxdraw, gxflush, ossleep, axframe
 #   specify ocarina hook type
 #
-# write_playlog = [0], 1
+# write_playlog = [0], 1, 2, 3
 #   Write gameplay stats to the Wii message board log.
 #   This option won't work when the Wii Menu is skipped before
 #   starting Cfg (e.g., using Priiloader or BootMii autoboot).
+#   0 = off, do not write to the Wii Message Board log.
+#   1 = on, set title based on the value of the language option unless
+#       the title in that language is blank where it then uses the
+#       English title or the Japanese title (whichever is valid).
+#   2 = on, set title to the Japanese title.
+#   3 = on, set title to the English title.
+#   In the per-game menu, these options show up as "Off", "On",
+#   "Japanese Title" and "English Title" respectively.
 #
+# return_to_channel = [0], JODI, FDCL, ...
+#   Games will return to the selected channel ID
+#   e.g., JODI for HBC or a forwarder channel like FDCL or DCFG
+#     to reload Cfg.
+#   0 is the default Wii Menu operation
+#
+# disable_nsmb_patch = [0],1
+# disable_pop_patch = [0],1
+# disable_dvd_patch = [0],1
+#   Optionally disable patches performed by the loader.
+#
+#   nsmb = New Super Mario Bros.
+#   pop = Prince of Persia: The Forgotten Sands
+#   dvd = disc check patch for Hermes.
+#
+#   PoP requires that you disable the dvd patch
+#   Set an option to 1 to disable (i.e., not patch)
 
 Config file sample:
 -------------------
@@ -902,6 +951,106 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+31-07-2010 cfg v57 (release)
+ * Added video patching mode from Sneek (by Crediar)
+   changed option: video_patch = [0], 1, all, sneek, sneek+all
+
+30-07-2010 cfg v57b9 (beta9)
+ * Added ID of 1.07 HBC to launch functions. (Clipper)
+ * Allowed hex values for options that can specify a channel ID
+   so the new HBC is supported.  Value for HBC 1.07 is AF1BF516. (Clipper)
+ * Scrollable list of updates (oggzee)
+
+24-07-2010 cfg v57b8 (beta8)
+ * Added language selection to write_playlog (Clipper)
+ * Improved playlog title detection: if the title for selected game language is empty,
+   and playlog is enabled (but not set to a specific language) then try with english
+   or the first language for which a title exists. (oggzee)
+ * Fullscreen theme preview on button 1 (oggzee)
+ * Download of theme preview can be cancelled by holding B (oggzee)
+ * Moved theme preview images from themes/*.jpg to theme_previews/*.jpg (oggzee)
+ * Optimizations of coverflow cover selection (usptactical)
+   (realtime and compressed stencil buffer)
+
+13-06-2010 cfg v57b7 (beta7)
+ * Initial jpeglib support added (usptactical)
+ * Added jpeg error handling: bad jpegs will be renamed 
+   to filename.bad (usptactical)
+ * Theme Preview images (usptactical)
+   option: theme_previews = [1], 0
+     Determines if preview images can be downloaded and 
+     displayed.
+   option: preview_coords = x,y,width,height
+   option: wpreview_coords = x,y,width,height
+     Set x/y to -1 to use Cover x/y
+     Set width/height to 0 to use Cover height/width
+ * Using select = random option in coverflow scrolls
+   covers to next game (usptactical)
+ * Bug fix for clicking on titles in theme download 
+   menu. (Clipper)
+   
+08-06-2010 cfg v57b6 (beta6)
+ * new option: select = [previous], start, middle, end,
+                        most, least, random
+   Selects which game is picked by default on startup.
+   The new default is the previous game played (to get old
+   operation, set select=start).
+   'start', 'middle' and 'end' refer to position in the list.
+   'most' and 'least' refer to number of plays (in Cfg).
+   'random' selects a different game each time.
+ * new button action: random
+   Selects a different game at random from the current list
+   To use, assign to a button, like button_Z=random
+ * Title/alphabetical sorting made case insensitive (oggzee)
+ * clear_patches save bug fixed
+ * cheat bug fixed
+
+25-05-2010 cfg v57b5 (beta5)
+ * .wip patches now working
+ * fix for .txt cheat detection (some cheats were incorrectly
+   identified as editable)
+ * New per-game option:
+      clear_patches = [0],1,all
+    When on (1) return_to_channel and the dvd check are disabled
+    When 'all', then all .dol patches are disabled
+
+20-05-2010 cfg v57b4 (beta4)
+ * Patch for Prince of Persia
+ * new option: disable_pop_patch = [0], 1
+ * new option: disable_dvd_patch = [0], 1
+
+20-05-2010 cfg v57b3 (beta3)
+ * Fix for big theme downloading
+
+16-05-2010 cfg v57b2 (beta2)
+ * Theme downloading (via global options)
+ * Themes provided by http://wii.spiffy360.com
+ * new option: adult_themes = [0], 1
+     Adult themes only shown for download if switched on
+
+27-04-2010 cfg v57b (beta)
+ * Added warnings for stubbed IOSes (gannon, Wiipower)
+ * Changed warning for IOS249 <rev18+FAT32
+   to make it more intuitive.
+
+14-04-2010 cfg v57a (alpha)
+ * After ripping a disc, you can push 1 to download images
+ * new option: return_to_channel = [0], JODI, FDCL, ...
+     Games will return to the selected channel ID
+       e.g., JODI for HBC or a forwarder channel
+       to reload Cfg.
+     0 is the default Wii Menu operation
+   Note: write_playlog won't work if you don't go back
+     to the Wii Menu between games (only the last game
+     played will be recognised in the log)
+ * download_all_styles = 0 now downloads full covers
+   if a coverflow GUI mode is selected.  2D images
+   will be downloaded if the full download fails. 
+
+06-04-2010 cfg v56c (bugfix)
+ * Bug fix for alt dol disc plus (should fix Rampage problem)
+ * Minor cosmetic improvements
 
 18-03-2010 cfg v56 (release)
 

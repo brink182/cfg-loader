@@ -7,7 +7,7 @@ int http_progress = 0;
  * Emptyblock is a statically defined variable for functions to return if they are unable
  * to complete a request
  */
-const struct block emptyblock = {0, NULL};
+const struct block emptyblock = {0, 0, NULL};
 
 //The maximum amount of bytes to send per net_write() call
 #define NET_BUFFER_SIZE 1024
@@ -70,11 +70,17 @@ static s32 server_connect(u32 ipaddress, u32 socket_port) {
  * @param s32 connection The connection identifier to suck the response out of
  * @return block A 'block' struct (see http.h) in which the buffer is located
  */
-struct block read_message(s32 connection)
+struct block read_message(s32 connection, const char *fname)
 {
 	//Create a block of memory to put in the response
 	struct block buffer;
+	FILE *f = NULL;
+	bool found = false;
+	unsigned char *buffer_found;
+
+	buffer_found = malloc(HTTP_BUFFER_SIZE);
 	buffer.data = malloc(HTTP_BUFFER_SIZE);
+	buffer.filesize = 0;
 	buffer.size = HTTP_BUFFER_SIZE;
 	int progress_count = 0;
 
@@ -82,6 +88,11 @@ struct block read_message(s32 connection)
 		return emptyblock;
 	}
 	
+	if (fname != NULL)
+	{
+		if ((f = fopen(fname,"wb")) == NULL) return emptyblock;
+	}
+
 	//The offset variable always points to the first byte of memory that is free in the buffer
 	u32 offset = 0;
 	
@@ -89,7 +100,12 @@ struct block read_message(s32 connection)
 	{
 		//Fill the buffer with a new batch of bytes from the connection,
 		//starting from where we left of in the buffer till the end of the buffer
-		s32 bytes_read = net_read(connection, buffer.data + offset, buffer.size - offset);
+		s32 bytes_read;
+		
+		if (!found)
+			bytes_read = net_read(connection, buffer.data + offset, buffer.size - offset);
+		else
+			bytes_read = net_read(connection, buffer_found, HTTP_BUFFER_SIZE);
 		
 		//Anything below 0 is an error in the connection
 		if(bytes_read < 0)
@@ -106,7 +122,35 @@ struct block read_message(s32 connection)
 			break;
 		}
 		
-		offset += bytes_read;
+		if (fname != NULL) {
+			if (!found) {
+				int i;
+				for (i=0; !found && i < bytes_read; i++, offset++) {
+					if (offset >= 3 &&
+					buffer.data[offset] == '\n' &&
+					buffer.data[offset-1] == '\r' &&
+					buffer.data[offset-2] == '\n' &&
+					buffer.data[offset-3] == '\r') {
+						found = true;
+					}
+				}
+				if (found) {
+					fwrite(buffer.data + offset, 1, bytes_read - i, f);
+					buffer.filesize += bytes_read-i;
+					//buffer.size += HTTP_BUFFER_GROWTH;
+					//buffer.data = realloc(buffer.data, buffer.size);
+					//if(buffer.data == NULL)
+					//{
+					//	return emptyblock;
+					//}
+				}
+			} else {
+				fwrite(buffer_found, 1, bytes_read, f);
+				buffer.filesize += bytes_read;
+			}
+		} else {
+			offset += bytes_read;
+		}
 
 		//Check if we have enough buffer left over,
 		//if not expand it with an additional HTTP_BUFFER_GROWTH worth of bytes
@@ -123,15 +167,25 @@ struct block read_message(s32 connection)
 
 		// display progress
 		if (http_progress) {
-			while (offset / http_progress >= progress_count) {
-				printf(".");
-				progress_count++;
+			if (fname == NULL) {
+				while (offset / http_progress >= progress_count) {
+					printf(".");
+					progress_count++;
+				}
+			} else {
+				while (buffer.filesize / http_progress >= progress_count) {
+					printf(".");
+					progress_count++;
+				}
 			}
 		}
 	}
 
 	//At the end of above loop offset should be precisely the amount of bytes that were read from the connection
 	buffer.size = offset;
+	free(buffer_found);
+	if (fname != NULL)
+		fclose(f);
 		
 	//Shrink the size of the buffer so the data fits exactly in it
 	buffer.data = realloc(buffer.data, buffer.size);
@@ -147,7 +201,11 @@ struct block read_message(s32 connection)
  * Downloads the contents of a URL to memory
  * This method is not threadsafe (because networking is not threadsafe on the Wii)
  */
-struct block downloadfile(const char *url)
+struct block downloadfile(const char *url) {
+	return downloadfile_fname(url, NULL);
+}
+
+struct block downloadfile_fname(const char *url, const char *fname)
 {
 	//Check if the url starts with "http://", if not it is not considered a valid url
 	if(strncmp(url, "http://", strlen("http://")) != 0)
@@ -208,7 +266,7 @@ struct block downloadfile(const char *url)
 
 	//Do the request and get the response
 	send_message(connection, header);
-	struct block response = read_message(connection);
+	struct block response = read_message(connection, fname);
 	net_close(connection);
 
 	// Check response status. Should be something like HTTP/1.1 200 OK
@@ -240,6 +298,9 @@ struct block downloadfile(const char *url)
 		}
 	}
 
+	if (fname != NULL) {
+		return response;
+	}
 	//Search for the 4-character sequence \r\n\r\n in the response which signals the start of the http payload (file)
 	unsigned char *filestart = NULL;
 	u32 filesize = 0;
@@ -269,6 +330,7 @@ struct block downloadfile(const char *url)
 	struct block file;
 	file.data = malloc(filesize);
 	file.size = filesize;
+	file.filesize = filesize;
 	
 	if(file.data == NULL)
 	{
@@ -288,12 +350,17 @@ struct block downloadfile(const char *url)
 
 struct block downloadfile_progress(const char *url, int size)
 {
+	return downloadfile_progress_fname(url, size, NULL);
+}
+
+struct block downloadfile_progress_fname(const char *url, int size, const char *fname)
+{
 	int x = http_progress;
 	struct block file;
 	if (size == 1) size = 100;
 	size *= 1024;
 	http_progress = size;
-	file = downloadfile(url);
+	file = downloadfile_fname(url, fname);
 	http_progress = x;
 	return file;
 }

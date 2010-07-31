@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"POT-Creation-Date: 2010-07-30 03:03+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -72,6 +72,9 @@ msgstr "Actie"
 msgid "Additional config:"
 msgstr "Extra instellingen:"
 
+msgid "Adult"
+msgstr ""
+
 msgid "Adventure"
 msgstr "Avontuur"
 
@@ -81,8 +84,11 @@ msgstr "Alle"
 msgid "All Games"
 msgstr "Alle spellen"
 
+msgid "All themes up to date."
+msgstr ""
+
 msgid "Alt dol:"
-msgstr "Alt dol"
+msgstr "Alt dol:"
 
 msgid "Alternative .dol:"
 msgstr "Alternatieve .dol:"
@@ -153,6 +159,9 @@ msgstr "Cheats: "
 msgid "Check For Updates"
 msgstr "Controleren op updates"
 
+msgid "Checking for themes..."
+msgstr ""
+
 msgid "Checking for updates..."
 msgstr "Controleren op updates..."
 
@@ -161,6 +170,9 @@ msgstr "Kies een sorteermethode"
 
 msgid "Classic Controller"
 msgstr "Klassieke Controller"
+
+msgid "Clear Patches:"
+msgstr ""
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -190,13 +202,28 @@ msgstr "Hoesje:"
 msgid "Create"
 msgstr "Maak"
 
+msgid "Creator"
+msgstr ""
+
 #, c-format
 msgid "Current Version: %s"
 msgstr "Huidige versie: %s"
 
 #, c-format
+msgid ""
+"Custom IOS %d could not be found!\n"
+"Please install it."
+msgstr ""
+
+#, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
 msgstr "Custom IOS %d kan niet geladen worden! (ret = %d)"
+
+#, c-format
+msgid ""
+"Custom IOS %d is a stub!\n"
+"Please reinstall it."
+msgstr ""
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
@@ -216,6 +243,12 @@ msgstr "Ontwikkelaar"
 
 msgid "Device:"
 msgstr "Apparaat"
+
+msgid "Disc"
+msgstr "Disk"
+
+msgid "Disc (Ask)"
+msgstr ""
 
 msgid "Done."
 msgstr "Klaar."
@@ -246,6 +279,9 @@ msgstr "Downloading alle hoesjes voor %.6s"
 msgid "Downloading MISSING covers for %.6s"
 msgstr "Downloading ontbrekende hoesjes voor %.6s"
 
+msgid "Downloading Theme previews..."
+msgstr ""
+
 msgid "Downloading cheats..."
 msgstr "Cheats downloaden..."
 
@@ -258,6 +294,13 @@ msgstr "Titles.txt downloaden ..."
 #, c-format
 msgid "Downloading: %s"
 msgstr "Bezig met downloaden: %s"
+
+#, c-format
+msgid "Downloading: %s as %s"
+msgstr ""
+
+msgid "Downloads"
+msgstr ""
 
 msgid "Drums"
 msgstr "Drums"
@@ -298,13 +341,6 @@ msgstr "FOUT: %s is niet bereikbaar"
 #, c-format
 msgid "ERROR: Apploader %d"
 msgstr "FOUT: Applader %d"
-
-msgid ""
-"ERROR: CIOS222 or CIOS223 required for\n"
-"starting games from a FAT partition!"
-msgstr ""
-"cIOS222 of cIOS223 benodigd om\n"
-"spellen te laden van een FAT partitie!"
 
 msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "FOUT: cIOS222/223 v4 benodigd voor BCA"
@@ -384,6 +420,13 @@ msgstr "FOUT: USB/FAT mount wbfs! (%d)"
 msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr "FOUT: WBFS FAT mount sector %x niet %x"
 
+msgid ""
+"ERROR: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 or higher required\n"
+"for starting games from a FAT partition!\n"
+"Upgrade IOS249 or choose a different IOS."
+msgstr ""
+
 msgid "ERROR: cache: out of memory"
 msgstr "FOUT: cache: te weinig geheugen"
 
@@ -452,8 +495,20 @@ msgstr "Fuot bij netwerk init."
 msgid "Error adding disc!"
 msgstr "Fuot bij spel toevoegen"
 
+msgid "Error creating directory..."
+msgstr ""
+
 msgid "Error discarding options!"
 msgstr "Fout bij opties verwijderen!"
+
+msgid "Error downloading theme preview..."
+msgstr ""
+
+msgid "Error downloading theme..."
+msgstr ""
+
+msgid "Error downloading themes..."
+msgstr ""
 
 msgid "Error downloading update..."
 msgstr "Fout bij downloaden van update..."
@@ -466,6 +521,9 @@ msgstr "Fout bij downloaden."
 
 msgid "Error establishing connection"
 msgstr "Fout bij opzetten van connectie"
+
+msgid "Error extracting theme..."
+msgstr ""
 
 msgid "Error opening database, update did not complete."
 msgstr "Fout bij het openen van de database, update niet voltooid."
@@ -509,6 +567,10 @@ msgstr "Fout: geen URL."
 
 msgid "Error: no data."
 msgstr "Fout: geen data."
+
+#, c-format
+msgid "Extracting: %s"
+msgstr ""
 
 msgid "FAIL"
 msgstr "MISLUKT"
@@ -659,7 +721,7 @@ msgid "Last Play Date"
 msgstr "Laatst gespeeld"
 
 msgid "Launch Methods"
-msgstr ""
+msgstr "Opstart methode"
 
 msgid "Load OK!"
 msgstr "Laden OK!"
@@ -736,21 +798,21 @@ msgid ""
 "NOTE: CIOS249 before rev10:\n"
 "Loading games from SDHC not supported!"
 msgstr ""
-"NOTA: cIOS249 voor rev10:\n"
+"Opmerking: cIOS249 voor rev10:\n"
 "Spellen laden van SDHC niet ondersteund!"
 
 msgid ""
 "NOTE: CIOS249 before rev14:\n"
 "Possible error #001 is not handled!"
 msgstr ""
-"NOTA: cIOS249 voor rev14\n"
+"Opmerking: cIOS249 voor rev14\n"
 "Kans op fout #001!"
 
 msgid ""
 "NOTE: CIOS249 before rev9:\n"
 "Loading games from USB not supported!"
 msgstr ""
-"NOTA: cIOS249 voor rev9:\n"
+"Opmerking: cIOS249 voor rev9:\n"
 "Spellen laden van USB niet ondersteund!"
 
 msgid ""
@@ -759,7 +821,7 @@ msgid ""
 "power-off the Wii before you start\n"
 "another game or it will hang here!"
 msgstr ""
-"NOTA: Je gebruikt cIOS249 rev23:\n"
+"Opmerking: Je gebruikt cIOS249 rev23:\n"
 "Om een spel te beëindigen moet je de\n"
 "Wii afsluiten voor je een nieuw spel\n"
 "start anders bevriest de lader!"
@@ -771,7 +833,7 @@ msgid ""
 "you use a different IOS or revision\n"
 "for installation/playback of this game."
 msgstr ""
-"NOTA: Je gebruikt cIOS249 rev14:\n"
+"Opmerking: Je gebruikt cIOS249 rev14:\n"
 "Er zijn problemen met dual-layer\n"
 "spellen. Het is aangeraden om een\n"
 "andere cIOS te gebruiken of een andere\n"
@@ -781,7 +843,7 @@ msgid ""
 "NOTE: loader restart is required\n"
 "for the update to take effect."
 msgstr ""
-"NOTA: De lader moet herstarten voor\n"
+"Opmerking: De lader moet herstarten voor\n"
 "de wijzigingen in werking treden"
 
 #, c-format
@@ -791,13 +853,16 @@ msgid ""
 "invalid setup. Press %s to change the\n"
 "partition type from EXTEND to data."
 msgstr ""
-"NOTA: partitie P#%d is van type EXTEND\n"
+"Opmerking: partitie P#%d is van type EXTEND\n"
 "maar bevat een wbfs systeem. Dit is een\n"
 "ongeldige setup. Druk %s om het partitie-\n"
 "type te wijzigen van EXTEND naar data."
 
 msgid "Network connection established."
 msgstr "Netwerk connectie geslaagd."
+
+msgid "New Themes"
+msgstr ""
 
 msgid "Nintendo DS"
 msgstr "Nintendo DS"
@@ -817,6 +882,9 @@ msgstr "Geen geheugen meer om het bestand van het web te kopiëren"
 
 msgid "No partition selected!"
 msgstr "Geen partitie gekozen!"
+
+msgid "No themes found."
+msgstr ""
 
 msgid "No updates found."
 msgstr "Geen updates gevonden"
@@ -979,6 +1047,10 @@ msgid "Press %s button to skip codes."
 msgstr "Druk %s om codes over te slaan"
 
 #, c-format
+msgid "Press %s for fullscreen preview"
+msgstr ""
+
+#, c-format
 msgid "Press %s for game options"
 msgstr "Druk %s voor spelopties"
 
@@ -993,6 +1065,10 @@ msgstr "Druk %s om de opties te verwijderen"
 #, c-format
 msgid "Press %s to download and update"
 msgstr "Druk %s om te downloaden en updaten"
+
+#, c-format
+msgid "Press %s to download this theme"
+msgstr ""
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1047,6 +1123,10 @@ msgid "Press any button..."
 msgstr "Druk op een knop..."
 
 #, c-format
+msgid "Press button %s to download covers."
+msgstr ""
+
+#, c-format
 msgid "Press button %s to eject DVD."
 msgstr "Druk %s om de DVD uit te werpen."
 
@@ -1075,6 +1155,9 @@ msgstr "Racen"
 #, c-format
 msgid "Rated %s"
 msgstr "Leeftijd %s"
+
+msgid "Rating"
+msgstr ""
 
 msgid "Read"
 msgstr "Lees"
@@ -1182,12 +1265,32 @@ msgstr "Spel starten?"
 msgid "Strategy"
 msgstr "Strategie"
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme Info"
+msgstr ""
+
+msgid ""
+"Theme may be too large.\n"
+"Reboot of Cfg suggested.\n"
+msgstr ""
+
 msgid "Theme:"
 msgstr "Thema:"
 
 #, c-format
 msgid "Theme: %s"
 msgstr "Thema: %s"
+
+msgid "Themes provided by wii.spiffy360.com"
+msgstr ""
+
+msgid "Themes to download"
+msgstr ""
+
+msgid "Themes with updates"
+msgstr ""
 
 msgid "Title"
 msgstr "Titel"
@@ -1233,6 +1336,9 @@ msgstr "Ongespeelde spellen"
 msgid "Update WiiTDB Game Database"
 msgstr "WiiTDB Spellendatabase updaten"
 
+msgid "Update themes"
+msgstr ""
+
 msgid "Update titles.txt"
 msgstr "titles.txt updaten"
 
@@ -1245,6 +1351,9 @@ msgstr "Gebruikt: %.1fGB Vrij: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
 msgstr "Opgeslagen Alt dol wordt gebruikt:"
+
+msgid "Version"
+msgstr ""
 
 msgid "Video Patch:"
 msgstr "Video Patch:"
@@ -1395,9 +1504,6 @@ msgstr "kan wii disc niet openen"
 msgid "used: %p - %p"
 msgstr "gebruikt: %p - %p"
 
-#~ msgid "Disc"
-#~ msgstr "Disk"
-
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "Disk IOS %u kan niet worden geladen! (ret = %d)"
 
@@ -1412,6 +1518,13 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "Alle %s Hoesjes downloaden"
+
+#~ msgid ""
+#~ "ERROR: CIOS222 or CIOS223 required for\n"
+#~ "starting games from a FAT partition!"
+#~ msgstr ""
+#~ "cIOS222 of cIOS223 benodigd om\n"
+#~ "spellen te laden van een FAT partitie!"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: terug naar oude methode"

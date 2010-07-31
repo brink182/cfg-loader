@@ -6,12 +6,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"POT-Creation-Date: 2010-07-30 03:03+0200\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #, c-format
@@ -72,6 +72,9 @@ msgstr "Azione"
 msgid "Additional config:"
 msgstr "Config addizionali:"
 
+msgid "Adult"
+msgstr "Adulti"
+
 msgid "Adventure"
 msgstr "Avventura"
 
@@ -80,6 +83,9 @@ msgstr "Tutti"
 
 msgid "All Games"
 msgstr "Tutti Giochi"
+
+msgid "All themes up to date."
+msgstr "Tutti i temi sono aggiornati."
 
 msgid "Alt dol:"
 msgstr "Alt dol"
@@ -155,6 +161,9 @@ msgstr "Trucchi: "
 msgid "Check For Updates"
 msgstr "Verifica Aggiornamenti"
 
+msgid "Checking for themes..."
+msgstr "Sto controllando i temi…"
+
 msgid "Checking for updates..."
 msgstr "Sto verificando gli aggiornamenti..."
 
@@ -163,6 +172,9 @@ msgstr "Scegli un criterio di ordinamento"
 
 msgid "Classic Controller"
 msgstr "Controller Classico"
+
+msgid "Clear Patches:"
+msgstr "Annulla Correzioni:"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -192,13 +204,32 @@ msgstr "Copertina:"
 msgid "Create"
 msgstr "Crea"
 
+msgid "Creator"
+msgstr "Autore"
+
 #, c-format
 msgid "Current Version: %s"
 msgstr "Versione Attuale: %s"
 
 #, c-format
+msgid ""
+"Custom IOS %d could not be found!\n"
+"Please install it."
+msgstr ""
+"Il Custom IOS %d non è stato trovato!\n"
+"Occorre installarlo."
+
+#, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
 msgstr "Impossibile caricare il Custom IOS %d! (ret = %d)"
+
+#, c-format
+msgid ""
+"Custom IOS %d is a stub!\n"
+"Please reinstall it."
+msgstr ""
+"Il Custom IOS %d è fittizio!\n"
+"Occorre reinstallarlo."
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
@@ -218,6 +249,12 @@ msgstr "Sviluppatore"
 
 msgid "Device:"
 msgstr "Periferica:"
+
+msgid "Disc"
+msgstr "Disco"
+
+msgid "Disc (Ask)"
+msgstr "Disco (Chiedi)"
 
 msgid "Done."
 msgstr "Fatto."
@@ -248,6 +285,9 @@ msgstr "Sto scaricando TUTTE le copertine per %.6s"
 msgid "Downloading MISSING covers for %.6s"
 msgstr "Sto scaricando le copertine MANCANTI per %.6s"
 
+msgid "Downloading Theme previews..."
+msgstr "Sto scaricando le anteprime dei temi..."
+
 msgid "Downloading cheats..."
 msgstr "Sto scaricando i trucchi..."
 
@@ -260,6 +300,13 @@ msgstr "Sto scaricando titles.txt ..."
 #, c-format
 msgid "Downloading: %s"
 msgstr "Sto scaricando: %s"
+
+#, c-format
+msgid "Downloading: %s as %s"
+msgstr "Sto scaricando: %s come %s"
+
+msgid "Downloads"
+msgstr "Num. Download"
 
 msgid "Drums"
 msgstr "Tamburi"
@@ -300,13 +347,6 @@ msgstr "ERRORE: %s non accessibile"
 #, c-format
 msgid "ERROR: Apploader %d"
 msgstr "ERRORE: Apploader %d"
-
-msgid ""
-"ERROR: CIOS222 or CIOS223 required for\n"
-"starting games from a FAT partition!"
-msgstr ""
-"ERRORE: CIOS222 o CIOS223 necessario per\n"
-"caricare giochi da una partizione FAT!"
 
 msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "ERRORE: CIOS222/223 v4 necessario per BCA"
@@ -386,6 +426,17 @@ msgstr "ERRORE: USB/FAT mount wbfs! (%d)"
 msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr "ERRORE: WBFS FAT mount sector %x not %x"
 
+msgid ""
+"ERROR: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 or higher required\n"
+"for starting games from a FAT partition!\n"
+"Upgrade IOS249 or choose a different IOS."
+msgstr ""
+"ERRORE: è necessario il cIOS249rev18,\n"
+"cIOS222v4, cIOS223v4, cIOS224v5 o superiori\n"
+"per caricare i giochi da una partizione FAT!\n"
+"Aggiornare il cIOS249 o scegliere un cIOS diverso."
+
 msgid "ERROR: cache: out of memory"
 msgstr "ERRORE: cache: memoria terminata"
 
@@ -454,8 +505,20 @@ msgstr "Errore Inizializzazione Rete."
 msgid "Error adding disc!"
 msgstr "Errore aggiungendo disco!"
 
+msgid "Error creating directory..."
+msgstr "Errore creando la cartella…."
+
 msgid "Error discarding options!"
 msgstr "Errore sostituendo opzioni!"
+
+msgid "Error downloading theme preview..."
+msgstr "Errore scaricando l'anteprima del tema..."
+
+msgid "Error downloading theme..."
+msgstr "Errore scaricando il tema..."
+
+msgid "Error downloading themes..."
+msgstr "Errore scaricando i temi..."
 
 msgid "Error downloading update..."
 msgstr "Errore scaricando aggiornamento..."
@@ -468,6 +531,9 @@ msgstr "Errore durante download."
 
 msgid "Error establishing connection"
 msgstr "Errore stabilendo connessione"
+
+msgid "Error extracting theme..."
+msgstr "Errore scompattando il tema…"
 
 msgid "Error opening database, update did not complete."
 msgstr "Errore apertura database, aggiornamento non completato."
@@ -511,6 +577,10 @@ msgstr "Errore: nessun URL."
 
 msgid "Error: no data."
 msgstr "Errore: nessun dato."
+
+#, c-format
+msgid "Extracting: %s"
+msgstr "Sto scompattando: %s"
 
 msgid "FAIL"
 msgstr "FALLITO"
@@ -801,6 +871,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Connessione di rete stabilita."
 
+msgid "New Themes"
+msgstr "Nuovi Temi"
+
 msgid "Nintendo DS"
 msgstr "Nintendo DS"
 
@@ -819,6 +892,9 @@ msgstr "Memoria insufficiente per copiare il file da HTTP"
 
 msgid "No partition selected!"
 msgstr "Nessuna partizione selezionata!"
+
+msgid "No themes found."
+msgstr "Nessun tema trovato."
 
 msgid "No updates found."
 msgstr "Nessun aggiornamento trovato."
@@ -981,6 +1057,10 @@ msgid "Press %s button to skip codes."
 msgstr "Premere %s per saltare i codici"
 
 #, c-format
+msgid "Press %s for fullscreen preview"
+msgstr "Premere %s per l'anteprima a tutto schermo"
+
+#, c-format
 msgid "Press %s for game options"
 msgstr "Premere %s per le opzioni del gioco"
 
@@ -995,6 +1075,10 @@ msgstr "Premere %s per sostituire opzioni"
 #, c-format
 msgid "Press %s to download and update"
 msgstr "Premere %s per scaricare ed aggiornare"
+
+#, c-format
+msgid "Press %s to download this theme"
+msgstr "Premere %s per scaricare questo tema"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1049,6 +1133,10 @@ msgid "Press any button..."
 msgstr "Premere un pulsante..."
 
 #, c-format
+msgid "Press button %s to download covers."
+msgstr "Premere %s per scaricare le copertine."
+
+#, c-format
 msgid "Press button %s to eject DVD."
 msgstr "Premere %s per espellere il DVD"
 
@@ -1077,6 +1165,9 @@ msgstr "Corse"
 #, c-format
 msgid "Rated %s"
 msgstr "Età %s"
+
+msgid "Rating"
+msgstr "Valutazione"
 
 msgid "Read"
 msgstr "Leggi"
@@ -1184,12 +1275,34 @@ msgstr "Vuoi avviare questo gioco?"
 msgid "Strategy"
 msgstr "Strategia"
 
+msgid "Theme"
+msgstr "Tema"
+
+msgid "Theme Info"
+msgstr "Informazioni sul Tema"
+
+msgid ""
+"Theme may be too large.\n"
+"Reboot of Cfg suggested.\n"
+msgstr ""
+"Il tema potrebbe essere troppo grande.\n"
+"Meglio ricaricare il CFG Loader.\n"
+
 msgid "Theme:"
 msgstr "Tema:"
 
 #, c-format
 msgid "Theme: %s"
 msgstr "Tema: %s"
+
+msgid "Themes provided by wii.spiffy360.com"
+msgstr "Temi forniti da wii.spiffy360.com"
+
+msgid "Themes to download"
+msgstr "Temi da scaricare"
+
+msgid "Themes with updates"
+msgstr "Temi con aggiornamenti"
 
 msgid "Title"
 msgstr "Titolo"
@@ -1235,6 +1348,9 @@ msgstr "Giochi mai caricati"
 msgid "Update WiiTDB Game Database"
 msgstr "Aggiorna WiiTDB"
 
+msgid "Update themes"
+msgstr "Aggiorna temi"
+
 msgid "Update titles.txt"
 msgstr "Aggiorna titles.txt"
 
@@ -1247,6 +1363,9 @@ msgstr "Usati: %.1fGB Liberi: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
 msgstr "Uso .dol Alternativo Salvato:"
+
+msgid "Version"
+msgstr "Versione"
 
 msgid "Video Patch:"
 msgstr "Correzione Video:"
@@ -1397,9 +1516,6 @@ msgstr "impossibile aprire disco Wii"
 msgid "used: %p - %p"
 msgstr "usati: %p - %p"
 
-#~ msgid "Disc"
-#~ msgstr "Disco"
-
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "Impossibile caricare IOS %u del disco! (ret = %d)"
 
@@ -1414,6 +1530,13 @@ msgstr "usati: %p - %p"
 
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "Sto scaricando le copertine %s"
+
+#~ msgid ""
+#~ "ERROR: CIOS222 or CIOS223 required for\n"
+#~ "starting games from a FAT partition!"
+#~ msgstr ""
+#~ "ERRORE: CIOS222 o CIOS223 necessario per\n"
+#~ "caricare giochi da una partizione FAT!"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: ritorno al vecchio metodo"

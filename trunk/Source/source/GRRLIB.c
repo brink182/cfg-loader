@@ -7,7 +7,7 @@
 Download and Help Forum : http://grrlib.santo.fr
 ===========================================*/
 
-// Modified by oggzee
+// Modified by oggzee and usptactical
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,8 @@ Download and Help Forum : http://grrlib.santo.fr
 #include <string.h>
 #include <math.h>
 #include "libpng/pngu/pngu.h"
-//#include "lib/libjpeg/jpeglib.h"
+#include <setjmp.h>
+#include "jpeg/jpeglib.h"
 #include "GRRLIB.h"
 #include <fat.h> 
 #include "console.h"
@@ -167,7 +168,7 @@ GRRLIB_texImg GRRLIB_LoadTexturePNG(const unsigned char my_png[]) {
     return my_texture;
 }
 
-#if 0
+
 /**
  * Convert a raw bmp (RGB, no alpha) to 4x4RGBA.
  * @author DrTwox
@@ -209,6 +210,48 @@ static void RawTo4x4RGBA(const unsigned char *src, void *dst, const unsigned int
     } /* block */
 }
 
+
+//*************************************************
+//* jpeglib code cleanup and error handling added by usptactical
+
+//error manager struct for jpeglib
+struct my_error_mgr {
+	struct jpeg_error_mgr pub;
+	//return to the caller on error
+	jmp_buf setjmp_buffer;
+};
+typedef struct my_error_mgr * my_error_ptr;
+
+/**
+ * Overrides the standard jpeglib error handler
+ * @param cinfo Pointer to my_error_mgr struct
+ * @return void
+ */
+METHODDEF(void) my_error_exit (j_common_ptr cinfo)
+{
+	//cinfo->err really points to a my_error_mgr struct
+	my_error_ptr myerr = (my_error_ptr) cinfo->err;
+
+	//display the internal jpeglib error message
+	//(*cinfo->err->output_message) (cinfo);
+
+	jpeg_abort((j_common_ptr) cinfo);
+	
+	//Return control to the setjmp point
+	longjmp(myerr->setjmp_buffer, 1);
+}
+
+/**
+ * Output message handler for jpeglib errors
+ * @param cinfo Pointer to my_error_mgr struct
+ * @return void
+ */
+METHODDEF(void) output_message(j_common_ptr cinfo)
+{
+	// display an error message.
+	printf("\nError with JPEG!\n");
+}
+
 /**
  * Load a texture from a buffer.
  * Take Care to have a JPG finnishing by 0xFF 0xD9 !!!!
@@ -217,12 +260,21 @@ static void RawTo4x4RGBA(const unsigned char *src, void *dst, const unsigned int
  * @return A GRRLIB_texImg structure filled with PNG informations.
  */
 GRRLIB_texImg GRRLIB_LoadTextureJPG(const unsigned char my_jpg[]) {
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    GRRLIB_texImg my_texture;
-    int n = 0;
-    unsigned int i;
+	struct jpeg_decompress_struct cinfo;
+	struct my_error_mgr jerr;
+	JSAMPROW row_pointer[1];
+	unsigned char *tempBuffer = 0;
+	GRRLIB_texImg my_texture;
+	unsigned int i;
+	int n;
 
+	//init the texture object
+	my_texture.w = 0;
+	my_texture.h = 0;
+	my_texture.data = NULL;
+
+	//get the jpg size
+	n = 0;
     if((my_jpg[0]==0xff) && (my_jpg[1]==0xd8) && (my_jpg[2]==0xff)) {
         while(1) {
             if((my_jpg[n]==0xff) && (my_jpg[n+1]==0xd9))
@@ -231,42 +283,75 @@ GRRLIB_texImg GRRLIB_LoadTextureJPG(const unsigned char my_jpg[]) {
         }
         n+=2;
     }
-
+	
+	//Set up the error handler first in case the initialization step fails
+	cinfo.err = jpeg_std_error(&jerr.pub);
+	cinfo.err->error_exit = my_error_exit;
+	cinfo.err->output_message = output_message;
+	//Establish the setjmp return context for my_error_exit to use
+	if (setjmp(jerr.setjmp_buffer)) {
+		//If we get here, the JPEG code has signaled an error.
+		//We need to clean up the JPEG object, and return.
+		//TODO: mem is not being cleaned up properly - I assume jpeglib's mem alloc is the culprit
+		jpeg_destroy_decompress(&cinfo);
+		SAFE_FREE(row_pointer[0]);
+		SAFE_FREE(tempBuffer);
+		SAFE_FREE(my_texture.data);
+		my_texture.w = -666;
+		return my_texture;
+	}
+	
+	//initialize the decompression object
     jpeg_create_decompress(&cinfo);
-    cinfo.err = jpeg_std_error(&jerr);
     cinfo.progress = NULL;
-    jpeg_memory_src(&cinfo, my_jpg, n);
+
+//	jpeg_memory_src(&cinfo, my_jpg, n);
+	jpeg_mem_src(&cinfo, (unsigned char *)my_jpg, n);
+
     jpeg_read_header(&cinfo, TRUE);
-    jpeg_start_decompress(&cinfo);
-    unsigned char *tempBuffer = (unsigned char*) malloc(cinfo.output_width * cinfo.output_height * cinfo.num_components);
-    JSAMPROW row_pointer[1];
-    row_pointer[0] = (unsigned char*) malloc(cinfo.output_width * cinfo.num_components);
+    if (cinfo.jpeg_color_space == JCS_GRAYSCALE)
+        cinfo.out_color_space = JCS_RGB; //JCS_CMYK; //JCS_RGB;
+	//these speed up decompression...
+	cinfo.do_fancy_upsampling = FALSE;
+	cinfo.do_block_smoothing = FALSE;
+	//initialize internal state, allocate working memory, and prepare for returning data
+	jpeg_start_decompress(&cinfo);
+	
+	
+//TODO...this seems to work ok
+    //tempBuffer = mem_alloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
+    //row_pointer[0] = mem_alloc(cinfo.output_width * cinfo.output_components);
+    
+	tempBuffer = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
+    row_pointer[0] = malloc(cinfo.output_width * cinfo.output_components);
+
     size_t location = 0;
     while (cinfo.output_scanline < cinfo.output_height) {
         jpeg_read_scanlines(&cinfo, row_pointer, 1);
-        for (i = 0; i < cinfo.image_width * cinfo.num_components; i++) {
+        for (i = 0; i < cinfo.image_width * cinfo.output_components; i++) {
             /* Put the decoded scanline into the tempBuffer */
             tempBuffer[ location++ ] = row_pointer[0][i];
         }
     }
 
-    /* Create a buffer to hold the final texture */
-    my_texture.data = memalign(32, cinfo.output_width * cinfo.output_height * 4);
-    RawTo4x4RGBA(tempBuffer, my_texture.data, cinfo.output_width, cinfo.output_height);
-
-    /* Done - do cleanup and release memory */
+    //Complete the decompression cycle. This causes working memory 
+	// associated with the JPEG object to be released.
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
-    free(row_pointer[0]);
-    free(tempBuffer);
+    SAFE_FREE(row_pointer[0]);
 
+    /* Create a buffer to hold the final texture */
+    //my_texture.data = memalign(32, cinfo.output_width * cinfo.output_height * 4);
+    my_texture.data = mem_alloc(cinfo.output_width * cinfo.output_height * 4);
+    RawTo4x4RGBA(tempBuffer, my_texture.data, cinfo.output_width, cinfo.output_height);
+    SAFE_FREE(tempBuffer);
+	//set texture dimensions
     my_texture.w = cinfo.output_width;
     my_texture.h = cinfo.output_height;
     GRRLIB_FlushTex(my_texture);
-
     return my_texture;
 }
-#endif
+
 
 /**
  * Print formatted output.
@@ -1298,6 +1383,8 @@ u8 GRRLIB_ClampVar8(float Value) {
     return (u8)Value;
 }
 
+#endif
+
 /**
  * Converts RGBA values to u32 color.
  * @param r Amount of Red (0 - 255);
@@ -1310,7 +1397,6 @@ u32 GRRLIB_GetColor( u8 r, u8 g, u8 b, u8 a ) {
     return (r << 24) | (g << 16) | (b << 8) | a;
 }
 
-#endif
 
 /**
  * Free memory allocated for texture.
@@ -1671,7 +1757,7 @@ void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg tex,
 			cc = map_ufont(c);
 			if (cc == 0  && (unsigned)c <= 0xFFFF) {
 				if (unifont && unifont->index[(unsigned)c]) {
-					// unifont containst almost all unicode chars
+					// unifont contains almost all unicode chars
     				GRRLIB_DrawTile_end(tex);
 					int n = draw_unifont(xpos, ypos, tex.tilew, tex.tileh, color, c);
 					xpos += n;
@@ -1763,6 +1849,108 @@ GRRLIB_texImg GRRLIB_Screen2Texture() {
 	out:
     return my_texture;
 }
+
+//==============================================================
+// Stencil code...
+const int _stencilWidth = 128;
+const int _stencilHeight = 128;
+
+inline void GRRLIB_DrawImg_format(f32 xpos, f32 ypos, GRRLIB_texImg tex, u8 texFormat, float degrees, float scaleX, f32 scaleY, u32 color ) {
+    GXTexObj texObj;
+    u16 width, height;
+    Mtx m, m1, m2, mv;
+
+    GX_InitTexObj(&texObj, tex.data, tex.w, tex.h, texFormat, GX_CLAMP, GX_CLAMP, GX_FALSE);
+    GX_LoadTexObj(&texObj, GX_TEXMAP0);
+
+    GX_SetTevOp (GX_TEVSTAGE0, GX_MODULATE);
+    GX_SetVtxDesc (GX_VA_TEX0, GX_DIRECT);
+
+    width = tex.w * 0.5;
+    height = tex.h * 0.5;
+    guMtxIdentity (m1);
+    guMtxScaleApply(m1, m1, scaleX, scaleY, 1.0);
+    Vector axis = (Vector) {0, 0, 1 };
+    guMtxRotAxisDeg (m2, &axis, degrees);
+    guMtxConcat(m2, m1, m);
+
+    guMtxTransApply(m, m, xpos+width, ypos+height, 0);
+    guMtxConcat (GXmodelView2D, m, mv);
+    GX_LoadPosMtxImm (mv, GX_PNMTX0);
+
+    GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
+    GX_Position3f32(-width, -height, 0);
+    GX_Color1u32(color);
+    GX_TexCoord2f32(0, 0);
+
+    GX_Position3f32(width, -height, 0);
+    GX_Color1u32(color);
+    GX_TexCoord2f32(1, 0);
+
+    GX_Position3f32(width, height, 0);
+    GX_Color1u32(color);
+    GX_TexCoord2f32(1, 1);
+
+    GX_Position3f32(-width, height, 0);
+    GX_Color1u32(color);
+    GX_TexCoord2f32(0, 1);
+    GX_End();
+    GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
+
+    GX_SetTevOp (GX_TEVSTAGE0, GX_PASSCLR);
+    GX_SetVtxDesc (GX_VA_TEX0, GX_NONE);
+}
+
+static inline u32 coordsI8(u32 x, u32 y, u32 w)
+{ 
+	return (((y >> 2) * (w >> 3) + (x >> 3)) << 5) + ((y & 3) << 3) + (x & 7);
+}
+
+int GRRLIB_stencilVal(int x, int y, GRRLIB_texImg tx)
+{
+	u8 *truc = (u8*)tx.data;
+    u32 offset;
+	int col;
+
+	if ((u32)x >= rmode->fbWidth || x < 0 || (u32)y >= rmode->efbHeight || y < 0)
+		return 255;
+	x = x * _stencilWidth / 640;
+	y = y * _stencilHeight / 480;
+	offset = coordsI8(x, y, (u32)_stencilWidth);
+	if (offset >= (u32)(_stencilWidth * _stencilHeight))
+		return 255;
+	col = (int)*(truc+offset);
+	return (col>255?255:col);
+}
+
+void GRRLIB_prepareStencil(void)
+{
+	GX_SetPixelFmt(GX_PF_Y8, GX_ZC_LINEAR);
+	GX_SetViewport(0.f, 0.f, (float)_stencilWidth, (float)_stencilHeight, 0.f, 1.f);
+	GX_SetScissor(0, 0, _stencilWidth, _stencilHeight);
+	GX_InvVtxCache();
+	GX_InvalidateTexAll();
+}
+
+void GRRLIB_renderStencil_buf(GRRLIB_texImg *tx)
+{
+	if (tx == NULL) return;
+	if (tx->data == NULL) return;
+    if (tx->w != _stencilWidth) return;
+    if (tx->h != _stencilHeight) return;
+	GX_DrawDone();
+	GX_SetZMode(GX_DISABLE, GX_ALWAYS, GX_TRUE);
+	GX_SetColorUpdate(GX_TRUE);
+	GX_SetCopyFilter(GX_FALSE, NULL, GX_FALSE, NULL);
+	GX_SetTexCopySrc(0, 0, _stencilWidth, _stencilHeight);
+	GX_SetTexCopyDst(_stencilWidth, _stencilHeight, GX_CTF_R8, GX_FALSE);
+	GX_CopyTex(tx->data, GX_TRUE);
+	GX_PixModeSync();
+	DCFlushRange(tx->data, _stencilWidth * _stencilHeight);
+	GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);
+}
+//==============================================================
+
 
 /**
  * Make a snapshot of the screen to a pre-allocated texture.  Used for AA.

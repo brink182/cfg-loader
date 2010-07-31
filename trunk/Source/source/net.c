@@ -24,6 +24,7 @@
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
 extern bool imageNotFound;
+extern int gui_style;
 
 static int net_top = -1;
 
@@ -498,7 +499,7 @@ char *get_style_name(int style)
 	}
 }
 
-void Download_Cover_Style(char *id, int style)
+bool Download_Cover_Style(char *id, int style)
 {
 	char imgName[100];
 	char imgPath[100];
@@ -506,6 +507,7 @@ void Download_Cover_Style(char *id, int style)
 	char *path = "";
 	char *url = "";
 	char *wide = "";
+	bool success = false;
 	//int do_wide = 0;
 
 	/*if (CFG.widescreen && CFG.download_wide) {
@@ -600,26 +602,28 @@ void Download_Cover_Style(char *id, int style)
 		//printf(gt("Download complete."));
 		printf(gt("OK"));
 		printf("\n\n");
+		success = true;
 	}
 	__console_flush(0);
 
 	//refresh = true;				
 	//sleep(3);
-	return;
+	return success;
 
 	dl_err:
 	__console_flush(0);
 	sleep(2);
 	if (CFG.debug) { printf(gt("Press any button...")); printf("\n"); Wpad_WaitButtons(); }
+	return false;
 }
 
-void Download_Cover_Missing(char *id, int style, bool missing_only, bool verbose)
+bool Download_Cover_Missing(char *id, int style, bool missing_only, bool verbose)
 {
 	int ret;
 	void *data = NULL;
 	char path[200];
 
-	if (!id) return;
+	if (!id) return false;
 
 	if (missing_only) {
 		// check if missing
@@ -637,14 +641,14 @@ void Download_Cover_Missing(char *id, int style, bool missing_only, bool verbose
 						printf_(gt("Found %s Cover"), gt(get_style_name(style)));
 						printf("\n");
 					}
-					return;
+					return true;
 				}
 				SAFE_FREE(tx_tmp.data);
 			}
 		}
 	}
 
-	Download_Cover_Style(id, style);
+	return Download_Cover_Style(id, style);
 }
 
 void Download_Cover(char *id, bool missing_only, bool verbose)
@@ -678,6 +682,11 @@ void Download_Cover(char *id, bool missing_only, bool verbose)
 		Download_Cover_Missing(id, CFG_COVER_STYLE_FULL, missing_only, verbose);
 	} else {
 		Download_Cover_Missing(id, CFG.cover_style, missing_only, verbose);
+		if ((gui_style == GUI_STYLE_COVERFLOW) && (CFG.cover_style != CFG_COVER_STYLE_FULL)) {
+			//if in a coverflow GUI mode, download full covers.  If full cover not found, download 2D.
+			if (!Download_Cover_Missing(id, CFG_COVER_STYLE_FULL, missing_only, verbose) && (CFG.cover_style != CFG_COVER_STYLE_2D))
+				Download_Cover_Missing(id, CFG_COVER_STYLE_2D, missing_only, verbose);
+		}
 	}
 
 	return;

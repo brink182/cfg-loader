@@ -49,7 +49,7 @@ void wiilight(int enable);
 #endif
 */
 
-#define MAX_USORT_MAP 512
+#define MAX_USORT_MAP 1024
 extern int usort_map[MAX_USORT_MAP];
 extern int ufont_map[];
 int map_ufont(int c);

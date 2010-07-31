@@ -7,8 +7,7 @@
 Download and Help Forum : http://grrlib.santo.fr
 ===========================================*/
 
-// Modified by oggzee
-
+// Modified by oggzee and usptactical
 
 #ifndef __GXHDR__
 #define __GXHDR__
@@ -87,6 +86,7 @@ void GRRLIB_NGoneFilled(Vector v[], u32 color, long n);
 
 GRRLIB_texImg GRRLIB_CreateEmptyTexture(unsigned int, unsigned int);
 GRRLIB_texImg GRRLIB_LoadTexture(const unsigned char my_img[]);
+GRRLIB_texImg GRRLIB_LoadTextureJPG(const unsigned char my_jpg[]);
 
 GRRLIB_bytemapFont GRRLIB_LoadBMF(const unsigned char my_bmf[]);
 void GRRLIB_FreeBMF(GRRLIB_bytemapFont bmf);
@@ -120,10 +120,20 @@ void GRRLIB_BMFX_Pixelate(GRRLIB_texImg texsrc, GRRLIB_texImg texdest, int facto
 
 void GRRLIB_GXEngine(Vector v[], u32 color, long count, u8 fmt);
 
+inline void GRRLIB_DrawImg_type(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees, float scaleX, f32 scaleY, u32 color, u8 texFmt);
+extern void GRRLIB_DrawImgQuad_type(Vector pos[4], struct GRRLIB_texImg *tex, u32 color, u8 texFmt);
+
 void GRRLIB_FreeTexture(struct GRRLIB_texImg *tex);
 GRRLIB_texImg GRRLIB_Screen2Texture();
 void GRRLIB_Screen2Texture_buf(GRRLIB_texImg *tx);
 
+//stencil routines
+void GRRLIB_prepareStencil(void);
+void GRRLIB_renderStencil_buf(GRRLIB_texImg *tx);
+int GRRLIB_stencilVal(int x, int y, GRRLIB_texImg tx);
+inline void GRRLIB_DrawImg_format(f32 xpos, f32 ypos, GRRLIB_texImg tex, u8 texFormat, float degrees, float scaleX, f32 scaleY, u32 color );
+
+//anti-alias routines
 GRRLIB_texImg GRRLIB_AAScreen2Texture();
 void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx);
 void GRRLIB_prepareAAPass(int, int);

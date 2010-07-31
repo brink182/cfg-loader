@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 57 (release)
+size = 1565024
+date = 2010-07-31
+url = http://cfg-loader.googlecode.com/files/cfg57.dol
+Video patching mode from Sneek
+
+release = 57-222 (release)
+size = 1565024
+date = 2010-07-31
+url = http://cfg-loader.googlecode.com/files/cfg57-222.dol
+Same as 57 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 57b9 (beta9)
 size = 1564768
 date = 2010-07-30

@@ -802,10 +802,30 @@ int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle)
 	//printf("\nopening.bnr: %d\n", size);
 	if (getTitle) 
 	{
-		s32 lang = CFG_read_active_game_setting(discid).language - 1;
+		s32 lang = getTitle - 2;
+		if (lang < 0)
+			lang = CFG_read_active_game_setting(discid).language - 1;
 		if (lang < 0)
 			lang = CONF_GetLanguage();
 		parse_banner_title(banner, title, lang);
+		// if title is empty revert to english
+		char z2[2] = {0,0}; // utf16: 2 bytes
+		if (getTitle == 1 && memcmp(title, z2, 2) == 0) {
+			parse_banner_title(banner, title, CONF_LANG_ENGLISH);
+			// if still empty, find first valid.
+			if (memcmp(title, z2, 2) == 0) {
+				for (lang=0; lang<10; lang++) {
+					parse_banner_title(banner, title, lang);
+					if (memcmp(title, z2, 2) != 0) break;
+				}
+			}
+			if (memcmp(title, z2, 2) == 0) {
+				// final check, if still empty, use english
+				// in case there is some text after the zeroes (unlikely)
+				parse_banner_title(banner, title, CONF_LANG_ENGLISH);
+			}
+		}
+
 	}
 	if (getSound) parse_banner_snd(banner, snd);
 	SAFE_FREE(banner);

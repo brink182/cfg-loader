@@ -46,7 +46,26 @@ int main(int argc, char **argv)
 
 	Gui_DrawIntro();
 
-	dbg_printf("reaload ios: %d\n", CFG.ios);
+	/* Check for stub IOS */
+    ret = checkIOS(CFG.ios);
+    
+    if (ret == -1) {
+		__console_disable = 0;
+		printf_x(gt("ERROR:"));
+		printf("\n");
+		printf_(gt("Custom IOS %d is a stub!\nPlease reinstall it."), CFG.ios);
+		printf("\n");
+		goto out;
+    } else if (ret == -2) {
+		__console_disable = 0;
+		printf_x(gt("ERROR:"));
+		printf("\n");
+		printf_(gt("Custom IOS %d could not be found!\nPlease install it."), CFG.ios);
+		printf("\n");
+		goto out;
+	}
+
+	dbg_printf("reload ios: %d\n", CFG.ios);
 	/* Load Custom IOS */
 	print_ios();
 	if (CFG.game.ios_idx == CFG_IOS_249) {

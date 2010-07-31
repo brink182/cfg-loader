@@ -41,6 +41,9 @@ void Sys_Init(void)
 	/* Set RESET/POWER button callback */
 	SYS_SetResetCallback(__Sys_ResetCallback);
 	SYS_SetPowerCallback(__Sys_PowerCallback);
+
+	/* Prepare random seed */
+	srand(time(0));
 }
 
 void Sys_Reboot(void)
@@ -122,6 +125,8 @@ void Sys_HBC()
 	int ret = 0;
 	prep_exit();
 	WII_Initialize();
+	//printf("%d\n1.07\n",ret); sleep(1);
+    ret = WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // 1.07
 	//printf("%d\nJODI\n",ret); sleep(1);
     ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x4A4F4449)); // JODI
 	//printf("%d\nHAXX\n",ret);
@@ -838,3 +843,58 @@ int is_ios_type(int type)
 }
 
 
+s32 GetTMD(u64 TicketID, signed_blob **Output, u32 *Length)
+{
+    signed_blob* TMD = NULL;
+
+    u32 TMD_Length;
+    s32 ret;
+
+    /* Retrieve TMD length */
+    ret = ES_GetStoredTMDSize(TicketID, &TMD_Length);
+    if (ret < 0)
+        return ret;
+
+    /* Allocate memory */
+    TMD = (signed_blob*)memalign(32, (TMD_Length+31)&(~31));
+    if (!TMD)
+        return IPC_ENOMEM;
+
+    /* Retrieve TMD */
+    ret = ES_GetStoredTMD(TicketID, TMD, TMD_Length);
+    if (ret < 0)
+    {
+        free(TMD);
+        return ret;
+    }
+
+    /* Set values */
+    *Output = TMD;
+    *Length = TMD_Length;
+
+    return 0;
+}
+
+s32 checkIOS(u32 IOS)
+{
+	signed_blob *TMD = NULL;
+    tmd *t = NULL;
+    u32 TMD_size = 0;
+    u64 title_id = 0;
+    s32 ret = 0;
+
+    // Get tmd to determine the version of the IOS
+    title_id = (((u64)(1) << 32) | (IOS));
+    ret = GetTMD(title_id, &TMD, &TMD_size);
+    
+    if (ret == 0) {
+        t = (tmd*)SIGNATURE_PAYLOAD(TMD);
+        if (t->title_version == 65280) {
+			ret = -1;
+		}
+    } else {
+		ret = -2;
+	}
+    free(TMD);
+    return ret;
+}

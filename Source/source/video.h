@@ -10,6 +10,7 @@ void Con_ClearLine(void);
 void Con_FgColor(u32, u8);
 void Con_BgColor(u32, u8);
 void Con_FillRow(u32, u32, u8);
+void Con_SetPosition(int col, int row);
 
 void Video_Configure(GXRModeObj *);
 void Video_SetMode(void);

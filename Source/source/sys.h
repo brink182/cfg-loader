@@ -26,4 +26,7 @@ void load_dip_249();
 int get_ios_type();
 int is_ios_type(int type);
 
+s32 GetTMD(u64 TicketID, signed_blob **Output,  u32 *Length);
+s32 checkIOS(u32 IOS);
+
 #endif

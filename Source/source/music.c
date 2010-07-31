@@ -1,5 +1,6 @@
 
 // by oggzee
+// random music added by usptactical
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,7 +92,6 @@ void initializeArray(int *a, int cnt) {
 //randomizes an array with distinct values from 1 to cnt
 void randomizeArray(int *a, int cnt) {
 	int j, r, tmp;
-	srand(time(0));
 	for (j = (cnt - 1); j >= 0; j--) {
 		r = rand() % cnt;
 		if (r != j) {
@@ -113,7 +113,6 @@ bool match_ext(char *name, char *ext)
 //Creates the random music array (fist time through) and retrieves the
 // filepath of the next music file to play.
 void get_random_file(char *filetype, char *path)
-
 {
 	DIR_ITER *dir = NULL;
 	char filename[1024];

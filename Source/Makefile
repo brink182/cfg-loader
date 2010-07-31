@@ -15,12 +15,12 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	56
+VERSION		:=	57
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
 TARGET		:=	cfg$(VERSION)
 BUILD		:=	build
-SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip
+SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip source/jpeg
 DATA		:=	data
 INCLUDES	:=	
 GETTEXT		:=	tools/gettext
@@ -56,14 +56,14 @@ LDFLAGS	=	$(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80a80000
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 #LIBS	:=	-lmetaphrasis -lfreetype -lasnd -lpng -lz -lfat -lwiiuse -lbte -lmad -lmodplay -logc -lm -ltremor
-LIBS	:=	-lfat -lntfs -lpng -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
+LIBS	:=	-lfat -lntfs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
 #LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/freetype $(CURDIR)/lib/libfat
-LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs
+LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs $(CURDIR)/lib/jpeg
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -150,8 +150,8 @@ clean:
 
 #---------------------------------------------------------------------------------
 run: 
-	wiiload $(OUTPUT).dol debug=0 simple=0 home=exit gui=coverflow3d gui_style=grid gui_antialias=4 gui_compress_covers=1 music=sd://mp3
-#	wiiload $(OUTPUT).dol simple=0 device=usb cover_style=3d widescreen=1 covers_size=100,100 debug=1 music=sd://mp3 gui_font=Vera_Mono_12_Bold.png hide_game=RB7E admin_lock=1
+	wiiload $(OUTPUT).dol debug=0 simple=0 home=exit gui=coverflow3d gui_style=grid gui_antialias=4 gui_compress_covers=1 music=sd://mp3 button_2=random
+#	wiiload $(OUTPUT).dol simple=0 device=usb cover_style=3d widescreen=1 covers_size=100,100 debug=1 music=sd://mp3 gui_font=Vera_Mono_12_Bold.png hide_game=RB7E admin_lock=1 wpreview_coords=10,100,200,0
 # widescreen = [auto], 0, 1
 # home = [reboot], exit, screenshot
 # cover_style = [standard], 3d, disc

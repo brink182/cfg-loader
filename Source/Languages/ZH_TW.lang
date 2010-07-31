@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-16 19:09+0100\n"
-"PO-Revision-Date: 2010-03-13 15:20+0800\n"
+"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -72,6 +72,9 @@ msgstr "動作"
 msgid "Additional config:"
 msgstr "額外的設定:"
 
+msgid "Adult"
+msgstr "成人"
+
 msgid "Adventure"
 msgstr "冒險"
 
@@ -81,8 +84,11 @@ msgstr "全部"
 msgid "All Games"
 msgstr "所有遊戲"
 
+msgid "All themes up to date."
+msgstr "更新全部主題."
+
 msgid "Alt dol:"
-msgstr "替代 dol"
+msgstr "替代 dol:"
 
 msgid "Alternative .dol:"
 msgstr "替代的 .dol:"
@@ -153,6 +159,9 @@ msgstr "金手指: "
 msgid "Check For Updates"
 msgstr "檢查更新"
 
+msgid "Checking for themes..."
+msgstr "正在檢查主題..."
+
 msgid "Checking for updates..."
 msgstr "正在檢查更新..."
 
@@ -161,6 +170,9 @@ msgstr "選擇一個排序方式"
 
 msgid "Classic Controller"
 msgstr "傳統控制器"
+
+msgid "Clear Patches:"
+msgstr "清除補綴:"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -190,13 +202,32 @@ msgstr "封面圖片:"
 msgid "Create"
 msgstr "建立"
 
+msgid "Creator"
+msgstr "建立者"
+
 #, c-format
 msgid "Current Version: %s"
 msgstr "目前的版本: %s"
 
 #, c-format
+msgid ""
+"Custom IOS %d could not be found!\n"
+"Please install it."
+msgstr ""
+"cIOS %d 無法被找到!\n"
+"請安裝它."
+
+#, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
 msgstr "cIOS %d 無法載入! (ret = %d)"
+
+#, c-format
+msgid ""
+"Custom IOS %d is a stub!\n"
+"Please reinstall it."
+msgstr ""
+"cIOS %d 是一個殘段!\n"
+"請重新安裝它."
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
@@ -216,6 +247,12 @@ msgstr "開發成員"
 
 msgid "Device:"
 msgstr "裝置:"
+
+msgid "Disc"
+msgstr "光碟"
+
+msgid "Disc (Ask)"
+msgstr "光碟 (詢問)"
 
 msgid "Done."
 msgstr "完成"
@@ -246,6 +283,9 @@ msgstr "正在下載 %.6s 所有封面"
 msgid "Downloading MISSING covers for %.6s"
 msgstr "正在下載 %.6s 缺少的封面"
 
+msgid "Downloading Theme previews..."
+msgstr "正在下載主題預覽..."
+
 msgid "Downloading cheats..."
 msgstr "正在下載金手指..."
 
@@ -258,6 +298,13 @@ msgstr "正在下載 titles.txt ..."
 #, c-format
 msgid "Downloading: %s"
 msgstr "正在下載: %s"
+
+#, c-format
+msgid "Downloading: %s as %s"
+msgstr "正在下載: %s 為 %s"
+
+msgid "Downloads"
+msgstr "下載"
 
 msgid "Drums"
 msgstr "康加鼓"
@@ -299,13 +346,6 @@ msgstr "錯誤: %s 無法存取"
 msgid "ERROR: Apploader %d"
 msgstr "錯誤: Apploader %d"
 
-msgid ""
-"ERROR: CIOS222 or CIOS223 required for\n"
-"starting games from a FAT partition!"
-msgstr ""
-"錯誤: 從 FAT 分割區啟動遊戲\n"
-"需要 cIOS222 或 cIOS223"
-
 msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "錯誤: BCA 需要 cIOS222/223 v4"
 
@@ -321,7 +361,7 @@ msgstr "錯誤: 遊戲已經被安裝!!"
 
 #, c-format
 msgid "ERROR: GetCerts %d"
-msgstr "錯誤: GetCerts %d"
+msgstr "錯誤: 取得憑證 %d"
 
 msgid "ERROR: Invalid Game ID"
 msgstr "錯誤: 無效的遊戲 ID"
@@ -383,6 +423,16 @@ msgstr "錯誤: USB/FAT 掛載 wbfs! (%d)"
 #, c-format
 msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr "錯誤: WBFS FAT 掛載磁區 %x 不是 %x"
+
+msgid ""
+"ERROR: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 or higher required\n"
+"for starting games from a FAT partition!\n"
+"Upgrade IOS249 or choose a different IOS."
+msgstr ""
+"錯誤: 從 FAT 分割區啟動遊戲時需要 cIOS249rev18,\n"
+"cIOS222v4, cIOS223v4, cIOS224v5 或更高的版本!\n"
+"請更新 IOS249 或選擇一個不同的 IOS."
 
 msgid "ERROR: cache: out of memory"
 msgstr "錯誤: 快取: 記憶體不足"
@@ -452,8 +502,20 @@ msgstr "初始化網路時錯誤."
 msgid "Error adding disc!"
 msgstr "加入光碟時錯誤!"
 
+msgid "Error creating directory..."
+msgstr "建立目錄時錯誤..."
+
 msgid "Error discarding options!"
 msgstr "放棄選項時錯誤!"
+
+msgid "Error downloading theme preview..."
+msgstr "下載主題預覽時錯誤..."
+
+msgid "Error downloading theme..."
+msgstr "下載主題時錯誤..."
+
+msgid "Error downloading themes..."
+msgstr "下載主題時錯誤..."
 
 msgid "Error downloading update..."
 msgstr "下載更新時錯誤..."
@@ -466,6 +528,9 @@ msgstr "下載時錯誤."
 
 msgid "Error establishing connection"
 msgstr "建立連線時錯誤"
+
+msgid "Error extracting theme..."
+msgstr "解壓縮主題時錯誤..."
 
 msgid "Error opening database, update did not complete."
 msgstr "開啟資料庫錯誤, 更新沒有完成."
@@ -509,6 +574,10 @@ msgstr "錯誤: 沒有 URL."
 
 msgid "Error: no data."
 msgstr "錯誤: 沒有資料."
+
+#, c-format
+msgid "Extracting: %s"
+msgstr "正在解壓縮: %s"
 
 msgid "FAIL"
 msgstr "失敗"
@@ -794,7 +863,10 @@ msgstr ""
 "%s 鈕變更延伸分割區類型."
 
 msgid "Network connection established."
-msgstr "建立網路連線"
+msgstr "建立網路連線."
+
+msgid "New Themes"
+msgstr "新增主題"
 
 msgid "Nintendo DS"
 msgstr "任天堂 DS"
@@ -813,10 +885,13 @@ msgid "No more memory to copy file from HTTP response"
 msgstr "沒有更多的記憶體複製從 HTTP 回應的檔案"
 
 msgid "No partition selected!"
-msgstr "沒有選取的分割區"
+msgstr "沒有選取的分割區!"
+
+msgid "No themes found."
+msgstr "沒有發現主題."
 
 msgid "No updates found."
-msgstr "沒有發現更新"
+msgstr "沒有發現更新."
 
 msgid "None found on disc"
 msgstr "光碟上沒有發現"
@@ -897,7 +972,7 @@ msgid "Out of memory"
 msgstr "記憶體不足"
 
 msgid "Partition:"
-msgstr "分割區"
+msgstr "分割區:"
 
 #, c-format
 msgid "Partition: %s not found!"
@@ -976,6 +1051,10 @@ msgid "Press %s button to skip codes."
 msgstr "請按 %s 鈕略過密碼."
 
 #, c-format
+msgid "Press %s for fullscreen preview"
+msgstr "請按 %s 全螢幕預覽"
+
+#, c-format
 msgid "Press %s for game options"
 msgstr "請按 %s 進入遊戲選項"
 
@@ -990,6 +1069,10 @@ msgstr "請按 %s 放棄選項"
 #, c-format
 msgid "Press %s to download and update"
 msgstr "請按 %s 下載及更新"
+
+#, c-format
+msgid "Press %s to download this theme"
+msgstr "請按 %s 下載這個主題"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1044,6 +1127,10 @@ msgid "Press any button..."
 msgstr "請按任意按鈕..."
 
 #, c-format
+msgid "Press button %s to download covers."
+msgstr "請按 %s 鈕下載封面."
+
+#, c-format
 msgid "Press button %s to eject DVD."
 msgstr "請按 %s 鈕退出 DVD 光碟."
 
@@ -1072,6 +1159,9 @@ msgstr "競速"
 #, c-format
 msgid "Rated %s"
 msgstr "分級 %s"
+
+msgid "Rating"
+msgstr "分級"
 
 msgid "Read"
 msgstr "讀取"
@@ -1179,12 +1269,34 @@ msgstr "開始這個遊戲?"
 msgid "Strategy"
 msgstr "戰略"
 
+msgid "Theme"
+msgstr "主題"
+
+msgid "Theme Info"
+msgstr "主題資訊"
+
+msgid ""
+"Theme may be too large.\n"
+"Reboot of Cfg suggested.\n"
+msgstr ""
+"主題可能太大.\n"
+"建議重新啟動 CFG.\n"
+
 msgid "Theme:"
 msgstr "主題:"
 
 #, c-format
 msgid "Theme: %s"
 msgstr "主題: %s"
+
+msgid "Themes provided by wii.spiffy360.com"
+msgstr "主題由 wii.spiffy360.com 提供"
+
+msgid "Themes to download"
+msgstr "主題下載"
+
+msgid "Themes with updates"
+msgstr "主題更新"
 
 msgid "Title"
 msgstr "標題"
@@ -1230,6 +1342,9 @@ msgstr "沒有玩過的遊戲"
 msgid "Update WiiTDB Game Database"
 msgstr "更新 WiiTDB 遊戲資料庫"
 
+msgid "Update themes"
+msgstr "更新主題"
+
 msgid "Update titles.txt"
 msgstr "更新 titles.txt"
 
@@ -1242,6 +1357,9 @@ msgstr "已使用: %.1fGB 剩餘: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
 msgstr "使用儲存替代 .dol:"
+
+msgid "Version"
+msgstr "版本"
 
 msgid "Video Patch:"
 msgstr "視訊補綴:"
@@ -1392,8 +1510,12 @@ msgstr "無法開啟 Wii 光碟"
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
 
-#~ msgid "Disc"
-#~ msgstr "光碟"
+#~ msgid ""
+#~ "ERROR: CIOS222 or CIOS223 required for\n"
+#~ "starting games from a FAT partition!"
+#~ msgstr ""
+#~ "錯誤: 從 FAT 分割區啟動遊戲\n"
+#~ "需要 cIOS222 或 cIOS223"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: 使用回舊的方法"

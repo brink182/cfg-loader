@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-31 11:09+1000\n"
+"POT-Creation-Date: 2010-07-30 03:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -277,6 +277,9 @@ msgstr ""
 msgid "Downloading MISSING covers for %.6s"
 msgstr ""
 
+msgid "Downloading Theme previews..."
+msgstr ""
+
 msgid "Downloading cheats..."
 msgstr ""
 
@@ -488,6 +491,9 @@ msgid "Error creating directory..."
 msgstr ""
 
 msgid "Error discarding options!"
+msgstr ""
+
+msgid "Error downloading theme preview..."
 msgstr ""
 
 msgid "Error downloading theme..."
@@ -1008,6 +1014,10 @@ msgid "Press %s button to skip codes."
 msgstr ""
 
 #, c-format
+msgid "Press %s for fullscreen preview"
+msgstr ""
+
+#, c-format
 msgid "Press %s for game options"
 msgstr ""
 
@@ -1220,6 +1230,9 @@ msgid "Start this game?"
 msgstr ""
 
 msgid "Strategy"
+msgstr ""
+
+msgid "Theme"
 msgstr ""
 
 msgid "Theme Info"

@@ -86,6 +86,13 @@ void Con_BgColor(u32 color, u8 bold)
 	fflush(stdout);
 }
 
+void Con_SetPosition(int col, int row)
+{
+	/* Move to specified pos */
+	printf("\x1b[%u;%uH", row, col);
+	fflush(stdout);
+}
+
 void Con_FillRow(u32 row, u32 color, u8 bold)
 {
 	s32 cols, rows;

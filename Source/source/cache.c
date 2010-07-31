@@ -14,7 +14,9 @@
 #include "cfg.h"
 #include "gettext.h"
 
-#define COVER_CACHE_DATA_SIZE 0x2000000
+//0x2000000 = 33.5 MB
+//0x1700000 = 24 MB
+#define COVER_CACHE_DATA_SIZE 0x1900000
 
 extern struct discHdr *all_gameList;
 extern struct discHdr *gameList;

@@ -77,6 +77,16 @@ struct TextMap map_video[] =
 	{ NULL, -1 }
 };
 
+struct TextMap map_video_patch[] =
+{
+	{ "0", CFG_VIDEO_PATCH_OFF },
+	{ "1", CFG_VIDEO_PATCH_ON  },
+	{ "all", CFG_VIDEO_PATCH_ALL },
+	{ "sneek", CFG_VIDEO_PATCH_SNEEK },
+	{ "sneek+all", CFG_VIDEO_PATCH_SNEEK_ALL },
+	{ NULL, -1 }
+};
+
 struct TextMap map_language[] =
 {
 	{ "console",   CFG_LANG_CONSOLE },
@@ -165,6 +175,7 @@ struct TextMap map_button[] =
 	{ "filter",     CFG_BTN_FILTER },
 	{ "priiloader", CFG_BTN_PRIILOADER },
 	{ "wii_menu",   CFG_BTN_WII_MENU },
+	{ "random",     CFG_BTN_RANDOM },
 	{ NULL, -1 }
 };
 
@@ -213,6 +224,14 @@ char *hook_name[NUM_HOOK] =
 	"AXNextFrame"
 };
 
+char *playlog_name[4] =
+{
+	"Off",
+	"On",
+	"Japanese Title",
+	"English Title"
+};
+
 struct playStat {
 	char id[7];
 	s32 playCount;
@@ -238,7 +257,6 @@ char theme_list[MAX_THEME][31];
 char theme_path[200];
 
 void game_set(char *name, char *val);
-bool cfg_parsefile(char *fname, void (*set_func)(char*, char*));
 void load_theme(char *theme);
 void cfg_setup1();
 void cfg_setup2();
@@ -984,11 +1002,25 @@ void CFG_Default_Theme()
 
 	CFG.gui_title_top = 0;
 
-	CFG.layout   = CFG_LAYOUT_LARGE_3;
+	//set cover and console postition defaults
+	CFG.layout = CFG_LAYOUT_LARGE_3;
 	cfg_layout();
+
+	//set cover height and width
 	cfg_set_cover_style(CFG_COVER_STYLE_2D);
 	set_colors(CFG_COLORS_DARK);
 
+	//set theme preview image size and pos
+	CFG.theme_previewX = -1;
+	CFG.theme_previewY = -1;
+	CFG.theme_previewW = 0;
+	CFG.theme_previewH = 0;
+	CFG.w_theme_previewX = -1;
+	CFG.w_theme_previewY = -1;
+	CFG.w_theme_previewW = 0;
+	CFG.w_theme_previewH = 0;
+
+	//set up button mappings
 	CFG.button_A = CFG_BTN_BOOT_GAME;
 	CFG.button_B = CFG_BTN_GUI;
 	CFG.button_1 = CFG_BTN_OPTIONS;
@@ -1017,7 +1049,7 @@ void CFG_Default_Theme()
 	CFG.button_other.mask = WPAD_BUTTON_1;
 	CFG.button_other.num  = NUM_BUTTON_1;
 	CFG.button_save.mask = WPAD_BUTTON_2;
-	CFG.button_save.num  = NUM_BUTTON_2;
+	CFG.button_save.num  = NUM_BUTTON_2;	
 }
 
 void CFG_Default()
@@ -1073,6 +1105,8 @@ void CFG_Default()
 	STRCOPY(CFG.db_language, auto_cc());
 	STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
 	STRCOPY(CFG.sort, "title-asc");
+	CFG.delay_patch = 1;
+	CFG.theme_previews = 1;
 }
 
 int map_get_id(struct TextMap *map, char *name, int *id_val)
@@ -1562,9 +1596,6 @@ void theme_set_base(char *name, char *val)
 	cfg_bool("hide_header",  &CFG.hide_header);
 	cfg_bool("hide_hddinfo", &CFG.hide_hddinfo);
 	cfg_bool("hide_footer",  &CFG.hide_footer);
-	cfg_bool("db_show_info",  &CFG.db_show_info);
-	cfg_bool("db_ignore_titles", &CFG.db_ignore_titles);
-	cfg_bool("write_playstats",  &CFG.write_playstats);
 	
 	/*cfg_map("buttons", "original",   &CFG.buttons, CFG_BTN_ORIGINAL);
 	cfg_map("buttons", "options",    &CFG.buttons, CFG_BTN_OPTIONS_1);
@@ -1593,9 +1624,11 @@ void theme_set_base(char *name, char *val)
 		} else if (strlen(val) == 4) {
 			CFG.button_H = *((int *)val);
 			CFG.home = *((int *)val);
+		} else if (strlen(val) == 8) {
+			sscanf(val, "%X", &CFG.button_H);
+			sscanf(val, "%X", &CFG.home);
 		}
 	}
-
 
 	if (strcmp(name, "buttons")==0) {
 		if (strcmp(val, "original")==0) {
@@ -1612,30 +1645,78 @@ void theme_set_base(char *name, char *val)
 
 	/*if (strcmp(name, "button_A") && !cfg_map_auto("button_A", map_button, &CFG.button_A) && strlen(val) == 4)
 		CFG.button_A = *((int *)val);*/
-	if (strcmp(name, "button_B") == 0 && !cfg_map_auto("button_B", map_button, &CFG.button_B) && strlen(val) == 4)
-		CFG.button_B = *((int *)val);
-	if (strcmp(name, "button_1") == 0 && !cfg_map_auto("button_1", map_button, &CFG.button_1) && strlen(val) == 4)
-		CFG.button_1 = *((int *)val);
-	if (strcmp(name, "button_2") == 0 && !cfg_map_auto("button_2", map_button, &CFG.button_2) && strlen(val) == 4)
-		CFG.button_2 = *((int *)val);
-	if (strcmp(name, "button_H") == 0 && !cfg_map_auto("button_H", map_button, &CFG.button_H) && strlen(val) == 4)
-		CFG.button_H = *((int *)val);
-	if (strcmp(name, "button_-") == 0 && !cfg_map_auto("button_-", map_button, &CFG.button_M) && strlen(val) == 4)
-		CFG.button_M = *((int *)val);
-	if (strcmp(name, "button_+") == 0 && !cfg_map_auto("button_+", map_button, &CFG.button_P) && strlen(val) == 4)
-		CFG.button_P = *((int *)val);
-	if (strcmp(name, "button_Z") == 0 && !cfg_map_auto("button_Z", map_button, &CFG.button_Z) && strlen(val) == 4)
-		CFG.button_Z = *((int *)val);
-	if (strcmp(name, "button_C") == 0 && !cfg_map_auto("button_C", map_button, &CFG.button_C) && strlen(val) == 4)
-		CFG.button_C = *((int *)val);
-	if (strcmp(name, "button_Y") == 0 && !cfg_map_auto("button_Y", map_button, &CFG.button_Y) && strlen(val) == 4)
-		CFG.button_Y = *((int *)val);
-	if (strcmp(name, "button_X") == 0 && !cfg_map_auto("button_X", map_button, &CFG.button_X) && strlen(val) == 4)
-		CFG.button_X = *((int *)val);
-	if (strcmp(name, "button_L") == 0 && !cfg_map_auto("button_L", map_button, &CFG.button_L) && strlen(val) == 4)
-		CFG.button_L = *((int *)val);
-	if (strcmp(name, "button_R") == 0 && !cfg_map_auto("button_R", map_button, &CFG.button_R) && strlen(val) == 4)
-		CFG.button_R = *((int *)val);
+	if (strcmp(name, "button_B") == 0 && !cfg_map_auto("button_B", map_button, &CFG.button_B)) {
+		if (strlen(val) == 4)
+			CFG.button_B = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_B);
+	}
+	if (strcmp(name, "button_1") == 0 && !cfg_map_auto("button_1", map_button, &CFG.button_1)) {
+		if (strlen(val) == 4)
+			CFG.button_1 = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_1);
+	}
+	if (strcmp(name, "button_2") == 0 && !cfg_map_auto("button_2", map_button, &CFG.button_2)) {
+		if (strlen(val) == 4)
+			CFG.button_2 = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_2);
+	}
+	if (strcmp(name, "button_H") == 0 && !cfg_map_auto("button_H", map_button, &CFG.button_H)) {
+		if (strlen(val) == 4)
+			CFG.button_H = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_H);
+	}
+	if (strcmp(name, "button_-") == 0 && !cfg_map_auto("button_-", map_button, &CFG.button_M)) {
+		if (strlen(val) == 4)
+			CFG.button_M = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_M);
+	}
+	if (strcmp(name, "button_+") == 0 && !cfg_map_auto("button_+", map_button, &CFG.button_P)) {
+		if (strlen(val) == 4)
+			CFG.button_P = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_P);
+	}
+	if (strcmp(name, "button_Z") == 0 && !cfg_map_auto("button_Z", map_button, &CFG.button_Z)) {
+		if (strlen(val) == 4)
+			CFG.button_Z = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_Z);
+	}
+	if (strcmp(name, "button_C") == 0 && !cfg_map_auto("button_C", map_button, &CFG.button_C)) {
+		if (strlen(val) == 4)
+			CFG.button_C = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_C);
+	}
+	if (strcmp(name, "button_Y") == 0 && !cfg_map_auto("button_Y", map_button, &CFG.button_Y)) {
+		if (strlen(val) == 4)
+			CFG.button_Y = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_Y);
+	}
+	if (strcmp(name, "button_X") == 0 && !cfg_map_auto("button_X", map_button, &CFG.button_X)) {
+		if (strlen(val) == 4)
+			CFG.button_X = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_X);
+	}
+	if (strcmp(name, "button_L") == 0 && !cfg_map_auto("button_L", map_button, &CFG.button_L)) {
+		if (strlen(val) == 4)
+			CFG.button_L = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_L);
+	}
+	if (strcmp(name, "button_R") == 0 && !cfg_map_auto("button_R", map_button, &CFG.button_R)) {
+		if (strlen(val) == 4)
+			CFG.button_R = *((int *)val);
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.button_R);
+	}
 
 	//cfg_map_auto_token("button_confirm", map_button_menu, &CFG.button_confirm);
 	cfg_map_auto_token("button_cancel", map_button_menu, &CFG.button_cancel);
@@ -1767,7 +1848,6 @@ void theme_set(char *name, char *val)
 		}
 	}
 
-
 	if (strcmp(name, "console_coords")==0) {
 		int x,y,w,h;
 		if (sscanf(val, "%d,%d,%d,%d", &x, &y, &w, &h) == 4) {
@@ -1813,6 +1893,24 @@ void theme_set(char *name, char *val)
 		if (sscanf(val, "%d,%d", &x, &y) == 2) {
 			CFG.W_COVER_XCOORD = x / 2 * 2;
 			CFG.W_COVER_YCOORD = y;
+		}
+	}
+	if (strcmp(name, "preview_coords")==0) {
+		int x,y,w,h;
+		if (sscanf(val, "%d,%d,%d,%d", &x, &y, &w, &h) == 4) {
+			CFG.theme_previewX = x;
+			CFG.theme_previewY = y;
+			CFG.theme_previewW = w / 2 * 2;
+			CFG.theme_previewH = h;
+		}
+	}
+	if (strcmp(name, "wpreview_coords")==0) {
+		int x,y,w,h;
+		if (sscanf(val, "%d,%d,%d,%d", &x, &y, &w, &h) == 4) {
+			CFG.w_theme_previewX = x;
+			CFG.w_theme_previewY = y;
+			CFG.w_theme_previewW = w / 2 * 2;
+			CFG.w_theme_previewH = h;
 		}
 	}
 }
@@ -1930,11 +2028,12 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 		game_cfg->video_patch = 1;
 	}
 
-	cfg_bool("video_patch", &game_cfg->video_patch);
-	cfg_map ("video_patch", "all", &game_cfg->video_patch, CFG_VIDEO_PATCH_ALL);
+	cfg_map_auto("video_patch", map_video_patch, &game_cfg->video_patch);
 
 	cfg_bool("vidtv", &game_cfg->vidtv);
 	cfg_bool("country_patch", &game_cfg->country_patch);
+	cfg_bool("clear_patches", &game_cfg->clean);
+	cfg_map("clear_patches", "all", &game_cfg->clean, CFG_CLEAN_ALL);
 	cfg_bool("fix_002", &game_cfg->fix_002);
 	cfg_ios_idx(name, val, &game_cfg->ios_idx);
 	cfg_bool("block_ios_reload", &game_cfg->block_ios_reload);
@@ -1955,7 +2054,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	}
 	cfg_bool("ocarina", &game_cfg->ocarina);
 	cfg_map_auto("hooktype", map_hook, &game_cfg->hooktype);
-	cfg_bool("write_playlog", &game_cfg->write_playlog);
+	cfg_int_max("write_playlog", &game_cfg->write_playlog, 3);
 	
 }
 
@@ -2024,7 +2123,6 @@ void cfg_set(char *name, char *val)
 	if (strcmp(name, "unlock_password")==0) {
 		STRCOPY(CFG.unlock_password, val);
 	}
-	
 
 	cfg_int_max("cursor_jump", &CFG.cursor_jump, 50);
 	cfg_bool("console_mark_page", &CFG.console_mark_page);
@@ -2175,6 +2273,8 @@ void cfg_set(char *name, char *val)
 	cfg_int_max("fat_install_dir", &CFG.fat_install_dir, 3);
 	cfg_int_max("fs_install_layout", &CFG.fat_install_dir, 3);
 	cfg_bool("disable_nsmb_patch", &CFG.disable_nsmb_patch);
+	cfg_bool("disable_pop_patch", &CFG.disable_pop_patch);
+	cfg_bool("disable_dvd_patch", &CFG.disable_dvd_patch);
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
@@ -2196,6 +2296,8 @@ void cfg_set(char *name, char *val)
 			COPY_PATH(CFG.music_file, val);
 		}
 	}
+
+	cfg_bool("delay_patch", &CFG.delay_patch);
 	
 	if (strncmp(name, "title:", 6)==0) {
 		char id[8];
@@ -2225,6 +2327,28 @@ void cfg_set(char *name, char *val)
 		}
 	}
 	cfg_int_max("wiird", &CFG.wiird, 2);
+	if (strcmp(name, "return_to_channel")==0) {
+		if (strcmp(val, "0")== 0)
+			CFG.return_to = 0;
+		else if (strlen(val) == 4)
+			CFG.return_to = *(int *)val;
+		else if (strlen(val) == 8)
+			sscanf(val, "%X", &CFG.return_to);
+	}
+
+	cfg_bool("db_show_info",  &CFG.db_show_info);
+	cfg_bool("db_ignore_titles", &CFG.db_ignore_titles);
+	cfg_bool("write_playstats",  &CFG.write_playstats);
+	
+	cfg_bool("adult_themes", &CFG.adult_themes);
+	cfg_bool("theme_previews", &CFG.theme_previews);
+	cfg_map("select", "previous",   &CFG.select, CFG_SELECT_PREVIOUS);
+	cfg_map("select", "start",   &CFG.select, CFG_SELECT_START);
+	cfg_map("select", "middle",  &CFG.select, CFG_SELECT_MIDDLE);
+	cfg_map("select", "end", &CFG.select, CFG_SELECT_END);
+	cfg_map("select", "most", &CFG.select, CFG_SELECT_MOST);
+	cfg_map("select", "least", &CFG.select, CFG_SELECT_LEAST);
+	cfg_map("select", "random", &CFG.select, CFG_SELECT_RANDOM);
 }
 
 
@@ -2645,11 +2769,8 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_STR("language", s);
 		s = map_get_name(map_video, game_cfg->video);
 		SAVE_STR("video", s);
-		if (game_cfg->video_patch < 2) {
-			SAVE_BOOL(video_patch);
-		} else {
-			SAVE_STR("video_patch", "all");
-		}
+		s = map_get_name(map_video_patch, game_cfg->video_patch);
+		SAVE_STR("video_patch", s);
 		SAVE_BOOL(vidtv);
 		SAVE_BOOL(country_patch);
 		SAVE_BOOL(fix_002);
@@ -2671,7 +2792,14 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_BOOL(ocarina);
 		s = map_get_name(map_hook, game_cfg->hooktype);
 		SAVE_STR("hooktype", s);
-		SAVE_BOOL(write_playlog);
+		SAVE_NUM(write_playlog);
+		if (game_cfg->clean == CFG_CLEAN_OFF) {
+			SAVE_STR("clear_patches", "0");
+		} else if (game_cfg->clean == CFG_CLEAN_ON) {
+			SAVE_STR("clear_patches", "1");
+		} else {
+			SAVE_STR("clear_patches", "all");
+		}
 		fprintf(f, "\n");
 	}
 	fprintf(f, "# END\n");
@@ -2850,24 +2978,34 @@ void CFG_release_game(struct Game_CFG_2 *game)
 
 // theme
 
+//int theme_ms = 0;
+
 void get_theme_list()
 {
-	DIR *dir;
-	struct dirent *dent;
+	//DIR *dir;
+	DIR_ITER *dir;
+	//struct dirent *dent;
 	struct stat st;
+	char fname[1024] = "";
 	char theme_base[200] = "";
 	char theme_dir[200] = "";
 	char theme_file[200] = "";
 	int i;
 
+	//dbg_time1();
+
 	snprintf(theme_base, sizeof(theme_base), "%s/themes", USBLOADER_PATH);
-	dir = opendir(theme_base);
+	//dir = opendir(theme_base);
+	dir = diropen(theme_base);
 	if (!dir) return;
 
-	while ((dent = readdir(dir)) != NULL) {
-		if (dent->d_name[0] == '.') continue;
-		snprintf(theme_dir, sizeof(theme_dir), "%s/%s", theme_base, dent->d_name);
-		if (stat(theme_dir, &st) != 0) continue;
+	//while ((dent = readdir(dir)) != NULL) {
+	while (dirnext(dir, fname, &st) == 0) {
+		//if (strlen(dent->d_name) >= sizeof(theme_list[0]) || dent->d_name[0] == '.') continue;
+		if (strlen(fname) >= sizeof(theme_list[0]) || fname[0] == '.') continue;
+		//snprintf(theme_dir, sizeof(theme_dir), "%s/%s", theme_base, dent->d_name);
+		snprintf(theme_dir, sizeof(theme_dir), "%s/%s", theme_base, fname);
+		//if (stat(theme_dir, &st) != 0) continue;
 		if (!S_ISDIR(st.st_mode)) continue;
 		snprintf(theme_file, sizeof(theme_file), "%s/theme.txt", theme_dir);
 		if (stat(theme_file, &st) != 0) continue;
@@ -2875,11 +3013,16 @@ void get_theme_list()
 			// theme found
 			//printf("Theme: %s\n", dent->d_name);
 			if (num_theme >= MAX_THEME) break;
-			strcopy(theme_list[num_theme], dent->d_name, sizeof(theme_list[num_theme]));
+			//strcopy(theme_list[num_theme], dent->d_name, sizeof(theme_list[num_theme]));
+			strcopy(theme_list[num_theme], fname, sizeof(theme_list[num_theme]));
 			num_theme++;
 		}
 	}
-	closedir(dir);	
+	//closedir(dir);	
+	dirclose(dir);	
+
+	//theme_ms = dbg_time2(NULL);
+
 	if (!num_theme) return;
 	qsort(theme_list, num_theme, sizeof(*theme_list),
 			(int(*)(const void*, const void*))stricmp);
@@ -2952,7 +3095,7 @@ void load_theme(char *theme)
 			snprintf(D_S(pathname), "%s/config.txt", APPS_DIR);
 			cfg_parsefile(pathname, &theme_set_base);
 		}
-		STRCOPY(CFG.theme_path, theme_path);
+		STRCOPY(CFG.theme_path, theme_path);		
 		makeButtonMap();
 		set_chars();
 	}
@@ -3062,6 +3205,7 @@ void cfg_debug(int argc, char **argv)
 	printf("gui: %d ", CFG.gui);
 	extern char *get_cc();
 	printf("CC: %s ", get_cc());
+	//printf("theme_ms: %d ", theme_ms);
 	printf("\n");
 	printf("url: %s\n", CFG.cover_url_2d_norm);
 	//printf("t[%.6s]=%s\n", cfg_title[0].id, cfg_title[0].title);
@@ -3133,6 +3277,26 @@ void chdir_app(char *arg)
 	}
 }   
 
+void setup_theme_preview_coords()
+{
+	//theme preview settings
+	if (CFG.widescreen) {
+		//if width and height not set then use cover width
+		if ((CFG.w_theme_previewW < 1) && (CFG.w_theme_previewH < 1)) CFG.w_theme_previewW = COVER_WIDTH;
+		CFG.theme_previewX = (CFG.w_theme_previewX < 0) ? COVER_XCOORD : CFG.w_theme_previewX;
+		CFG.theme_previewY = (CFG.w_theme_previewY < 0) ? COVER_YCOORD : CFG.w_theme_previewY;
+		CFG.theme_previewW = (CFG.w_theme_previewW > 0) ? CFG.w_theme_previewW : (CFG.w_theme_previewH * 16 / 13);
+		CFG.theme_previewH = (CFG.w_theme_previewH > 0) ? CFG.w_theme_previewH : (CFG.w_theme_previewW * 13 / 16);
+	} else {
+		//if width and height not set then use cover width
+		if ((CFG.theme_previewW < 1) && (CFG.theme_previewH < 1)) CFG.theme_previewW = COVER_WIDTH;
+		CFG.theme_previewX = (CFG.theme_previewX < 0) ? COVER_XCOORD : CFG.theme_previewX;
+		CFG.theme_previewY = (CFG.theme_previewY < 0) ? COVER_YCOORD : CFG.theme_previewY;
+		CFG.theme_previewW = (CFG.theme_previewW > 0) ? CFG.theme_previewW : (CFG.theme_previewH * 4 / 3);
+		CFG.theme_previewH = (CFG.theme_previewH > 0) ? CFG.theme_previewH : (CFG.theme_previewW * 3 / 4);		
+	}	
+}
+
 // after cfg load
 void cfg_setup1()
 {
@@ -3187,6 +3351,8 @@ void cfg_setup2()
 		COVER_WIDTH = CFG.W_COVER_WIDTH;
 		COVER_HEIGHT = CFG.W_COVER_HEIGHT;
 	}
+	
+	setup_theme_preview_coords();
 }
 
 // This has to be called AFTER video & console init

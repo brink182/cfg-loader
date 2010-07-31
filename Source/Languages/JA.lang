@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-16 19:09+0100\n"
+"POT-Creation-Date: 2010-07-30 03:03+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -74,6 +74,9 @@ msgstr "アクション"
 msgid "Additional config:"
 msgstr "設定を保存する場所:"
 
+msgid "Adult"
+msgstr "成人向け"
+
 msgid "Adventure"
 msgstr "アドベンチャー"
 
@@ -82,6 +85,9 @@ msgstr "すべて"
 
 msgid "All Games"
 msgstr "すべてのゲーム"
+
+msgid "All themes up to date."
+msgstr "全てのテーマを更新しました"
 
 msgid "Alt dol:"
 msgstr "代替dol"
@@ -151,6 +157,9 @@ msgstr "チート:"
 msgid "Check For Updates"
 msgstr "更新を確認"
 
+msgid "Checking for themes..."
+msgstr "テーマを確認中です…"
+
 msgid "Checking for updates..."
 msgstr "更新を探しています…"
 
@@ -159,6 +168,9 @@ msgstr "並び替え方法を選んでください"
 
 msgid "Classic Controller"
 msgstr "クラシックコントローラ"
+
+msgid "Clear Patches:"
+msgstr "クリアパッチ:"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -188,13 +200,30 @@ msgstr "カバー画像:"
 msgid "Create"
 msgstr "作成"
 
+msgid "Creator"
+msgstr "制作者"
+
 #, c-format
 msgid "Current Version: %s"
 msgstr "現在のバージョン: %s"
 
 #, c-format
+msgid ""
+"Custom IOS %d could not be found!\n"
+"Please install it."
+msgstr ""
+
+#, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
 msgstr "cIOS%dが読み込めません(ret = %d)"
+
+#, c-format
+msgid ""
+"Custom IOS %d is a stub!\n"
+"Please reinstall it."
+msgstr ""
+"cIOS %dはスタブです!\n"
+"再インストールしてください"
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
@@ -214,6 +243,12 @@ msgstr "開発者"
 
 msgid "Device:"
 msgstr "使用デバイス:"
+
+msgid "Disc"
+msgstr "ディスク"
+
+msgid "Disc (Ask)"
+msgstr "ディスク(尋ねる)"
 
 msgid "Done."
 msgstr "完了しました"
@@ -246,6 +281,9 @@ msgstr ""
 "%.6sの不足しているカバーを\n"
 "ダウンロードしています"
 
+msgid "Downloading Theme previews..."
+msgstr "プレビューをダウンロードしています…"
+
 msgid "Downloading cheats..."
 msgstr "コードをダウンロード中…"
 
@@ -258,6 +296,13 @@ msgstr "titles.txtをダウンロード中…"
 #, c-format
 msgid "Downloading: %s"
 msgstr "ダウンロード中: %s"
+
+#, c-format
+msgid "Downloading: %s as %s"
+msgstr "%sを%sとしてダウンロードしています"
+
+msgid "Downloads"
+msgstr "ダウンロード数"
 
 msgid "Drums"
 msgstr "タルコンガ"
@@ -298,13 +343,6 @@ msgstr "エラー:%sはアクセスできません"
 #, c-format
 msgid "ERROR: Apploader %d"
 msgstr "エラー:アプリローダー %d"
-
-msgid ""
-"ERROR: CIOS222 or CIOS223 required for\n"
-"starting games from a FAT partition!"
-msgstr ""
-"FAT領域からのゲーム起動には\n"
-"cIOS222か223が必要です"
 
 msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "エラー:BCAにはcIOS222/223v4が必要です"
@@ -384,6 +422,17 @@ msgstr "エラー:USB/FATがwbfsをマウントしています(%d)"
 msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr "エラー:WBFS FATマウントセクタ%x not %x"
 
+msgid ""
+"ERROR: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 or higher required\n"
+"for starting games from a FAT partition!\n"
+"Upgrade IOS249 or choose a different IOS."
+msgstr ""
+"エラー: cIOS249rev18､cIOS222v4､\n"
+"cIOS223v4､cIOS224v5以上がFAT領域からの\n"
+"ゲームの起動に必要です!\n"
+"IOS249を更新するか別のIOSを選択してください"
+
 msgid "ERROR: cache: out of memory"
 msgstr "エラー:メモリ不足"
 
@@ -391,14 +440,14 @@ msgid ""
 "ERROR: ehcmodule2 no longer included!\n"
 "external file ehcmodule.elf must be used!"
 msgstr ""
-"エラー:EHCモジュール2はは含まれなくなりました!\n"
+"エラー:EHCモジュール2は含まれなくなりました!\n"
 "ehcmodule.elfを使用する必要があります！"
 
 msgid ""
 "ERROR: ehcmodule3 no longer included!\n"
 "external file ehcmodule3.elf must be used!"
 msgstr ""
-"エラー:EHCモジュール3はは含まれなくなりました!\n"
+"エラー:EHCモジュール3は含まれなくなりました!\n"
 "ehcmodule3.elfを使用する必要があります！"
 
 #, c-format
@@ -452,8 +501,20 @@ msgstr "接続の初期化に失敗しました"
 msgid "Error adding disc!"
 msgstr "ディスクの追加に失敗しました"
 
+msgid "Error creating directory..."
+msgstr "フォルダの作成に失敗しました"
+
 msgid "Error discarding options!"
 msgstr "設定の破棄に失敗しました"
+
+msgid "Error downloading theme preview..."
+msgstr "プレビューがダウンロードできませんでした"
+
+msgid "Error downloading theme..."
+msgstr "テーマのダウンロードに失敗しました"
+
+msgid "Error downloading themes..."
+msgstr "テーマのダウンロードに失敗しました"
 
 msgid "Error downloading update..."
 msgstr "更新のダウンロードに失敗しました"
@@ -466,6 +527,9 @@ msgstr "ダウンロードに失敗しました"
 
 msgid "Error establishing connection"
 msgstr "接続の確立に失敗しました"
+
+msgid "Error extracting theme..."
+msgstr "テーマの解凍に失敗しました"
 
 msgid "Error opening database, update did not complete."
 msgstr "データベースを開けません、更新は完了していません"
@@ -509,6 +573,10 @@ msgstr "URLがありません"
 
 msgid "Error: no data."
 msgstr "データがありません"
+
+#, c-format
+msgid "Extracting: %s"
+msgstr "解凍中: %s"
 
 msgid "FAIL"
 msgstr "失敗"
@@ -599,7 +667,7 @@ msgid "Hold button B to cancel."
 msgstr "キャンセルするにはBボタンを押してください"
 
 msgid "Hook Type:"
-msgstr "Ocarinaフックタイプ:"
+msgstr "フックタイプ:"
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -659,7 +727,7 @@ msgid "Last Play Date"
 msgstr "最終プレイ日"
 
 msgid "Launch Methods"
-msgstr ""
+msgstr "起動方法"
 
 msgid "Load OK!"
 msgstr "読み込みました"
@@ -796,6 +864,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "接続しました"
 
+msgid "New Themes"
+msgstr "新しいテーマ"
+
 msgid "Nintendo DS"
 msgstr "ニンテンドーDS"
 
@@ -814,6 +885,9 @@ msgstr "HTTPからコピーするためのメモリが不足しています"
 
 msgid "No partition selected!"
 msgstr "領域が選ばれていません"
+
+msgid "No themes found."
+msgstr "テーマが見つかりません"
 
 msgid "No updates found."
 msgstr "更新はありません"
@@ -976,6 +1050,10 @@ msgid "Press %s button to skip codes."
 msgstr "%sボタンでコードをスキップします"
 
 #, c-format
+msgid "Press %s for fullscreen preview"
+msgstr "%sボタンで全画面プレビューをします"
+
+#, c-format
 msgid "Press %s for game options"
 msgstr "%sボタンで前の画面に移動します"
 
@@ -990,6 +1068,10 @@ msgstr "%sボタンで設定を破棄します"
 #, c-format
 msgid "Press %s to download and update"
 msgstr "%sボタンで更新します"
+
+#, c-format
+msgid "Press %s to download this theme"
+msgstr "%sボタンでこのテーマをダウンロードします"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1044,6 +1126,10 @@ msgid "Press any button..."
 msgstr "何かボタンを押してください"
 
 #, c-format
+msgid "Press button %s to download covers."
+msgstr "%sボタンでカバーをダウンロードします"
+
+#, c-format
 msgid "Press button %s to eject DVD."
 msgstr "%sボタンでDVDを取り出します"
 
@@ -1072,6 +1158,9 @@ msgstr "レース"
 #, c-format
 msgid "Rated %s"
 msgstr "レーティング[%s]"
+
+msgid "Rating"
+msgstr "レーティング"
 
 msgid "Read"
 msgstr "読み込み"
@@ -1102,7 +1191,7 @@ msgid "Rhythm"
 msgstr "リズム"
 
 msgid "Running benchmark, please wait"
-msgstr "ベンチマークを起動しています、お待ちください"
+msgstr "ベンチマークを起動しています､お待ちください"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHCカード"
@@ -1179,12 +1268,34 @@ msgstr "このゲームを始めますか?"
 msgid "Strategy"
 msgstr "戦略ゲーム"
 
+msgid "Theme"
+msgstr "テーマ"
+
+msgid "Theme Info"
+msgstr "テーマ情報"
+
+msgid ""
+"Theme may be too large.\n"
+"Reboot of Cfg suggested.\n"
+msgstr ""
+"テーマのサイズが大きすぎます\n"
+"Cfgを再起動してください\n"
+
 msgid "Theme:"
 msgstr "テーマ:"
 
 #, c-format
 msgid "Theme: %s"
 msgstr "テーマ: %s"
+
+msgid "Themes provided by wii.spiffy360.com"
+msgstr "wii.spiffy360.comにテーマは保存されています"
+
+msgid "Themes to download"
+msgstr "ダウンロードするテーマ"
+
+msgid "Themes with updates"
+msgstr "更新のあるテーマ"
 
 msgid "Title"
 msgstr "タイトル"
@@ -1230,6 +1341,9 @@ msgstr "プレイされていないゲーム"
 msgid "Update WiiTDB Game Database"
 msgstr "WiiTDBのゲームデータベースを更新"
 
+msgid "Update themes"
+msgstr "テーマを更新"
+
 msgid "Update titles.txt"
 msgstr "titles.txtを更新"
 
@@ -1242,6 +1356,9 @@ msgstr "使用容量: %.1fGB 空き容量: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
 msgstr "保存された代替dolを使用しています"
+
+msgid "Version"
+msgstr "バージョン"
 
 msgid "Video Patch:"
 msgstr "映像パッチ:"
@@ -1392,8 +1509,12 @@ msgstr "Wiiディスクを開けません"
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
 
-#~ msgid "Disc"
-#~ msgstr "ディスク"
+#~ msgid ""
+#~ "ERROR: CIOS222 or CIOS223 required for\n"
+#~ "starting games from a FAT partition!"
+#~ msgstr ""
+#~ "FAT領域からのゲーム起動には\n"
+#~ "cIOS222か223が必要です"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT:古いメソッドへの縮退運転"
@@ -1403,6 +1524,9 @@ msgstr "使用済み: %p - %p"
 
 #~ msgid "Press %s to select"
 #~ msgstr "%sボタンで選びます"
+
+#~ msgid "Press 1 for fullscreen preview"
+#~ msgstr "1ボタンで全画面プレビューをします"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "FATへの対応のためIOS222に変更しています"

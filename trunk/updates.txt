@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 58 (release)
+size = 1574176
+date = 2010-08-26
+url = http://cfg-loader.googlecode.com/files/cfg58.dol
+preliminary cios rev21 support
+
+release = 58-222 (release)
+size = 1574176
+date = 2010-08-26
+url = http://cfg-loader.googlecode.com/files/cfg58-222.dol
+Same as 58 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 58b2 (beta2)
 size = 1574176
 date = 2010-08-25
@@ -26,40 +41,6 @@ size = 1574176
 date = 2010-08-25
 url = http://cfg-loader.googlecode.com/files/cfg58b2-222.dol
 Same as 58b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 58b (beta)
-size = 1573280
-date = 2010-08-22
-url = http://cfg-loader.googlecode.com/files/cfg58b.dol
-Improved IOS base detection
-wiird setting in global options
-New option: debug_gecko
-
-release = 58b-222 (beta)
-size = 1573280
-date = 2010-08-22
-url = http://cfg-loader.googlecode.com/files/cfg58b-222.dol
-Same as 58b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 58a (alpha)
-size = 1565120
-date = 2010-08-01
-url = http://cfg-loader.googlecode.com/files/cfg58a.dol
-Support multiple slots for
-  Waninkoko's cios rev20:
-  247, 248, 249, 250
-
-release = 58a-222 (alpha)
-size = 1565120
-date = 2010-08-01
-url = http://cfg-loader.googlecode.com/files/cfg58a-222.dol
-Same as 58a but with different
 default options:
   ios=222-mload
   partition=FAT1

@@ -8,6 +8,7 @@
 #include <gctypes.h> // bool...
 
 #include "mem.h"
+#include "debug.h"
 
 #define STRCOPY(DEST,SRC) strcopy(DEST,SRC,sizeof(DEST)) 
 char* strcopy(char *dest, const char *src, int size);
@@ -19,10 +20,6 @@ bool str_replace(char *str, char *olds, char *news, int size);
 bool str_replace_all(char *str, char *olds, char *news, int size);
 bool trimsplit(char *line, char *part1, char *part2, char delim, int size);
 char* split_tokens(char *dest, char *src, char *delim, int size);
-
-#define dbg_printf if (CFG.debug) printf
-void dbg_time1();
-unsigned dbg_time2(char *msg);
 
 #define D_S(A) A, sizeof(A)
 

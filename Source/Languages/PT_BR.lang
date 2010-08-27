@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-02-23 23:32-0300\n"
 "Last-Translator: mangojambo <mangojambo@gmail.com>\n"
 "Language-Team: BRAZILIAN PORTUGUESE \n"
@@ -266,6 +266,10 @@ msgstr "Baixar Todas as Capas que estão Faltando"
 
 msgid "Download complete."
 msgstr "Download finalizado."
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Conteúdo Baixável"
@@ -646,6 +650,10 @@ msgstr "Opções de Jogo:  %s"
 msgid "Gamecube"
 msgstr "GameCube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Opções Globais"
 
@@ -866,6 +874,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Conexão a rede estabelecida."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr ""
 
@@ -981,6 +992,9 @@ msgstr "Partição: %s não encontrada!"
 
 msgid "Party"
 msgstr "Festa"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "Plataforma"

@@ -827,3 +827,45 @@ void Download_XML()
 	sleep(4);
 } /* end download zipped xml */
 
+int gamercard_update(char *ID) {
+	char *next_key, *next_url;
+	bool net_initted = false;
+	int gcard_cnt = 0;
+	int result = 0;
+	next_key = CFG.gamercard_key;
+	next_url = CFG.gamercard_url;
+	if (*next_key == 0 || *next_url == 0)
+		return 0;
+	while(next_key && next_url) {
+		char key[80];
+		char url[200];
+		next_key = split_token(key, next_key, ' ', sizeof(key));
+		next_url = split_token(url, next_url, ' ', sizeof(url));
+		gcard_cnt++;
+		if (strcmp(key, "0") == 0) {
+			continue;
+		}
+		
+		if(!net_initted && !Init_Net()) {
+			printf_x(gt("Network error.  Can't update gamercards."));
+			printf("\n");
+			return -1;
+		} else 
+			net_initted = true;
+
+		str_replace(url, "{KEY}", key, sizeof(url));
+		str_replace(url, "{ID6}", ID, sizeof(url));
+	
+		struct block file;
+		file = downloadfile(url);
+		if(file.data == NULL || file.size == 0) {
+			printf_x(gt("Download error on gamercard #%d."), gcard_cnt);
+			printf("\n");
+			result = -2;
+		} else {
+			printf_x(gt("Gamercard #%d reported: %.*s"), gcard_cnt, file.size,file.data);
+			printf("\n");
+		}
+	}
+	return result;
+}

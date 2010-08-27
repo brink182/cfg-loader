@@ -12,7 +12,6 @@
 #include "console.h"
 #include "menu.h"
 #include "util.h"
-#include "console.h"
 
 /*
 extern void* SYS_GetArena2Lo();
@@ -66,27 +65,6 @@ bool str_replace_all(char *str, char *olds, char *news, int size) {
 		cnt++;
 	}
 	return (cnt > 0);
-}
-
-
-extern long long gettime();
-extern u32 diff_msec(long long start, long long end);
-
-static long long dbg_t1, dbg_t2;
-
-void dbg_time1()
-{
-	dbg_t1 = gettime();
-}
-
-unsigned dbg_time2(char *msg)
-{
-	unsigned ms;
-	dbg_t2 = gettime();
-	ms = diff_msec(dbg_t1, dbg_t2);
-	if (msg) printf("%s %u", msg, ms);
-	dbg_t1 = dbg_t2;
-	return ms;
 }
 
 

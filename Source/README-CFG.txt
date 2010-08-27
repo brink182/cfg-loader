@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v57
+Configurable SD/USB Loader v58
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -34,7 +34,7 @@ Features:
  - SDHC with multiple partitions supported
    (WBFS for games and FAT for resources...)
  - Custom IOS selection for better compatibility with USB drives and other USB devices.
- - cIOS supported: waninkoko's 249 & 250, Hermes 222, 223 & 224 (mload), kwiirk 222 & 223 (yal)
+ - cIOS supported: waninkoko's 247, 248, 249 & 250, Hermes 222, 223 & 224 (mload), kwiirk 222 & 223 (yal)
  - Banner sounds
  - Saving game play time to Wii's play log
  - Multiple WBFS partitions support
@@ -762,6 +762,9 @@ Config file:
 #   Display some diagnostic messages when started
 #   Benchmark mode with debug = 8 and start or install a game
 #
+# debug_gecko = [0],1,2,3
+#   write debug info to usb gecko (1=debug,2=console,3=both)
+#
 # profile_names = [default], name2, name3,...
 #   Profiles - aka multiple favorite groups
 #   (max profiles:10, max profile name length: 16)
@@ -844,6 +847,40 @@ Config file:
 # theme_previews = [1], 0
 #   determines if the theme preview images should be downloaded and displayed
 #
+# return_to_channel = [0], JODI, FDCL, ...
+#   Games will return to the selected channel ID
+#   e.g., JODI for HBC or a forwarder channel like FDCL or DCFG
+#     to reload Cfg.
+#   0 is the default Wii Menu operation
+#
+# disable_nsmb_patch = [0],1
+# disable_pop_patch = [0],1
+# disable_dvd_patch = [0],1
+#   Optionally disable patches performed by the loader.
+#
+#   nsmb = New Super Mario Bros.
+#   pop = Prince of Persia: The Forgotten Sands
+#   dvd = disc check patch for Hermes.
+#
+#   PoP requires that you disable the dvd patch
+#   Set an option to 1 to disable (i.e., not patch)
+#
+# gamercard_url = URL
+# gamercard_key = key
+#   These options work like the cover_url options
+#   and support the =+ operator to add multiple sites/keys.
+#   Keys and URLs are matched up in respective order.
+#
+#   If you set a key in the list to 0, or leave out trailing keys, the
+#   respective sites from the URLs will not be tried.
+#
+#   The tags {KEY} and {ID6} can be used in the URLs.
+#
+#   Defaults are for WiinnerTag and NCard in that order, but with blank keys:
+#   gamercard_url =  http://www.wiinnertag.com/wiinnertag_scripts/update_sign.php?key={KEY}&game_id={ID6}
+#   gamercard_url =+ http://www.messageboardchampion.com/ncard/API/?cmd=tdbupdate&key={KEY}&game={ID6}
+#   gamercard_key = 
+#
 # Game Compatibility Options:
 # ===========================
 # 
@@ -875,7 +912,7 @@ Config file:
 # fix_002 = [0], 1
 #   This is the Anti 002 fix.  It is not needed for new cIOSes (IOS249 rev14+)
 #
-# ios = [249], 222-mload, 223-mload, 224-mload, 222-yal, 223-yal, 250
+# ios = 247, 248, [249], 222-mload, 223-mload, 224-mload, 222-yal, 223-yal, 250
 #   Select Custom IOS
 #   Note: 222-yal is for kwiirk's cIOS
 #   Note: 222-mload is for Hermes's cIOS and is the default for the -222 version
@@ -910,23 +947,6 @@ Config file:
 #   In the per-game menu, these options show up as "Off", "On",
 #   "Japanese Title" and "English Title" respectively.
 #
-# return_to_channel = [0], JODI, FDCL, ...
-#   Games will return to the selected channel ID
-#   e.g., JODI for HBC or a forwarder channel like FDCL or DCFG
-#     to reload Cfg.
-#   0 is the default Wii Menu operation
-#
-# disable_nsmb_patch = [0],1
-# disable_pop_patch = [0],1
-# disable_dvd_patch = [0],1
-#   Optionally disable patches performed by the loader.
-#
-#   nsmb = New Super Mario Bros.
-#   pop = Prince of Persia: The Forgotten Sands
-#   dvd = disc check patch for Hermes.
-#
-#   PoP requires that you disable the dvd patch
-#   Set an option to 1 to disable (i.e., not patch)
 
 Config file sample:
 -------------------
@@ -951,6 +971,35 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+26-08-2010 cfg v58 (release)
+ * preliminary cios rev21 support
+
+25-08-2010 cfg v58b2 (beta2)
+ * Gamercard support (Clipper, Daileon)
+ * New options: gamercard_url and gamercard_key
+ - These options work like the cover_url options
+   and support the =+ operator to add multiple sites/keys
+ - Keys and URLs are matched up in order
+ - If you set a key in the list to 0, or leave out trailing keys, the
+   respective sites from the URLs will not be tried.
+ - The tags {KEY} and {ID6} can be used in the URLs.
+ - Defaults are for WiinnerTag and NCard in that order, but with blank keys:
+   gamercard_url =  http://www.wiinnertag.com/wiinnertag_scripts/update_sign.php?key={KEY}&game_id={ID6}
+   gamercard_url =+ http://www.messageboardchampion.com/ncard/API/?cmd=tdbupdate&key={KEY}&game={ID6}
+   gamercard_key =
+
+22-08-2010 cfg v58b (beta)
+ * Added wiird setting to global options screen.
+   (If the gecko is not connected the option is inactive)
+ * Improved IOS base detection (from NeoGamma - by WiiPower)
+ * New option: debug_gecko = [0],1,2,3
+   write debug info to usb gecko
+
+01-08-2010 cfg v58a (alpha)
+ * Support multiple slots for Waninkoko's cios rev20: 247, 248, 249, 250
+   Changed option: ios = 247, 248, [249], 222-mload, 223-mload,
+   224-mload, 222-yal, 223-yal, 250
 
 31-07-2010 cfg v57 (release)
  * Added video patching mode from Sneek (by Crediar)

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -267,6 +267,10 @@ msgstr "Scarica Copertine Mancanti"
 
 msgid "Download complete."
 msgstr "Download completato."
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Contenuto Scaricabile"
@@ -651,6 +655,10 @@ msgstr "Opzioni Gioco:  %s"
 msgid "Gamecube"
 msgstr "Gamecube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Opzioni Generali"
 
@@ -871,6 +879,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Connessione di rete stabilita."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "Nuovi Temi"
 
@@ -986,6 +997,9 @@ msgstr "Partizione: %s non trovata!"
 
 msgid "Party"
 msgstr "Party"
+
+msgid "Paused Start"
+msgstr "Avvio Sospeso"
 
 msgid "Platformer"
 msgstr "Platformer"

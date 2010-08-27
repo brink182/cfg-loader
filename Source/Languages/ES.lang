@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -269,6 +269,10 @@ msgstr "Descargar las Portadas Faltantes"
 
 msgid "Download complete."
 msgstr "Descarga terminada."
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Contenido Descargable"
@@ -652,6 +656,10 @@ msgstr "Opciones de Juego:  %s"
 msgid "Gamecube"
 msgstr "GameCube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Opciones Globales"
 
@@ -872,6 +880,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Conexión a la red establecida."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "Nuevos Temas"
 
@@ -987,6 +998,9 @@ msgstr "Partición: %s no encontrada!"
 
 msgid "Party"
 msgstr "Fiesta"
+
+msgid "Paused Start"
+msgstr "Inicio Pausado"
 
 msgid "Platformer"
 msgstr "Plataforma"

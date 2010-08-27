@@ -406,7 +406,7 @@ bool check_dual_layer(u64 real_size, struct Game_CFG_2 *game_cfg)
 		if (is_ios_type(IOS_TYPE_WANIN) && (IOS_GetRevision() == 14)) return true;
 		return false;
 	}
-	if (game_cfg->curr.ios_idx != CFG_IOS_249) return false; 
+	if (get_ios_idx_type(game_cfg->curr.ios_idx) != IOS_TYPE_WANIN) return false; 
 	if (is_ios_type(IOS_TYPE_WANIN)) {
 	   	if (IOS_GetRevision() == 14) return true;
 		return false;
@@ -713,7 +713,7 @@ void Print_SYS_Info()
 	}
 	printf_(gt("Loader Version: %s"), CFG_VERSION);
 	printf("\n");
-	printf_("IOS%u (Rev %u) %s\n",
+	printf_("IOS%u (r%u) %s\n",
 			IOS_GetVersion(), IOS_GetRevision(),
 			mload_ehc_fat||new_wanin ? "[FRAG]" : "");
 	if (CFG.ios_mload || new_wanin) {
@@ -1458,11 +1458,13 @@ void Save_Game_List()
 
 int Menu_Global_Options()
 {
-	int rows, cols, win_size = 11;
+	int rows, cols, win_size, info_size;
 	CON_GetMetrics(&cols, &rows);
-	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) win_size += 2;
-	if (CFG.ios_mload) win_size += 1;
-	if ((win_size = rows-win_size) < 3) win_size = 3;
+	//calc_rows: // debug
+	info_size = 11;
+	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) info_size += 2;
+	win_size = rows - info_size;
+	if (win_size < 3) win_size = 3;
 
 	if (CFG.disable_options) return 0;
 
@@ -1470,7 +1472,15 @@ int Menu_Global_Options()
 	int redraw_cover = 0;
 
 	struct Menu menu;
-	menu_init(&menu, 10);
+	const int num_opt = 11;
+	char active[num_opt];
+	menu_init(&menu, num_opt);
+	menu_init_active(&menu, active, sizeof(active));
+	active[5] = usb_isgeckoalive(EXI_CHANNEL_1);
+	const char *str_wiird[3];
+	str_wiird[0] = gt("Off");
+	str_wiird[1] = gt("On");
+	str_wiird[2] = gt("Paused Start");
 
 	for (;;) {
 
@@ -1485,9 +1495,9 @@ int Menu_Global_Options()
 		Con_Clear();
 		FgColor(CFG.color_header);
 		printf_x(gt("Global Options"));
-		printf(":\n\n");
+		printf(":\n");
 		DefaultColor();
-		menu_window_begin(&menu, win_size, 10);
+		menu_window_begin(&menu, win_size, num_opt);
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Main Menu"));
 		if (menu_window_mark(&menu))
@@ -1503,6 +1513,8 @@ int Menu_Global_Options()
 				(wbfsDev == WBFS_DEVICE_USB) ? "USB" : "SDHC");
 		if (menu_window_mark(&menu))
 			printf("%s< %s >\n", con_align(gt("Partition:"),13), CFG.partition);
+		if (menu_window_mark(&menu))
+			printf("%s< %s >\n", con_align("WiiRD:",13), str_wiird[CFG.wiird]);
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Download All Missing Covers"));
 		if (menu_window_mark(&menu))
@@ -1522,6 +1534,7 @@ int Menu_Global_Options()
 		printf("\n\n");
 		Print_SYS_Info();
 		DefaultColor();
+		//Con_SetPosition(0, rows-1); printf(" -- %d %d --", rows, win_size); //calc_rows debug
 		__console_flush(0);
 
 		if (redraw_cover) {
@@ -1560,25 +1573,33 @@ int Menu_Global_Options()
 				Menu_Partition(true);
 				return 0;
 			case 5:
+				CHANGE(CFG.wiird, 2);
+				break;
+			case 6:
 				Download_All_Covers(change > 0);
 				Cache_Invalidate();
 				if (header) Gui_DrawCover(header->id);
 				Menu_PrintWait();
 				break;
-			case 6:
+			case 7:
 				Download_XML();
 				break;
-			case 7:
+			case 8:
 				Download_Titles();
 				break;
-			case 8:
+			case 9:
 				Theme_Update();
 				break;
-			case 9:
+			case 10:
 				Online_Update();
 				break;
 			}
 		}
+		
+		// debug
+		//if (buttons & WPAD_BUTTON_MINUS) { rows--; goto calc_rows; }
+		//if (buttons & WPAD_BUTTON_PLUS) { rows++; goto calc_rows; }
+
 		// HOME button
 		if (buttons & CFG.button_exit.mask) {
 			Handle_Home(0);
@@ -3049,6 +3070,12 @@ void Menu_Boot(bool disc)
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
+		printf_h(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
+		printf("\n");
+		if (!Menu_Confirm(0)) return;
+	}
+
+	if (gamercard_update((char *)(header->id))) {
 		printf_h(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
 		printf("\n");
 		if (!Menu_Confirm(0)) return;

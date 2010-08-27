@@ -68,12 +68,11 @@ int main(int argc, char **argv)
 	dbg_printf("reload ios: %d\n", CFG.ios);
 	/* Load Custom IOS */
 	print_ios();
-	if (CFG.game.ios_idx == CFG_IOS_249) {
-		ret = IOS_ReloadIOS(249);
-		CURR_IOS_IDX = CFG_IOS_249;
+	if (get_ios_idx_type(CFG.game.ios_idx) == IOS_TYPE_WANIN) {
+		ret = IOS_ReloadIOS(CFG.ios);
+		CURR_IOS_IDX = CFG.game.ios_idx;
 		if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) {
 			load_dip_249();
-			//try_hello();
 		}
 		//usleep(200000); // this seems to cause hdd spin down/up
 	} else {

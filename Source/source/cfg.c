@@ -21,6 +21,7 @@
 #include "gettext.h"
 #include "menu.h"
 #include "console.h"
+#include "sys.h"
 
 char FAT_DRIVE[8] = "sd:";
 char USBLOADER_PATH[200] = "sd:/usb-loader";
@@ -122,6 +123,8 @@ struct TextMap map_layout[] =
 
 struct TextMap map_ios[] =
 {
+	{ "247",        CFG_IOS_247 },
+	{ "248",        CFG_IOS_248 },
 	{ "249",        CFG_IOS_249 },
 	{ "222-mload",  CFG_IOS_222_MLOAD },
 	{ "223-mload",  CFG_IOS_223_MLOAD },
@@ -597,6 +600,13 @@ void cfg_default_url()
 		//" http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/Full%20Cover/{ID6}.png"
 		);
+
+	STRCOPY(CFG.gamercard_url,
+		" http://www.wiinnertag.com/wiinnertag_scripts/update_sign.php?key={KEY}&game_id={ID6}"
+		" http://www.messageboardchampion.com/ncard/API/?cmd=tdbupdate&key={KEY}&game={ID6}"
+		);
+
+	*CFG.gamercard_key = 0;
 }
 
 
@@ -1929,7 +1939,14 @@ void cfg_ios_set_idx(int ios_idx)
 	CFG.ios_mload = 0;
 
 	switch (ios_idx) {
+		case CFG_IOS_247:
+			CFG.ios = 247;
+			break;
+		case CFG_IOS_248:
+			CFG.ios = 248;
+			break;
 		case CFG_IOS_249:
+			CFG.ios = 249;
 			break;
 		case CFG_IOS_250:
 			CFG.ios = 250;
@@ -2007,6 +2024,26 @@ bool is_ios_idx_mload(int ios_idx)
 	}
 	return false;
 }
+
+int get_ios_idx_type(int ios_idx)
+{
+	switch (ios_idx) {
+		case CFG_IOS_247:
+		case CFG_IOS_248:
+		case CFG_IOS_249:
+		case CFG_IOS_250:
+			return IOS_TYPE_WANIN;
+		case CFG_IOS_222_MLOAD:
+		case CFG_IOS_223_MLOAD:
+		case CFG_IOS_224_MLOAD:
+			return IOS_TYPE_HERMES;
+		case CFG_IOS_222_YAL:
+		case CFG_IOS_223_YAL:
+			return IOS_TYPE_KWIIRK;
+	}
+	return IOS_TYPE_UNK;
+}
+
 
 
 void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
@@ -2091,8 +2128,8 @@ void cfg_set_early(char *name, char *val)
 {
 	cfg_name = name;
 	cfg_val = val;
-	//cfg_bool("debug",   &CFG.debug);
-	cfg_int_max("debug",   &CFG.debug, 255);
+	cfg_int_max("debug", &CFG.debug, 255);
+	cfg_int_max("debug_gecko", &CFG.debug_gecko, 255);
 	cfg_bool("widescreen", &CFG.widescreen);
 	cfg_map("widescreen", "auto", &CFG.widescreen, CFG_WIDE_AUTO);
 	cfg_ios(name, val);
@@ -2181,6 +2218,9 @@ void cfg_set(char *name, char *val)
 	if (strcmp(name, "covers_path_full")==0) {
 		COPY_PATH(CFG.covers_path_full, val);
 	}
+
+	CFG_STR_LIST("gamercard_url", CFG.gamercard_url);
+	CFG_STR_LIST("gamercard_key", CFG.gamercard_key);
 
 	// urls
 	CFG_STR("titles_url", CFG.titles_url);
@@ -3181,54 +3221,58 @@ debug codes:
 
 void cfg_debug(int argc, char **argv)
 {
-	if (!CFG.debug) return;
+	InitDebug();
 
-	Gui_Console_Enable();
-	__console_scroll = 1;
-	printf("base_path: %s\n", USBLOADER_PATH);
-	printf("apps_path: %s\n", APPS_DIR);
-	printf("bg_path: %s\n", *CFG.background ? CFG.background : "builtin");
-	printf("covers_path: %s\n", CFG.covers_path);
-	printf("theme_path: %s\n", CFG.theme_path);
-	printf("theme: %s \n", CFG.theme);
-	printf("covers: %d ", CFG.covers);
-	printf("w: %d ", COVER_WIDTH);
-	printf("h: %d ", COVER_HEIGHT);
-	printf("layout: %d ", CFG.layout);
-	printf("video: %d ", CFG.game.video);
-	printf("home: %d ", CFG.home);
-	printf("ocarina: %d ", CFG.game.ocarina);
-	printf("titles: %d ", num_title);
-	printf("maxc: %d ", MAX_CHARACTERS);
-	printf("ent: %d ", ENTRIES_PER_PAGE);
-	printf("music: %d ", CFG.music);
-	printf("gui: %d ", CFG.gui);
+	if (CFG.debug) {
+		Gui_Console_Enable();
+		__console_scroll = 1;
+	}
+	dbg_printf("base_path: %s\n", USBLOADER_PATH);
+	dbg_printf("apps_path: %s\n", APPS_DIR);
+	dbg_printf("bg_path: %s\n", *CFG.background ? CFG.background : "builtin");
+	dbg_printf("covers_path: %s\n", CFG.covers_path);
+	dbg_printf("theme_path: %s\n", CFG.theme_path);
+	dbg_printf("theme: %s \n", CFG.theme);
+	dbg_printf("covers: %d ", CFG.covers);
+	dbg_printf("w: %d ", COVER_WIDTH);
+	dbg_printf("h: %d ", COVER_HEIGHT);
+	dbg_printf("layout: %d ", CFG.layout);
+	dbg_printf("video: %d ", CFG.game.video);
+	dbg_printf("home: %d ", CFG.home);
+	dbg_printf("ocarina: %d ", CFG.game.ocarina);
+	dbg_printf("titles: %d ", num_title);
+	dbg_printf("maxc: %d ", MAX_CHARACTERS);
+	dbg_printf("ent: %d ", ENTRIES_PER_PAGE);
+	dbg_printf("music: %d ", CFG.music);
+	dbg_printf("gui: %d ", CFG.gui);
 	extern char *get_cc();
-	printf("CC: %s ", get_cc());
-	//printf("theme_ms: %d ", theme_ms);
-	printf("\n");
-	printf("url: %s\n", CFG.cover_url_2d_norm);
-	//printf("t[%.6s]=%s\n", cfg_title[0].id, cfg_title[0].title);
-	//printf("hide_hdd: %d\n", CFG.hide_hddinfo);
-	//printf("text start: %p\n", __text_start);
-	//printf("M1: %p - %p\n", __Arena1Lo, __Arena1Hi);
-	//printf("M2: %p - %p\n", __Arena2Lo, __Arena2Hi);
+	dbg_printf("CC: %s ", get_cc());
+	//dbg_printf("theme_ms: %d ", theme_ms);
+	dbg_printf("\n");
+	dbg_printf("url: %s\n", CFG.cover_url_2d_norm);
+	//dbg_printf("t[%.6s]=%s\n", cfg_title[0].id, cfg_title[0].title);
+	//dbg_printf("hide_hdd: %d\n", CFG.hide_hddinfo);
+	//dbg_printf("text start: %p\n", __text_start);
+	//dbg_printf("M1: %p - %p\n", __Arena1Lo, __Arena1Hi);
+	//dbg_printf("M2: %p - %p\n", __Arena2Lo, __Arena2Hi);
 	int i;
 	for (i=0; i<argc; i++) {
-		printf("arg[%d]: %s ", i, argv[i]);
+		dbg_printf("arg[%d]: %s ", i, argv[i]);
 	}
 	
-	printf("\n");
-	printf("# Hidden Games: %d\n", CFG.num_hide_game);
+	dbg_printf("\n");
+	dbg_printf("# Hidden Games: %d\n", CFG.num_hide_game);
 	for (i=0; i<CFG.num_hide_game; i++) {
-		printf("%.4s ", CFG.hide_game[i]);
+		dbg_printf("%.4s ", CFG.hide_game[i]);
 	}
 
-	sleep(1);
-	printf("\n");
-	Menu_PrintWait();
+	if (CFG.debug) {
+		sleep(1);
+		dbg_printf("\n");
+		Menu_PrintWait();
+	}
 	if (CFG.debug & 2) test_unicode();
-	printf("\n");
+	dbg_printf("\n");
 }
 
 void chdir_app(char *arg)

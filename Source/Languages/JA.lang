@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -54,7 +54,7 @@ msgstr "(%d人まで通信可能)"
 
 #, c-format
 msgid "(%d seconds timeout)"
-msgstr "(%d秒 タイムアウト)"
+msgstr "(%d秒でタイムアウト)"
 
 msgid ".dol too small"
 msgstr ".dolが小さすぎます"
@@ -212,6 +212,8 @@ msgid ""
 "Custom IOS %d could not be found!\n"
 "Please install it."
 msgstr ""
+"cIOS %dが見つかりません\n"
+"インストールしてください"
 
 #, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
@@ -261,6 +263,10 @@ msgstr "不足しているカバーをダウンロード"
 
 msgid "Download complete."
 msgstr "ダウンロードしました"
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "追加データを受信可能"
@@ -647,6 +653,10 @@ msgstr "ゲーム設定:%s"
 msgid "Gamecube"
 msgstr "ゲームキューブ"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "基本設定"
 
@@ -864,6 +874,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "接続しました"
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "新しいテーマ"
 
@@ -979,6 +992,9 @@ msgstr "領域: %sが見つかりません"
 
 msgid "Party"
 msgstr "パーティ"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "プラットフォーム"

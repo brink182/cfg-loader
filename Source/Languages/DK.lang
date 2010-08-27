@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -161,7 +161,7 @@ msgid "Cheats: "
 msgstr "Cheats: "
 
 msgid "Check For Updates"
-msgstr "Check for opdateringer"
+msgstr "Tjek for opdateringer"
 
 msgid "Checking for themes..."
 msgstr "Søger efter temaer..."
@@ -270,6 +270,10 @@ msgstr "Downloade alle manglende covers"
 msgid "Download complete."
 msgstr "Download komplet."
 
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
+
 msgid "Downloadable Content"
 msgstr "Indhold som kan downloades"
 
@@ -288,7 +292,7 @@ msgid "Downloading MISSING covers for %.6s"
 msgstr "Downloader MANGLENDE covers for %.6s"
 
 msgid "Downloading Theme previews..."
-msgstr ""
+msgstr "Downloader tema forhåndsvisning..."
 
 msgid "Downloading cheats..."
 msgstr "Downloader cheats..."
@@ -514,7 +518,7 @@ msgid "Error discarding options!"
 msgstr "Fejlede bortskaffelse af indstillinger!"
 
 msgid "Error downloading theme preview..."
-msgstr ""
+msgstr "Fejlede at downloade tema forhåndsvisning..."
 
 msgid "Error downloading theme..."
 msgstr "Fejlede at downloade tema..."
@@ -652,6 +656,10 @@ msgstr "Spil indstilling: %s"
 
 msgid "Gamecube"
 msgstr "Gamecube"
+
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
 
 msgid "Global Options"
 msgstr "Global indstilling"
@@ -873,6 +881,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Netværks forbindelse oprettet"
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "Nye temaer"
 
@@ -989,6 +1000,9 @@ msgstr "Partition: %s ikke fundet!"
 msgid "Party"
 msgstr "Party"
 
+msgid "Paused Start"
+msgstr "Pause start"
+
 msgid "Platformer"
 msgstr "Platform"
 
@@ -1060,7 +1074,7 @@ msgstr "Tryk %s knap for at springe over koder."
 
 #, c-format
 msgid "Press %s for fullscreen preview"
-msgstr ""
+msgstr "Tryk %s for fuld skærm forhåndsvisning"
 
 #, c-format
 msgid "Press %s for game options"
@@ -1278,7 +1292,7 @@ msgid "Strategy"
 msgstr "Strategi"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Theme Info"
 msgstr "Tema Info"
@@ -1304,7 +1318,7 @@ msgid "Themes to download"
 msgstr "Temaer til download"
 
 msgid "Themes with updates"
-msgstr ""
+msgstr "Temaer med opdateringer"
 
 msgid "Title"
 msgstr "Titel"
@@ -1435,7 +1449,7 @@ msgstr "[BRUGT]"
 
 #, c-format
 msgid "bad wbfs file: %s"
-msgstr ""
+msgstr "dårlig wbfs fil: %s"
 
 msgid "calculating space, please wait..."
 msgstr "Udregner plads, vent venligst..."

@@ -8,13 +8,15 @@
 #include "disc.h"
 #include "util.h"
 
-#define CFG_IOS_249       0
-#define CFG_IOS_222_MLOAD 1
-#define CFG_IOS_223_MLOAD 2
-#define CFG_IOS_224_MLOAD 3
-#define CFG_IOS_222_YAL   4
-#define CFG_IOS_223_YAL   5
-#define CFG_IOS_250       6
+#define CFG_IOS_247       0
+#define CFG_IOS_248       1
+#define CFG_IOS_249       2
+#define CFG_IOS_222_MLOAD 3
+#define CFG_IOS_223_MLOAD 4
+#define CFG_IOS_224_MLOAD 5
+#define CFG_IOS_222_YAL   6
+#define CFG_IOS_223_YAL   7
+#define CFG_IOS_250       8
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
@@ -248,7 +250,7 @@ struct CFG
 	// misc
     int home;
 	int debug;
-	// int buttons;
+	int debug_gecko;
 	int device;
 	char partition[16];
 	int hide_header;
@@ -420,6 +422,10 @@ struct CFG
 	int w_theme_previewW;
 	int w_theme_previewH;
 	int select;
+
+	//gamercards
+	char gamercard_url[1000];
+	char gamercard_key[200];
 };
 
 extern struct CFG CFG;
@@ -559,6 +565,7 @@ char *ios_str(int idx);
 void cfg_ios(char *name, char *val);
 void cfg_ios_set_idx(int ios_idx);
 bool is_ios_idx_mload(int ios_idx);
+int get_ios_idx_type(int ios_idx);
 
 bool set_favorite(u8 *id, bool fav);
 bool is_favorite(u8 *id);

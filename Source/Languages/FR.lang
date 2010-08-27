@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-07-26 2:02+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
@@ -267,6 +267,10 @@ msgstr "Téléch. les jaquettes manquantes"
 
 msgid "Download complete."
 msgstr "Téléchargement terminé."
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Contenu téléchargeable"
@@ -651,6 +655,10 @@ msgstr "Options du jeu:  %s"
 msgid "Gamecube"
 msgstr "GameCube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Options générales"
 
@@ -873,6 +881,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Connexion au réseau établie."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "Nouveaux Thèmes"
 
@@ -988,6 +999,9 @@ msgstr "Partition: %s introuvable !"
 
 msgid "Party"
 msgstr "Party Game (Jeux de soirée)"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "Plates-formes"

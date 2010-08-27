@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	57
+VERSION		:=	58
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
 TARGET		:=	cfg$(VERSION)
@@ -207,7 +207,10 @@ ELFS := cfg$(VERSION)-222.elf cfg$(VERSION).elf
 BINS := $(ELFS) $(DOLS)
 
 upload:
-	for F in $(BINS); do echo uploading $$F ; $(UPLOAD) $(GAUTH) -p cfg-loader -s $$F $$F ; done
+	for F in $(DOLS); do echo uploading $$F ; $(UPLOAD) $(GAUTH) -p cfg-loader -s $$F $$F ; done
+
+upload_elf:
+	for F in $(ELFS); do echo uploading $$F ; $(UPLOAD) $(GAUTH) -p cfg-loader -s $$F $$F ; done
 
 upload_lang:
 	echo uploading Languages/lang$(VERSION).zip

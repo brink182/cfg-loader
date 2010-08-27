@@ -86,6 +86,7 @@ u32 USBStorage_GetCapacity(u32 *_sector_size)
 			first = 0;
 		}
 		*/
+		//dbg_printf("capacity %d %d\n", sector_size, ret);
 
 		if (ret && _sector_size)
 			*_sector_size = sector_size;
@@ -183,6 +184,8 @@ s32 USBStorage_ReadSectors(u32 sector, u32 numSectors, void *buffer)
 	/* Read data */
 	ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_READ_SECTORS, "ii:d", sector, numSectors, buf, len);
 
+	//dbg_printf("read %u %u = %d\n", sector, numSectors, ret);
+
 	/* Copy data */
 	if (buf != buffer) {
 		memcpy(buffer, buf, len);
@@ -253,7 +256,9 @@ bool __io_usb_ReadSectors(u32 sector, u32 count, void *buffer)
 		printf("usb-r: %x [%d] = %d\n", sector, count, ret);
 		//sleep(1);
 	}
-	return ret > 0;
+	return ret >= 0;
+	// hermes and waninkoko up to rev20: success = 1
+	// rev21: success = 0
 }
 
 bool __io_usb_WriteSectors(u32 sector, u32 count, void *buffer)
@@ -264,7 +269,7 @@ bool __io_usb_WriteSectors(u32 sector, u32 count, void *buffer)
 	}*/
 	s32 ret = USBStorage_WriteSectors(sector, count, buffer);
 	//printf("usb-w: %d %d %d\n", sector, count, ret); sleep(1);
-	return ret > 0;
+	return ret >= 0;
 }
 
 static bool __io_usb_ClearStatus(void)

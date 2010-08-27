@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -265,6 +265,10 @@ msgstr "下載所有缺少的封面"
 
 msgid "Download complete."
 msgstr "下載完成"
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "可下載的內容"
@@ -648,6 +652,10 @@ msgstr "遊戲選項: %s"
 msgid "Gamecube"
 msgstr "Gamecube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "全域選項"
 
@@ -865,6 +873,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "建立網路連線."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "新增主題"
 
@@ -980,6 +991,9 @@ msgstr "分割區: %s 找不到!"
 
 msgid "Party"
 msgstr "聚會"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "平台"

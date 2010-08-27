@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero>\n"
@@ -269,6 +269,10 @@ msgstr "Lade fehlende Cover herunter"
 
 msgid "Download complete."
 msgstr "Herunterladen vollständig."
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Herunterladbarer Inhalt"
@@ -653,6 +657,10 @@ msgstr "Spieleoptionen:  %s"
 msgid "Gamecube"
 msgstr "Gamecube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Globale Einstellungen"
 
@@ -873,6 +881,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Netzwerkverbindung besteht."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "Neue Themes"
 
@@ -988,6 +999,9 @@ msgstr "Partition: %s nicht gefunden!"
 
 msgid "Party"
 msgstr "Party"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "Jump & Run"

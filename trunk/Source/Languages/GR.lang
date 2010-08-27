@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: xxdimixx\n"
 "Language-Team: GREEK <xxdimixx>\n"
@@ -265,6 +265,10 @@ msgstr "Κατέβασε όλα τα απόν Cover"
 
 msgid "Download complete."
 msgstr "Download ολοκληρώθηκε."
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Κατεβάσιμο περιεχόμενο"
@@ -645,6 +649,10 @@ msgstr "Options παιχνιδιών:  %s"
 msgid "Gamecube"
 msgstr "Gamecube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Γενικές ρυθμίσεις"
 
@@ -865,6 +873,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Σύνδεση δικτύου OK."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr ""
 
@@ -980,6 +991,9 @@ msgstr "Partition: %s δεν βρέθηκε!"
 
 msgid "Party"
 msgstr "Party"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "Jump & Run"

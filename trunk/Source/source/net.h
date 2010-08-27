@@ -8,6 +8,7 @@ void Download_All_Covers(bool missing_only);
 void Download_XML(); // Lustar
 char *get_cc();
 char *auto_cc();
+int gamercard_update(char *ID);
 
 #endif
 

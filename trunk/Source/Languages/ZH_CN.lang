@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -263,6 +263,10 @@ msgstr "下载所有缺失的游戏封面"
 
 msgid "Download complete."
 msgstr "下载完成！"
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "支持下载增值内容（DLC）"
@@ -643,6 +647,10 @@ msgstr "游戏选项：%s"
 msgid "Gamecube"
 msgstr "对应NGC手柄"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "全局选项"
 
@@ -858,6 +866,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "网络连接已建立"
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr "新主题"
 
@@ -973,6 +984,9 @@ msgstr "分区：%s没有找到！"
 
 msgid "Party"
 msgstr "聚会游戏"
+
+msgid "Paused Start"
+msgstr "暂停开始"
 
 msgid "Platformer"
 msgstr "平台游戏"

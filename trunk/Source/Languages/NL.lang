@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-30 03:03+0200\n"
+"POT-Creation-Date: 2010-08-25 22:40+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -261,6 +261,10 @@ msgstr "Alle missende hoesjes downloaden"
 
 msgid "Download complete."
 msgstr "Downloaden voltooid"
+
+#, c-format
+msgid "Download error on gamercard #%d."
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "Downloadbare content"
@@ -641,6 +645,10 @@ msgstr "Spel opties:  %s"
 msgid "Gamecube"
 msgstr "Gamecube"
 
+#, c-format
+msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
 msgid "Global Options"
 msgstr "Globale opties"
 
@@ -861,6 +869,9 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Netwerk connectie geslaagd."
 
+msgid "Network error.  Can't update gamercards."
+msgstr ""
+
 msgid "New Themes"
 msgstr ""
 
@@ -976,6 +987,9 @@ msgstr "Partitie: %s niet gevonden!"
 
 msgid "Party"
 msgstr "Feest"
+
+msgid "Paused Start"
+msgstr ""
 
 msgid "Platformer"
 msgstr "Platform"

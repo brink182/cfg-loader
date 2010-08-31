@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 59b2 (beta)
+size = 1532672
+date = 2010-08-31
+url = http://cfg-loader.googlecode.com/files/cfg59b2.dol
+updated dip+frag 249 plugin to rev20
+Changed default disable_dvd_patch=1
+Enable shadow mload on hermes v5.1
+
+release = 59b2-222 (beta)
+size = 1532672
+date = 2010-08-31
+url = http://cfg-loader.googlecode.com/files/cfg59b2-222.dol
+Same as 59b2 but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 59b (beta)
 size = 1532512
 date = 2010-08-30

@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 60a (alpha)
+size = 1483296
+date = 2010-09-02
+url = http://cfg-loader.googlecode.com/files/cfg60a.dol
+NTFS write support (UNTESTED!!!)
+option: ntfs_write=[0],1,norecover
+
+release = 60a-222 (alpha)
+size = 1483296
+date = 2010-09-02
+url = http://cfg-loader.googlecode.com/files/cfg60a-222.dol
+Same as 60a but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 59 (release)
 size = 1532672
 date = 2010-09-01

@@ -26,7 +26,7 @@ void Restart_Wait(void)
 	fflush(stdout);
 
 	/* Wait for button */
-	Wpad_WaitButtons();
+	Wpad_WaitButtonsCommon();
 
 	/* Restart */
 	Restart();

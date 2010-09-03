@@ -279,7 +279,7 @@ out:
 int set_frag_list(u8 *id)
 {
 	dbg_printf("set_frag_list %s\n", id);
-	if (wbfs_part_fs == PART_FS_WBFS) return 0;
+	if (wbfs_part_fs == PART_FS_WBFS) return -1;
 	if (frag_list == NULL) {
 		/*
 		if (wbfs_part_fs == PART_FS_FAT) {
@@ -290,27 +290,32 @@ int set_frag_list(u8 *id)
 		}
 		// ntfs has no fallback, return error
 		*/
-		return -1;
+		return -2;
 	}
 
+	/*int xx = 66;
+	WDVD_hello(&xx);
+	printf("btn\n");
+	Wpad_WaitButtonsCommon();*/
+	
 	//Wpad_WaitButtonsCommon();
 	// (+1 for header which is same size as fragment)
 	int size = sizeof(Fragment) * (frag_list->num + 1);
 	int ret;
 	DCFlushRange(frag_list, size);
-	if (CFG.ios_mload) {
+	/*if (CFG.ios_mload) {
 		ret = USBStorage_WBFS_SetFragList(frag_list, size);
-	} else {
+	} else */{
 		//USBStorage_Deinit();
 		ret = WDVD_SetFragList(wbfsDev, frag_list, size);
 	}
 	dbg_printf("set_frag: %d\n", ret);
 	
-	/*
-	int x = 66;
+	
+	/*int x = 66;
 	ret = WDVD_hello(&x);
 	Wpad_WaitButtonsCommon();
-	*/
+	printf("btn\n");*/
 
 	if (ret) {
 		printf("set_frag: %d\n", ret);
@@ -321,11 +326,12 @@ int set_frag_list(u8 *id)
 	// verify id matches
 	char discid[8];
 	memset(discid, 0, sizeof(discid));
-	if (CFG.ios_mload) {
+	/*if (CFG.ios_mload) {
 		ret = USBStorage_WBFS_Read(0, 8, discid);
-	} else {
+	} else */{
 		ret = WDVD_UnencryptedRead(discid, 8, 0);
 	}
+	dbg_printf("ID: [%.6s] [%.6s]\n", id, discid);
 	//usb_debug_dump(0);
 	//printf("r:%d id:%s\n", ret, discid);
 	if (memcmp(id, discid, 6) != 0) {
@@ -334,7 +340,7 @@ int set_frag_list(u8 *id)
 		printf(gt("ID mismatch: [%.6s] [%.6s]"), id, discid);
 		printf("\n");
 		Wpad_WaitButtonsCommon();
-		return -1;
+		return -3;
 	}
 	/*
 	else {

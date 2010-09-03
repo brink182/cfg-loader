@@ -85,7 +85,7 @@ int num_themes = 0;
 int num_new_themes, num_theme_updates;
 
 struct UpdateInfo updates[MAX_UPDATES];
-char meta_xml[1024];
+char meta_xml[4096];
 
 struct ThemeInfo *themes = NULL;
 int themeIdx;
@@ -186,7 +186,7 @@ void download_all_theme_previews()
 
 	snprintf(D_S(old_path), "%s/themes", USBLOADER_PATH);
 	snprintf(D_S(path), "%s/theme_previews", USBLOADER_PATH);
-	mkdir(path, 0777);
+	mkpath(path, 0777);
 	for (i=0; i<num_themes; i++) {
 		// check cancel
 		buttons = Wpad_GetButtons();
@@ -430,25 +430,76 @@ void Download_Update(int n, char *app_path, int update_meta)
 	fwrite(file.data, 1, file.size, f);
 	fclose(f);
 
-	if (update_meta && *meta_xml) {
-		str_replace(meta_xml, "{VERSION}", u->version, sizeof(meta_xml));
-		str_replace(meta_xml, "{DATE}", u->date, sizeof(meta_xml));
+	if (update_meta) {
+		// reformat date
+		char date_long[32]; // YYYYmmddHHMMSS
+		char *p;
+		strcpy(date_long, u->date); // YYYY-mm-dd
+		p = strchr(date_long, '-');
+		if (p) memmove(p, p+1, strlen(p));
+		p = strchr(date_long, '-');
+		if (p) memmove(p, p+1, strlen(p));
+		strcat(date_long, "000000");
+
 		strcpy(strrchr(app_path, '/')+1, "meta.xml");
-		printf_(gt("Saving: %s"), app_path);
-		printf("\n");
-		f = fopen(app_path, "wb");
-		if (!f) {
-			printf_(gt("Error opening: %s"), app_path);
-			printf("\n");
-		} else {
-			fwrite(meta_xml, 1, strlen(meta_xml), f);
+		f = fopen(app_path, "rb");
+		if (f) {
+			char tmp_meta[sizeof(meta_xml)];
+			int size = fread(tmp_meta, 1, sizeof(tmp_meta)-32, f);
 			fclose(f);
+			if (size <= 0) {
+				goto new_meta;
+			}
+			tmp_meta[size] = 0; // 0 terminate
+			//dbg_printf("existing:\n%s\n", tmp_meta);
+			// verify it's a valid <app*...</app> meta.xml
+			if (!strstr(tmp_meta, "<app") || !strstr(tmp_meta, "</app>")) {
+				goto new_meta;
+			}
+			if (!str_replace_tag_val(tmp_meta, "<version>", u->version)) {
+				goto new_meta;
+			}
+			if (!str_replace_tag_val(tmp_meta, "<release_date>", date_long)) {
+				goto new_meta;
+			}
+			strcpy(meta_xml, tmp_meta);
+		} else {
+			new_meta:
+			if (*meta_xml) {
+				str_replace(meta_xml, "{VERSION}", u->version, sizeof(meta_xml));
+				str_replace(meta_xml, "{DATE}", date_long, sizeof(meta_xml));
+				printf_(gt("Saving: %s"), app_path);
+				printf("\n");
+				f = fopen(app_path, "wb");
+				if (!f) {
+					printf_(gt("Error opening: %s"), app_path);
+					printf("\n");
+				} else {
+					fwrite(meta_xml, 1, strlen(meta_xml), f);
+					fclose(f);
+				}
+			}
+		}
+		if (*meta_xml) {
+			printf_(gt("Saving: %s"), app_path);
+			printf("\n");
+			//dbg_printf("saving:\n%s\n", meta_xml);
+			f = fopen(app_path, "wb");
+			if (!f) {
+				printf_(gt("Error opening: %s"), app_path);
+				printf("\n");
+			} else {
+				fwrite(meta_xml, 1, strlen(meta_xml), f);
+				fclose(f);
+			}
 		}
 	}
 
 	printf_(gt("Done."));
 	printf("\n\n");
 	printf_(gt("NOTE: loader restart is required\nfor the update to take effect."));
+	printf("\n");
+	printf_(gt("If Cfg does not start properly\nnext time, copy boot.dol.bak over\nboot.dol and try again."));
 	printf("\n\n");
 	printf_(gt("Press any button..."));
 	Wpad_WaitButtonsCommon();
@@ -593,7 +644,7 @@ int Download_Theme(int n)
 	snprintf(theme_dir, sizeof(theme_dir), "%s/themes/%s", USBLOADER_PATH, u->name);
 
 	if (themes[n].type == THEME_TYPE_NEW_THEME) {
-		while (mkdir(theme_dir, 0777) != 0) {
+		while (mkpath(theme_dir, 0777) != 0) {
 			if (errno != EEXIST) goto err2;
 			rename++;
 			snprintf(theme_name, sizeof(theme_name), "%.29s_%d", u->name, rename + 1);

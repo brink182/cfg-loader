@@ -384,7 +384,7 @@ bool Download_Cheats_TXT(char *id)
 	printf_(gt("Saving cheats..."));
 	printf("\n");
 	snprintf(D_S(filepath), "%s/codes", USBLOADER_PATH);
-	mkdir(filepath, 0777);
+	mkpath(filepath, 0777);
 	snprintf(D_S(filepath), "%s/codes/%.6s.txt", USBLOADER_PATH, id);
 	printf_("%s\n", filepath);
 	f = fopen(filepath, "wb");

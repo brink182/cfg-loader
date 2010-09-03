@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -434,20 +434,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "FOUT: cache: te weinig geheugen"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"FOUT: ehcmodule2 niet langer inbegrepen!\n"
-"externe ehcmodule2.elf moet worden gebruikt!"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"FOUT: ehcmodule3 niet langer inbegrepen!\n"
-"externe ehcmodule3.elf moet worden gebruikt!"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "FOUT: get_frag_list: %d"
@@ -579,9 +565,6 @@ msgstr ""
 msgid "FAIL"
 msgstr "MISLUKT"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "FAT modus enkel ondersteund door IOS222rev4"
-
 msgid "FAT32 mount: "
 msgstr "FAT32 mount: "
 
@@ -681,6 +664,12 @@ msgstr "IOS herladen: Geblokkeerd"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS_open(%s) fout met code %d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -1539,6 +1528,23 @@ msgstr "gebruikt: %p - %p"
 #~ msgstr ""
 #~ "cIOS222 of cIOS223 benodigd om\n"
 #~ "spellen te laden van een FAT partitie!"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "FOUT: ehcmodule2 niet langer inbegrepen!\n"
+#~ "externe ehcmodule2.elf moet worden gebruikt!"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "FOUT: ehcmodule3 niet langer inbegrepen!\n"
+#~ "externe ehcmodule3.elf moet worden gebruikt!"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "FAT modus enkel ondersteund door IOS222rev4"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: terug naar oude methode"

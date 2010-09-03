@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-07-26 11:24+0800\n"
 "Last-Translator: Clamis <clamis@gmail.com>\n"
 "Language-Team: Simplified Chinese(ZH_CN) <clamis@gmail.com>\n"
@@ -434,20 +434,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "错误：缓存：内存溢出"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"错误：已不再包含ehcmodule2\n"
-"必须使用扩展文件ehcmodule.elf"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"错误：已不再包含ehcmodule3\n"
-"必须使用扩展文件ehcmodule3.elf"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "错误：get_frag_list: %d"
@@ -577,9 +563,6 @@ msgstr "正在解压缩：%s"
 msgid "FAIL"
 msgstr "失败"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "只有ios222 rev4支持FAT模式"
-
 msgid "FAT32 mount: "
 msgstr "FAT32加载点："
 
@@ -679,6 +662,12 @@ msgstr "IOS重载：已阻止"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS_Open(%s)失败，代码：%d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -1524,6 +1513,23 @@ msgstr "已使用：%p - %p"
 #~ msgstr ""
 #~ "错误：从FAT分区运行游戏\n"
 #~ "需要CIOS222或CIOS223"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "错误：已不再包含ehcmodule2\n"
+#~ "必须使用扩展文件ehcmodule.elf"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "错误：已不再包含ehcmodule3\n"
+#~ "必须使用扩展文件ehcmodule3.elf"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "只有ios222 rev4支持FAT模式"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT：退回使用旧方法"

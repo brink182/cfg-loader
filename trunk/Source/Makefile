@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	58
+VERSION		:=	59
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
 TARGET		:=	cfg$(VERSION)
@@ -147,6 +147,10 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
 	@rm -fr $(BUILD)_222 $(OUTPUT)-222.elf $(OUTPUT)-222.dol
+
+cleanall: clean
+	@rm -fr *.dol *.elf
+
 
 #---------------------------------------------------------------------------------
 run: 

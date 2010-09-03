@@ -2,14 +2,13 @@
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
-# FIRST AUTHOR: <sarangx@naver.com>, 2010.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-08-21 01:00+0100\n"
 "Last-Translator: cherries4u <cherries4u@hanmail.net>\n"
 "Language-Team: Korean Translation Team<cherries4u@hanmail.net>\n"
@@ -91,7 +90,7 @@ msgid "All themes up to date."
 msgstr "모든 테마가 최신버전 입니다. "
 
 msgid "Alt dol:"
-msgstr ""
+msgstr "대체 dol:"
 
 msgid "Alternative .dol:"
 msgstr "대체 dol"
@@ -273,7 +272,7 @@ msgstr "다운로드 했습니다."
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "게임카드 #%d에 다운로드 오류"
 
 msgid "Downloadable Content"
 msgstr "다운로드 가능한 콘텐츠"
@@ -448,20 +447,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "오류: 캐쉬 메모리 부족"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"오류: ehcmodule2 가 없습니다.\n"
-"ehcmodule.elf 파일이 필요합니다."
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"오류: ehcmodule3 가 없습니다.\n"
-"ehcmodule3.elf 파일이 필요합니다."
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "오류: get_frag_list: %d"
@@ -593,9 +578,6 @@ msgstr "압축해제: %s"
 msgid "FAIL"
 msgstr "실패"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "FAT 모드 지원에는 IOS222 rev4 가 필요합니다."
-
 msgid "FAT32 mount: "
 msgstr "FAT32 연결: "
 
@@ -661,7 +643,7 @@ msgstr "게임큐브"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "게임카드 #%d 보고: %.*s"
 
 msgid "Global Options"
 msgstr "전체 옵션"
@@ -695,6 +677,15 @@ msgstr "IOS 다시읽기: 금지"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS_Open(%s) 을 실패. 에러코드: %d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
+"프로그램이 정상적으로 동작하지\n"
+"않으면 boot.dol.bak 파일을 boot.dol로\n"
+"바꿔주신 후 다시 시도해 주세요."
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -883,7 +874,7 @@ msgid "Network connection established."
 msgstr "네트워크에 접속했습니다."
 
 msgid "Network error.  Can't update gamercards."
-msgstr ""
+msgstr "네트워크 오류: 게임카드를 업데이트 할 수 없습니다."
 
 msgid "New Themes"
 msgstr "새로운 테마"
@@ -1002,7 +993,7 @@ msgid "Party"
 msgstr "파티"
 
 msgid "Paused Start"
-msgstr ""
+msgstr "일시정지 시작"
 
 msgid "Platformer"
 msgstr "플랫폼"
@@ -1293,7 +1284,7 @@ msgid "Strategy"
 msgstr "전략"
 
 msgid "Theme"
-msgstr ""
+msgstr "테마"
 
 msgid "Theme Info"
 msgstr "테마 정보"
@@ -1535,3 +1526,20 @@ msgstr "사용중: %p - %p"
 
 #~ msgid "Alt dol"
 #~ msgstr "대체 dol"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "오류: ehcmodule2 가 없습니다.\n"
+#~ "ehcmodule.elf 파일이 필요합니다."
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "오류: ehcmodule3 가 없습니다.\n"
+#~ "ehcmodule3.elf 파일이 필요합니다."
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "FAT 모드 지원에는 IOS222 rev4 가 필요합니다."

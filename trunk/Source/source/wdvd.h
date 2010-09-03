@@ -30,7 +30,7 @@ int YAL_Open_Partition(unsigned int Offset, void* Ticket,
 int YAL_Enable_WBFS(void*discid);
 
 // mload
-s32 MLOAD_SetWBFSMode(u8 *id, s32 partition);
+s32 MLOAD_SetWBFSMode2(u32 mode, u8 *id, s32 partition);
 
 #endif
 

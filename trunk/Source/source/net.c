@@ -573,7 +573,7 @@ bool Download_Cover_Style(char *id, int style)
 		goto dl_err;
 	}
 	if (stat(path, &st)) {
-		if (mkdir(path, 0777)) {
+		if (mkpath(path, 0777)) {
 			printf_(gt("Cannot create dir: %s"), path);
 			printf("\n");
 			goto dl_err;

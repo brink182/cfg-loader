@@ -698,7 +698,6 @@ void Handle_Home(int disable_screenshot)
 
 void Print_SYS_Info()
 {
-	extern int mload_ehc_fat;
 	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
 	FgColor(CFG.color_inactive);
 	printf_("");
@@ -715,7 +714,7 @@ void Print_SYS_Info()
 	printf("\n");
 	printf_("IOS%u (r%u) %s\n",
 			IOS_GetVersion(), IOS_GetRevision(),
-			mload_ehc_fat||new_wanin ? "[FRAG]" : "");
+			CFG.ios_mload||new_wanin ? "[FRAG]" : "");
 	if (CFG.ios_mload || new_wanin) {
 		printf_("");
 		print_mload_version();
@@ -3188,6 +3187,9 @@ void Menu_Boot(bool disc)
 						case 9: configbytes[0] = 0x08; break; 
 						case 10: configbytes[0] = 0x09; break;
 				}
+
+		// hide cios devices
+		shadow_mload();
 
 		/* Boot Wii disc */
 		ret = Disc_WiiBoot(disc);

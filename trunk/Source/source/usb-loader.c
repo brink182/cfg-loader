@@ -40,6 +40,7 @@ int main(int argc, char **argv)
 	Sys_Init();
 
 	cfg_parsearg_early(argc, argv);
+	InitDebug();
 
 	/* Set video mode */
 	Video_SetMode();

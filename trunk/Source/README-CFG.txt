@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v58
+Configurable SD/USB Loader v59
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -855,7 +855,7 @@ Config file:
 #
 # disable_nsmb_patch = [0],1
 # disable_pop_patch = [0],1
-# disable_dvd_patch = [0],1
+# disable_dvd_patch = 0,[1]
 #   Optionally disable patches performed by the loader.
 #
 #   nsmb = New Super Mario Bros.
@@ -971,6 +971,31 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+01-09-2010 cfg v59 (release)
+ * version change
+
+31-08-2010 cfg v59b2 (beta)
+ * dip+frag plugin for cios 249 updated to rev20
+ * Changed the default value of: disable_dvd_patch = 1
+   Since now the dvd slot check is handled properly by
+   all cios the patch is disabled by default
+ * Enable shadow mload on hermes cios v5.1
+
+30-08-2010 cfg v59b (beta)
+ * Loading games from SDHC for hermes cIOS
+ * Update modifies existing meta.xml instead of replacing it (gannon)
+   (So that any additional parameters or user edits will be retained,
+   only version and date are updated)
+ * Changed directory creation code to avoid errors on an incomplete path (Clipper)
+
+27-08-2010 cfg v59a (alpha)
+ * Improved support for Hermes cIOS v5.x
+   Updated ehcmodule to v5 and new odip plugin
+   Moved frag code from ehcmodule to odip
+   Removed support for Hermes cIOS 1,2,3 and external modules
+   (cios v4 is still supported)
+   Games on SD/SDHC don't work with hermes cios for the moment.
 
 26-08-2010 cfg v58 (release)
  * preliminary cios rev21 support

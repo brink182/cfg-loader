@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -94,7 +94,7 @@ msgid "Alternative .dol:"
 msgstr "替代的 .dol:"
 
 msgid "Anti 002 Fix:"
-msgstr "抑制 002 修復"
+msgstr "抑制 002 修復:"
 
 #, c-format
 msgid "App. Path: %s"
@@ -264,11 +264,11 @@ msgid "Download All Missing Covers"
 msgstr "下載所有缺少的封面"
 
 msgid "Download complete."
-msgstr "下載完成"
+msgstr "下載完成."
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "下載 Gamercard #%d 錯誤."
 
 msgid "Downloadable Content"
 msgstr "可下載的內容"
@@ -327,7 +327,7 @@ msgstr "讀取 BCA 時錯誤!"
 
 #, c-format
 msgid "ERROR removing %s"
-msgstr "移除錯誤 %s"
+msgstr "移除 %s 時錯誤"
 
 msgid "ERROR writing BCA!"
 msgstr "寫入 BCA 時錯誤!"
@@ -441,20 +441,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "錯誤: 快取: 記憶體不足"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"錯誤: ehcmodule2 不再被包含!\n"
-"必須使用外部檔案 ehcmodule.elf"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"錯誤: ehcmodule3 不再被包含!\n"
-"必須使用外部檔案 ehcmodule3.elf"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "錯誤: get_frag_list: %d"
@@ -474,7 +460,7 @@ msgstr "錯誤: 沒有足夠的可用空間!!"
 
 #, c-format
 msgid "ERROR: opening %.6s"
-msgstr "錯誤: 開啟 %.6s"
+msgstr "錯誤: 開啟 %.6s 時"
 
 #, c-format
 msgid "ERROR: set_frag_list: %d"
@@ -482,11 +468,11 @@ msgstr "錯誤: set_frag_list: %d"
 
 #, c-format
 msgid "ERROR: setting up fragments %d %d"
-msgstr "錯誤: 設定碎片 %d %d"
+msgstr "錯誤: 設定碎片 %d %d 時"
 
 #, c-format
 msgid "ERROR: writing %s (%d)."
-msgstr "錯誤: 寫入 %s (%d)."
+msgstr "錯誤: 寫入 %s (%d) 時."
 
 msgid "EXTEND"
 msgstr "擴充"
@@ -586,11 +572,8 @@ msgstr "正在解壓縮: %s"
 msgid "FAIL"
 msgstr "失敗"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "僅 IOS 222 rev4 支援 FAT 模式"
-
 msgid "FAT32 mount: "
-msgstr "FAT32 掛載:"
+msgstr "FAT32 掛載: "
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -654,7 +637,7 @@ msgstr "Gamecube"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "Gamercard #%d 報告: %.*s"
 
 msgid "Global Options"
 msgstr "全域選項"
@@ -688,6 +671,15 @@ msgstr "IOS 重新載入: 已封鎖"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS_Open(%s) 失敗, 代碼 %d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
+"如果下次無法適當地啟動 Cfg 時,\n"
+"複製 boot.dol.bak 取代為 boot.dol\n"
+"然後再試一次."
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -874,7 +866,7 @@ msgid "Network connection established."
 msgstr "建立網路連線."
 
 msgid "Network error.  Can't update gamercards."
-msgstr ""
+msgstr "網路錯誤. 無法更新 Gamercard."
 
 msgid "New Themes"
 msgstr "新增主題"
@@ -993,7 +985,7 @@ msgid "Party"
 msgstr "聚會"
 
 msgid "Paused Start"
-msgstr ""
+msgstr "已暫停開始"
 
 msgid "Platformer"
 msgstr "平台"
@@ -1409,7 +1401,7 @@ msgstr "正在寫入到 %s"
 
 #, c-format
 msgid "Writing: %s"
-msgstr "正在寫入:%s"
+msgstr "正在寫入: %s"
 
 #, c-format
 msgid "Wrong Size: %d (%d)"
@@ -1530,6 +1522,23 @@ msgstr "已使用: %p - %p"
 #~ msgstr ""
 #~ "錯誤: 從 FAT 分割區啟動遊戲\n"
 #~ "需要 cIOS222 或 cIOS223"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "錯誤: ehcmodule2 不再被包含!\n"
+#~ "必須使用外部檔案 ehcmodule.elf"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "錯誤: ehcmodule3 不再被包含!\n"
+#~ "必須使用外部檔案 ehcmodule3.elf"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "僅 IOS 222 rev4 支援 FAT 模式"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: 使用回舊的方法"

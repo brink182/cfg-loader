@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -266,7 +266,7 @@ msgstr "下载完成！"
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "游戏卡下载错误 #%d。"
 
 msgid "Downloadable Content"
 msgstr "支持下载增值内容（DLC）"
@@ -438,20 +438,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "错误：缓存：内存溢出"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"错误：已不再包含ehcmodule2\n"
-"必须使用扩展文件ehcmodule.elf"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"错误：已不再包含ehcmodule3\n"
-"必须使用扩展文件ehcmodule3.elf"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "错误：get_frag_list: %d"
@@ -581,9 +567,6 @@ msgstr "提取中："
 msgid "FAIL"
 msgstr "失败"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "仅cIOS222 REV4支持FAT模式"
-
 msgid "FAT32 mount: "
 msgstr "FAT32加载点："
 
@@ -649,7 +632,7 @@ msgstr "对应NGC手柄"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "游戏卡 #%d 宣布： %.*s "
 
 msgid "Global Options"
 msgstr "全局选项"
@@ -683,6 +666,15 @@ msgstr "IOS重加载：已阻止"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS_Open(%s)失败，代码：%d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
+"如果CFG程序在开始运行不正确\n"
+"下次，把boot。dol，bak更名恢复\n"
+"boot.dol然后再次运行。"
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -867,7 +859,7 @@ msgid "Network connection established."
 msgstr "网络连接已建立"
 
 msgid "Network error.  Can't update gamercards."
-msgstr ""
+msgstr "网络错误。无法更新游戏卡。"
 
 msgid "New Themes"
 msgstr "新主题"
@@ -1526,6 +1518,23 @@ msgstr "已使用：%p - %p"
 
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "正在下载所有%s封面"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "错误：已不再包含ehcmodule2\n"
+#~ "必须使用扩展文件ehcmodule.elf"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "错误：已不再包含ehcmodule3\n"
+#~ "必须使用扩展文件ehcmodule3.elf"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "仅cIOS222 REV4支持FAT模式"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT：退回使用旧方法"

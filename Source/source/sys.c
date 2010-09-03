@@ -159,16 +159,16 @@ void Sys_Channel(u32 channel)
 #include "mload_modules.h"
 
 // uLoader 2.5:
-#define size_ehcmodule2 20340
-#define size_dip_plugin2 3304
+//#define size_ehcmodule2 20340
+//#define size_dip_plugin2 3304
 //extern unsigned char ehcmodule2[size_ehcmodule2];
-extern unsigned char dip_plugin2[size_dip_plugin2];
+//extern unsigned char dip_plugin2[size_dip_plugin2];
 
 // uLoader 2.8D:
-#define size_ehcmodule3 22264
-#define size_dip_plugin3 3352
+//#define size_ehcmodule3 22264
+//#define size_dip_plugin3 3352
 //extern unsigned char ehcmodule3[size_ehcmodule3];
-extern unsigned char dip_plugin3[size_dip_plugin3];
+//extern unsigned char dip_plugin3[size_dip_plugin3];
 
 // uLoader 3.0B:
 //#define size_ehcmodule4 32384
@@ -176,18 +176,52 @@ extern unsigned char dip_plugin3[size_dip_plugin3];
 // uLoader 3.0C:
 //#define size_ehcmodule4 32432
 // uLoader 3.1:
-#define size_ehcmodule4 32400
+//#define size_ehcmodule4 32400
 //#define size_dip_plugin4 3080 // uloader 3.1
-#define size_dip_plugin4 3224 // uloader 3.2
-//extern unsigned char ehcmodule4[size_ehcmodule4];
-extern unsigned char dip_plugin4[size_dip_plugin4];
+//#define size_dip_plugin4 3224 // uloader 3.2
+//#define size_dip_plugin4 5920 // uloader 5.1 odip
 // EHCFAT module:
 //#define size_ehcmodule_frag 70529 // cfg50-52
-#define size_ehcmodule_frag 70613 // cfg53
-//#include "../ehcsize.h"
-extern unsigned char ehcmodule_frag[size_ehcmodule_frag];
-int mload_ehc_fat = 0;
-int mload_need_fat = 0;
+//#define size_ehcmodule_frag 70613 // cfg53
+//extern unsigned char ehcmodule_frag[size_ehcmodule_frag];
+
+#define size_odip_frag 9120 // odip + frag
+extern unsigned char odip_frag[size_odip_frag];
+
+#define size_ehcmodule5 25287
+extern unsigned char ehcmodule5[size_ehcmodule5];
+	
+#define size_sdhc_module 5672
+extern unsigned char sdhc_module[size_sdhc_module];
+	
+/*
+
+cksum:
+
+cios_mload_4.0
+
+846383702 25614 ehcmodule.elf
+3703302275 5920 odip_plugin.bin
+
+uloader 4.9A 5.0
+
+846383702 25614 ehcmodule.elf
+2749576855 5920 odip_plugin.bin
+
+cios_mload_4.1
+
+2551980440 25287 ehcmodule.elf
+3870739346 5920 odip_plugin.bin
+
+uloader 5.0C 5.1B 5.1D 5.1E
+
+2551980440 25287 ehcmodule.elf
+3870739346 5920 odip_plugin.bin
+ 
+*/
+
+//int mload_ehc_fat = 0;
+//int mload_need_fat = 0;
 
 // current
 void *ehcmodule;
@@ -197,6 +231,7 @@ void *dip_plugin;
 int size_dip_plugin;
 
 // external2
+/*
 char ehc_path[200];
 void *external_ehcmodule2 = NULL;
 int size_external_ehcmodule2 = 0;
@@ -215,7 +250,9 @@ int size_external_ehcmodule4 = 0;
 char ehc_path_fat[200];
 void *external_ehcmodule_frag = NULL;
 int size_external_ehcmodule_frag = 0;
+*/
 
+/*
 static u32 ios_36[16] ATTRIBUTE_ALIGN(32)=
 {
 	0, // DI_EmulateCmd
@@ -243,13 +280,14 @@ static u32 ios_38[16] ATTRIBUTE_ALIGN(32)=
 	0x20202874+1, // ios_doReadHashEncryptedState (thumb)
 	0x2020365c+1, // ios_printf (thumb)
 };
-
+*/
 
 u32 patch_datas[8] ATTRIBUTE_ALIGN(32);
 
 data_elf my_data_elf;
 int my_thread_id=0;
 
+/*
 void load_ext_ehc_module(int verbose)
 {
 	if(!external_ehcmodule2)
@@ -285,12 +323,16 @@ void load_ext_ehc_module(int verbose)
 		}
 	}
 }
+*/
 
 static char mload_ver_str[40];
+
+static int mload_ver = 0;
 
 void mk_mload_version()
 {
 	mload_ver_str[0] = 0;
+	mload_ver = 0;
 	if (CFG.ios_mload
 			|| (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) )
 	{
@@ -308,7 +350,7 @@ void mk_mload_version()
 		}
 		if (IOS_GetRevision() > 4) {
 			int v, s;
-			v = mload_get_version();
+			v = mload_ver = mload_get_version();
 			s = v & 0x0F;
 			v = v >> 4;
 			sprintf(mload_ver_str + strlen(mload_ver_str), "mload v%d.%d ", v, s);
@@ -328,9 +370,8 @@ void print_mload_version()
 
 int load_ehc_module_ex(int verbose)
 {
-	int is_ios=0;
-
 	//extern int wbfs_part_fat;
+	/*
 	mload_ehc_fat = 0;
 	if (mload_need_fat)
 	{
@@ -406,6 +447,7 @@ int load_ehc_module_ex(int verbose)
 				return -1;
 			}
 	} else if (IOS_GetRevision() == 4) {
+
 		size_dip_plugin = size_dip_plugin4;
 		dip_plugin = dip_plugin4;
 		//size_ehcmodule = size_ehcmodule4;
@@ -422,45 +464,65 @@ int load_ehc_module_ex(int verbose)
 			ehcmodule = external_ehcmodule4;
 			size_ehcmodule = size_external_ehcmodule4;
 		}
-	} else if (IOS_GetRevision() >= 5) {
-		size_dip_plugin = size_dip_plugin4;
-		dip_plugin = dip_plugin4;
-		size_ehcmodule = size_ehcmodule_frag;
-		ehcmodule = ehcmodule_frag;
-	/*
-	} else {
-		printf("\nERROR: IOS%u rev%u not supported\n",
-				IOS_GetVersion(), IOS_GetRevision());
-		sleep(5);
-		return -1;
 	*/
+	if (IOS_GetRevision() < 4) {
+		printf("ERROR: IOS%d-mload v%d not supported!\n",
+			IOS_GetVersion(), IOS_GetRevision());
+		sleep(10);
+		return -1;
 	}
 
-	if (IOS_GetRevision() >= 4) {
+	size_dip_plugin = size_odip_frag;
+	dip_plugin = odip_frag;
+	size_ehcmodule = size_ehcmodule5;
+	ehcmodule = ehcmodule5;
+	//printf("[FRAG]");
 
-		// NEW
-		int ret = load_ehc_module();
-		if (ret == 0) mk_mload_version();
-		mload_close();
-		return ret;
+	//mload_ehc_fat = 1;
+
+	// force usb port 0
+	u8 *ehc_cfg = search_for_ehcmodule_cfg(ehcmodule, size_ehcmodule);
+	if (ehc_cfg) {
+		ehc_cfg += 12;
+		ehc_cfg[0] = 0; // usb port 0
 	}
 
+	// IOS_GetRevision() >= 4
+
+	dbg_printf("load ehc %d %d\n", size_dip_plugin, size_ehcmodule);
+	int ret = load_ehc_module();
+	dbg_printf("load ehc = %d\n", ret);
+
+	if (ret == 0) {
+		dbg_printf("SDHC module\n");
+		mload_elf((void *) sdhc_module, &my_data_elf);
+		my_thread_id= mload_run_thread(my_data_elf.start, my_data_elf.stack,
+				my_data_elf.size_stack, my_data_elf.prio);
+		dbg_printf("mload_run %d\n", my_thread_id);
+		if(my_thread_id<0) ret = -5;
+	}
+
+	if (ret == 0) mk_mload_version();
+	mload_close();
+	return ret;
+
+#if 0
 	if (IOS_GetRevision() <= 2) {
 
 		if (mload_module(ehcmodule, size_ehcmodule)<0) return -1;
 
-	} else {
+	} else { // v3
 
 		if(mload_init()<0) return -1;
 		mload_elf((void *) ehcmodule, &my_data_elf);
 		my_thread_id= mload_run_thread(my_data_elf.start, my_data_elf.stack, my_data_elf.size_stack, my_data_elf.prio);
 		if(my_thread_id<0) return -1;
-
 	}
 
 	usleep(350*1000);
 
 	// Test for IOS
+	int is_ios=0;
 	
 	mload_seek(0x20207c84, SEEK_SET);
 	mload_read(patch_datas, 4);
@@ -507,7 +569,8 @@ int load_ehc_module_ex(int verbose)
 
 	mload_close();
 
-return 0;
+	return 0;
+#endif
 }
 
 // Reload custom ios
@@ -528,15 +591,19 @@ int ReloadIOS(int subsys, int verbose)
 	int sd_m = fat_sd_mount;
 	int usb_m = fat_usb_mount;
 
-	if (CURR_IOS_IDX == CFG.game.ios_idx
-		&& is_ios_type(IOS_TYPE_WANIN)) return 0;
-	
 	if (verbose) {
 		printf_("IOS(%d) ", CFG.ios);
 		if (CFG.ios_mload) printf("mload ");
 		else if (CFG.ios_yal) printf("yal ");
 	}
 
+	if (CURR_IOS_IDX == CFG.game.ios_idx) {
+		//&& is_ios_type(IOS_TYPE_WANIN)) return 0;
+		printf("\n");
+		return 0;
+	}
+	
+	/*
 	mload_need_fat = 0;
 	if (strncasecmp(CFG.partition, "fat", 3) == 0) {
 		mload_need_fat = 1;
@@ -567,13 +634,13 @@ int ReloadIOS(int subsys, int verbose)
 		}
 		return 0;
 	}
-
-	*mload_ver_str = 0;
-
 	if (CFG.ios_mload) {
 		load_ext_ehc_module(verbose);
 	}
-	
+	*/
+
+	*mload_ver_str = 0;
+
 	if (verbose) printf(".");
 
 	// Close storage
@@ -802,7 +869,7 @@ void try_hello()
 #endif
 
 #ifndef size_dip249
-#define size_dip249 5276
+#define size_dip249 5264
 #endif
 
 extern u8 dip_plugin_249[size_dip249];
@@ -1046,5 +1113,20 @@ char* get_ios_info_from_tmd()
 	out:
 	SAFE_FREE(TMD);
     return info;
+}
+
+bool shadow_mload()
+{
+	if (!is_ios_type(IOS_TYPE_HERMES)) return false;
+	int v51 = (5 << 4) & 1;
+	if (mload_ver >= v51) {
+		// shadow /dev/mload supported in hermes cios v5.1
+		printf_("[shadow ");
+		//IOS_Open("/dev/usb123/OFF",0);// this disables ehc completely
+		IOS_Open("/dev/mload/OFF",0);
+		printf("mload]\n");
+		return true;
+	}
+	return false;
 }
 

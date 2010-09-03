@@ -8,6 +8,10 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <ctype.h>
+//#include <libgen.h>
+#include <errno.h>
+#include <sys/stat.h>
+
 
 #include "console.h"
 #include "menu.h"
@@ -65,6 +69,22 @@ bool str_replace_all(char *str, char *olds, char *news, int size) {
 		cnt++;
 	}
 	return (cnt > 0);
+}
+
+bool str_replace_tag_val(char *str, char *tag, char *val)
+{
+	char *p, *end;
+	p = strstr(str, tag);
+	if (!p) return false;
+	p += strlen(tag);
+	end = strstr(p, "</");
+	if (!end) return false;
+	dbg_printf("%s '%.*s' -> '%s'\n", tag, end-p, p, val);
+	// make space for new val
+	memmove(p+strlen(val), end, strlen(end)+1); // +1 for 0 termination
+	// copy over new val
+	memcpy(p, val, strlen(val));
+	return true;
 }
 
 
@@ -395,3 +415,58 @@ void memcheck()
 
 #endif
 
+/* Copyright 2005 Shaun Jackman
+ * Permission to use, copy, modify, and distribute this software
+ * is freely granted, provided that this notice is preserved.
+ */
+//This code from dirname.c, meant to be part of libgen, modified by Clipper
+char* dirname(char *path)
+{
+	char *p;
+	if( path == NULL || *path == '\0' )
+		return ".";
+	p = path + strlen(path) - 1;
+	while( *p == '/' ) {
+		if( p == path )
+			return path;
+		*p-- = '\0';
+	}
+	while( p >= path && *p != '/' )
+		p--;
+	return
+		p < path ? "." :
+		p == path ? "/" :
+		*(p-1) == ':' ? "/" :
+		(*p = '\0', path);
+}
+
+#include "wpad.h"
+
+// code modified from http://niallohiggins.com/2009/01/08/mkpath-mkdir-p-alike-in-c-for-unix/
+int mkpath(const char *s, int mode){
+        char *up, *path;
+        int rv;
+ 
+        rv = -1;
+
+        if (strcmp(s, ".") == 0 || strcmp(s, "/") == 0)
+                return (0);
+ 
+		if ((path = strdup(s)) == NULL)
+			return -1;
+
+        if ((up = dirname(path)) == NULL)
+                goto out;
+
+        if ((mkpath(up, mode) == -1) && (errno != EEXIST))
+                goto out;
+ 
+        if ((mkdir(s, mode) == -1) && (errno != EEXIST))
+                rv = -1;
+        else
+                rv = 0;
+out:
+		if (path != NULL)
+			SAFE_FREE(path);
+        return (rv);
+}

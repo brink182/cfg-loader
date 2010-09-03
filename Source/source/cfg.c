@@ -1117,6 +1117,9 @@ void CFG_Default()
 	STRCOPY(CFG.sort, "title-asc");
 	CFG.delay_patch = 1;
 	CFG.theme_previews = 1;
+	// dvd slot check is handled properly now by all cios
+	// so the patch is disabled by default
+	CFG.disable_dvd_patch = 1;
 }
 
 int map_get_id(struct TextMap *map, char *name, int *id_val)
@@ -2730,7 +2733,7 @@ bool CFG_Save_Settings(int verbose)
 		return false;
 	}
 	if (stat(USBLOADER_PATH, &st) == -1) {
-		//mkdir("sd:/usb-loader", 0777);
+		//mkpath("sd:/usb-loader", 0777);
 		printf(gt("ERROR: %s is not accessible"), USBLOADER_PATH);
 		printf("\n");
 		sleep(1);

@@ -28,6 +28,8 @@ void Set_DIP_BCA_Datas(u8 *bca_data);
 
 //int enable_ffs(int mode);
 
+u8 *search_for_ehcmodule_cfg(u8 *p, int size);
+
 #endif
 
 

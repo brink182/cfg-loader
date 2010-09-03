@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-07-26 2:02+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
@@ -444,20 +444,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "ERREUR: cache: plus de mémoire disponible"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"ERREUR: ehcmodule2 n'est plus inclus !\n"
-"le fichier externe ehcmodule.elf doit être utilisé !"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"ERREUR: ehcmodule3 n'est plus inclus !\n"
-"le fichier externe ehcmodule3.elf doit être utilisé !"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "ERREUR: obtenir_liste_frag: %d"
@@ -589,9 +575,6 @@ msgstr "Extraction: %s"
 msgid "FAIL"
 msgstr "ÉCHEC"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "Le mode FAT n'est supporté qu'avec l'ios 222 rev4"
-
 msgid "FAT32 mount: "
 msgstr "Montage FAT32: "
 
@@ -691,6 +674,12 @@ msgstr "Recharg. IOS Bloqué"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "L'Ouverture_IOS(%s) a échouée avec le code %d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -1557,6 +1546,23 @@ msgstr "utilisé: %p - %p"
 #~ msgstr ""
 #~ "ERREUR: CIOS222 ou CIOS223 requis pour\n"
 #~ "démarrer les jeux à partir d'une partition FAT !"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "ERREUR: ehcmodule2 n'est plus inclus !\n"
+#~ "le fichier externe ehcmodule.elf doit être utilisé !"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "ERREUR: ehcmodule3 n'est plus inclus !\n"
+#~ "le fichier externe ehcmodule3.elf doit être utilisé !"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "Le mode FAT n'est supporté qu'avec l'ios 222 rev4"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: recours à l'ancienne méthode"

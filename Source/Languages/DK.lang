@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -195,7 +195,7 @@ msgstr "Forbindelses fejl fra net_read()  fejl kode: %i"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
-msgstr "Kunne ikke initalisere DIP modul! (ret = %d)"
+msgstr "Kunne ikke initialisere DIP modul! (ret = %d)"
 
 msgid "Country Fix:"
 msgstr "Country Fix:"
@@ -272,7 +272,7 @@ msgstr "Download komplet."
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "Gamercard download fejl #%d."
 
 msgid "Downloadable Content"
 msgstr "Indhold som kan downloades"
@@ -446,20 +446,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "FEJL: cache: ikke mere hukommelse"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"FEJL: ehcmodule2 er ikke længere includeret!\n"
-"extern fil ehcmodule.elf skal bruges!"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"FEJL: ehcmodule3 er ikke længere includeret!\n"
-"extern fil ehcmodule3.elf skal bruges!"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "FEJL: get_frag_list: %d"
@@ -506,7 +492,7 @@ msgid "Error GRRLIB init"
 msgstr "Fejl GRRLIB init"
 
 msgid "Error Initializing Network."
-msgstr "Fejlede initalisering af netværk. "
+msgstr "Fejlede initialisering af netværk. "
 
 msgid "Error adding disc!"
 msgstr "Fejlede at tilføje disc!"
@@ -591,9 +577,6 @@ msgstr "Udpakker: %s"
 msgid "FAIL"
 msgstr "Mislykkes"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "FAT mode kun understøttet med ios 222 rev4"
-
 msgid "FAT32 mount: "
 msgstr "FAT32 mount: "
 
@@ -659,7 +642,7 @@ msgstr "Gamecube"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "Gamercard #%d reportere:"
 
 msgid "Global Options"
 msgstr "Global indstilling"
@@ -694,6 +677,15 @@ msgstr "IOS Reload: Blocked"
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS_Open(%s) Fejlede med kode %d"
 
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
+"Hvis Cfg ikke starter ordentligt\n"
+"næste gang, kopier boot.dol.bak over\n"
+"boot.dol og prøv igen."
+
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr "Inkonsistens i LZ77 encoding %x"
@@ -703,7 +695,7 @@ msgid "Info file: %s"
 msgstr "Info fil: %s"
 
 msgid "Initializing Network..."
-msgstr "Initalisere netværk..."
+msgstr "Initialisere netværk..."
 
 msgid "Install Date"
 msgstr "Installere dato"
@@ -882,7 +874,7 @@ msgid "Network connection established."
 msgstr "Netværks forbindelse oprettet"
 
 msgid "Network error.  Can't update gamercards."
-msgstr ""
+msgstr "Netværks fejl.  Kan ikke opdater gamercards. "
 
 msgid "New Themes"
 msgstr "Nye temaer"
@@ -1531,6 +1523,23 @@ msgstr "Kunne ikke åbne Wii disc"
 #, c-format
 msgid "used: %p - %p"
 msgstr "Brugt: %p - %p"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "FEJL: ehcmodule2 er ikke længere includeret!\n"
+#~ "extern fil ehcmodule.elf skal bruges!"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "FEJL: ehcmodule3 er ikke længere includeret!\n"
+#~ "extern fil ehcmodule3.elf skal bruges!"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "FAT mode kun understøttet med ios 222 rev4"
 
 #~ msgid "bad wbfs file:  %s"
 #~ msgstr "Dårlig wbfs fil: %s"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -442,20 +442,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "エラー:メモリ不足"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"エラー:EHCモジュール2は含まれなくなりました!\n"
-"ehcmodule.elfを使用する必要があります！"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"エラー:EHCモジュール3は含まれなくなりました!\n"
-"ehcmodule3.elfを使用する必要があります！"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "エラー:フラグ取得リスト: %d"
@@ -587,9 +573,6 @@ msgstr "解凍中: %s"
 msgid "FAIL"
 msgstr "失敗"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "FATモードはIOS222v4でのみサポートされます"
-
 msgid "FAT32 mount: "
 msgstr "設定を読み込むデバイス:"
 
@@ -689,6 +672,12 @@ msgstr "IOSの再読込:禁止"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "%dのコードでIOSを開く(%s)のに失敗しました"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -1531,6 +1520,23 @@ msgstr "使用済み: %p - %p"
 #~ msgstr ""
 #~ "FAT領域からのゲーム起動には\n"
 #~ "cIOS222か223が必要です"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "エラー:EHCモジュール2は含まれなくなりました!\n"
+#~ "ehcmodule.elfを使用する必要があります！"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "エラー:EHCモジュール3は含まれなくなりました!\n"
+#~ "ehcmodule3.elfを使用する必要があります！"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "FATモードはIOS222v4でのみサポートされます"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT:古いメソッドへの縮退運転"

@@ -60,40 +60,50 @@ star_icon:
 #;ehcmodule2:
 #;	.incbin "../data/ehcmodule2_elf"
 
-	.globl dip_plugin2
-	.balign 32
-dip_plugin2:
-	.incbin "../data/dip_plugin2_bin"
+#;	.globl dip_plugin2
+#;	.balign 32
+#;dip_plugin2:
+#;	.incbin "../data/dip_plugin2_bin"
 
 #;	.globl ehcmodule3
 #;	.balign 32
 #;ehcmodule3:
 #;	.incbin "../data/ehcmodule3_elf"
 
-	.globl dip_plugin3
-	.balign 32
-dip_plugin3:
-	.incbin "../data/dip_plugin3_bin"
+#;	.globl dip_plugin3
+#;	.balign 32
+#;dip_plugin3:
+#;	.incbin "../data/dip_plugin3_bin"
 
 #;	.globl ehcmodule4
 #;	.balign 32
 #;ehcmodule4:
 #;	.incbin "../data/ehcmodule4_elf"
 
-	.globl dip_plugin4
-	.balign 32
-dip_plugin4:
-	.incbin "../data/dip_plugin4_bin"
-
-	.globl ehcmodule_frag
-	.balign 32
-ehcmodule_frag:
-	.incbin "../data/ehcmodule_frag"
-
-#;	.globl introImg
+#;	.globl dip_plugin4
 #;	.balign 32
-#;introImg:
-#;	.incbin "../data/intro"
+#;dip_plugin4:
+#;	.incbin "../data/dip_plugin4_bin"
+
+#;	.globl ehcmodule_frag
+#;	.balign 32
+#;ehcmodule_frag:
+#;	.incbin "../data/ehcmodule_frag"
+
+	.globl odip_frag
+	.balign 32
+odip_frag:
+	.incbin "../data/odip_frag_bin"
+
+	.globl ehcmodule5
+	.balign 32
+ehcmodule5:
+	.incbin "../data/ehcmodule5_elf"
+
+	.globl sdhc_module
+	.balign 32
+sdhc_module:
+	.incbin "../data/sdhc_module_elf"
 
 	.globl introImg
 	.balign 32

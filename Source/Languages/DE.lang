@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 22:40+0200\n"
+"POT-Creation-Date: 2010-08-30 00:58+0200\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero>\n"
@@ -446,20 +446,6 @@ msgstr ""
 msgid "ERROR: cache: out of memory"
 msgstr "FEHLER: Cache: nicht genug Speicher"
 
-msgid ""
-"ERROR: ehcmodule2 no longer included!\n"
-"external file ehcmodule.elf must be used!"
-msgstr ""
-"FEHLER: ehcmodule2 nicht mehr inkludiert!\n"
-"Externe Datei ehcmodule.elf erforderlich!"
-
-msgid ""
-"ERROR: ehcmodule3 no longer included!\n"
-"external file ehcmodule3.elf must be used!"
-msgstr ""
-"FEHLER: ehcmodule3 nicht mehr inkludiert!\n"
-"Externe Datei ehcmodule3.elf erforderlich!"
-
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "FEHLER: get_frag_list: %d"
@@ -591,9 +577,6 @@ msgstr "Entpacke: %s"
 msgid "FAIL"
 msgstr "FEHLGESCHLAGEN"
 
-msgid "FAT mode only supported with ios 222 rev4"
-msgstr "FAT Modus nur von CIOS 222 rev4 unterstützt"
-
 msgid "FAT32 mount: "
 msgstr "FAT32 mount: "
 
@@ -693,6 +676,12 @@ msgstr "IOS Reload: geblockt"
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
 msgstr "IOS-Open(%s) fehlgeschlagen code %d"
+
+msgid ""
+"If Cfg does not start properly\n"
+"next time, copy boot.dol.bak over\n"
+"boot.dol and try again."
+msgstr ""
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -1550,6 +1539,23 @@ msgstr "benutzt: %p - %p"
 #~ msgstr ""
 #~ "FEHLER: CIOS222 oder CIOS223 ist nötig um\n"
 #~ "Spiele von FAT-Partition zu starten!"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule2 no longer included!\n"
+#~ "external file ehcmodule.elf must be used!"
+#~ msgstr ""
+#~ "FEHLER: ehcmodule2 nicht mehr inkludiert!\n"
+#~ "Externe Datei ehcmodule.elf erforderlich!"
+
+#~ msgid ""
+#~ "ERROR: ehcmodule3 no longer included!\n"
+#~ "external file ehcmodule3.elf must be used!"
+#~ msgstr ""
+#~ "FEHLER: ehcmodule3 nicht mehr inkludiert!\n"
+#~ "Externe Datei ehcmodule3.elf erforderlich!"
+
+#~ msgid "FAT mode only supported with ios 222 rev4"
+#~ msgstr "FAT Modus nur von CIOS 222 rev4 unterstützt"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: verwende alte Methode"

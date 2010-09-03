@@ -18,6 +18,8 @@ char *strappend(char *dest, char *src, int size);
 
 bool str_replace(char *str, char *olds, char *news, int size);
 bool str_replace_all(char *str, char *olds, char *news, int size);
+bool str_replace_tag_val(char *str, char *tag, char *val);
+
 bool trimsplit(char *line, char *part1, char *part2, char delim, int size);
 char* split_tokens(char *dest, char *src, char *delim, int size);
 
@@ -100,6 +102,8 @@ void parse_banner_snd(void *banner, SoundInfo *snd);
 void printf_(const char *fmt, ...);
 void printf_x(const char *fmt, ...);
 void printf_h(const char *fmt, ...);
+
+int mkpath(const char *s, int mode);
 
 #endif
 

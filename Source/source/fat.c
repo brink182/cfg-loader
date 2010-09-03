@@ -80,12 +80,14 @@ s32 Fat_MountSDHC(void)
 
 	_FAT_mem_init();
 
-	if ( (!is_ios_type(IOS_TYPE_WANIN)) ||
-		 (is_ios_type(IOS_TYPE_WANIN) && 
-		  (IOS_GetRevision() == 18 || IOS_GetRevision() > 100)) )
+	sdhc_mode_sd = 0;
+
+	//if ( (!is_ios_type(IOS_TYPE_WANIN)) ||
+	//		 ( is_ios_type(IOS_TYPE_WANIN) && 
+	//		  (IOS_GetRevision() == 18 || IOS_GetRevision() > 100) )
+	if ( is_ios_type(IOS_TYPE_WANIN) && (IOS_GetRevision() == 18) )
 	{
-		// sdhc device seems to work only on
-		// ios 249 rev != 18
+		// sdhc device is broken on ios 249 rev 18
 		sdhc_mode_sd = 1;
 	}
 

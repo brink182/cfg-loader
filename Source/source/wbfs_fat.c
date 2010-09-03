@@ -515,19 +515,19 @@ void WBFS_FAT_get_dir(struct discHdr *header, char *path, char *fname)
     // base usb:/wbfs
 	strcpy(path, wbfs_fs_drive);
 	strcat(path, wbfs_fat_dir);
-	mkdir(path, 0777);
+	mkpath(path, 0777);
 
 	if (CFG.fat_install_dir == 1) {
 		// subdir usb:/wbfs/ID_TITLE
 		strcat(path, "/");
 		mk_gameid_title(header, path + strlen(path), 0, 0);
-		mkdir(path, 0777);
+		mkpath(path, 0777);
 	}
 	if (CFG.fat_install_dir == 2) {
 		// subdir usb:/wbfs/TITLE [ID]
 		strcat(path, "/");
 		mk_gameid_title(header, path + strlen(path), 0, 1);
-		mkdir(path, 0777);
+		mkpath(path, 0777);
 	}
 	// file name:
 	if (CFG.fat_install_dir == 3) {

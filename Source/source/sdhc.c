@@ -4,6 +4,7 @@
 #include <sdcard/wiisd_io.h>
 
 #include "sdhc.h"
+#include "debug.h"
 
 /* IOCTL comamnds */
 #define IOCTL_SDHC_INIT		0x01
@@ -51,6 +52,7 @@ bool SDHC_Init(void)
 
 	/* Open SDHC device */
 	fd = IOS_Open(fs, 0);
+	dbg_printf("open(%s)=%d\n", fs, fd);
 	if (fd < 0)
 		goto err;
 

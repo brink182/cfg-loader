@@ -30,6 +30,7 @@ distribution.
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
+#include "debug.h"
 
 /* IOCTL commands */
 #define UMS_BASE			(('U'<<24)|('M'<<16)|('S'<<8))
@@ -52,8 +53,9 @@ distribution.
 #define USB_MEM2_SIZE           0x10000
 
 /* Variables */
-static char fs[] ATTRIBUTE_ALIGN(32) = "/dev/usb/ehc";
-static char fs2[] ATTRIBUTE_ALIGN(32) = "/dev/usb2";
+static char fs[] ATTRIBUTE_ALIGN(32) = "/dev/usb2";
+static char fs2[] ATTRIBUTE_ALIGN(32) = "/dev/usb123";
+static char fs3[] ATTRIBUTE_ALIGN(32) = "/dev/usb/ehc";
  
 static s32 hid = -1, fd = -1;
 static u32 sector_size;
@@ -117,7 +119,15 @@ s32 USBStorage_OpenDev()
 
 	/* Open USB device */
 	fd = IOS_Open(fs, 0);
-	if (fd < 0) fd = IOS_Open(fs2, 0);
+	dbg_printf("open(%s)=%d\n", fs, fd);
+	if (fd < 0) {
+		fd = IOS_Open(fs2, 0);
+		dbg_printf("open(%s)=%d\n", fs2, fd);
+	}
+	if (fd < 0) {
+		fd = IOS_Open(fs3, 0);
+		dbg_printf("open(%s)=%d\n", fs3, fd);
+	}
 	return fd;
 }
 
@@ -375,7 +385,7 @@ s32 USBStorage_WBFS_Read(u32 woffset, u32 len, void *buffer)
 	return ret;
 }
 
-
+#if 0
 s32 USBStorage_WBFS_ReadDebug(u32 off, u32 size, void *buffer)
 {
 	void *buf = (void *)buffer;
@@ -445,4 +455,5 @@ void usb_debug_dump(int arg)
 	printf("\n: %d %.2000s\n", r, buf);
 }
 
+#endif
 

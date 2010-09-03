@@ -20,6 +20,8 @@
 #define IOCTL_DI_DISC_BCA	0xDA
 #define IOCTL_DI_STOPMOTOR	0xE3
 #define IOCTL_DI_SETWBFSMODE	0xF4
+#define IOCTL_DI_GETWBFSMODE	0xF5 // odip
+#define IOCTL_DI_DISABLERESET   0xF6 // odip
 
 // YAL / CIOS 222 DI
 #define YAL_DI_OPENPARTITION IOCTL_DI_OPENPART
@@ -497,7 +499,8 @@ int YAL_Enable_WBFS(void*discid)
 
 // MLOAD
 
-s32 MLOAD_SetWBFSMode(u8 *id, s32 partition)
+// mode == device
+s32 MLOAD_SetWBFSMode2(u32 mode, u8 *id, s32 partition)
 {
 	s32 ret;
 
@@ -507,7 +510,7 @@ s32 MLOAD_SetWBFSMode(u8 *id, s32 partition)
 
 	/* Set USB mode */
 	inbuf[0] = IOCTL_DI_SETWBFSMODE << 24;
-	inbuf[1] = (id) ? 1 : 0;
+	inbuf[1] = (id) ? mode : 0;
 	
 
 	/* Copy ID */

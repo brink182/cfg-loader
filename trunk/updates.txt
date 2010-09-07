@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 60b (beta)
+size = 1486240
+date = 2010-09-08
+url = http://cfg-loader.googlecode.com/files/cfg60b.dol
+Changed FS mountpoint handling
+(sd: usb: ntfs: game:)
+
+release = 60b-222 (beta)
+size = 1486240
+date = 2010-09-08
+url = http://cfg-loader.googlecode.com/files/cfg60b-222.dol
+Same as 60b but with different
+default options:
+  ios=222-mload
+  partition=FAT1
+
 release = 60a (alpha)
 size = 1483296
 date = 2010-09-02

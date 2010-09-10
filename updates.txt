@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 60b5 (beta)
+size = 1488224
+date = 2010-09-11
+url = http://cfg-loader.googlecode.com/files/cfg60b5.dol
+Fixed: partition = auto
+partition = auto is now the default
+for both normal .dol and -222.dol
+
+release = 60b5-222 (beta)
+size = 1488224
+date = 2010-09-11
+url = http://cfg-loader.googlecode.com/files/cfg60b5-222.dol
+Same as 60b5 but with different
+default options:
+  ios=222-mload
+
 release = 60b4 (beta)
 size = 1488320
 date = 2010-09-10
@@ -27,70 +43,6 @@ size = 1488320
 date = 2010-09-10
 url = http://cfg-loader.googlecode.com/files/cfg60b4-222.dol
 Same as 60b4 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 60b3 (beta)
-size = 1487648
-date = 2010-09-10
-url = http://cfg-loader.googlecode.com/files/cfg60b3.dol
-Fixed install to ISO on NTFS
-
-release = 60b3-222 (beta)
-size = 1487648
-date = 2010-09-10
-url = http://cfg-loader.googlecode.com/files/cfg60b3-222.dol
-Same as 60b3 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 60b2 (beta)
-size = 1487552
-date = 2010-09-09
-url = http://cfg-loader.googlecode.com/files/cfg60b2.dol
-install_partitions = iso
-On NTFS creates an exact
-  dump to an iso file
-
-release = 60b2-222 (beta)
-size = 1487552
-date = 2010-09-09
-url = http://cfg-loader.googlecode.com/files/cfg60b2-222.dol
-Same as 60b2 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 60b (beta)
-size = 1486240
-date = 2010-09-08
-url = http://cfg-loader.googlecode.com/files/cfg60b.dol
-Changed FS mountpoint handling
-(sd: usb: ntfs: game:)
-
-release = 60b-222 (beta)
-size = 1486240
-date = 2010-09-08
-url = http://cfg-loader.googlecode.com/files/cfg60b-222.dol
-Same as 60b but with different
-default options:
-  ios=222-mload
-  partition=FAT1
-
-release = 60a (alpha)
-size = 1483296
-date = 2010-09-02
-url = http://cfg-loader.googlecode.com/files/cfg60a.dol
-NTFS write support (UNTESTED!!!)
-option: ntfs_write=[0],1,norecover
-
-release = 60a-222 (alpha)
-size = 1483296
-date = 2010-09-02
-url = http://cfg-loader.googlecode.com/files/cfg60a-222.dol
-Same as 60a but with different
 default options:
   ios=222-mload
   partition=FAT1

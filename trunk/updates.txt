@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 60b6 (beta)
+size = 1488512
+date = 2010-09-12
+url = http://cfg-loader.googlecode.com/files/cfg60b6.dol
+Fixed and improved support for
+  wbfs/fat/ntfs on RAW device
+
+release = 60b6-222 (beta)
+size = 1488512
+date = 2010-09-12
+url = http://cfg-loader.googlecode.com/files/cfg60b6-222.dol
+Same as 60b6 but with different
+default options:
+  ios=222-mload
+
 release = 60b5 (beta)
 size = 1488224
 date = 2010-09-11
@@ -28,24 +43,6 @@ url = http://cfg-loader.googlecode.com/files/cfg60b5-222.dol
 Same as 60b5 but with different
 default options:
   ios=222-mload
-
-release = 60b4 (beta)
-size = 1488320
-date = 2010-09-10
-url = http://cfg-loader.googlecode.com/files/cfg60b4.dol
-Fixed SSBB+ SD card
-new value: partition = auto
-  Will select first valid partition
-  from: WBFS1, FAT1, NTFS1
-
-release = 60b4-222 (beta)
-size = 1488320
-date = 2010-09-10
-url = http://cfg-loader.googlecode.com/files/cfg60b4-222.dol
-Same as 60b4 but with different
-default options:
-  ios=222-mload
-  partition=FAT1
 
 release = 59 (release)
 size = 1532672

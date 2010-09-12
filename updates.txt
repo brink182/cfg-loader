@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 60 (release)
+size = 1488512
+date = 2010-09-12
+url = http://cfg-loader.googlecode.com/files/cfg60.dol
+Fixed install on ntfs to .wbfs file
+
+release = 60-222 (release)
+size = 1488512
+date = 2010-09-12
+url = http://cfg-loader.googlecode.com/files/cfg60-222.dol
+Same as 60 but with different
+default options:
+  ios=222-mload
+
 release = 60b6 (beta)
 size = 1488512
 date = 2010-09-12
@@ -25,22 +39,6 @@ size = 1488512
 date = 2010-09-12
 url = http://cfg-loader.googlecode.com/files/cfg60b6-222.dol
 Same as 60b6 but with different
-default options:
-  ios=222-mload
-
-release = 60b5 (beta)
-size = 1488224
-date = 2010-09-11
-url = http://cfg-loader.googlecode.com/files/cfg60b5.dol
-Fixed: partition = auto
-partition = auto is now the default
-for both normal .dol and -222.dol
-
-release = 60b5-222 (beta)
-size = 1488224
-date = 2010-09-11
-url = http://cfg-loader.googlecode.com/files/cfg60b5-222.dol
-Same as 60b5 but with different
 default options:
   ios=222-mload
 

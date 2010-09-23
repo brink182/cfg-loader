@@ -35,9 +35,9 @@ typedef struct {
 typedef struct
 {
 	int fs_type;
-	int wbfs_i;  // seq wbfs part index
-	int fat_i;   // seq fat part index
-	int ntfs_i;  // seq ntfs part index
+	int wbfs_i;  // seq wbfs part index starting with 1
+	int fat_i;   // seq fat  part index starting with 1
+	int ntfs_i;  // seq ntfs part index starting with 1
 } PartInfo;
 
 typedef struct
@@ -58,6 +58,8 @@ bool Device_ReadSectors(u32 device, u32 sector, u32 count, void *buffer);
 bool Device_WriteSectors(u32 device, u32 sector, u32 count, void *buffer);
 s32 Partition_GetList(u32 device, PartList *plist);
 int Partition_FixEXT(u32 device, int part, u32 sec_size);
+int PartList_FindFS(PartList *plist, int part_fstype, int seq_i, sec_t *sector);
+int Partition_FindFS(u32 device, int part_fstype, int seq_i, sec_t *sector);
 
 bool  part_is_extended(int type);
 bool  part_is_data(int type);

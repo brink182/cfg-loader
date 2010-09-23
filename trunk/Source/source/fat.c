@@ -23,23 +23,18 @@
 #include "gettext.h"
 #include "cfg.h"
 #include "sys.h"
+#include "partition.h"
+#include "fat.h"
 
+
+extern void ntfsInit();
+void fat_Unmount(const char* name);
+void _FAT_mem_init();
 
 /* Constants */
-#define SDHC_MOUNT	"sd"
-#define USB_MOUNT	"usb"
-#define WBFS_MOUNT	"wbfs"
-#define NTFS_MOUNT	"ntfs"
-
-//#define FAT_CACHE 4
-//#define FAT_SECTORS 64
-//#define FAT_CACHE 64
 #define FAT_CACHE 32
 #define FAT_SECTORS 64
 #define FAT_SECTORS_SD 32
-//#define FAT_CACHE_SECTORS 256
-#define FAT_CACHE_SECTORS FAT_CACHE, FAT_SECTORS
-#define FAT_CACHE_SECTORS_SD FAT_CACHE, FAT_SECTORS_SD
 
 /* Disc interfaces */
 extern const DISC_INTERFACE __io_sdhc;
@@ -48,129 +43,11 @@ extern const DISC_INTERFACE __io_usbstorage;
 extern const DISC_INTERFACE __io_sdhc_ro;
 extern const DISC_INTERFACE __io_usbstorage_ro;
 
-void _FAT_mem_init();
 extern sec_t _FAT_startSector;
 
 extern s32 wbfsDev;
 
-//#define MOUNT_NONE 0
-//#define MOUNT_SD   1
-//#define MOUNT_SDHC 2
-
-int   fat_sd_mount = 0;
-sec_t fat_sd_sec = 0; // u32
-
-int   fat_usb_mount = 0;
-sec_t fat_usb_sec = 0;
-
-int   fat_wbfs_mount = 0;
-sec_t fat_wbfs_sec = 0;
-
-int   fs_ntfs_mount = 0;
-sec_t fs_ntfs_sec = 0;
-
-void fat_Unmount(const char* name);
-
-s32 Fat_MountSDHC(void)
-{
-	s32 ret;
-
-	if (fat_sd_mount) return 0;
-	fat_sd_sec = 0;
-
-	_FAT_mem_init();
-
-	sdhc_mode_sd = 0;
-
-	//if ( (!is_ios_type(IOS_TYPE_WANIN)) ||
-	//		 ( is_ios_type(IOS_TYPE_WANIN) && 
-	//		  (IOS_GetRevision() == 18 || IOS_GetRevision() > 100) )
-	if ( is_ios_type(IOS_TYPE_WANIN) && (IOS_GetRevision() == 18) )
-	{
-		// sdhc device is broken on ios 249 rev 18
-		sdhc_mode_sd = 1;
-	}
-
-	/* Initialize SD/SDHC interface */
-	retry:
-	dbg_printf("SD init\n");
-	ret = __io_sdhc.startup();
-	if (!ret) {
-		dbg_printf("ERROR: SDHC init! (%d)\n", ret); sleep(1);
-		if (!sdhc_mode_sd) {
-		   sdhc_mode_sd = 1;
-		   goto retry;
-		}
-		return -1;
-	}
-
-	dbg_printf("SD fat mount\n");
-	/* Mount device */
-	if (!sdhc_mode_sd) {
-		ret = fatMount(SDHC_MOUNT, &__io_sdhc, 0, FAT_CACHE_SECTORS);
-	} else {
-		ret = fatMount(SDHC_MOUNT, &__io_sdhc, 0, FAT_CACHE_SECTORS_SD);
-	}
-	if (!ret) {
-		//printf_x("ERROR: SDHC/FAT init! (%d)\n", ret); sleep(1);
-		return -2;
-	}
-
-	fat_sd_mount = 1;
-	fat_sd_sec = _FAT_startSector;
-	return 0;
-
-#if 0
-	try_sd:
-	// SDHC failed, try SD
-	ret = __io_wiisd.startup();
-	if (!ret) {
-		//printf_x("ERROR: SD init! (%d)\n", ret); sleep(1);
-		return -3;
-	}
-	sdhc_mode_sd = 1;
-	//ret = fatMountSimple("sd", &__io_wiisd);
-	ret = fatMount(SDHC_MOUNT, &__io_wiisd, 0, FAT_CACHE_SECTORS_SD);
-	//ret = fatMount(SDHC_MOUNT, &__io_wiisd, 0, FAT_CACHE, FAT_SECTORS);
-	if (!ret) {
-		// printf_x("ERROR: SD/FAT init! (%d)\n", ret); sleep(1);
-		return -4;
-	}
-	//printf_x("NOTE: SDHC mode not available\n");
-	//printf_x("NOTE: card in standard SD mode\n\n");
-
-	fat_sd_mount = 1;
-	fat_sd_sec = _FAT_startSector;
-
-	return 0;
-#endif
-}
-
-s32 Fat_UnmountSDHC(void)
-{
-	s32 ret = 1;
-	if (!fat_sd_mount) return 0;
-
-	/* Unmount device */
-	fat_Unmount(SDHC_MOUNT);
-
-	/* Shutdown SDHC interface */
-	if (sdhc_mode_sd == 0) {
-		// don't shutdown sdhc if we're booting from it
-		if (wbfsDev != WBFS_DEVICE_SDHC) {
-			//ret = __io_sdhc.shutdown(); // this is NOP
-			SDHC_Close();
-		}
-	} else {
-		ret = __io_wiisd.shutdown();
-	}
-	fat_sd_mount = 0;
-	fat_sd_sec = 0;
-	if (!ret)
-		return -1;
-
-	return 0;
-}
+MountTable mtab = { 0 };
 
 s32 Fat_ReadFile(const char *filepath, void **outbuf)
 {
@@ -228,195 +105,6 @@ out:
 	return ret;
 }
 
-void Fat_print_sd_mode()
-{
-	printf(gt("FAT32 mount: "));
-	if (fat_sd_mount) printf("%s ", sdhc_mode_sd ? "sd" : "SD");
-	if (fat_usb_mount) printf("USB-HDD ");
-	if (fat_wbfs_mount) printf("WBFS");
-	if (!fat_sd_mount && !fat_usb_mount && !fat_wbfs_mount) printf("NONE");
-	printf("\n");
-}
-
-
-s32 Fat_MountUSB(void)
-{
-	s32 ret;
-
-	if (fat_usb_mount) return 0;
-	_FAT_mem_init();
-
-	/* Initialize USB interface */
-	ret = __io_usbstorage.startup();
-	if (!ret) {
-		//printf_x("ERROR: USB init! (%d)\n", ret); sleep(1);
-		return -1;
-	}
-
-	/* Mount device */
-	ret = fatMount(USB_MOUNT, &__io_usbstorage, 0, FAT_CACHE_SECTORS);
-	//ret = fatMount(USB_MOUNT, &__io_usbstorage, 0, FAT_CACHE, FAT_SECTORS);
-	if (!ret) {
-		//printf_x("ERROR: USB/FAT init! (%d)\n", ret); sleep(1);
-		return -2;
-	}
-
-	fat_usb_mount = 1;
-	fat_usb_sec = _FAT_startSector;
-
-	return 0;
-}
-
-s32 Fat_UnmountUSB(void)
-{
-	if (fat_usb_mount == 0) return 0;
-
-	/* Unmount device */
-	fat_Unmount(USB_MOUNT);
-
-	fat_usb_mount = 0;
-	fat_usb_sec = 0;
-
-	return 0;
-}
-
-s32 Fat_MountWBFS(u32 sector)
-{
-	s32 ret;
-
-	if (fat_wbfs_mount) return 0;
-	_FAT_mem_init();
-
-	if (wbfsDev == WBFS_DEVICE_USB) {
-		/* Initialize WBFS interface */
-		ret = __io_usbstorage.startup();
-		if (!ret) {
-			printf_x(gt("ERROR: USB init! (%d)"), ret); printf("\n"); sleep(1);
-			return -1;
-		}
-		/* Mount device */
-		ret = fatMount(WBFS_MOUNT, &__io_usbstorage, sector, FAT_CACHE_SECTORS);
-		if (!ret) {
-			printf_x(gt("ERROR: USB/FAT mount wbfs! (%d)"), ret); printf("\n"); sleep(1);
-			return -2;
-		}
-	} else if (wbfsDev == WBFS_DEVICE_SDHC) {
-		if (fat_sd_mount == 0) {
-			ret = 0;
-		} else if (sdhc_mode_sd == 0) {
-			ret = fatMount(SDHC_MOUNT, &__io_sdhc, 0, FAT_CACHE_SECTORS);
-		} else {
-			ret = fatMount(SDHC_MOUNT, &__io_sdhc, 0, FAT_CACHE_SECTORS_SD);
-			//ret = fatMount(SDHC_MOUNT, &__io_wiisd, 0, FAT_CACHE_SECTORS_SD);
-		}
-		if (!ret) {
-			printf_x(gt("ERROR: SD/FAT mount wbfs! (%d)"), ret); printf("\n"); sleep(1);
-			return -5;
-		}
-	}
-
-	fat_wbfs_mount = 1;
-	fat_wbfs_sec = _FAT_startSector;
-	if (sector && fat_wbfs_sec != sector) {
-		printf(gt("ERROR: WBFS FAT mount sector %x not %x"),
-				fat_wbfs_sec, sector);
-		sleep(2);
-		Wpad_WaitButtons();
-	}
-
-	return 0;
-}
-
-s32 Fat_UnmountWBFS(void)
-{
-	if (fat_wbfs_mount == 0) return 0;
-
-	/* Unmount device */
-	fat_Unmount(WBFS_MOUNT);
-
-	fat_wbfs_mount = 0;
-	fat_wbfs_sec = 0;
-
-	return 0;
-}
-
-void ntfsInit();
-
-s32 MountNTFS(u32 sector)
-{
-	s32 ret;
-
-	if (fs_ntfs_mount) return 0;
-	//printf("mounting NTFS\n");
-	//Wpad_WaitButtons();
-	_FAT_mem_init();
-	ntfsInit();
-	// ntfsInit resets locale settings
-	// which breaks unicode in console
-	// so we change it back to C-UTF-8
-	setlocale(LC_CTYPE, "C-UTF-8");
-	setlocale(LC_MESSAGES, "C-UTF-8");
-
-	if (wbfsDev == WBFS_DEVICE_USB) {
-		/* Initialize WBFS interface */
-		ret = __io_usbstorage.startup();
-		if (!ret) {
-			printf_x(gt("ERROR: USB init! (%d)"), ret); printf("\n"); sleep(1);
-			return -1;
-		}
-		/* Mount device */
-		ret = ntfsMount(NTFS_MOUNT, &__io_usbstorage_ro, sector, FAT_CACHE_SECTORS, NTFS_DEFAULT);
-		if (!ret) {
-			printf_x(gt("ERROR: USB mount NTFS! (%d)"), ret);
-			printf("(%d)\n", errno);
-			sleep(2);
-			return -2;
-		}
-	} else if (wbfsDev == WBFS_DEVICE_SDHC) {
-		if (sdhc_mode_sd == 0) {
-			ret = ntfsMount(NTFS_MOUNT, &__io_sdhc_ro, 0, FAT_CACHE_SECTORS, NTFS_DEFAULT);
-		} else {
-			ret = ntfsMount(NTFS_MOUNT, &__io_sdhc_ro, 0, FAT_CACHE_SECTORS_SD, NTFS_DEFAULT);
-		}
-		if (!ret) {
-			printf_x(gt("ERROR: SD mount NTFS! (%d)"), ret); printf("\n"); sleep(1);
-			return -5;
-		}
-	}
-
-	fs_ntfs_mount = 1;
-	fs_ntfs_sec = sector; //_FAT_startSector;
-	/*if (sector && fat_wbfs_sec != sector) {
-		printf("ERROR: WBFS FAT mount sector %x not %x\n",
-				fat_wbfs_sec, sector);
-		sleep(2);
-		Wpad_WaitButtons();
-	}*/
-
-	return 0;
-}
-
-s32 UnmountNTFS(void)
-{
-	//printf("Unmount NTFS\n");
-	if (fs_ntfs_mount == 0) return 0;
-
-	/* Unmount device */
-	ntfsUnmount(NTFS_MOUNT, true);
-
-	fs_ntfs_mount = 0;
-	fs_ntfs_sec = 0;
-
-	return 0;
-}
-
-void Fat_UnmountAll()
-{
-	Fat_UnmountSDHC();
-	Fat_UnmountUSB();
-	Fat_UnmountWBFS();
-	UnmountNTFS();
-}
 
 // fat cache alloc
 
@@ -424,7 +112,7 @@ void Fat_UnmountAll()
 
 static void *fat_pool = NULL;
 static size_t fat_size;
-#define FAT_SLOTS (FAT_CACHE * 3)
+#define FAT_SLOTS (FAT_CACHE * MOUNT_MAX)
 #define FAT_SLOT_SIZE (512 * FAT_SECTORS)
 #define FAT_SLOT_SIZE_MIN (512 * FAT_SECTORS_SD)
 static int fat_alloc[FAT_SLOTS];
@@ -527,17 +215,453 @@ void fat_Unmount (const char* name)
 	fatUnmount(name2);
 }
 
-#if 0
-#include <sys/iosupport.h>
-//extern int FindDevice(const char* name);
-//extern const devoptab_t* GetDeviceOpTab (const char *name);
-void check_dev(char *name)
+
+int mount_add(char *name, int device, sec_t sector, int fstype, int flags)
 {
-	printf("DEV: %s %d %p\n", name, FindDevice(name), GetDeviceOpTab(name));
+	dbg_printf("mount_add(%s,%d,%u,%d)\n", name, device, sector, fstype);
+	if (mtab.num >= MOUNT_MAX) return -1;
+	MountPoint *m = &mtab.point[mtab.num];
+	STRCOPY(m->name, name);
+	m->device = device;
+	m->sector = sector;
+	m->fstype = fstype;
+	m->flags  = flags;
+	mtab.num++;
+	return 0;
 }
-	check_dev("sd");
-	check_dev("sd:");
-	check_dev("usb");
-	check_dev("usb:");
-#endif
+
+MountPoint* mount_find_part(int device, sec_t sector)
+{
+	int i;
+	MountPoint *m;
+	//dbg_printf("m_find(%d,%u)", device, sector);
+	for (i=0; i<mtab.num; i++)
+	{
+		m = &mtab.point[i];
+		if (m->device == device && m->sector == sector) {
+			//dbg_printf("=%s:\n", m->name);
+			return m;
+		}
+	}
+	//dbg_printf("=0\n");
+	return NULL;
+}
+
+// remove trailing ':' if present
+void mount_drive2name(char *drive, char *name)
+{
+	int i;
+	strcpy(name, drive);
+	i = strlen(name) - 1;
+	if (i < 0) return;
+	if (name[i] == ':') name[i] = 0;
+}
+
+// append trailing ':' if not present
+void mount_name2drive(char *name, char *drive)
+{
+	int i;
+	strcpy(drive, name);
+	i = strlen(drive) - 1;
+	if (i < 0) return;
+	if (drive[i] != ':') strcat(drive, ":");
+}
+
+// name can be "usb" or "usb:"
+MountPoint* mount_find(char *name)
+{
+	int i;
+	MountPoint *m;
+	char m_name[16];
+
+	mount_drive2name(name, m_name);
+	for (i=0; i<mtab.num; i++)
+	{
+		m = &mtab.point[i];
+		if (strcmp(m->name, m_name) == 0) return m;
+	}
+	return NULL;
+}
+
+int mount_del(char *name)
+{
+	dbg_printf("mount_del(%s)\n", name);
+	MountPoint *m = mount_find(name);
+	if (!m) return -1;
+	int i = m - mtab.point;
+	memset(m, 0, sizeof(*m));
+	memmove(m, m+1, (mtab.num-i-1)*sizeof(*m));
+	mtab.num--;
+	return 0;
+}
+
+
+int IO_InitSDHC(int verbose)
+{
+	int ret;
+	//sdhc_mode_sd = 0;
+	if ( is_ios_type(IOS_TYPE_WANIN) && (IOS_GetRevision() == 18) ) {
+		// sdhc device is broken on ios 249 rev 18
+		sdhc_mode_sd = 1;
+	}
+	// Initialize SD/SDHC interface
+	retry:
+	dbg_printf("SD startup\n");
+	ret = __io_sdhc.startup();
+	if (!ret) {
+		if (!sdhc_mode_sd) {
+			dbg_printf("ERROR: SDHC init! (%d, %d)\n", ret, errno);
+			sdhc_mode_sd = 1;
+			goto retry;
+		}
+		if (verbose) {
+			printf_x("ERROR: SDHC init! (%d, %d)\n", ret, errno);
+		}
+		return -5;
+	}
+	return 0;
+}
+
+int IO_CloseSDHC()
+{
+	bool ret = true;
+	/* Shutdown SDHC interface */
+	if (sdhc_mode_sd == 0) {
+		// don't shutdown sdhc if we're booting from it
+		if (wbfsDev != WBFS_DEVICE_SDHC) {
+			//ret = __io_sdhc.shutdown(); // this is NOP
+			ret = SDHC_Close();
+		}
+	} else {
+		ret = __io_wiisd.shutdown();
+	}
+	if (!ret) return -1;
+	return 0;
+}
+
+int IO_InitUSB(int verbose)
+{
+	int ret;
+	// Initialize USB interface
+	dbg_printf("USB startup\n");
+	ret = __io_usbstorage.startup();
+	if (!ret) {
+		if (verbose) {
+			printf_x(gt("ERROR: USB init! (%d)"), ret);
+			printf("\n");
+			sleep(1);
+		}
+		return -4;
+	}
+	return 0;
+}
+
+
+int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
+{
+	s32 ret = 0;
+	const DISC_INTERFACE *io;
+	int page_count = FAT_CACHE;
+	int page_size = FAT_SECTORS;
+	MountPoint *m;
+	int flags = 0;
+	char name[16];
+
+	dbg_printf("Mount %s %d %d %d\n", aname, device, sector, fstype);
+	mount_drive2name(aname, name);
+
+	_FAT_mem_init();
+
+	m = mount_find_part(device, sector);
+	if (m) {
+		printf("ERROR: '%s' (%d,%d) already mounted as '%s'", name, device, sector, m->name);
+		sleep(2);
+		return -1;
+	}
+	m = mount_find(name);
+	if (m) {
+		printf("ERROR: '%s' (%d,%d) already mounted as '%s' (%d,%d)",
+				name, device, sector, m->name, m->device, m->sector);
+		sleep(2);
+		return -2;
+	}
+	if (mtab.num >= MOUNT_MAX) {
+		printf("ERROR: too many mounts! (%d)", mtab.num);
+		sleep(2);
+		return -3;
+	}
+
+	if (device == WBFS_DEVICE_USB) {
+
+		ret = IO_InitUSB(verbose);
+		if (ret) return ret;
+		io = &__io_usbstorage;
+
+	} else if (device == WBFS_DEVICE_SDHC) {
+
+		ret = IO_InitSDHC(verbose);
+		if (ret) return ret;
+		if (sdhc_mode_sd == 1) {
+			page_size = FAT_SECTORS_SD;
+		}
+		io = &__io_sdhc;
+
+	} else {
+		printf("ERROR: Invalid device %d\n", device);
+		return -6;
+	}
+
+	if (fstype == PART_FS_FAT) {
+
+		// FAT MOUNT
+		dbg_printf("fatMount(%s,%u)", name, sector);
+		ret = fatMount(name, io, sector, page_count, page_size);
+		dbg_printf(" = %d %d\n", ret, _FAT_startSector);
+
+		if (ret) {
+			if (sector == 0) {
+				sector = _FAT_startSector;
+				dbg_printf("FAT sector %u", sector);
+			} else if (sector != _FAT_startSector) {
+				printf("ERROR: FAT mount sector %x not %x", sector, _FAT_startSector);
+				fat_Unmount(name);
+				sleep(5);
+				return -10;
+			}
+		}
+
+	} else if (fstype == PART_FS_NTFS) {
+
+		ntfsInit();
+		// ntfsInit resets locale settings
+		// which breaks unicode in console
+		// so we change it back to C-UTF-8
+		setlocale(LC_CTYPE, "C-UTF-8");
+		setlocale(LC_MESSAGES, "C-UTF-8");
+
+		switch (CFG.ntfs_write)
+		{
+			default:
+			case 0:
+				flags = NTFS_DEFAULT | NTFS_READ_ONLY;
+				if (device == WBFS_DEVICE_USB) {
+					io = &__io_usbstorage_ro;
+				} else if (device == WBFS_DEVICE_SDHC) {
+					io = &__io_sdhc_ro;
+				}
+				break;
+			case 1: flags = NTFS_DEFAULT | NTFS_RECOVER; break;
+			case 2: flags = NTFS_DEFAULT; break;
+		}
+
+		if (sector == 0) {
+			sec_t *plist;
+			int n = ntfsFindPartitions(io, &plist);
+			if (n > 0 && plist) {
+				sector = plist[0];
+				SAFE_FREE(plist);
+			} else {
+				dbg_printf("No NTFS partition found!\n");
+				return -20;
+			}
+		}
+
+		// NTFS MOUNT
+		dbg_printf("ntfsMount(%s,%u)", name, sector);
+		ret = ntfsMount(name, io, sector, page_count, page_size, flags);
+		dbg_printf(" = %d\n", ret);
+
+		if (!ret) {
+			if (errno == EDIRTY) {
+				printf_(gt("ERROR: ntfs was not cleanly unmounted"));
+				sleep(5);
+				return -21;
+			}
+		}
+
+	} else {
+		printf("Invalid fs type %d\n", fstype);
+		return -30;
+	}
+
+	if (!ret) {
+		// mount failed
+		dbg_printf("ERROR: mount %s/%s (%d)",
+				device == WBFS_DEVICE_USB ? "USB" : "SDHC",
+				fstype == PART_FS_FAT ? "FAT" : "NTFS",
+				errno);
+		if (verbose) {
+			printf("ERROR: mount %s/%s (%d)\n",
+					device == WBFS_DEVICE_USB ? "USB" : "SDHC",
+					fstype == PART_FS_FAT ? "FAT" : "NTFS",
+					errno);
+			sleep(2);
+		}
+		return -40;
+	}
+
+	// OK
+
+	mount_add(name, device, sector, fstype, flags);
+
+	return 0;
+}
+
+int UnmountFS(char *aname)
+{
+	MountPoint *m;
+	char name[16];
+
+	dbg_printf("Unmount %s\n", aname);
+
+	mount_drive2name(aname, name);
+
+	m = mount_find(name);
+	if (!m) return -1;
+
+	if (m->fstype == PART_FS_FAT) {
+		fat_Unmount(name);
+	} else if (m->fstype == PART_FS_NTFS) {
+		ntfsUnmount(name, true);
+	} else {
+		return -2;
+	}
+
+	mount_del(name);
+
+	return 0;
+}
+
+int MountAll(MountTable *mt)
+{
+	int i;
+	int r, ret = 0;
+	for (i=0; i<mt->num; i++) {
+		r = MountFS(mt->point[i].name, mt->point[i].device, mt->point[i].sector, mt->point[i].fstype, 0);
+		if (r) ret = r;
+	}
+	return ret;
+}
+
+int UnmountAll(MountTable *save_mtab)
+{
+	int i;
+	MountTable mt;
+	memcpy(&mt, &mtab, sizeof(mtab));
+	if (save_mtab) {
+		memcpy(save_mtab, &mtab, sizeof(mtab));
+	}
+	for (i=0; i<mt.num; i++) {
+		UnmountFS(mt.point[i].name);
+	}
+	IO_CloseSDHC();
+	return 0;
+}
+
+// mount first FAT -OR- first NTFS on sd:
+int MountSDHC()
+{
+	int ret;
+	sec_t sector;
+
+	// already mounted?
+	if (mount_find(SDHC_MOUNT)) return 0;
+	
+	// init
+	ret = IO_InitSDHC(0);
+	if (ret) return ret;
+
+	// find first FAT partition
+	sector = -1;
+	ret = Partition_FindFS(WBFS_DEVICE_SDHC, PART_FS_FAT, 1, &sector);
+	if (ret == 0) {
+		// fat found.
+		ret = MountFS(SDHC_MOUNT, WBFS_DEVICE_SDHC, sector, PART_FS_FAT, 0);
+		if (ret == 0) return 0; // OK
+	}
+	// find first NTFS partition
+	sector = -1;
+	ret = Partition_FindFS(WBFS_DEVICE_SDHC, PART_FS_NTFS, 1, &sector);
+	if (ret == 0) {
+		// fat found.
+		ret = MountFS(SDHC_MOUNT, WBFS_DEVICE_SDHC, sector, PART_FS_NTFS, 0);
+		if (ret == 0) return 0; // OK
+	}
+
+	return -1;
+}
+
+// mount first FAT to usb: -AND- first NTFS on ntfs:
+int MountUSB()
+{
+	int ret;
+	int retval = -1;
+	sec_t sector;
+
+	ret = IO_InitUSB(0);
+	if (ret) return ret;
+
+	// find first FAT partition
+	sector = -1;
+	if (mount_find(USB_MOUNT)) {
+		// already mounted
+		retval = 0;
+	} else {
+		ret = Partition_FindFS(WBFS_DEVICE_USB, PART_FS_FAT, 1, &sector);
+		if (ret == 0) {
+			// fat found.
+			ret = MountFS(USB_MOUNT, WBFS_DEVICE_USB, sector, PART_FS_FAT, 0);
+			if (ret == 0) retval = 0; // OK
+		}
+	}
+
+	// find first NTFS partition
+	sector = -1;
+	if (mount_find(NTFS_MOUNT)) {
+		// already mounted
+		retval = 0;
+	} else {
+		ret = Partition_FindFS(WBFS_DEVICE_USB, PART_FS_NTFS, 1, &sector);
+		if (ret == 0) {
+			// fat found.
+			ret = MountFS(NTFS_MOUNT, WBFS_DEVICE_USB, sector, PART_FS_NTFS, 0);
+			if (ret == 0) retval = 0; // OK
+		}
+	}
+
+	return retval;
+}
+
+// remount NTFS with write permission if enabled
+void RemountNTFS()
+{
+	int i;
+	MountTable mt;
+	MountPoint *mp;
+	if (!CFG.ntfs_write) return;
+	memcpy(&mt, &mtab, sizeof(mtab));
+	for (i=0; i<mt.num; i++) {
+		mp = &mt.point[i];
+		if ((mp->fstype == PART_FS_NTFS) && (mp->flags & NTFS_READ_ONLY)) {
+			UnmountFS(mp->name);
+			dbg_printf("remounting %s\n", mp->name);
+			MountFS(mp->name, mp->device, mp->sector, mp->fstype, 1);
+		}
+	}
+}
+
+// print:
+// FS: [ sd: usb: ntfs: game: ]
+void MountPrint()
+{
+	int i;
+	printf_("");
+	printf("FS: ");
+	printf("[ ");
+	for (i=0; i<mtab.num; i++)
+	{
+		printf("%s: ", mtab.point[i].name);
+	}
+	printf("]\n");
+}
 

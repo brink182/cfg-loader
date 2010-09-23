@@ -21,7 +21,6 @@
 #include "cache.h"
 #include "gui.h"
 #include "menu.h"
-#include "partition.h"
 #include "restart.h"
 #include "sys.h"
 #include "util.h"

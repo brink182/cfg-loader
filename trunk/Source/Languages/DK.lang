@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -398,14 +398,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "FEJL: OpenPartition(0x%llx) %d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "FEJL: SD mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "FEJL: SD/FAT mount wbfs! (%d)"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "FEJL: SetFragList(0): %d"
 
@@ -419,18 +411,6 @@ msgstr "FEJL: Setting SD mode"
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "FEJL: USB init! (%d)"
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "FEJL: USB mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "FEJL: USB/FAT mount wbfs! (%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "FEJL: WBFS FAT mount sector %x Ikke %x"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -462,6 +442,9 @@ msgstr ""
 
 msgid "ERROR: not enough free space!!"
 msgstr "FEJL: Ikke nok fri plads!!"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr "FEJL: ntfs var ikke lukket ordentlig ned"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -576,9 +559,6 @@ msgstr "Udpakker: %s"
 
 msgid "FAIL"
 msgstr "Mislykkes"
-
-msgid "FAT32 mount: "
-msgstr "FAT32 mount: "
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -873,8 +853,8 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Netværks forbindelse oprettet"
 
-msgid "Network error.  Can't update gamercards."
-msgstr "Netværks fejl.  Kan ikke opdater gamercards. "
+msgid "Network error. Can't update gamercards."
+msgstr "Netværks fejl. Kan ikke opdater gamercards. "
 
 msgid "New Themes"
 msgstr "Nye temaer"
@@ -1524,6 +1504,21 @@ msgstr "Kunne ikke åbne Wii disc"
 msgid "used: %p - %p"
 msgstr "Brugt: %p - %p"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "FEJL: SD mount NTFS! (%d)"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "FEJL: SD/FAT mount wbfs! (%d)"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "FEJL: USB mount NTFS! (%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "FEJL: USB/FAT mount wbfs! (%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "FEJL: WBFS FAT mount sector %x Ikke %x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1540,6 +1535,9 @@ msgstr "Brugt: %p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "FAT mode kun understøttet med ios 222 rev4"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "FAT32 mount: "
 
 #~ msgid "bad wbfs file:  %s"
 #~ msgstr "Dårlig wbfs fil: %s"

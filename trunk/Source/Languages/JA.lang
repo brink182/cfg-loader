@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -394,14 +394,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "エラー:領域の展開(0x%llx)%d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "エラー:SDがNTFSをマウント"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "エラー:SD/FATがwbfsをマウント"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "エラー: SetFragList(0): %d"
 
@@ -415,18 +407,6 @@ msgstr "エラー:SDモードに設定されています"
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "エラー:USBの初期化(%d)"
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "エラー:USBがNTFSをマウントしています(%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "エラー:USB/FATがwbfsをマウントしています(%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "エラー:WBFS FATマウントセクタ%x not %x"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -458,6 +438,9 @@ msgstr ""
 
 msgid "ERROR: not enough free space!!"
 msgstr "エラー:空き容量がありません"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr ""
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -572,9 +555,6 @@ msgstr "解凍中: %s"
 
 msgid "FAIL"
 msgstr "失敗"
-
-msgid "FAT32 mount: "
-msgstr "設定を読み込むデバイス:"
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -863,7 +843,7 @@ msgstr ""
 msgid "Network connection established."
 msgstr "接続しました"
 
-msgid "Network error.  Can't update gamercards."
+msgid "Network error. Can't update gamercards."
 msgstr ""
 
 msgid "New Themes"
@@ -1521,6 +1501,21 @@ msgstr "使用済み: %p - %p"
 #~ "FAT領域からのゲーム起動には\n"
 #~ "cIOS222か223が必要です"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "エラー:SDがNTFSをマウント"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "エラー:SD/FATがwbfsをマウント"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "エラー:USBがNTFSをマウントしています(%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "エラー:USB/FATがwbfsをマウントしています(%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "エラー:WBFS FATマウントセクタ%x not %x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1537,6 +1532,9 @@ msgstr "使用済み: %p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "FATモードはIOS222v4でのみサポートされます"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "設定を読み込むデバイス:"
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT:古いメソッドへの縮退運転"

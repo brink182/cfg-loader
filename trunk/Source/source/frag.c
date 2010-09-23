@@ -225,8 +225,17 @@ int get_frag_list(u8 *id)
 				goto out;
 			}
 			// offset to start of partition
+			int ntfs_sec;
+			MountPoint *m = mount_find(wbfs_fs_drive);
+			if (!m) {
+				printf("mount %s not found!\n", wbfs_fs_drive);
+				ret_val = -2;
+				goto out;
+			}
+			ntfs_sec = m->sector;
+
 			for (j=0; j<fs->num; j++) {
-				fs->frag[j].sector += fs_ntfs_sec;
+				fs->frag[j].sector += ntfs_sec;
 			}
 		}
 		frag_dump(fs);

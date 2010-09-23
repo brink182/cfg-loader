@@ -125,6 +125,7 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_INSTALL_GAME 0
 #define CFG_INSTALL_ALL  1
 #define CFG_INSTALL_1_1  2
+#define CFG_INSTALL_ISO  3
 
 #define CFG_UNLOCK_PASSWORD "BUDAH12"
 
@@ -268,6 +269,7 @@ struct CFG
 	// end simple
 	int install_partitions;
 	int fat_install_dir;
+	int ntfs_write;
 	// text colors
 	int color_header;
 	int color_selected_fg;

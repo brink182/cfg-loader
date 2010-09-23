@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -73,7 +73,7 @@ msgid "Additional config:"
 msgstr "Extra instellingen:"
 
 msgid "Adult"
-msgstr ""
+msgstr "18+"
 
 msgid "Adventure"
 msgstr "Avontuur"
@@ -85,7 +85,7 @@ msgid "All Games"
 msgstr "Alle spellen"
 
 msgid "All themes up to date."
-msgstr ""
+msgstr "Alle thema's zijn bijgewerkt"
 
 msgid "Alt dol:"
 msgstr "Alt dol:"
@@ -160,7 +160,7 @@ msgid "Check For Updates"
 msgstr "Controleren op updates"
 
 msgid "Checking for themes..."
-msgstr ""
+msgstr "Controleren nieuwe thema's.."
 
 msgid "Checking for updates..."
 msgstr "Controleren op updates..."
@@ -172,7 +172,7 @@ msgid "Classic Controller"
 msgstr "Klassieke Controller"
 
 msgid "Clear Patches:"
-msgstr ""
+msgstr "Verwijder patches:"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -203,7 +203,7 @@ msgid "Create"
 msgstr "Maak"
 
 msgid "Creator"
-msgstr ""
+msgstr "Ontwerper"
 
 #, c-format
 msgid "Current Version: %s"
@@ -214,6 +214,8 @@ msgid ""
 "Custom IOS %d could not be found!\n"
 "Please install it."
 msgstr ""
+"Custom IOS %d niet gevonden!\n"
+"Eerst installeren a.u.b."
 
 #, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
@@ -224,6 +226,8 @@ msgid ""
 "Custom IOS %d is a stub!\n"
 "Please reinstall it."
 msgstr ""
+"Custom IOS %d is een dummy!\n"
+"Opnieuw installeren a.u.b."
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
@@ -248,7 +252,7 @@ msgid "Disc"
 msgstr "Disk"
 
 msgid "Disc (Ask)"
-msgstr ""
+msgstr "Disk (Vragen)"
 
 msgid "Done."
 msgstr "Klaar."
@@ -264,7 +268,7 @@ msgstr "Downloaden voltooid"
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "Download fout op spelerkaart #%d"
 
 msgid "Downloadable Content"
 msgstr "Downloadbare content"
@@ -284,7 +288,7 @@ msgid "Downloading MISSING covers for %.6s"
 msgstr "Downloading ontbrekende hoesjes voor %.6s"
 
 msgid "Downloading Theme previews..."
-msgstr ""
+msgstr "Downloading thema voorbeeld"
 
 msgid "Downloading cheats..."
 msgstr "Cheats downloaden..."
@@ -301,10 +305,10 @@ msgstr "Bezig met downloaden: %s"
 
 #, c-format
 msgid "Downloading: %s as %s"
-msgstr ""
+msgstr "Downloading: %s als %s"
 
 msgid "Downloads"
-msgstr ""
+msgstr "Downloads"
 
 msgid "Drums"
 msgstr "Drums"
@@ -390,14 +394,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "FOUT: OpenPartition(0x%llx) %d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "FOUT: SD mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "FOUT: SD/FAT mount wbfs! (%d)"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "FOUT: SetFragList(0): %d"
 
@@ -412,24 +408,16 @@ msgstr "FOUT: SD modus wijzigen"
 msgid "ERROR: USB init! (%d)"
 msgstr "FOUT: USB init! (%d)"
 
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "FOUT: USB mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "FOUT: USB/FAT mount wbfs! (%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "FOUT: WBFS FAT mount sector %x niet %x"
-
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
 "cIOS223v4, cIOS224v5 or higher required\n"
 "for starting games from a FAT partition!\n"
 "Upgrade IOS249 or choose a different IOS."
 msgstr ""
+"FOUT: cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 of hoger is nodig\n"
+"om spellen vanaf een FAT partitie te kunnen starten!\n"
+"Upgrade IOS249 of kies een andere IOS."
 
 msgid "ERROR: cache: out of memory"
 msgstr "FOUT: cache: te weinig geheugen"
@@ -450,6 +438,9 @@ msgstr ""
 
 msgid "ERROR: not enough free space!!"
 msgstr "FOUT: Niet genoeg vrije ruimte!!"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr "FOUT: ntfs was niet netjes ontkoppeld"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -486,19 +477,19 @@ msgid "Error adding disc!"
 msgstr "Fuot bij spel toevoegen"
 
 msgid "Error creating directory..."
-msgstr ""
+msgstr "Fout bij aanmaken folder..."
 
 msgid "Error discarding options!"
 msgstr "Fout bij opties verwijderen!"
 
 msgid "Error downloading theme preview..."
-msgstr ""
+msgstr "Fout bij downloaden thema voorbeeld..."
 
 msgid "Error downloading theme..."
-msgstr ""
+msgstr "Fout bij downloaden thema..."
 
 msgid "Error downloading themes..."
-msgstr ""
+msgstr "Fout bij downloaden themas"
 
 msgid "Error downloading update..."
 msgstr "Fout bij downloaden van update..."
@@ -513,7 +504,7 @@ msgid "Error establishing connection"
 msgstr "Fout bij opzetten van connectie"
 
 msgid "Error extracting theme..."
-msgstr ""
+msgstr "Fout bij uitpakken thema..."
 
 msgid "Error opening database, update did not complete."
 msgstr "Fout bij het openen van de database, update niet voltooid."
@@ -560,13 +551,10 @@ msgstr "Fout: geen data."
 
 #, c-format
 msgid "Extracting: %s"
-msgstr ""
+msgstr "Uitpakken: %s"
 
 msgid "FAIL"
 msgstr "MISLUKT"
-
-msgid "FAT32 mount: "
-msgstr "FAT32 mount: "
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -630,7 +618,7 @@ msgstr "Gamecube"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "Spelerkaart #%d meldt: %.*s"
 
 msgid "Global Options"
 msgstr "Globale opties"
@@ -670,6 +658,9 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
+"Als Cfg niet goed start\n"
+"kopieer  boot.dol.bak over\n"
+"boot.dol en probeer opnieuw."
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -858,11 +849,11 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Netwerk connectie geslaagd."
 
-msgid "Network error.  Can't update gamercards."
-msgstr ""
+msgid "Network error. Can't update gamercards."
+msgstr "Fout in netwerkverbinding. Kan spelerkaarten niet bijwerken."
 
 msgid "New Themes"
-msgstr ""
+msgstr "Nieuwe Thema's"
 
 msgid "Nintendo DS"
 msgstr "Nintendo DS"
@@ -884,7 +875,7 @@ msgid "No partition selected!"
 msgstr "Geen partitie gekozen!"
 
 msgid "No themes found."
-msgstr ""
+msgstr "Geen Thema's gevonden"
 
 msgid "No updates found."
 msgstr "Geen updates gevonden"
@@ -978,7 +969,7 @@ msgid "Party"
 msgstr "Feest"
 
 msgid "Paused Start"
-msgstr ""
+msgstr "Start gepauzeerd"
 
 msgid "Platformer"
 msgstr "Platform"
@@ -1051,7 +1042,7 @@ msgstr "Druk %s om codes over te slaan"
 
 #, c-format
 msgid "Press %s for fullscreen preview"
-msgstr ""
+msgstr "Druk op %s voor  fullscreen preview"
 
 #, c-format
 msgid "Press %s for game options"
@@ -1071,7 +1062,7 @@ msgstr "Druk %s om te downloaden en updaten"
 
 #, c-format
 msgid "Press %s to download this theme"
-msgstr ""
+msgstr "Druk op %s om dit thema te downloaden"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1127,7 +1118,7 @@ msgstr "Druk op een knop..."
 
 #, c-format
 msgid "Press button %s to download covers."
-msgstr ""
+msgstr "Druk knop %s om hoesjes te downloaden."
 
 #, c-format
 msgid "Press button %s to eject DVD."
@@ -1160,7 +1151,7 @@ msgid "Rated %s"
 msgstr "Leeftijd %s"
 
 msgid "Rating"
-msgstr ""
+msgstr "Waardering"
 
 msgid "Read"
 msgstr "Lees"
@@ -1269,15 +1260,17 @@ msgid "Strategy"
 msgstr "Strategie"
 
 msgid "Theme"
-msgstr ""
+msgstr "Thema"
 
 msgid "Theme Info"
-msgstr ""
+msgstr "Thema info"
 
 msgid ""
 "Theme may be too large.\n"
 "Reboot of Cfg suggested.\n"
 msgstr ""
+"Thema is wellicht te groot.\n"
+"Start Cfg opnieuw op.\n"
 
 msgid "Theme:"
 msgstr "Thema:"
@@ -1287,13 +1280,13 @@ msgid "Theme: %s"
 msgstr "Thema: %s"
 
 msgid "Themes provided by wii.spiffy360.com"
-msgstr ""
+msgstr "Thema's ter beschikking gesteld door wii.spiffy360.com"
 
 msgid "Themes to download"
-msgstr ""
+msgstr "Te downloaden thema's"
 
 msgid "Themes with updates"
-msgstr ""
+msgstr "Thema's met beschikbare updates"
 
 msgid "Title"
 msgstr "Titel"
@@ -1340,7 +1333,7 @@ msgid "Update WiiTDB Game Database"
 msgstr "WiiTDB Spellendatabase updaten"
 
 msgid "Update themes"
-msgstr ""
+msgstr "Bijwerken thema's"
 
 msgid "Update titles.txt"
 msgstr "titles.txt updaten"
@@ -1356,7 +1349,7 @@ msgid "Using Saved Alternative .dol:"
 msgstr "Opgeslagen Alt dol wordt gebruikt:"
 
 msgid "Version"
-msgstr ""
+msgstr "Versie"
 
 msgid "Video Patch:"
 msgstr "Video Patch:"
@@ -1529,6 +1522,21 @@ msgstr "gebruikt: %p - %p"
 #~ "cIOS222 of cIOS223 benodigd om\n"
 #~ "spellen te laden van een FAT partitie!"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "FOUT: SD mount NTFS! (%d)"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "FOUT: SD/FAT mount wbfs! (%d)"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "FOUT: USB mount NTFS! (%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "FOUT: USB/FAT mount wbfs! (%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "FOUT: WBFS FAT mount sector %x niet %x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1545,6 +1553,9 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "FAT modus enkel ondersteund door IOS222rev4"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "FAT32 mount: "
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: terug naar oude methode"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -270,7 +270,7 @@ msgstr "Download completato."
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "Errore nel download della gamercard #%d."
 
 msgid "Downloadable Content"
 msgstr "Contenuto Scaricabile"
@@ -396,14 +396,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "ERRORE: OpenPartition(0x%llx) %d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "ERRORE: SD mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "ERRORE: SD/FAT mount wbfs! (%d)"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "ERRORE: SetFragList(0): %d"
 
@@ -417,18 +409,6 @@ msgstr "ERRORE: Setting SD mode"
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "ERRORE: USB init! (%d)"
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "ERRORE: USB mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "ERRORE: USB/FAT mount wbfs! (%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "ERRORE: WBFS FAT mount sector %x not %x"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -460,6 +440,9 @@ msgstr ""
 
 msgid "ERROR: not enough free space!!"
 msgstr "ERRORE: spazio insufficiente!!"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr "ERRORE: unmount scorretto della partizione ntfs"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -575,9 +558,6 @@ msgstr "Sto scompattando: %s"
 msgid "FAIL"
 msgstr "FALLITO"
 
-msgid "FAT32 mount: "
-msgstr "Caric. FAT32: "
-
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ERRORE ALLOC. %p %p %p"
@@ -640,7 +620,7 @@ msgstr "Gamecube"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "La gamercard #%d riporta: %.*s"
 
 msgid "Global Options"
 msgstr "Opzioni Generali"
@@ -680,6 +660,9 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
+"Se Cfg non riparte bene,\n"
+"copiare il file boot.dol.bak sostituendo\n"
+"con esso il file boot.dol e riprovare."
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -868,8 +851,8 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Connessione di rete stabilita."
 
-msgid "Network error.  Can't update gamercards."
-msgstr ""
+msgid "Network error. Can't update gamercards."
+msgstr "Errore di rete. Impossibile aggiornare le gamercards."
 
 msgid "New Themes"
 msgstr "Nuovi Temi"
@@ -1541,6 +1524,21 @@ msgstr "usati: %p - %p"
 #~ "ERRORE: CIOS222 o CIOS223 necessario per\n"
 #~ "caricare giochi da una partizione FAT!"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "ERRORE: SD mount NTFS! (%d)"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "ERRORE: SD/FAT mount wbfs! (%d)"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "ERRORE: USB mount NTFS! (%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "ERRORE: USB/FAT mount wbfs! (%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "ERRORE: WBFS FAT mount sector %x not %x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1557,6 +1555,9 @@ msgstr "usati: %p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "Modalità FAT possibile solo con ios 222 rev4"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "Caric. FAT32: "
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: ritorno al vecchio metodo"

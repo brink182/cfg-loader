@@ -84,7 +84,11 @@ void __WBFS_Spinner(s32 x, s32 max)
 
 	/* Calculate percentage/size */
 	percent = (x * 100.0) / max;
-	size    = (hdd->wii_sec_sz / GB_SIZE) * max;
+	if (hdd) {
+		size = (hdd->wii_sec_sz / GB_SIZE) * max;
+	} else {
+		size = (0x8000 / GB_SIZE) * max;
+	}
 
 	Con_ClearLine();
 
@@ -333,8 +337,7 @@ bool WBFS_Close()
 		wbfs_close(hdd);
 		hdd = NULL;
 	}
-	Fat_UnmountWBFS();
-	UnmountNTFS();
+	UnmountFS(GAME_MOUNT);
 	wbfs_part_fs = 0;
 	wbfs_part_idx = 0;
 	wbfs_part_lba = 0;
@@ -350,7 +353,9 @@ bool WBFS_Mounted()
 
 bool WBFS_Selected()
 {
-	if (wbfs_part_fs && wbfs_part_lba && *wbfs_fs_drive) return true;
+	//if (wbfs_part_fs && wbfs_part_lba && *wbfs_fs_drive) return true;
+	// RAW device fs will have lba=0
+	if (wbfs_part_fs && *wbfs_fs_drive) return true;
 	return WBFS_Mounted();
 }
 
@@ -377,19 +382,29 @@ s32 WBFS_OpenPart(u32 part_fs, u32 part_idx, u32 part_lba, u32 part_size, char *
 	// close
 	WBFS_Close();
 
+	/*
 	if (part_fs == PART_FS_FAT) {
 		//if (wbfsDev != WBFS_DEVICE_USB) return -1;
 		if (wbfsDev == WBFS_DEVICE_USB && part_lba == fat_usb_sec) {
-			strcpy(wbfs_fs_drive, "usb:");
+			strcpy(wbfs_fs_drive, USB_MOUNT":");
 		} else if (wbfsDev == WBFS_DEVICE_SDHC && part_lba == fat_sd_sec) {
-			strcpy(wbfs_fs_drive, "sd:");
+			strcpy(wbfs_fs_drive, SDHC_MOUNT":");
 		} else {
 			if (Fat_MountWBFS(part_lba)) return -1;
-			strcpy(wbfs_fs_drive, "wbfs:");
+			strcpy(wbfs_fs_drive, GAME_MOUNT":");
 		}
 	} else if (part_fs == PART_FS_NTFS) {
 		if (MountNTFS(part_lba)) return -1;
-		strcpy(wbfs_fs_drive, "ntfs:");
+		strcpy(wbfs_fs_drive, NTFS_MOUNT":");
+	*/
+	if (part_fs == PART_FS_FAT || part_fs == PART_FS_NTFS) {
+		MountPoint *mp = mount_find_part(wbfsDev, part_lba);
+		if (mp) {
+			mount_name2drive(mp->name, wbfs_fs_drive);
+		} else {
+			if (MountFS(GAME_MOUNT, wbfsDev, part_lba, part_fs, 1)) return -1;
+			mount_name2drive(GAME_MOUNT, wbfs_fs_drive);
+		}
 	} else {
 		if (WBFS_OpenLBA(part_lba, part_size)) return -1;
 	}
@@ -402,21 +417,42 @@ s32 WBFS_OpenPart(u32 part_fs, u32 part_idx, u32 part_lba, u32 part_size, char *
 	if (wbfs_part_fs == PART_FS_FAT) fs = "FAT";
 	if (wbfs_part_fs == PART_FS_NTFS) fs = "NTFS";
 	sprintf(partition, "%s%d", fs, wbfs_part_idx);
+	dbg_printf("game part=%s\n", partition);
 	return 0;
+}
+
+bool is_game_fs(int device, sec_t sector)
+{
+	extern char wbfs_fat_dir[];
+	char path[100];
+	struct stat st;
+	MountPoint *mp;
+	dbg_printf("is_game_fs(%d,%d)\n", device, sector);
+	mp = mount_find_part(device, sector);
+	if (mp) {
+		dbg_printf("check %s:%s\n", mp->name, wbfs_fat_dir);
+		sprintf(path, "%s:%s", mp->name, wbfs_fat_dir);
+		if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 s32 WBFS_OpenNamed(char *partition)
 {
-	int i;
+	int i = 0;
 	u32 part_fs  = PART_FS_WBFS;
 	u32 part_idx = 0;
 	u32 part_lba = 0;
 	s32 ret = 0;
 	PartList plist;
+	int auto_mode = 0;
 
 	// close
 	WBFS_Close();
 
+	dbg_printf("open_part(%s)\n", partition);
 	// parse partition option
 	if (strncasecmp(partition, "WBFS", 4) == 0) {
 		i = atoi(partition+4);
@@ -433,6 +469,8 @@ s32 WBFS_OpenNamed(char *partition)
 		if (i < 1 || i > 9) goto err;
 		part_fs  = PART_FS_NTFS;
 		part_idx = i;
+	} else if (strcasecmp(partition, "auto") == 0) {
+		auto_mode = 1;
 	} else {
 		goto err;
 	}
@@ -440,6 +478,42 @@ s32 WBFS_OpenNamed(char *partition)
 	// Get partition entries
 	ret = Partition_GetList(wbfsDev, &plist);
 	if (ret || plist.num == 0) return -1;
+
+	if (auto_mode) {
+		// find first
+		// WBFS
+		for (i=0; i<plist.num; i++) {
+			if (plist.pinfo[i].wbfs_i == 1) {
+				part_fs = PART_FS_WBFS;
+				part_idx = 1;
+				goto found;
+			}
+		}
+		// FAT
+		for (i=0; i<plist.num; i++) {
+			if (plist.pinfo[i].fat_i == 1) {
+				if (is_game_fs(wbfsDev, plist.pentry[i].sector)) {
+					part_fs = PART_FS_FAT;
+					part_idx = 1;
+					goto found;
+				}
+				break;
+			}
+		}
+		// NTFS
+		for (i=0; i<plist.num; i++) {
+			if (plist.pinfo[i].ntfs_i == 1) {
+				if (is_game_fs(wbfsDev, plist.pentry[i].sector)) {
+					part_fs = PART_FS_NTFS;
+					part_idx = 1;
+					goto found;
+				}
+				break;
+			}
+		}
+		// nothing found
+		goto err;
+	}
 
 	if (part_fs == PART_FS_WBFS) {
 		if (part_idx > plist.wbfs_n) goto err;
@@ -457,6 +531,8 @@ s32 WBFS_OpenNamed(char *partition)
 			if (plist.pinfo[i].ntfs_i == part_idx) break;
 		}
 	}
+
+found:
 	if (i >= plist.num) goto err;
 	// set partition lba sector
 	part_lba = plist.pentry[i].sector;
@@ -465,6 +541,7 @@ s32 WBFS_OpenNamed(char *partition)
 		goto err;
 	}
 	// success
+	dbg_printf("OK! partition=%s\n", partition);
 	return 0;
 
 err:
@@ -572,6 +649,7 @@ s32 WBFS_AddGame(void)
 	partition_selector_t part_sel = ALL_PARTITIONS;
 	int copy_1_1 = 0;
 	switch (CFG.install_partitions) {
+		default:
 		case CFG_INSTALL_GAME:
 			part_sel = ONLY_GAME_PARTITION;
 			break;
@@ -579,6 +657,7 @@ s32 WBFS_AddGame(void)
 			part_sel = ALL_PARTITIONS;
 			break;
 		case CFG_INSTALL_1_1:
+		case CFG_INSTALL_ISO:
 			part_sel = ALL_PARTITIONS;
 			copy_1_1 = 1;
 			break;

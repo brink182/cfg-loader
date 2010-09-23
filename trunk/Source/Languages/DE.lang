@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero>\n"
@@ -398,14 +398,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "FEHLER: OpenPartition(0x%llx) %d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "FEHLER: SD mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "FEHLER: SD/FAT mount WBFS! (%d)"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "FEHLER: SetFragList(0): %d"
 
@@ -419,18 +411,6 @@ msgstr "FEHLER: SD Modus setzen"
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "FEHLER: USB init! (%d)"
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "FEHLER: USB mount NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "FEHLER: USB/FAT mount WBFS! (%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "FEHLER: WBFS FAT Mount Sector %x nicht %x"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -462,6 +442,9 @@ msgstr ""
 
 msgid "ERROR: not enough free space!!"
 msgstr "FEHLER: Zu wenig freier Speicher!"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr ""
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -576,9 +559,6 @@ msgstr "Entpacke: %s"
 
 msgid "FAIL"
 msgstr "FEHLGESCHLAGEN"
-
-msgid "FAT32 mount: "
-msgstr "FAT32 mount: "
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -870,7 +850,7 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Netzwerkverbindung besteht."
 
-msgid "Network error.  Can't update gamercards."
+msgid "Network error. Can't update gamercards."
 msgstr ""
 
 msgid "New Themes"
@@ -1540,6 +1520,21 @@ msgstr "benutzt: %p - %p"
 #~ "FEHLER: CIOS222 oder CIOS223 ist nötig um\n"
 #~ "Spiele von FAT-Partition zu starten!"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "FEHLER: SD mount NTFS! (%d)"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "FEHLER: SD/FAT mount WBFS! (%d)"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "FEHLER: USB mount NTFS! (%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "FEHLER: USB/FAT mount WBFS! (%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "FEHLER: WBFS FAT Mount Sector %x nicht %x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1556,6 +1551,9 @@ msgstr "benutzt: %p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "FAT Modus nur von CIOS 222 rev4 unterstützt"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "FAT32 mount: "
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: verwende alte Methode"

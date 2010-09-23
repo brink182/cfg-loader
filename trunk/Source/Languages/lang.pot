@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -388,14 +388,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr ""
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr ""
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr ""
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr ""
 
@@ -408,18 +400,6 @@ msgstr ""
 
 #, c-format
 msgid "ERROR: USB init! (%d)"
-msgstr ""
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr ""
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr ""
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
 msgstr ""
 
 msgid ""
@@ -445,6 +425,9 @@ msgid ""
 msgstr ""
 
 msgid "ERROR: not enough free space!!"
+msgstr ""
+
+msgid "ERROR: ntfs was not cleanly unmounted"
 msgstr ""
 
 #, c-format
@@ -557,9 +540,6 @@ msgid "Extracting: %s"
 msgstr ""
 
 msgid "FAIL"
-msgstr ""
-
-msgid "FAT32 mount: "
 msgstr ""
 
 #, c-format
@@ -829,7 +809,7 @@ msgstr ""
 msgid "Network connection established."
 msgstr ""
 
-msgid "Network error.  Can't update gamercards."
+msgid "Network error. Can't update gamercards."
 msgstr ""
 
 msgid "New Themes"

@@ -847,7 +847,7 @@ int gamercard_update(char *ID) {
 		}
 		
 		if(!net_initted && !Init_Net()) {
-			printf_x(gt("Network error.  Can't update gamercards."));
+			printf_x(gt("Network error. Can't update gamercards."));
 			printf("\n");
 			return -1;
 		} else 

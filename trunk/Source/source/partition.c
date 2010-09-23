@@ -19,8 +19,11 @@ typedef struct {
 
 	/* Partition table entries */
 	partitionEntry entries[MAX_PARTITIONS];
-} ATTRIBUTE_PACKED partitionTable;
 
+	// 0x55 0xAA signature
+	u8 sig_55aa[2];
+} ATTRIBUTE_PACKED partitionTable;
+// total size = 512
 
 s32 Partition_GetEntries(u32 device, partitionEntry *outbuf, u32 *outval)
 {
@@ -153,11 +156,24 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 	memcpy(&table, table_buf, sizeof(table));
 	SAFE_FREE(table_buf);
 	if (!ret) return -1;
-	// Check if it's a RAW WBFS disc, without partition table
-	if (get_fs_type(&table) == FS_TYPE_WBFS) {
+	// Check if it's a RAW FS disc, without partition table
+	ret = get_fs_type(&table);
+	dbg_printf("fstype(%d)=%d\n", device, ret);
+	if (ret != FS_TYPE_UNK) {
+		dbg_printf("RAW\n", ret);
 		memset(outbuf, 0, sizeof(table.entries));
-		wbfs_head_t *head = (wbfs_head_t*)&table;
-		outbuf->size = wbfs_ntohl(head->n_hd_sec);
+		// create a fake partition entry
+		if (ret == FS_TYPE_WBFS) {
+			wbfs_head_t *head = (wbfs_head_t*)&table;
+			outbuf->size = wbfs_ntohl(head->n_hd_sec);
+		} else {
+			outbuf->size = 1;
+		}
+		if (ret == FS_TYPE_NTFS) {
+			outbuf->type = 0x07;
+		} else {
+			outbuf->type = 0x0b;
+		}
 		*num = 1;
 		return 0;
 	}
@@ -313,24 +329,24 @@ s32 Partition_GetList(u32 device, PartList *plist)
 	if (ret < 0) {
 		return -1;
 	}
-	// check for RAW WBFS disc
-	if (plist->num == 1) {
-		pinfo = &plist->pinfo[0];
-		entry = &plist->pentry[0];
-		plist->wbfs_n = 1;
-		pinfo->wbfs_i = 1;
-		return 0;
-	}
 
 	char buf[plist->sector_size];
 
+	dbg_printf("Plist(%d) = %d\n", device, plist->num);
 	// scan partitions for filesystem type
 	for (i = 0; i < plist->num; i++) {
 		pinfo = &plist->pinfo[i];
 		entry = &plist->pentry[i];
+		dbg_printf("P#%d %u %u %d\n", i, 
+			plist->pentry[i].sector,
+			plist->pentry[i].size,
+			plist->pentry[i].type);
 		if (!entry->size) continue;
 		if (!entry->type) continue;
-		if (!entry->sector) continue;
+		if (!entry->sector) {
+			// RAW partition will start at sector 0
+			if (plist->num != 1) continue;
+		}
 		// even though wrong, it's possible WBFS is on an extended part.
 		//if (!part_is_data(entry->type)) continue;
 		if (!Device_ReadSectors(device, entry->sector, 1, buf)) continue;
@@ -369,6 +385,38 @@ int Partition_FixEXT(u32 device, int part, u32 sec_size)
 		return 0;
 	}
 	return -1;
+}
+
+int PartList_FindFS(PartList *plist, int part_fstype, int seq_i, sec_t *sector)
+{
+	int i;
+    if (seq_i <= 0) return -2; // index has to start with 1
+    for (i=0; i<plist->num; i++) {
+        if (part_fstype == PART_FS_FAT && plist->pinfo[i].fat_i == seq_i) goto found;
+        if (part_fstype == PART_FS_NTFS && plist->pinfo[i].ntfs_i == seq_i) goto found;
+        if (part_fstype == PART_FS_WBFS && plist->pinfo[i].wbfs_i == seq_i) goto found;
+    }
+    // not found
+    return -1;
+
+    found:
+    *sector = plist->pentry[i].sector;
+	//dbg_printf("Part found: %u\n", *sector);
+    return 0;
+}
+
+int Partition_FindFS(u32 device, int part_fstype, int seq_i, sec_t *sector)
+{
+	int ret;
+	PartList plist;
+
+	//dbg_printf("Part_Find(%d, %d, %d)\n", device, part_fstype, seq_i);
+    if (seq_i <= 0) return -2; // index has to start with 1
+
+	ret = Partition_GetList(device, &plist);
+    if (ret < 0) return ret;
+
+    return PartList_FindFS(&plist, part_fstype, seq_i, sector);
 }
 
 

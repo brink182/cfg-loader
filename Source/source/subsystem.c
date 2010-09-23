@@ -13,7 +13,7 @@ void Subsystem_Init(void)
 	Wpad_Init();
 
 	/* Mount SDHC */
-	Fat_MountSDHC();
+	MountSDHC();
 }
 
 void Services_Close()
@@ -34,12 +34,7 @@ void Subsystem_Close(void)
 	/* Disconnect Wiimotes */
 	Wpad_Disconnect();
 
-	/* Unmount SDHC */
-	/*Fat_UnmountSDHC();
-	Fat_UnmountUSB();
-	Fat_UnmountWBFS();*/
-
 	// Unmount all filesystems
-	Fat_UnmountAll();
+	UnmountAll(NULL);
 }
 

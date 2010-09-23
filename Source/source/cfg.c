@@ -23,7 +23,7 @@
 #include "console.h"
 #include "sys.h"
 
-char FAT_DRIVE[8] = "sd:";
+char FAT_DRIVE[8] = SDHC_DRIVE;
 char USBLOADER_PATH[200] = "sd:/usb-loader";
 char APPS_DIR[200] = "";
 char LAST_CFG_PATH[200];
@@ -2299,6 +2299,8 @@ void cfg_set(char *name, char *val)
 			&CFG.install_partitions, CFG_INSTALL_ALL);
 	cfg_map("install_partitions", "1:1",
 			&CFG.install_partitions, CFG_INSTALL_1_1);
+	cfg_map("install_partitions", "iso",
+			&CFG.install_partitions, CFG_INSTALL_ISO);
 
 	extern u64 OPT_split_size;
 	int split_size = 0;
@@ -2315,6 +2317,10 @@ void cfg_set(char *name, char *val)
 
 	cfg_int_max("fat_install_dir", &CFG.fat_install_dir, 3);
 	cfg_int_max("fs_install_layout", &CFG.fat_install_dir, 3);
+	
+	cfg_bool("ntfs_write", &CFG.ntfs_write);
+	cfg_map("ntfs_write", "norecover", &CFG.ntfs_write, 2);
+
 	cfg_bool("disable_nsmb_patch", &CFG.disable_nsmb_patch);
 	cfg_bool("disable_pop_patch", &CFG.disable_pop_patch);
 	cfg_bool("disable_dvd_patch", &CFG.disable_dvd_patch);
@@ -3236,6 +3242,7 @@ void cfg_debug(int argc, char **argv)
 	dbg_printf("covers_path: %s\n", CFG.covers_path);
 	dbg_printf("theme_path: %s\n", CFG.theme_path);
 	dbg_printf("theme: %s \n", CFG.theme);
+	/*
 	dbg_printf("covers: %d ", CFG.covers);
 	dbg_printf("w: %d ", COVER_WIDTH);
 	dbg_printf("h: %d ", COVER_HEIGHT);
@@ -3246,6 +3253,7 @@ void cfg_debug(int argc, char **argv)
 	dbg_printf("titles: %d ", num_title);
 	dbg_printf("maxc: %d ", MAX_CHARACTERS);
 	dbg_printf("ent: %d ", ENTRIES_PER_PAGE);
+	*/
 	dbg_printf("music: %d ", CFG.music);
 	dbg_printf("gui: %d ", CFG.gui);
 	extern char *get_cc();
@@ -3259,15 +3267,19 @@ void cfg_debug(int argc, char **argv)
 	//dbg_printf("M1: %p - %p\n", __Arena1Lo, __Arena1Hi);
 	//dbg_printf("M2: %p - %p\n", __Arena2Lo, __Arena2Hi);
 	int i;
-	for (i=0; i<argc; i++) {
-		dbg_printf("arg[%d]: %s ", i, argv[i]);
-	}
-	
 	dbg_printf("\n");
-	dbg_printf("# Hidden Games: %d\n", CFG.num_hide_game);
+	dbg_printf("# Hidden Games: %d ", CFG.num_hide_game);
 	for (i=0; i<CFG.num_hide_game; i++) {
 		dbg_printf("%.4s ", CFG.hide_game[i]);
 	}
+	dbg_printf("\n");
+	dbg_printf("args[%d]: ", argc);
+	for (i=0; i<argc; i++) {
+		dbg_printf("[%d]=%s ", i, argv[i]);
+	}
+	dbg_printf("\n");
+	dbg_printf("device: %d\n", CFG.device);
+	dbg_printf("partition: %s\n", CFG.partition);
 
 	if (CFG.debug) {
 		sleep(1);
@@ -3497,19 +3509,30 @@ void CFG_Load(int argc, char **argv)
 	struct stat st;
 	bool try_sd = true;
 	bool try_usb = false;
+	bool try_ntfs = false;
 	bool ret;
 
-	strcpy(FAT_DRIVE, "sd:");
+	strcpy(FAT_DRIVE, SDHC_DRIVE);
 
 	// are we started from usb? then check usb first.
-	// also if wiiload supplied first argument is "usb:", start with usb.
+	// also if wiiload supplied first argument is USB_DRIVE, start with usb.
 	if (argc && argv && argv[0]) {
-		if (strncmp(argv[0], "usb:", 4) == 0
-			|| (argc>1 && strcmp(argv[1], "usb:") == 0) )
+		if (strncmp(argv[0], USB_DRIVE, 4) == 0
+				|| (argc>1 && strcmp(argv[1], USB_DRIVE) == 0) )
 		{
-			if (Fat_MountUSB() == 0) {
-				strcpy(FAT_DRIVE, "usb:");
+			if (MountUSB() == 0 && mount_find(USB_DRIVE)) {
+				strcpy(FAT_DRIVE, USB_DRIVE);
 				try_usb = true;
+				try_sd = false;
+			}
+		}
+		// same logic applies to ntfs:
+		else if (strncmp(argv[0], NTFS_DRIVE, 4) == 0
+				|| (argc>1 && strcmp(argv[1], NTFS_DRIVE) == 0) )
+		{
+			if (MountUSB() == 0 && mount_find(NTFS_DRIVE)) {
+				strcpy(FAT_DRIVE, NTFS_DRIVE);
+				try_ntfs = true;
 				try_sd = false;
 			}
 		}
@@ -3559,18 +3582,28 @@ void CFG_Load(int argc, char **argv)
 	if (!ret) {
 		if (!try_usb) {
 			try_usb = true;
-			if (Fat_MountUSB() == 0) {
-				strcpy(FAT_DRIVE, "usb:");
+			if (MountUSB() == 0) {
+				strcpy(FAT_DRIVE, USB_DRIVE);
 				goto retry;
 			}
 		}
-		else if (!try_sd) {
+		if (!try_ntfs) {
+			try_ntfs = true;
+			if (MountUSB() == 0) {
+				strcpy(FAT_DRIVE, NTFS_DRIVE);
+				goto retry;
+			}
+		}
+		if (!try_sd) {
 			try_sd = true;
-			strcpy(FAT_DRIVE, "sd:");
+			strcpy(FAT_DRIVE, SDHC_DRIVE);
 			goto retry;
 		} else {
 			// still no dir found, just reset to sd:
-			strcpy(FAT_DRIVE, "sd:");
+			if (strcmp(FAT_DRIVE, SDHC_DRIVE) != 0) {
+				strcpy(FAT_DRIVE, SDHC_DRIVE);
+				goto retry;
+			}
 		}
 	}
 	STRCOPY(LAST_CFG_PATH, USBLOADER_PATH);
@@ -3613,6 +3646,9 @@ void CFG_Load(int argc, char **argv)
 	// set coverflow defaults
 	CFG_Default_Coverflow();
 	CFG_Default_Coverflow_Themes();
+
+	// remount NTFS if write was enabled
+	RemountNTFS();
 }
 
 

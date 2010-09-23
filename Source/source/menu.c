@@ -700,8 +700,7 @@ void Print_SYS_Info()
 {
 	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
 	FgColor(CFG.color_inactive);
-	printf_("");
-	Fat_print_sd_mode();
+	MountPrint();
 	printf_(gt("CFG base: %s"), USBLOADER_PATH);
 	printf("\n");
 	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) {
@@ -1970,9 +1969,6 @@ void print_part(int i, PartList *plist)
 		printf("#%d", i+1);
 	}
 	printf(" %7.2f", size);
-	//printf(" %-5s", part_type_name(entry->type));
-	//printf(" %02x", entry->type);
-	//printf(" %02x", entry->sector);
 	if (pinfo->wbfs_i) {
 		bool is_ext = part_is_extended(entry->type);
 		printf(" ");
@@ -1985,30 +1981,20 @@ void print_part(int i, PartList *plist)
 			if (!is_ext) printf("      ");
 			printf(gt("[USED]"));
 		}
-	} else if (pinfo->fat_i) {
-		printf(" FAT%d ", pinfo->fat_i);
-		if (wbfsDev == WBFS_DEVICE_USB && entry->sector == fat_usb_sec) {
-			printf(" usb: ");
-		} else if (wbfsDev == WBFS_DEVICE_SDHC && entry->sector == fat_sd_sec) {
-			printf(" sd:  ");
-		//} else if (wbfsDev == WBFS_DEVICE_USB && entry->sector == fat_wbfs_sec) {
-		} else if (entry->sector == fat_wbfs_sec) {
-			//printf(" wbfs:");
-			printf(" %s", wbfs_fs_drive);
+	} else if (pinfo->fat_i || pinfo->ntfs_i) {
+		if (pinfo->fat_i) {
+			printf(" FAT%d  ", pinfo->fat_i);
 		} else {
-			printf("      ");
+			printf(" NTFS%d ", pinfo->ntfs_i);
 		}
-		//if (wbfsDev == WBFS_DEVICE_USB && entry->sector == wbfs_part_lba) {
-		if (entry->sector == wbfs_part_lba) {
-			printf(gt("[USED]"));
+		MountPoint *m = mount_find_part(wbfsDev, entry->sector);
+		char mname[8] = "";
+		if (m) {
+			strcpy(mname, m->name);
+			strcat(mname, ":");
 		}
-	} else if (pinfo->ntfs_i) {
-		printf(" NTFS%d ", pinfo->ntfs_i);
-		if (entry->sector == fs_ntfs_sec) {
-			//printf(" ntfs:");
-			printf(" %s", wbfs_fs_drive);
-		}
-		if (entry->sector == wbfs_part_lba) {
+		printf(" %-5s", mname);
+		if (WBFS_Selected() && entry->sector == wbfs_part_lba) {
 			printf(" ");
 			printf(gt("[USED]"));
 		}
@@ -2039,21 +2025,14 @@ void Menu_Format_Partition(partitionEntry *entry, bool delete_fs)
 	printf_x(gt("%s, please wait..."), delete_fs?gt("Deleting"):gt("Formatting"));
 	__console_flush(0);
 
-	// remount if overwriting mounted fat
-	int re_usb = 0;
-	int re_sd = 0;
-	if (wbfsDev == WBFS_DEVICE_USB && entry->sector == fat_usb_sec) {
-		re_usb = fat_usb_mount;
-	}
-	if (wbfsDev == WBFS_DEVICE_SDHC && entry->sector == fat_sd_sec) {
-		re_sd = fat_sd_mount;
-	}
-	if (re_usb || re_sd) {
+	// unmount if overwriting mounted fs
+	MountPoint *mp;
+	mp = mount_find_part(wbfsDev, entry->sector);
+	if (mp) {
 		Music_Pause();
-		// unmount FAT
-		if (re_usb) Fat_UnmountUSB();
-		if (re_sd) Fat_UnmountSDHC();
+		UnmountFS(mp->name);
 	}
+
 	// WBFS_Close will unmount fat/wbfs too
 	WBFS_Close();
 	all_gameCnt = gameCnt = 0;
@@ -2080,10 +2059,7 @@ void Menu_Format_Partition(partitionEntry *entry, bool delete_fs)
 		printf("\n");
 	}
 
-	// try to remount FAT if was unmounted
-	if (re_usb || re_sd) {
-		if (re_usb) Fat_MountUSB();
-		if (re_sd) Fat_MountSDHC();
+	if (mp) {
 		Music_UnPause();
 	}
 
@@ -2099,6 +2075,7 @@ void Menu_Partition(bool must_select)
 
 	int i;
 	s32 ret = 0;
+	int is_raw = 0;
 
 rescan:
 
@@ -2110,6 +2087,7 @@ rescan:
 		sleep(4);
 		return;
 	}
+	if (plist.num == 1) is_raw = 1; else is_raw = 0;
 
 	struct Menu menu;
 	char active[MAX_PARTITIONS_EX];
@@ -2130,7 +2108,7 @@ loop:
 	printf_("P# Size(GB) Type Mount Used\n");
 	printf_("-----------------------------\n");
 	//       P#1  400.00 FAT1  usb:  
-	//       P#2  400.00 FAT2  wbfs: [USED]
+	//       P#2  400.00 FAT2  game: [USED]
 	//       P#3  400.00 WBFS1       
 	//       P#4  400.00 NTFS        
 
@@ -2151,18 +2129,27 @@ loop:
 	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
 	printf("\n");
 	if (!CFG.disable_format) {
-		printf_h(gt("Press %s button to format WBFS."), (button_names[NUM_BUTTON_PLUS]));
-		printf("\n");
-		printf_h(gt("Press %s button to delete FS."), (button_names[NUM_BUTTON_MINUS]));
+		if (is_raw) {
+			printf_("NOTE: RAW partition format\n"
+					"and delete not supported");
+		} else {
+			printf_h(gt("Press %s button to format WBFS."),
+					(button_names[NUM_BUTTON_PLUS]));
+			printf("\n");
+			printf_h(gt("Press %s button to delete FS."),
+					(button_names[NUM_BUTTON_MINUS]));
+		}
 		printf("\n");
 		if (invalid_ext >= 0) {
 			printf_("\n");
 			printf_(gt("NOTE: partition P#%d is type EXTEND but\n"
 					"contains a WBFS filesystem. This is an\n"
 					"invalid setup. Press %s to change the\n"
-					"partition type from EXTEND to data."), invalid_ext+1, (button_names[CFG.button_other.num]));
+					"partition type from EXTEND to data."),
+					invalid_ext+1, (button_names[CFG.button_other.num]));
 			printf("\n");
-			printf_h(gt("Press %s button to fix EXTEND/WBFS."), (button_names[CFG.button_other.num]));
+			printf_h(gt("Press %s button to fix EXTEND/WBFS."),
+					(button_names[CFG.button_other.num]));
 			printf("\n");
 		}
 	}
@@ -2219,7 +2206,7 @@ loop:
 
 	// +/- button
 	if ((buttons & WPAD_BUTTON_MINUS || buttons & WPAD_BUTTON_PLUS)
-			&& !CFG.disable_format)
+			&& !CFG.disable_format && !is_raw)
 	{
 		i = menu.current;
 		entry = &plist.pentry[i];
@@ -2228,7 +2215,7 @@ loop:
 			if (buttons & WPAD_BUTTON_MINUS) act = gt("delete");
 			printf("\n");
 			printf_x(gt("Are you sure you want to %s\n"
-					"this partition?"), act);
+						"this partition?"), act);
 			printf("\n\n");
 			printf_("");
 			print_part(i, &plist);
@@ -2273,8 +2260,7 @@ void Menu_Device(void)
 	static int first_time = 1;
 	int save_wbfsDev = wbfsDev;
 
-	printf_("");
-	Fat_print_sd_mode();
+	MountPrint();
 
 	if (CFG.device == CFG_DEV_USB) {
 		wbfsDev = WBFS_DEVICE_USB;
@@ -2352,10 +2338,11 @@ void Menu_Device(void)
 	mount_dev:
 	CFG.device = CFG_DEV_ASK; // next time ask
 
+	printf("\n");
 	printf_x(gt("Mounting device, please wait..."));
 	printf("\n");
 	printf_(gt("(%d seconds timeout)"), timeout);
-	printf("\n\n");
+	printf("\n");
 	fflush(stdout);
 
 	/* Initialize WBFS */
@@ -2378,7 +2365,7 @@ void Menu_Device(void)
 
 	// Mount usb fat partition if not already
 	// This is after device init, because of the timeout handling
-	Fat_MountUSB();
+	MountUSB();
 
 	all_gameCnt = gameCnt = 0;
 	/* Try to open device */
@@ -3130,7 +3117,7 @@ void Menu_Boot(bool disc)
 	if (CFG.game.alt_dol != 1) {
 		// unless we're loading alt.dol from sd
 		// unmount everything
-		Fat_UnmountAll();
+		UnmountAll(NULL);
 	}
 
 	if (!disc) {

@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <sys/statvfs.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "libwbfs/libwbfs.h"
 #include "sdhc.h"
@@ -22,7 +23,6 @@
 #include "subsystem.h"
 #include "splits.h"
 #include "fat.h"
-#include "partition.h"
 #include "cfg.h"
 #include "wpad.h"
 #include "wbfs_fat.h"
@@ -52,6 +52,11 @@ static int fat_hdr_count = 0;
 
 void __WBFS_Spinner(s32 x, s32 max);
 s32 __WBFS_ReadDVD(void *fp, u32 lba, u32 len, void *iobuf);
+
+int ntfs_add_iso(char *fname,
+		read_wiidisc_callback_t read_src_wii_disc,
+		void *callback_data,
+		progress_callback_t spinner);
 
 bool is_gameid(char *id)
 {
@@ -675,12 +680,23 @@ s32 WBFS_FAT_AddGame(void)
 	char path[MAX_FAT_PATH];
 	char fname[MAX_FAT_PATH];
 	wbfs_t *part = NULL;
+	extern wbfs_t *hdd;
+	wbfs_t *old_hdd = hdd;
 	s32 ret;
 
 	// read ID from DVD
 	Disc_ReadHeader(&header);
 	// path & fname
 	WBFS_FAT_get_dir(&header, path, fname);
+	if ((CFG.install_partitions == CFG_INSTALL_ISO)
+			&& (wbfs_part_fs == PART_FS_NTFS))
+	{
+		strcpy(strrchr(fname,'.'), ".iso");
+		hdd = NULL;
+		ret = ntfs_add_iso(fname, __WBFS_ReadDVD, NULL, __WBFS_Spinner);
+		hdd = old_hdd;
+		return ret;
+	}
 	// create wbfs 'partition' file
 	part = WBFS_FAT_CreatePart(header.id, fname);
 	if (!part) return -1;
@@ -695,12 +711,11 @@ s32 WBFS_FAT_AddGame(void)
 			part_sel = ALL_PARTITIONS;
 			break;
 		case CFG_INSTALL_1_1:
+		case CFG_INSTALL_ISO:
 			part_sel = ALL_PARTITIONS;
 			copy_1_1 = 1;
 			break;
 	}
-	extern wbfs_t *hdd;
-	wbfs_t *old_hdd = hdd;
 	hdd = part; // used by spinner
 	ret = wbfs_add_disc(part, __WBFS_ReadDVD, NULL, __WBFS_Spinner, part_sel, copy_1_1);
 	hdd = old_hdd;
@@ -708,6 +723,7 @@ s32 WBFS_FAT_AddGame(void)
 	WBFS_FAT_ClosePart(part);
 	if (ret) {
 		printf(gt("Error adding disc!"));
+		printf("\n");
 		printf(gt("Press any button..."));
 		printf("\n");
 		Wpad_WaitButtons();
@@ -753,3 +769,136 @@ s32 WBFS_FAT_DVD_Size(u64 *comp_size, u64 *real_size)
 
 	return 0;
 }
+
+int ntfs_add_iso(char *fname,
+		read_wiidisc_callback_t read_src_wii_disc,
+		void *callback_data,
+		progress_callback_t spinner)
+{
+	int fd;
+	int ret = 0;
+
+	printf(gt("Writing to %s"), fname);
+	printf("\n");
+	remove(fname);
+	fd = open(fname, O_CREAT | O_RDWR);
+	if (fd<0) {
+		printf_(gt("ERROR creating file"));
+		printf(" (%d)\n", errno);
+		sleep(5);
+		return -1;
+	}
+	dbg_printf("file created %s\n", fname);
+
+	int n_wii_sec_per_disc = 143432*2; // double layers discs..
+	int wii_sec_sz = 0x8000;
+	
+	int i;
+	u32 tot,cur;
+	wiidisc_t *d = 0;
+	u8 *used = 0;
+	u8* copy_buffer = 0;
+	int retval = -1;
+	int num_wii_sect_to_copy;
+	u32 last_used;
+
+#define ERROR(x) do {printf_("%s\n",x);goto error;}while(0)
+
+	used = wbfs_malloc(n_wii_sec_per_disc);
+	if(!used) {
+		ERROR("unable to alloc memory");
+	}
+	d = wd_open_disc(read_src_wii_disc,callback_data);
+	if(!d) {
+		ERROR("unable to open wii disc");
+	}
+	wd_build_disc_usage(d,ALL_PARTITIONS,used);
+	wd_close_disc(d);
+	d = 0;
+
+	copy_buffer = wbfs_ioalloc(wii_sec_sz);
+	if(!copy_buffer) {
+		ERROR("alloc memory");
+	}
+
+	tot=0;
+	cur=0;
+	// count total number of sectors to write
+	last_used = 0;
+	extern int block_used(u8 *used,u32 i,u32 wblk_sz);
+	for(i=0; i<n_wii_sec_per_disc; i++) {
+		if(block_used(used,i,1)) {
+			last_used = i;
+		}
+	}
+	// detect single or dual layer
+	if ( (last_used + 1) > (n_wii_sec_per_disc / 2) ) {
+		// dual layer
+		num_wii_sect_to_copy = n_wii_sec_per_disc;
+	} else {
+		// single layer
+		num_wii_sect_to_copy = n_wii_sec_per_disc / 2;
+	}
+	dbg_printf("last: %u n: %u\n", last_used, num_wii_sect_to_copy);
+
+	struct statvfs vfs;
+	ret = statvfs(wbfs_fs_drive, &vfs);
+	f32 free_space = (f32)vfs.f_frsize * (f32)vfs.f_bfree;
+	if ((f32)num_wii_sect_to_copy * (f32)wii_sec_sz >= free_space) {
+		ERROR("no space left on device");
+	}
+	dbg_printf("free: %.2f g: %.2f\n", free_space, (f32)num_wii_sect_to_copy * (f32)wii_sec_sz);
+	
+	tot = num_wii_sect_to_copy;
+	if(spinner) spinner(0,tot);
+	for(i=0; i<num_wii_sect_to_copy; i++){
+		u32 offset = (i*(wii_sec_sz>>2));
+		//dbg_printf("s: %d o: %u\n", i, offset);
+		ret = read_src_wii_disc(callback_data,offset,wii_sec_sz,copy_buffer);
+		if (ret) {
+			if (i > last_used && i > n_wii_sec_per_disc / 2) {
+				// end of dual layer data
+				spinner(tot,tot);
+				break;
+			}
+			printf("\rWARNING: read (%u) error (%d)\n", offset, ret);
+		}
+		//fix the partition table
+		// not required since we're making 1:1 copy
+		//if(offset == (0x40000>>2))
+		//	wd_fix_partition_table(d, sel, copy_buffer);
+		ret = write(fd, copy_buffer, wii_sec_sz);
+		if (ret != wii_sec_sz) {
+			printf("\rERROR: write (%u) error (%d %d)\n", offset, ret, errno);
+			goto error;
+		}
+		cur++;
+		if(spinner) spinner(cur, tot);
+	}
+	// success
+	retval = 0;
+error:
+	if(d)
+		wd_close_disc(d);
+	if(used)
+		wbfs_free(used);
+	if(copy_buffer)
+		wbfs_iofree(copy_buffer);
+	if (fd >= 0) {
+		close(fd);
+	}
+	if (retval) {
+		remove(fname);
+		printf("Removed '%s'\n", fname);
+		printf(gt("Error adding disc!"));
+		printf("\n");
+		printf(gt("Press any button..."));
+		printf("\n");
+		Wpad_WaitButtons();
+	}
+
+	return retval;
+}
+
+
+

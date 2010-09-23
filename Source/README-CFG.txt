@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v59
+Configurable SD/USB Loader v60
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -657,7 +657,7 @@ Config file:
 # device = [ask], usb, sdhc
 #   Specifies which device to use when starting the loader
 #
-# partition = [WBFS1], ...WBFS4, FAT1, ...FAT9, NTFS1, ...NTFS9, ask
+# partition = [auto], ask, WBFS1, ...WBFS4, FAT1, ...FAT9, NTFS1, ...NTFS9
 #   Specifies which partition to use when starting the loader
 #   Note: the -222 version defaults to FAT1 instead.
 #
@@ -684,8 +684,12 @@ Config file:
 # unlock_password = [BUDAH12]
 #   Set the password for admin unlock
 #
-# install_partitions = [only_game], all, 1:1
+# install_partitions = [only_game], all, 1:1, iso
 #   controls which partitions from DVD are installed to HDD
+#   - 1:1 disable scrubbing, except for the last 256kb which are stil scrubbed
+#     because of a wbfs limitation: the wbfs block size not aligned to wii disc size
+#   - iso: On NTFS it creates an exact dump to an iso file
+#     On WBFS/FAT it will behave same as 1:1
 #
 # fat_split_size = [4], 2
 #   Selects if the split is at 4gb-32kb or 2gb-32kb
@@ -971,6 +975,46 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+12-09-2010 cfg v60 (release)
+ * Fixed install on ntfs to .wbfs file type
+
+12-09-2010 cfg v60b6 (beta)
+ * Fixed and improved support for wbfs/fat/ntfs on RAW device
+
+11-09-2010 cfg v60b5 (beta)
+ * Fixed: partition = auto
+   partition = auto is now the default value
+   for both normal .dol and -222.dol
+
+10-09-2010 cfg v60b4 (beta)
+ * Fixed SSBB+ SD card
+ * New option value: partition = auto
+   Will select first valid from: WBFS1, FAT1, NTFS1
+   FAT or NTFS partition will only be valid if the /wbfs folder exists
+
+10-09-2010 cfg v60b3 (beta)
+ * Fixed install to ISO on NTFS
+
+09-09-2010 cfg v60b2 (beta)
+ * New option value: install_partitions = iso
+   On NTFS it creates an exact dump to an iso file
+   On WBFS/FAT it will behave same as 1:1
+
+08-09-2010 cfg v60b (beta)
+ * Changed FS mountpoint handling:
+   USB drive: 'usb:' is first FAT 'ntfs:' is first NTFS partition
+   SD/SDHC card: 'sd:' is first FAT or NTFS partition if FAT is not found
+   game: is a temporary mount for games on FAT or NTFS and will be any partition
+   that is selected but is not already mounted as one of the above
+   config.txt is now searched also on ntfs:/usb-loader/config.txt
+   in addition to sd: and usb:
+
+02-09-2010 cfg v60a (alpha)
+ * NTFS write support
+   new option: ntfs_write = [0], 1, norecover
+   norecover will prevent mounting an uncleanly unmounted fs.
+   (thanks for the updated libntfs go to Dimok and Miigotu)
 
 01-09-2010 cfg v59 (release)
  * version change

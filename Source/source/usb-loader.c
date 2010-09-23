@@ -85,8 +85,8 @@ int main(int argc, char **argv)
 	/* Initialize subsystems */
 	//Subsystem_Init();
 	// delay wpad_init after second reloadIOS
-	dbg_printf("Fat Mount SD\n");
-	Fat_MountSDHC();
+	dbg_printf("Mount SD\n");
+	MountSDHC();
 
 	//save_dip();
 

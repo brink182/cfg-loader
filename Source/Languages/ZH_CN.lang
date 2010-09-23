@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -392,14 +392,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "错误：打开分区(0x%llx) %d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "错误：SD卡加载NTFS分区！(%d)"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "错误：SD/FAT 加载WBFS！ (%d)"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "错误：选择片段列表(0): %d"
 
@@ -413,18 +405,6 @@ msgstr "错误：设置SD模式"
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "错误：USB初始化！(%d)"
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "错误：USB加载NTFS分区！(%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "错误：USB/FAT加载WBFS分区! (%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "错误：WBFS FAT加载扇区%x不是%x"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -452,6 +432,9 @@ msgstr "支持WBFS多分区错误：仅支持cIOS222/223-mload\n"
 
 msgid "ERROR: not enough free space!!"
 msgstr "错误：剩余容量不足！！"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr "错误：ntfs分区完全无法挂载。"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -566,9 +549,6 @@ msgstr "提取中："
 
 msgid "FAIL"
 msgstr "失败"
-
-msgid "FAT32 mount: "
-msgstr "FAT32加载点："
 
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
@@ -858,7 +838,7 @@ msgstr ""
 msgid "Network connection established."
 msgstr "网络连接已建立"
 
-msgid "Network error.  Can't update gamercards."
+msgid "Network error. Can't update gamercards."
 msgstr "网络错误。无法更新游戏卡。"
 
 msgid "New Themes"
@@ -1519,6 +1499,21 @@ msgstr "已使用：%p - %p"
 #~ msgid "Downloading All %sCovers"
 #~ msgstr "正在下载所有%s封面"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "错误：SD卡加载NTFS分区！(%d)"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "错误：SD/FAT 加载WBFS！ (%d)"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "错误：USB加载NTFS分区！(%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "错误：USB/FAT加载WBFS分区! (%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "错误：WBFS FAT加载扇区%x不是%x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1535,6 +1530,9 @@ msgstr "已使用：%p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "仅cIOS222 REV4支持FAT模式"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "FAT32加载点："
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT：退回使用旧方法"

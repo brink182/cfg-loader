@@ -15,10 +15,11 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	59
+VERSION		:=	60
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
-TARGET		:=	cfg$(VERSION)
+BINBASE		:=	cfg$(VERSION)
+TARGET		:=	$(BINBASE)
 BUILD		:=	build
 SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip source/jpeg
 DATA		:=	data
@@ -26,6 +27,7 @@ INCLUDES	:=
 GETTEXT		:=	tools/gettext
 UPLOAD		:=  tools/googlecode_upload.py
 GAUTH		?=  -u username -w passwd
+INSTDIR		:=  ../Cfg_USB_Loader_$(VERSION)
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -34,7 +36,7 @@ GAUTH		?=  -u username -w passwd
 BUILD_222	:=	0
 ifeq ($(BUILD_222),1)
 	BUILD	:=	build_222
-	TARGET		:=	cfg$(VERSION)-222
+	TARGET		:=	$(BINBASE)-222
 endif
 BUILD_FLAGS = -DBUILD_222=$(BUILD_222) -DVERSION=$(VERSION)
 #"-g" tells the compiler to include support for the debugger
@@ -63,7 +65,7 @@ LIBS	:=	-lfat -lntfs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -l
 # include and lib
 #---------------------------------------------------------------------------------
 #LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/freetype $(CURDIR)/lib/libfat
-LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs $(CURDIR)/lib/jpeg
+LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs_new $(CURDIR)/lib/jpeg
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -161,8 +163,8 @@ run:
 # cover_style = [standard], 3d, disc
 
 DATE=$(shell date +%F)
-SIZE=$(shell stat -c %s cfg$(VERSION).dol 2>/dev/null)
-SIZE_222=$(shell stat -c %s cfg$(VERSION)-222.dol 2>/dev/null)
+SIZE=$(shell stat -c %s $(BINBASE).dol 2>/dev/null)
+SIZE_222=$(shell stat -c %s $(BINBASE)-222.dol 2>/dev/null)
 
 define ANNOUNCE_SH
 CHANGES=`sed -n '/cfg v'$(VERSION)' /,/cfg v/{/cfg v/!p}' README-CFG.txt`
@@ -172,25 +174,24 @@ cat << END
 release = $(VERSION) ($(RELEASE))
 size = $(SIZE)
 date = $(DATE)
-url = http://cfg-loader.googlecode.com/files/cfg$(VERSION).dol
+url = http://cfg-loader.googlecode.com/files/$(BINBASE).dol
 $$CHANGES
 
 release = $(VERSION)-222 ($(RELEASE))
 size = $(SIZE_222)
 date = $(DATE)
-url = http://cfg-loader.googlecode.com/files/cfg$(VERSION)-222.dol
+url = http://cfg-loader.googlecode.com/files/$(BINBASE)-222.dol
 Same as $(VERSION) but with different
 default options:
   ios=222-mload
-  partition=FAT1
 
 END
 echo "===== forum ====="
 cat << END
 
 [b]cfg v$(VERSION) ($(RELEASE))[/b]
-[url="http://cfg-loader.googlecode.com/files/cfg$(VERSION).dol"]cfg$(VERSION).dol[/url]
-[url="http://cfg-loader.googlecode.com/files/cfg$(VERSION)-222.dol"]cfg$(VERSION)-222.dol[/url]
+[url="http://cfg-loader.googlecode.com/files/$(BINBASE).dol"]$(BINBASE).dol[/url]
+[url="http://cfg-loader.googlecode.com/files/$(BINBASE)-222.dol"]$(BINBASE)-222.dol[/url]
 [url="http://cfg-loader.googlecode.com/files/lang$(VERSION).zip"]lang$(VERSION).zip[/url]
 (or online update)
 [pre]Changes:
@@ -206,8 +207,8 @@ export ANNOUNCE_SH
 announce:
 	@echo "$$ANNOUNCE_SH" | sh
 
-DOLS := cfg$(VERSION)-222.dol cfg$(VERSION).dol
-ELFS := cfg$(VERSION)-222.elf cfg$(VERSION).elf
+DOLS := $(BINBASE)-222.dol $(BINBASE).dol
+ELFS := $(BINBASE)-222.elf $(BINBASE).elf
 BINS := $(ELFS) $(DOLS)
 
 upload:
@@ -219,6 +220,23 @@ upload_elf:
 upload_lang:
 	echo uploading Languages/lang$(VERSION).zip
 	$(UPLOAD) $(GAUTH) -p cfg-loader -s lang$(VERSION).zip Languages/lang$(VERSION).zip
+
+upload_full:
+	echo uploading ../Cfg_USB_Loader_$(VERSION).zip
+	$(UPLOAD) $(GAUTH) -p cfg-loader -s Cfg_USB_Loader_$(VERSION).zip ../Cfg_USB_Loader_$(VERSION).zip
+
+
+install:
+	cp $(BINBASE).dol $(INSTDIR)/inSDRoot/apps/USBLoader/boot.dol
+	rm $(INSTDIR)/*.dol
+	cp $(BINBASE)-222.dol $(INSTDIR)/
+	cp README-CFG.txt $(INSTDIR)/
+	sed -i 's/<version>.*</<version>'$(VERSION)' (release)</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
+	sed -i 's/<release_date>.*</<release_date>'`date +%Y%m%d000000`'</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
+	cp Languages/*.lang $(INSTDIR)/inSDRoot/usb-loader/Languages
+	-rm $(INSTDIR)/inSDRoot/usb-loader/Languages/*_miss.lang
+	cp Languages/lang.pot $(INSTDIR)/inSDRoot/usb-loader/Languages
+
 
 #---------------------------------------------------------------------------------
 else

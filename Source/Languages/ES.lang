@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 00:58+0200\n"
+"POT-Creation-Date: 2010-09-12 01:34+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -398,14 +398,6 @@ msgid "ERROR: OpenPartition(0x%llx) %d"
 msgstr "ERROR: OpenPartition(0x%llx) %d"
 
 #, c-format
-msgid "ERROR: SD mount NTFS! (%d)"
-msgstr "ERROR: SD montada en NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: SD/FAT mount wbfs! (%d)"
-msgstr "ERROR: SD/FAT montada en wbfs! (%d)"
-
-#, c-format
 msgid "ERROR: SetFragList(0): %d"
 msgstr "ERROR: SetFragList(0): %d"
 
@@ -419,18 +411,6 @@ msgstr "ERROR: Configurando modo SD"
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "ERROR: Inicializando USB! (%d)"
-
-#, c-format
-msgid "ERROR: USB mount NTFS! (%d)"
-msgstr "ERROR: USB montando NTFS! (%d)"
-
-#, c-format
-msgid "ERROR: USB/FAT mount wbfs! (%d)"
-msgstr "ERROR: USB/FAT montando wbfs! (%d)"
-
-#, c-format
-msgid "ERROR: WBFS FAT mount sector %x not %x"
-msgstr "ERROR: WBFS FAT montando sector %x no %x"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -461,6 +441,9 @@ msgstr ""
 
 msgid "ERROR: not enough free space!!"
 msgstr "ERROR: no hay suficiente espacio libre!!"
+
+msgid "ERROR: ntfs was not cleanly unmounted"
+msgstr "ERROR: ntfs no ha sido limpiamente desmontado"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -576,9 +559,6 @@ msgstr "Extrayendo: %s"
 msgid "FAIL"
 msgstr "FALLÓ"
 
-msgid "FAT32 mount: "
-msgstr "Montar FAT32: "
-
 #, c-format
 msgid "FAT: ALLOC ERROR %p %p %p"
 msgstr "FAT: ALLOC ERROR %p %p %p"
@@ -681,6 +661,9 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
+"Si Cfg no se inicia correctamente la\n"
+"próxima vez, copia boot.dol.bak\n"
+"sobre boot.dol e intenta de nuevo."
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -852,7 +835,7 @@ msgid ""
 "for the update to take effect."
 msgstr ""
 "NOTA: Se requiere reiniciar para que\n"
-"la actualización tome efecto."
+"la actualización tome efecto.\n"
 
 #, c-format
 msgid ""
@@ -869,7 +852,7 @@ msgstr ""
 msgid "Network connection established."
 msgstr "Conexión a la red establecida."
 
-msgid "Network error.  Can't update gamercards."
+msgid "Network error. Can't update gamercards."
 msgstr "Error de la Red. No se pueden actualizar las gamercards."
 
 msgid "New Themes"
@@ -1542,6 +1525,21 @@ msgstr "usado: %p - %p"
 #~ "ERROR: CIOS222 o CIOS223 se requieren para\n"
 #~ "iniciar juegos desde una partición FAT!"
 
+#~ msgid "ERROR: SD mount NTFS! (%d)"
+#~ msgstr "ERROR: SD montada en NTFS! (%d)"
+
+#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
+#~ msgstr "ERROR: SD/FAT montada en wbfs! (%d)"
+
+#~ msgid "ERROR: USB mount NTFS! (%d)"
+#~ msgstr "ERROR: USB montando NTFS! (%d)"
+
+#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
+#~ msgstr "ERROR: USB/FAT montando wbfs! (%d)"
+
+#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
+#~ msgstr "ERROR: WBFS FAT montando sector %x no %x"
+
 #~ msgid ""
 #~ "ERROR: ehcmodule2 no longer included!\n"
 #~ "external file ehcmodule.elf must be used!"
@@ -1558,6 +1556,9 @@ msgstr "usado: %p - %p"
 
 #~ msgid "FAT mode only supported with ios 222 rev4"
 #~ msgstr "Modo FAT solo es soportado con el ios 222 rev4"
+
+#~ msgid "FAT32 mount: "
+#~ msgstr "Montar FAT32: "
 
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: retroceso al método antiguo"

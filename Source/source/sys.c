@@ -588,8 +588,7 @@ extern s32 wbfsDev;
 int ReloadIOS(int subsys, int verbose)
 {
 	int ret = -1;
-	int sd_m = fat_sd_mount;
-	int usb_m = fat_usb_mount;
+	MountTable mnt;
 
 	if (verbose) {
 		printf_("IOS(%d) ", CFG.ios);
@@ -644,7 +643,7 @@ int ReloadIOS(int subsys, int verbose)
 	if (verbose) printf(".");
 
 	// Close storage
-	Fat_UnmountAll();
+	UnmountAll(&mnt);
 	USBStorage_Deinit();
 	SDHC_Close();
 
@@ -699,8 +698,7 @@ int ReloadIOS(int subsys, int verbose)
 	}
 
 	// re-Initialize Storage
-	if (sd_m) Fat_MountSDHC();
-	if (usb_m) Fat_MountUSB();
+	MountAll(&mnt);
 	if (verbose) printf(".");
 
 	// re-initialize subsystems

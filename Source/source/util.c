@@ -372,17 +372,17 @@ void hex_dump2(void *p, int size)
 {
 	int i = 0, j, x = 12;
 	char *c = p;
-	printf("\n");
+	dbg_printf("\n");
 	while (i<size) {
-		printf("%02x ", i);
-		for (j=0; j<x && i+j<size; j++) printf("%02x", (int)c[i+j]);
-		printf(" |");
+		dbg_printf("%02x ", i);
+		for (j=0; j<x && i+j<size; j++) dbg_printf("%02x", (int)c[i+j]);
+		dbg_printf(" |");
 		for (j=0; j<x && i+j<size; j++) {
 			unsigned cc = (unsigned char)c[i+j];
 			if (cc < 32 || cc > 128) cc = '.';
-			printf("%c", cc);
+			dbg_printf("%c", cc);
 		}
-		printf("|\n");
+		dbg_printf("|\n");
 		i += x;
 	}	
 }

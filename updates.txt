@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 61a (alpha)
+size = 1466944
+date = 2010-10-19
+url = http://cfg-loader.googlecode.com/files/cfg61a.dol
+Upgraded devkitppc 22 libogc 1.8.4
+Improved raw partition check
+cios 222 shadow mload fix
+debug stuff
+
+release = 61a-222 (alpha)
+size = 1466944
+date = 2010-10-19
+url = http://cfg-loader.googlecode.com/files/cfg61a-222.dol
+Same as 61a but with different
+default options:
+  ios=222-mload
+
 release = 60 (release)
 size = 1488512
 date = 2010-09-12
@@ -24,21 +41,6 @@ size = 1488512
 date = 2010-09-12
 url = http://cfg-loader.googlecode.com/files/cfg60-222.dol
 Same as 60 but with different
-default options:
-  ios=222-mload
-
-release = 60b6 (beta)
-size = 1488512
-date = 2010-09-12
-url = http://cfg-loader.googlecode.com/files/cfg60b6.dol
-Fixed and improved support for
-  wbfs/fat/ntfs on RAW device
-
-release = 60b6-222 (beta)
-size = 1488512
-date = 2010-09-12
-url = http://cfg-loader.googlecode.com/files/cfg60b6-222.dol
-Same as 60b6 but with different
 default options:
   ios=222-mload
 

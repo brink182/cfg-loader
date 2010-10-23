@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 61a2 (alpha)
+size = 1492928
+date = 2010-10-23
+url = http://cfg-loader.googlecode.com/files/cfg61a2.dol
+Reverted devkitppc from back to 17
+(libogc is still 1.8.4)
+seems to fix wiitdb crashs in v61a
+fixed: fat_install_dir = 3
+better compatibility with forwarders
+
+release = 61a2-222 (alpha)
+size = 1492928
+date = 2010-10-23
+url = http://cfg-loader.googlecode.com/files/cfg61a2-222.dol
+Same as 61a2 but with different
+default options:
+  ios=222-mload
+
 release = 60 (release)
 size = 1488512
 date = 2010-09-12

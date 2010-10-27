@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 61a3 (alpha)
+size = 1380608
+date = 2010-10-27
+url = http://cfg-loader.googlecode.com/files/cfg61a3.dol
+Upgraded devkitppc 17 to 22 (again)
+Fixed devkit 22 related crashes
+URL options accept numeric IP address
+
+release = 61a3-222 (alpha)
+size = 1380640
+date = 2010-10-27
+url = http://cfg-loader.googlecode.com/files/cfg61a3-222.dol
+Same as 61a3 but with different
+default options:
+  ios=222-mload
+
 release = 61a2 (alpha)
 size = 1492928
 date = 2010-10-23

@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 61b5 (beta)
+size = 1431712
+date = 2010-11-21
+url = http://cfg-loader.googlecode.com/files/cfg61b5.dol
+Fixed theme switching
+Increased max themes from 100 to 300
+Updated download covers count
+Removed boxart.rowdyruff.net urls
+
+release = 61b5-222 (beta)
+size = 1431712
+date = 2010-11-21
+url = http://cfg-loader.googlecode.com/files/cfg61b5-222.dol
+Same as 61b5 but with different
+default options:
+  ios=222-mload
+
 release = 61b4 (beta)
 size = 1431840
 date = 2010-11-21
@@ -52,39 +69,6 @@ debug enabled by default
 print more debug info
 home=screenshot: 1 sec hold timeout
 possible fix for corrupted console
-
-release = 61b2 (beta)
-size = 1395520
-date = 2010-10-31
-url = http://cfg-loader.googlecode.com/files/cfg61b2.dol
-Updated libogc to 1.8.5
-Fixed wiitdb synopsis for non-EN lang
-Print wiitdb download url when updat.
-Reenabled loading a config by args
-
-release = 61b2-222 (beta)
-size = 1395488
-date = 2010-10-31
-url = http://cfg-loader.googlecode.com/files/cfg61b2-222.dol
-Same as 61b2 but with different
-default options:
-  ios=222-mload
-
-release = 61b (beta)
-size = 1414272
-date = 2010-10-30
-url = http://cfg-loader.googlecode.com/files/cfg61b.dol
-Slightly faster startup time
-Selectable intro
-Improved NTFS related error messages
-
-release = 61b-222 (beta)
-size = 1414272
-date = 2010-10-30
-url = http://cfg-loader.googlecode.com/files/cfg61b-222.dol
-Same as 61b but with different
-default options:
-  ios=222-mload
 
 release = 60 (release)
 size = 1488512

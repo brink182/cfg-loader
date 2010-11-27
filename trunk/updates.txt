@@ -13,6 +13,29 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 61b7 (beta)
+size = 1397056
+date = 2010-11-27
+url = http://cfg-loader.googlecode.com/files/cfg61b7.dol
+Fixed RAW fs / part.table detection
+
+release = 61b7-222 (beta)
+size = 1397056
+date = 2010-11-27
+url = http://cfg-loader.googlecode.com/files/cfg61b7-222.dol
+Same as 61b7 but with different
+default options:
+  ios=222-mload
+
+release = 61b7-dbg (debug)
+size = 1397120
+date = 2010-11-27
+url = http://cfg-loader.googlecode.com/files/cfg61b7-dbg.dol
+Same as 61b7 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 61b6 (beta)
 size = 1397120
 date = 2010-11-25

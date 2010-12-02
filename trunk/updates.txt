@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 61b9 (beta)
+size = 1397216
+date = 2010-12-02
+url = http://cfg-loader.googlecode.com/files/cfg61b9.dol
+fixed startup with multiple wiimotes
+  (libogc svn-4463)
+fixed hourglass image in coverflow
+
+release = 61b9-222 (beta)
+size = 1397216
+date = 2010-12-02
+url = http://cfg-loader.googlecode.com/files/cfg61b9-222.dol
+Same as 61b9 but with different
+default options:
+  ios=222-mload
+
 release = 61b8 (beta)
 size = 1397056
 date = 2010-11-27
@@ -82,23 +98,6 @@ size = 1431712
 date = 2010-11-21
 url = http://cfg-loader.googlecode.com/files/cfg61b5-222.dol
 Same as 61b5 but with different
-default options:
-  ios=222-mload
-
-release = 61b4 (beta)
-size = 1431840
-date = 2010-11-21
-url = http://cfg-loader.googlecode.com/files/cfg61b4.dol
-Use libogc 1.8.3 to fix COD:BO
-Pointer control with any wiimote
-Improvemed raw-fs/p.table detection
-Updated mp3 player (triple buffering)
-
-release = 61b4-222 (beta)
-size = 1431840
-date = 2010-11-21
-url = http://cfg-loader.googlecode.com/files/cfg61b4-222.dol
-Same as 61b4 but with different
 default options:
   ios=222-mload
 

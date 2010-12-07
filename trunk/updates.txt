@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62a (alpha)
+size = 1386752
+date = 2010-12-07
+url = http://cfg-loader.googlecode.com/files/cfg62a.dol
+Updated libs: libfat jpeg png zlib
+New default intro=4 : stripes themed 
+
+release = 62a-222 (alpha)
+size = 1386752
+date = 2010-12-07
+url = http://cfg-loader.googlecode.com/files/cfg62a-222.dol
+Same as 62a but with different
+default options:
+  ios=222-mload
+
 release = 61 (release)
 size = 1397216
 date = 2010-12-04
@@ -42,46 +57,6 @@ Same as 61 but with different
 default options:
   debug=3
   home=screenshot
-
-release = 61b9 (beta)
-size = 1397216
-date = 2010-12-02
-url = http://cfg-loader.googlecode.com/files/cfg61b9.dol
-fixed startup with multiple wiimotes
-  (libogc svn-4463)
-fixed hourglass image in coverflow
-
-release = 61b9-222 (beta)
-size = 1397216
-date = 2010-12-02
-url = http://cfg-loader.googlecode.com/files/cfg61b9-222.dol
-Same as 61b9 but with different
-default options:
-  ios=222-mload
-
-release = 61b9-dev17 (beta)
-size = 1473824
-date = 2010-12-03
-url = http://cfg-loader.googlecode.com/files/cfg61b9-dev17.dol
-Same as 61b9 but built with
-  devkit 17 and libogc 1.7.1
-  
-release = 61b8 (beta)
-size = 1397056
-date = 2010-11-27
-url = http://cfg-loader.googlecode.com/files/cfg61b8.dol
-Allow disable splitting of installed
-  games on NTFS with fat_split_size=0
-If home=screenshot, don't disable it
-after screenshot is made in main menu
-
-release = 61b8-222 (beta)
-size = 1397056
-date = 2010-11-27
-url = http://cfg-loader.googlecode.com/files/cfg61b8-222.dol
-Same as 61b8 but with different
-default options:
-  ios=222-mload
 
 release = 60 (release)
 size = 1488512

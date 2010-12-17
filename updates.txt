@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62a2 (alpha)
+size = 1449856
+date = 2010-12-17
+url = http://cfg-loader.googlecode.com/files/cfg62a2.dol
+ext2fs support (Thanks to Dimok!)
+new theme options:
+  coverflow_reflection
+  gui_cover_area = x, y, w, h
+Updated libntfs grrlib intro=4
+
+release = 62a2-222 (alpha)
+size = 1449888
+date = 2010-12-17
+url = http://cfg-loader.googlecode.com/files/cfg62a2-222.dol
+Same as 62a2 but with different
+default options:
+  ios=222-mload
+
 release = 62a (alpha)
 size = 1386752
 date = 2010-12-07

@@ -18,7 +18,7 @@ size = 1449984
 date = 2010-12-18
 url = http://cfg-loader.googlecode.com/files/cfg62a3.dol
 fixed partition selection
-  and crash from 62b2
+  and crash from 62a2
 
 release = 62a3-222 (alpha)
 size = 1449984

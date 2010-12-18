@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62a3 (alpha)
+size = 1449984
+date = 2010-12-18
+url = http://cfg-loader.googlecode.com/files/cfg62a3.dol
+fixed partition selection
+  and crash from 62b2
+
+release = 62a3-222 (alpha)
+size = 1449984
+date = 2010-12-18
+url = http://cfg-loader.googlecode.com/files/cfg62a3-222.dol
+Same as 62a3 but with different
+default options:
+  ios=222-mload
+
 release = 62a2 (alpha)
 size = 1449856
 date = 2010-12-17

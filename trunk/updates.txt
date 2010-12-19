@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62b (beta)
+size = 1450976
+date = 2010-12-19
+url = http://cfg-loader.googlecode.com/files/cfg62b.dol
+fixed partition=auto for wbfs
+new themable options:
+  gui_clock_pos gui_pager_pos
+more translatable text
+
+release = 62b-222 (beta)
+size = 1450976
+date = 2010-12-19
+url = http://cfg-loader.googlecode.com/files/cfg62b-222.dol
+Same as 62b but with different
+default options:
+  ios=222-mload
+
 release = 62a5 (alpha)
 size = 1450400
 date = 2010-12-18

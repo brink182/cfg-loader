@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62b2 (beta)
+size = 1450912
+date = 2010-12-19
+url = http://cfg-loader.googlecode.com/files/cfg62b2.dol
+Minor gui theming fixes
+Added option: gui_title_area
+Renamed option gui_pager_pos
+  to gui_page_pos
+
+release = 62b2-222 (beta)
+size = 1450912
+date = 2010-12-19
+url = http://cfg-loader.googlecode.com/files/cfg62b2-222.dol
+Same as 62b2 but with different
+default options:
+  ios=222-mload
+
 release = 62b (beta)
 size = 1450976
 date = 2010-12-19
@@ -59,54 +76,6 @@ size = 1450080
 date = 2010-12-18
 url = http://cfg-loader.googlecode.com/files/cfg62a4-222.dol
 Same as 62a4 but with different
-default options:
-  ios=222-mload
-
-release = 62a3 (alpha)
-size = 1449984
-date = 2010-12-18
-url = http://cfg-loader.googlecode.com/files/cfg62a3.dol
-fixed partition selection
-  and crash from 62a2
-
-release = 62a3-222 (alpha)
-size = 1449984
-date = 2010-12-18
-url = http://cfg-loader.googlecode.com/files/cfg62a3-222.dol
-Same as 62a3 but with different
-default options:
-  ios=222-mload
-
-release = 62a2 (alpha)
-size = 1449856
-date = 2010-12-17
-url = http://cfg-loader.googlecode.com/files/cfg62a2.dol
-ext2fs support (Thanks to Dimok!)
-new theme options:
-  coverflow_reflection
-  gui_cover_area = x, y, w, h
-Updated libntfs grrlib intro=4
-
-release = 62a2-222 (alpha)
-size = 1449888
-date = 2010-12-17
-url = http://cfg-loader.googlecode.com/files/cfg62a2-222.dol
-Same as 62a2 but with different
-default options:
-  ios=222-mload
-
-release = 62a (alpha)
-size = 1386752
-date = 2010-12-07
-url = http://cfg-loader.googlecode.com/files/cfg62a.dol
-Updated libs: libfat jpeg png zlib
-New default intro=4 : stripes themed 
-
-release = 62a-222 (alpha)
-size = 1386752
-date = 2010-12-07
-url = http://cfg-loader.googlecode.com/files/cfg62a-222.dol
-Same as 62a but with different
 default options:
   ios=222-mload
 

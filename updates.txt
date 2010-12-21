@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62b3 (beta)
+size = 1450912
+date = 2010-12-21
+url = http://cfg-loader.googlecode.com/files/cfg62b3.dol
+More translatable strings
+Fixed: display of 3d cover when
+  selecting a game in coverflow mode
+  when 2d and full cover are missing
+Minor cleanups
+
+release = 62b3-222 (beta)
+size = 1450912
+date = 2010-12-21
+url = http://cfg-loader.googlecode.com/files/cfg62b3-222.dol
+Same as 62b3 but with different
+default options:
+  ios=222-mload
+
 release = 62b2 (beta)
 size = 1450912
 date = 2010-12-19
@@ -44,38 +62,6 @@ size = 1450976
 date = 2010-12-19
 url = http://cfg-loader.googlecode.com/files/cfg62b-222.dol
 Same as 62b but with different
-default options:
-  ios=222-mload
-
-release = 62a5 (alpha)
-size = 1450400
-date = 2010-12-18
-url = http://cfg-loader.googlecode.com/files/cfg62a5.dol
-Fixed partition = auto
-Better formatting of wiitdb info
-
-release = 62a5-222 (alpha)
-size = 1450400
-date = 2010-12-18
-url = http://cfg-loader.googlecode.com/files/cfg62a5-222.dol
-Same as 62a5 but with different
-default options:
-  ios=222-mload
-
-release = 62a4 (alpha)
-size = 1450080
-date = 2010-12-18
-url = http://cfg-loader.googlecode.com/files/cfg62a4.dol
-fixed ext2fs support
-fixed error message about multiple
-  wbfs partitions when using a second
-  fat or ntfs or ext2fs part.
-
-release = 62a4-222 (alpha)
-size = 1450080
-date = 2010-12-18
-url = http://cfg-loader.googlecode.com/files/cfg62a4-222.dol
-Same as 62a4 but with different
 default options:
   ios=222-mload
 

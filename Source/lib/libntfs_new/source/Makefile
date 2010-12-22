@@ -30,7 +30,8 @@ LIBDIR		:=	../lib
 #---------------------------------------------------------------------------------
 
 ifeq ($(PLATFORM),wii)
-CFLAGS		=	-ffast-math -O3 -pipe -mrvl -mcpu=750 -meabi -mhard-float -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+#CFLAGS		=	-ffast-math -O3 -pipe -mrvl -mcpu=750 -meabi -mhard-float -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+CFLAGS		=	-ffast-math -Os -pipe -mrvl -mcpu=750 -meabi -mhard-float -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 CXXFLAGS	=	$(CFLAGS)
 #ASFLAGS		:=	-g
 endif
@@ -100,7 +101,8 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr wii_debug wii_release cube_debug cube_release $(LIBDIR)
+	@rm -fr wii_debug wii_release cube_debug cube_release
+#	@rm -fr wii_debug wii_release cube_debug cube_release $(LIBDIR)
 
 all: $(NTFSBIN)
 

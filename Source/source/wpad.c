@@ -12,6 +12,7 @@
 #include "wpad.h"
 #include "subsystem.h"
 #include "cfg.h"
+#include "menu.h"
 
 /* Constants */
 #define MAX_WIIMOTES	4
@@ -57,15 +58,24 @@ s8 Wpad_Stick(int n, bool y) {
     return (s8)(tmp * 128.0f);
 }
 
-void Wpad_getIR(int n, struct ir_t *ir) {
-
-    WPAD_ScanPads();
-    PAD_ScanPads();
+void Wpad_getIRx(int n, struct ir_t *ir)
+{
+	int i;
+	WPAD_ScanPads();
+	PAD_ScanPads();
 	// handle shutdown
 	if (shutdown)
 		Do_Shutdown();
 
-    WPAD_IR(n, ir);
+	if (n == WPAD_CHAN_ALL) {
+		n = WPAD_CHAN_0;
+		for (i=0; i < WPAD_MAX_IR_DOTS; i++) {
+			WPAD_IR(WPAD_CHAN_0 + i, ir);
+			if (ir->smooth_valid) break;
+		}
+	} else {
+		WPAD_IR(n, ir);
+	}
 	ir->sx -= 160;
 	ir->sy -= 220;
     if (ir->smooth_valid == 0) {
@@ -97,6 +107,11 @@ void Wpad_getIR(int n, struct ir_t *ir) {
 		padMoved = false;
 	}
 	return;
+}
+
+void Wpad_getIR(struct ir_t *ir)
+{
+	Wpad_getIRx(WPAD_CHAN_ALL, ir);
 }
 
 u32 readPad(int n, bool held) {
@@ -333,6 +348,8 @@ void __Wpad_PowerCallback(s32 chan)
 
 s32 Wpad_Init(void)
 {
+	get_time(&TIME.wpad1);
+
 	/* Initialize Wiimote subsystem */
 	s32 ret = WPAD_Init();
 	PAD_Init();
@@ -344,7 +361,10 @@ s32 Wpad_Init(void)
 	/* Set POWER button callback */
 	WPAD_SetPowerButtonCallback(__Wpad_PowerCallback);
 
-	WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
+	//WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
+	WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+
+	get_time(&TIME.wpad2);
 
 	return ret;
 }
@@ -359,6 +379,20 @@ void Wpad_Disconnect(void)
 
 	/* Shutdown Wiimote subsystem */
 	WPAD_Shutdown();
+}
+
+u32 Wpad_HeldButtons(void)
+{
+	int i;
+	u32 buttons = 0;
+    WPAD_ScanPads();
+    PAD_ScanPads();
+	// handle shutdown
+	if (shutdown) Do_Shutdown();
+    for(i=0; i < MAX_WIIMOTES; i++) {
+		buttons |= readPad(i, 1);
+	}
+	return buttons;
 }
 
 u32 Wpad_GetButtons(void) {
@@ -395,13 +429,14 @@ u32 Wpad_WaitButtonsCommon(void)
 	u32 buttons = 0;
 
 	/* Wait for button pressing */
-	buttons = Wpad_WaitButtons();
-	extern void Handle_Home(int disable_screenshot);
-	if (buttons & CFG.button_exit.mask) {
-		Handle_Home(0);
+	while (1) {
 		buttons = Wpad_WaitButtons();
+		if (buttons & CFG.button_exit.mask) {
+			Handle_Home();
+		} else {
+			break;
+		}
 	}
-
 	return buttons;
 }
 

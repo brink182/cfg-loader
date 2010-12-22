@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ogcsys.h>
 #include <ogc/lwp_watchdog.h>
+#include <ogc/libversion.h>
 
 #include "apploader.h"
 #include "disc.h"
@@ -26,6 +27,12 @@
 
 #include "wpad.h"
 #define ALIGNED(x) __attribute__((aligned(x)))
+
+/* Extern */
+
+#if (_V_MAJOR_*10+_V_MINOR_) <= 17
+extern void settime(long long);
+#endif
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000
@@ -194,9 +201,6 @@ void __Disc_SetVMode(void)
 
 void __Disc_SetTime(void)
 {
-	/* Extern */
-	extern void settime(long long);
-
 	/* Set proper time */
 	settime(secs_to_ticks(time(NULL) - 946684800));
 }
@@ -449,6 +453,9 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	// OCARINA STUFF - FISHEARS
 	if (CFG.game.clean != CFG_CLEAN_ALL)
 		ocarina_do_code();
+
+	get_time(&TIME.run2);
+	time_stats2();
 
 	/* Close subsystems */
 	__console_flush(0);

@@ -37,11 +37,11 @@ void _FAT_mem_init();
 #define FAT_SECTORS_SD 32
 
 /* Disc interfaces */
-extern const DISC_INTERFACE __io_sdhc;
-extern const DISC_INTERFACE __io_usbstorage;
+extern const DISC_INTERFACE my_io_sdhc;
+extern const DISC_INTERFACE my_io_usbstorage;
 // read-only
-extern const DISC_INTERFACE __io_sdhc_ro;
-extern const DISC_INTERFACE __io_usbstorage_ro;
+extern const DISC_INTERFACE my_io_sdhc_ro;
+extern const DISC_INTERFACE my_io_usbstorage_ro;
 
 extern sec_t _FAT_startSector;
 
@@ -299,6 +299,9 @@ int mount_del(char *name)
 int IO_InitSDHC(int verbose)
 {
 	int ret;
+	int retval = 0;
+	if (sdhc_inited) return retval;
+	get_time(&TIME.sd_init1);
 	//sdhc_mode_sd = 0;
 	if ( is_ios_type(IOS_TYPE_WANIN) && (IOS_GetRevision() == 18) ) {
 		// sdhc device is broken on ios 249 rev 18
@@ -306,8 +309,8 @@ int IO_InitSDHC(int verbose)
 	}
 	// Initialize SD/SDHC interface
 	retry:
-	dbg_printf("SD startup\n");
-	ret = __io_sdhc.startup();
+	//dbg_printf("SD startup\n");
+	ret = my_io_sdhc.startup();
 	if (!ret) {
 		if (!sdhc_mode_sd) {
 			dbg_printf("ERROR: SDHC init! (%d, %d)\n", ret, errno);
@@ -317,9 +320,10 @@ int IO_InitSDHC(int verbose)
 		if (verbose) {
 			printf_x("ERROR: SDHC init! (%d, %d)\n", ret, errno);
 		}
-		return -5;
+		retval = -5;
 	}
-	return 0;
+	get_time(&TIME.sd_init2);
+	return retval;
 }
 
 int IO_CloseSDHC()
@@ -329,7 +333,7 @@ int IO_CloseSDHC()
 	if (sdhc_mode_sd == 0) {
 		// don't shutdown sdhc if we're booting from it
 		if (wbfsDev != WBFS_DEVICE_SDHC) {
-			//ret = __io_sdhc.shutdown(); // this is NOP
+			//ret = my_io_sdhc.shutdown(); // this is NOP
 			ret = SDHC_Close();
 		}
 	} else {
@@ -344,7 +348,7 @@ int IO_InitUSB(int verbose)
 	int ret;
 	// Initialize USB interface
 	dbg_printf("USB startup\n");
-	ret = __io_usbstorage.startup();
+	ret = my_io_usbstorage.startup();
 	if (!ret) {
 		if (verbose) {
 			printf_x(gt("ERROR: USB init! (%d)"), ret);
@@ -395,7 +399,7 @@ int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
 
 		ret = IO_InitUSB(verbose);
 		if (ret) return ret;
-		io = &__io_usbstorage;
+		io = &my_io_usbstorage;
 
 	} else if (device == WBFS_DEVICE_SDHC) {
 
@@ -404,7 +408,7 @@ int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
 		if (sdhc_mode_sd == 1) {
 			page_size = FAT_SECTORS_SD;
 		}
-		io = &__io_sdhc;
+		io = &my_io_sdhc;
 
 	} else {
 		printf("ERROR: Invalid device %d\n", device);
@@ -445,9 +449,9 @@ int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
 			case 0:
 				flags = NTFS_DEFAULT | NTFS_READ_ONLY;
 				if (device == WBFS_DEVICE_USB) {
-					io = &__io_usbstorage_ro;
+					io = &my_io_usbstorage_ro;
 				} else if (device == WBFS_DEVICE_SDHC) {
-					io = &__io_sdhc_ro;
+					io = &my_io_sdhc_ro;
 				}
 				break;
 			case 1: flags = NTFS_DEFAULT | NTFS_RECOVER; break;
@@ -562,6 +566,7 @@ int UnmountAll(MountTable *save_mtab)
 int MountSDHC()
 {
 	int ret;
+	int retval = 0; // OK
 	sec_t sector;
 
 	// already mounted?
@@ -571,13 +576,14 @@ int MountSDHC()
 	ret = IO_InitSDHC(0);
 	if (ret) return ret;
 
+	get_time(&TIME.sd_mount1);
 	// find first FAT partition
 	sector = -1;
 	ret = Partition_FindFS(WBFS_DEVICE_SDHC, PART_FS_FAT, 1, &sector);
 	if (ret == 0) {
 		// fat found.
 		ret = MountFS(SDHC_MOUNT, WBFS_DEVICE_SDHC, sector, PART_FS_FAT, 0);
-		if (ret == 0) return 0; // OK
+		if (ret == 0) goto out;
 	}
 	// find first NTFS partition
 	sector = -1;
@@ -585,10 +591,12 @@ int MountSDHC()
 	if (ret == 0) {
 		// fat found.
 		ret = MountFS(SDHC_MOUNT, WBFS_DEVICE_SDHC, sector, PART_FS_NTFS, 0);
-		if (ret == 0) return 0; // OK
+		if (ret == 0) goto out;
 	}
-
-	return -1;
+	retval = -1; // ERR
+out:
+	get_time(&TIME.sd_mount2);
+	return retval;
 }
 
 // mount first FAT to usb: -AND- first NTFS on ntfs:
@@ -601,6 +609,7 @@ int MountUSB()
 	ret = IO_InitUSB(0);
 	if (ret) return ret;
 
+	get_time(&TIME.usb_mount1);
 	// find first FAT partition
 	sector = -1;
 	if (mount_find(USB_MOUNT)) {
@@ -629,6 +638,7 @@ int MountUSB()
 		}
 	}
 
+	get_time(&TIME.usb_mount2);
 	return retval;
 }
 

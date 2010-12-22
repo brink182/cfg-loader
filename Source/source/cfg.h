@@ -22,7 +22,7 @@ extern int CURR_IOS_IDX;
 
 #include "version.h"
 
-#define MAX_THEME 100
+#define MAX_THEME 300
 extern char theme_list[MAX_THEME][31];
 
 extern int ENTRIES_PER_PAGE;
@@ -72,12 +72,12 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_CLEAN_ON  1
 #define CFG_CLEAN_ALL 2
 
-#define CFG_HOME_PRIILOADER 0x4461636F
-#define CFG_HOME_WII_MENU   0x50756E65
 #define CFG_HOME_REBOOT     0
 #define CFG_HOME_EXIT       1
 #define CFG_HOME_HBC        2
 #define CFG_HOME_SCRSHOT    3
+#define CFG_HOME_PRIILOADER 0x4461636F
+#define CFG_HOME_WII_MENU   0x50756E65
 
 //char languages[11][22] =
 #define CFG_LANG_CONSOLE   0
@@ -252,6 +252,7 @@ struct CFG
     int home;
 	int debug;
 	int debug_gecko;
+	int time_launch;
 	int device;
 	char partition[16];
 	int hide_header;
@@ -269,6 +270,7 @@ struct CFG
 	// end simple
 	int install_partitions;
 	int fat_install_dir;
+	int fat_split_size;
 	int ntfs_write;
 	// text colors
 	int color_header;

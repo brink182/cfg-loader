@@ -12,15 +12,15 @@ struct gameXMLinfo
 	char region[7];
 	char title[100];
 	char synopsis[500];
-	char developer[75];
-	char publisher[75];
+	char developer[40];
+	char publisher[40];
 	int year;
 	int month;
 	int day;
 	char genre[75];
 	char ratingtype[5];
 	char ratingvalue[5];
-	char ratingdescriptors[16][40];
+	//char ratingdescriptors[16][40];
 	int wifiplayers;
 	char wififeatures[8][15];
 	int players;

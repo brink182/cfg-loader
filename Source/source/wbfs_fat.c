@@ -62,8 +62,8 @@ bool is_gameid(char *id)
 {
 	int i;
 	for (i=0; i<6; i++) {
-		if (!isalnum(id[i])) return false;
-		if (isalpha(id[i]) && islower(id[i])) return false;
+		if (!ISALNUM(id[i])) return false;
+		if (ISALPHA(id[i]) && ISLOWER(id[i])) return false;
 	}
 	return true;
 }
@@ -483,7 +483,7 @@ void title_filename(char *title)
     }
     // replace silly chars with '_'
     for (i=0; i<len; i++) {
-        if(strchr(invalid_path, title[i]) || iscntrl(title[i])) {
+        if(strchr(invalid_path, title[i]) || ISCNTRL(title[i])) {
             title[i] = '_';
         }
     }
@@ -537,6 +537,7 @@ void WBFS_FAT_get_dir(struct discHdr *header, char *path, char *fname)
 	// file name:
 	if (CFG.fat_install_dir == 3) {
 		// name usb:/wbfs/TITLE [ID].wbfs
+		strcat(path, "/");
 		strcpy(fname, path);
 		mk_gameid_title(header, fname + strlen(fname), 0, 1);
 		strcat(fname, ".wbfs");
@@ -590,11 +591,31 @@ wbfs_t* WBFS_FAT_CreatePart(u8 *id, char *fname)
 	u64 size = (u64)143432*2*0x8000ULL;
 	u32 n_sector = size / 512;
 	int ret;
+	u64 split_size;
 
+	switch (CFG.fat_split_size) {
+		case 2:
+			// 2GB - 32k
+			split_size = (u64)2LL * 1024 * 1024 * 1024 - 32 * 1024;
+			break;
+		case 0:
+			if (wbfs_part_fs == PART_FS_NTFS) {
+				// 10 GB
+				split_size = (u64)10LL * 1024 * 1024 * 1024;
+				break;
+			}
+			// else follow through to 4gb (if fat)
+		case 4:
+		default:
+			// 4GB - 32k
+			split_size = (u64)4LL * 1024 * 1024 * 1024 - 32 * 1024;
+			break;
+	}
+	
 	//dbg_printf("CREATE PART %s %lld %d\n", id, size, n_sector);
 	printf(gt("Writing to %s"), fname);
 	printf("\n");
-	ret = split_create(&split, fname, OPT_split_size, size, true);
+	ret = split_create(&split, fname, split_size, size, true);
 	if (ret) return NULL;
 
 	// force create first file

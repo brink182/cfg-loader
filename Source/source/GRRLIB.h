@@ -19,7 +19,12 @@ Download and Help Forum : http://grrlib.santo.fr
 
 #include <gccore.h>
 #include <ogc/conf.h>
+#include <ogc/libversion.h>
 #include "util.h"
+
+#if (_V_MAJOR_*10+_V_MINOR_) > 17
+#define Vector guVector
+#endif
 
 #ifdef __cplusplus
    extern "C" {

@@ -660,7 +660,7 @@ void Make_ScreenShot()
 	sleep(1);
 }
 
-void Handle_Home(int disable_screenshot)
+void Handle_Home()
 {
 	if (CFG.home == CFG_HOME_EXIT) {
 		Con_Clear();
@@ -669,10 +669,19 @@ void Handle_Home(int disable_screenshot)
 		__console_flush(0);
 		Sys_Exit();
 	} else if (CFG.home == CFG_HOME_SCRSHOT) {
-		__console_flush(0);
-		Make_ScreenShot();
-		if (disable_screenshot)	CFG.home = CFG_HOME_EXIT;
+		long long t1 = gettime();
+		while (Wpad_HeldButtons() & CFG.button_exit.mask) {
+			if (diff_msec(t1, gettime()) >= 1000) {
+				__console_flush(0);
+				Make_ScreenShot();
+				return;
+			}
+			VIDEO_WaitVSync();
+		}
+		// loop ended before timeout - run hbc
+		goto do_hbc;
 	} else if (CFG.home == CFG_HOME_HBC) {
+		do_hbc:
 		Con_Clear();
 		printf("\n");
 		printf_("HBC...");
@@ -929,7 +938,7 @@ int Menu_Views()
 
 		// HOME button
 		if (buttons & CFG.button_exit.mask) {
-			Handle_Home(0);
+			Handle_Home();
 		}
 		if (buttons & CFG.button_cancel.mask) break;
 	}
@@ -1049,7 +1058,7 @@ void Menu_Alt_Dol(struct discHdr *header, struct Game_CFG *game_cfg, int allow_b
 
 		menu_move_active(&menu, buttons);
 
-		if (buttons & CFG.button_exit.mask) Handle_Home(0);
+		if (buttons & CFG.button_exit.mask) Handle_Home();
 		if ((buttons & CFG.button_cancel.mask) && allow_back) return;
 		if (buttons & CFG.button_confirm.mask) change = 1;
 //		if (buttons & WPAD_BUTTON_LEFT) change = 1;
@@ -1402,7 +1411,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		}
 		// HOME button
 		if (buttons & CFG.button_exit.mask) {
-			Handle_Home(0);
+			Handle_Home();
 		}
 		if (buttons & CFG.button_other.mask) { ret_val = 1; break; }
 		if (buttons & CFG.button_cancel.mask) break;
@@ -1600,7 +1609,7 @@ int Menu_Global_Options()
 
 		// HOME button
 		if (buttons & CFG.button_exit.mask) {
-			Handle_Home(0);
+			Handle_Home();
 		}
 		if (buttons & CFG.button_save.mask) {
 			int ret;
@@ -1625,6 +1634,7 @@ int Menu_Global_Options()
 		if (buttons & WPAD_BUTTON_PLUS) {
 			printf("\n");
 			mem_stat();
+			time_stats();
 			Menu_PrintWait();
 		}
 		if (buttons & CFG.button_other.mask) return 1;
@@ -1680,7 +1690,6 @@ void DoAction(int action)
 		case CFG_BTN_SCREENSHOT:
 			__console_flush(0);
 			Make_ScreenShot();
-			CFG.home = CFG_HOME_EXIT;
 			break;
 		case CFG_BTN_INSTALL:
 			Menu_Install();
@@ -1857,7 +1866,7 @@ void __Menu_Controls(void)
 	///* HOME button */
 	//if (buttons & CFG.button_exit.mask) {
 	//	DoAction(CFG.button_H);
-	//	//Handle_Home(1);
+	//	//Handle_Home();
 	//}
 
 	///* PLUS (+) button */
@@ -2419,7 +2428,9 @@ void Menu_Device(void)
 	}
 
 	/* Get game list */
+	get_time(&TIME.gamelist1);
 	__Menu_GetEntries();
+	get_time(&TIME.gamelist2);
 
 	if (CFG.debug && first_time) {
 		Menu_PrintWait();
@@ -2461,6 +2472,12 @@ void Menu_DumpBCA(u8 *id)
 	fclose(f);
 	out:
 	Menu_PrintWait();
+}
+
+void print_ntfs_write_error()
+{
+	printf_x(gt("ERROR: NTFS write disabled!\n(set ntfs_write=1)"));
+	printf("\n");
 }
 
 void Menu_Install(void)
@@ -2585,6 +2602,13 @@ void Menu_Install(void)
 		//goto out;
 		way_out = 1;
 	}
+	// check ntfs write
+	if (wbfs_part_fs == PART_FS_NTFS && CFG.ntfs_write == 0) {
+		print_ntfs_write_error();
+		printf("\n");
+		//goto out;
+		way_out = 1;
+	}
 
 	// get confirmation
 	retry:
@@ -2602,17 +2626,12 @@ void Menu_Install(void)
 		if (!way_out)
 			if (buttons & CFG.button_confirm.mask) break;
 		if (buttons & CFG.button_cancel.mask) {
-			WDVD_StopMotor();
-			header = gameList[gameSelected];
-			Gui_DrawCover(header.id);
-			return;
+			goto out2;
 		}
 		if (buttons & CFG.button_other.mask) {
 			Menu_DumpBCA(header.id);
 			if (way_out) {
-				header = gameList[gameSelected];
-				Gui_DrawCover(header.id);
-				return;
+				goto out2;
 			}
 			Con_Clear();
 			printf_x(gt("Install game"));
@@ -2679,6 +2698,8 @@ out:
 		coversdone = true;
 		goto out;
 	}
+out2:
+	WDVD_StopMotor();
 	header = gameList[gameSelected];
 	Gui_DrawCover(header.id);
 }
@@ -3001,7 +3022,7 @@ void Menu_Boot(bool disc)
 
 	if (buttons & CFG.button_cancel.mask) goto close;
 	if (buttons & CFG.button_exit.mask) {
-		Handle_Home(0);
+		Handle_Home();
 		return;
 	}
 	if (!gc && (buttons & CFG.button_other.mask)) {
@@ -3012,6 +3033,8 @@ void Menu_Boot(bool disc)
 	// A button: continue to boot
 
 	skip_confirm:
+
+	get_time(&TIME.run1);
 
 	if (game_cfg) {
 		CFG.game = game_cfg->curr;
@@ -3053,6 +3076,7 @@ void Menu_Boot(bool disc)
 		}
 	}
 
+	get_time(&TIME.playlog1);
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
@@ -3060,12 +3084,15 @@ void Menu_Boot(bool disc)
 		printf("\n");
 		if (!Menu_Confirm(0)) return;
 	}
+	get_time(&TIME.playlog2);
 
+	get_time(&TIME.gcard1);
 	if (gamercard_update((char *)(header->id))) {
 		printf_h(gt("Press %s button to exit."), (button_names[CFG.button_exit.num]));
 		printf("\n");
 		if (!Menu_Confirm(0)) return;
 	}
+	get_time(&TIME.gcard2);
 
 	printf("\n");
 	printf_x(gt("Booting Wii game, please wait..."));
@@ -3112,7 +3139,9 @@ void Menu_Boot(bool disc)
 	// stop services (music, gui)
 	Services_Close();
 
+	get_time(&TIME.playstat1);
 	setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
+	get_time(&TIME.playstat2);
 	
 	if (CFG.game.alt_dol != 1) {
 		// unless we're loading alt.dol from sd
@@ -3122,7 +3151,9 @@ void Menu_Boot(bool disc)
 
 	if (!disc) {
 
+		get_time(&TIME.rios1);
 		ret = ReloadIOS(1, 1);
+		get_time(&TIME.rios2);
 		if (ret < 0) goto out;
 
 		Block_IOS_Reload();
@@ -3257,12 +3288,11 @@ void Menu_Loop(void)
 	Direct_Launch();
 
 	// Start Music
+	get_time(&TIME.mp31);
 	Music_Start();
+	get_time(&TIME.mp32);
 
-	// Clear console
-	// (so that it doesn't show when switching back from gui)
-	Con_Clear();
-	__console_scroll = 0;
+	Grx_Init();
 
 	// Init Favorites
 	Switch_Favorites(CFG.start_favorites);
@@ -3320,6 +3350,17 @@ void Menu_Loop(void)
 	}
 	// scroll start list
 	__Menu_ScrollStartList();
+
+	get_time(&TIME.boot2);
+	//time_stats();
+	if (CFG.debug) {
+		Menu_PrintWait();
+	}
+
+	// Clear console
+	// (so that it doesn't show when switching back from gui)
+	Con_Clear();
+	__console_scroll = 0;
 
 	// Start GUI
 	if (CFG.gui == CFG_GUI_START) goto skip_list;
@@ -3607,8 +3648,9 @@ void printf_h(const char *fmt, ...)
 
 int Menu_PrintWait()
 {
-	printf_h(gt("Press any button to continue..."));
-	printf("\n");
+	const char *msg = gt("Press any button to continue...");
+	printf_h("%s\n", msg);
+	gecko_printf("%s\n", msg);
 	// clear button states
 	WPAD_Flush(WPAD_CHAN_ALL);
 	return Wpad_WaitButtonsCommon();

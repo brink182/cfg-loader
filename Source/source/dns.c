@@ -11,6 +11,11 @@
  */
 u32 getipbyname(char *domain)
 {
+	u32 ip;
+	// check if it's already in numeric form
+	ip = inet_addr(domain);
+	if (ip != (u32)-1) return ip;
+
 	//Care should be taken when using net_gethostbyname,
 	//it returns a static buffer which makes it not threadsafe
 	//TODO: implement some locking mechanism to make below code atomic
@@ -20,8 +25,8 @@ u32 getipbyname(char *domain)
 		return 0;
 	}
 	
-	u32 *ip = (u32*)host->h_addr_list[0];
-	return *ip;
+	ip = *(u32*)host->h_addr_list[0];
+	return ip;
 }
 
 
@@ -122,3 +127,5 @@ u32 getipbynamecached(char *domain)
 
 	return newnode->ip;
 }
+
+

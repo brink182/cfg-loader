@@ -273,10 +273,12 @@ s32 Apploader_Run(entry_point *entry)
 	
 	wipreset();
 
+	get_time(&TIME.load1);
 	/* Read apploader header */
 	ret = WDVD_Read(buffer, 0x20, APPLDR_OFFSET);
 	if (ret < 0)
 		return ret;
+	TIME.size += 0x20;
 
 	/* Calculate apploader length */
 	appldr_len = buffer[5] + buffer[6];
@@ -285,6 +287,7 @@ s32 Apploader_Run(entry_point *entry)
 	ret = WDVD_Read(appldr, appldr_len, APPLDR_OFFSET + 0x20);
 	if (ret < 0)
 		return ret;
+	TIME.size += appldr_len;
 
 	// used mem range by the loader
 	//void *mem_start = (void*)0x80b00000; // as set in Makefile
@@ -335,6 +338,7 @@ s32 Apploader_Run(entry_point *entry)
 
 		/* Read data from DVD */
 		WDVD_Read(dst, len, (u64)(offset << 2));
+		TIME.size += len;
 
 		//if (CFG.ios_yal)
 		printf(".");
@@ -353,6 +357,7 @@ s32 Apploader_Run(entry_point *entry)
         if( (u32)dst + len > dolEnd ) dolEnd = (u32)dst + len;
 		DCFlushRange(dst, len);
 	}
+	get_time(&TIME.load2);
 
 	int j = 0;
 	if (CFG.delay_patch) {

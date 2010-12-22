@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -378,6 +378,13 @@ msgstr "ERROR: ID del Juego Inválida"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "ERROR: Cargando módulo EHC! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+"ERROR: Escritura NTFS desactivada!\n"
+"(establece ntfs_write=1)"
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "ERROR: No hay particiones encontradas! (ret = %d)"
@@ -424,6 +431,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "ERROR: cache: sin memoria"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr "ERROR: creando: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -848,6 +859,12 @@ msgstr ""
 "contiene un sistema de archivos WBFS. Esto es una\n"
 "configuración no válida. Presiona %s para cambiar el\n"
 "tipo de partición EXTENDIDA a la de datos."
+
+msgid "NTFS compression not supported!"
+msgstr "Compresión NTFS no soportada!"
+
+msgid "NTFS encryption not supported!"
+msgstr "Cifrado NTFS no soportado!"
 
 msgid "Network connection established."
 msgstr "Conexión a la red establecida."

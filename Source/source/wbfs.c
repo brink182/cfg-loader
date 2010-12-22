@@ -264,6 +264,8 @@ s32 WBFS_Init(u32 device, u32 timeout)
 {
 	u32 cnt;
 	s32 ret = -1;
+	long long t1 = TIME_D(usb_init);
+	long long t2;
 
 	/* Wrong timeout */
 	if (!timeout)
@@ -273,6 +275,7 @@ s32 WBFS_Init(u32 device, u32 timeout)
 	for (cnt = 0; cnt < timeout; cnt++) {
 		switch (device) {
 		case WBFS_DEVICE_USB: {
+			get_time(&TIME.usb_retry1);
 			/* Initialize USB storage */
 			ret = USBStorage_Init();
 
@@ -284,6 +287,9 @@ s32 WBFS_Init(u32 device, u32 timeout)
 				/* Device info */
 				nb_sectors = USBStorage_GetCapacity(&sector_size);
 
+				get_time(&TIME.usb_retry2);
+				t2 = TIME_D(usb_init);
+				TIME.usb_retry2 -= (t2 - t1);
 				goto out;
 			}
 			break;

@@ -119,14 +119,19 @@ s32 USBStorage_OpenDev()
 
 	/* Open USB device */
 	fd = IOS_Open(fs, 0);
-	dbg_printf("open(%s)=%d\n", fs, fd);
+	dbg_printf("open(%s)=%d", fs, fd);
 	if (fd < 0) {
+		dbg_printf("\n");
 		fd = IOS_Open(fs2, 0);
-		dbg_printf("open(%s)=%d\n", fs2, fd);
+		dbg_printf("open(%s)=%d", fs2, fd);
 	}
 	if (fd < 0) {
+		dbg_printf("\n");
 		fd = IOS_Open(fs3, 0);
-		dbg_printf("open(%s)=%d\n", fs3, fd);
+		dbg_printf("open(%s)=%d", fs3, fd);
+	}
+	if (fd < 0) {
+		dbg_printf("\n");
 	}
 	return fd;
 }
@@ -134,15 +139,21 @@ s32 USBStorage_OpenDev()
 s32 USBStorage_Init(void)
 {
 	s32 ret;
+	get_time(&TIME.usb_init1);
 	USBStorage_OpenDev();
+	get_time(&TIME.usb_open);
 	if (fd < 0)
 		return fd;
 
 	/* Initialize USB storage */
 	ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_INIT, ":");
+	dbg_printf(" init:%d", ret);
+	get_time(&TIME.usb_cap);
 
 	/* Get device capacity */
 	ret = USBStorage_GetCapacity(NULL);
+	dbg_printf(" cap:%d\n", ret);
+	get_time(&TIME.usb_init2);
 	if (!ret)
 		goto err;
 
@@ -299,7 +310,7 @@ static bool __io_usb_NOP(void)
 	return true;
 }
 
-const DISC_INTERFACE __io_usbstorage = {
+const DISC_INTERFACE my_io_usbstorage = {
 	DEVICE_TYPE_WII_USB,
 	FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE | FEATURE_WII_USB,
 	(FN_MEDIUM_STARTUP)      &__io_usb_Startup,
@@ -311,7 +322,7 @@ const DISC_INTERFACE __io_usbstorage = {
 };
 
 // read-only
-const DISC_INTERFACE __io_usbstorage_ro = {
+const DISC_INTERFACE my_io_usbstorage_ro = {
 	DEVICE_TYPE_WII_USB,
 	FEATURE_MEDIUM_CANREAD | FEATURE_WII_USB,
 	(FN_MEDIUM_STARTUP)      &__io_usb_Startup,
@@ -352,6 +363,7 @@ s32 USBStorage_WBFS_Open(char *buffer)
 	return ret;
 }
 
+#if 0
 // woffset is in 32bit words, len is in bytes
 s32 USBStorage_WBFS_Read(u32 woffset, u32 len, void *buffer)
 {
@@ -385,7 +397,6 @@ s32 USBStorage_WBFS_Read(u32 woffset, u32 len, void *buffer)
 	return ret;
 }
 
-#if 0
 s32 USBStorage_WBFS_ReadDebug(u32 off, u32 size, void *buffer)
 {
 	void *buf = (void *)buffer;

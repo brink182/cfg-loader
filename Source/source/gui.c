@@ -77,8 +77,9 @@ Mtx GXmodelView2D;
 extern unsigned char bgImg[];
 //extern unsigned char bgImg_wide[];
 extern unsigned char bg_gui[];
-extern unsigned char introImg[];
+extern unsigned char introImg2[];
 extern unsigned char introImg3[];
+extern unsigned char introImg41[];
 extern unsigned char coverImg[];
 extern unsigned char coverImg_full[];
 //extern unsigned char coverImg_wide[];
@@ -91,6 +92,7 @@ struct M2_texImg t2_bg;
 struct M2_texImg t2_bg_con;
 struct M2_texImg t2_nocover;
 struct M2_texImg t2_nocover_full;
+extern struct M2_texImg t2_hourglass_full; // coverflow
 
 GRRLIB_texImg tx_pointer;
 GRRLIB_texImg tx_hourglass;
@@ -458,28 +460,61 @@ void Gui_DrawBackground(void)
 void Gui_DrawIntro(void)
 {
 	GXRModeObj *rmode = _Video_GetVMode();
+	int con_x = 32;
+	int con_y = 16;
+	int con_w = 640-32*2;
+	int con_h = 480-16*2;
+	int w = con_w/8; // 72
+	int h = con_h/16; // 28
+	int i, x, y;
+	char *title = "Configurable USB Loader";
+	void *img_buf = NULL;
+	int i41 = 0;
 
-	if (CFG.direct_launch && CFG.intro==0) {
-		CON_InitEx(rmode, 32, 16, 640-32*2, 480-16*2);
-		__console_disable = 1;
-		return;
+	time_t t = time(NULL);
+	struct tm *ti = localtime(&t);
+	// tm_mon starts at 0
+	// tm_mday starts at 1
+	if ((ti->tm_mon == 3 && ti->tm_mday == 1) || CFG.intro == 41) {
+		CFG.intro = 2;
+		i41 = 1;
+	} else {
+		if (CFG.direct_launch && CFG.intro==0) {
+			CON_InitEx(rmode, con_x, con_y, con_w, con_h);
+			__console_disable = 1;
+			return;
+		}
+	}
+
+	if (CFG.intro == 1) {
+		CON_InitEx(rmode, con_x, con_y, con_w, con_h);
+		Con_SetPosition((w-strlen(title))/2, h/2);
+		printf("%s", title);
+		Con_SetPosition(0,0);
+		goto print_ver;
 	}
 	
 	// Draw the intro image
-	VIDEO_WaitVSync();
+	//VIDEO_WaitVSync();
 	//__Gui_DrawPng(introImg, 0, 0);
-	IMGCTX ctx = Gui_OpenPNG(introImg, NULL, NULL);
+
+	get_time(&TIME.intro1);
+	
+	IMGCTX ctx = NULL;
+	if (CFG.intro == 2) {
+		ctx = Gui_OpenPNG(introImg2, NULL, NULL);
+	} else {
+		ctx = Gui_OpenPNG(introImg3, NULL, NULL);
+	}
 	if (!ctx) return;
-	void *img_buf = memalign(32, rmode->fbWidth * rmode->xfbHeight * 4);
+	img_buf = memalign(32, rmode->fbWidth * rmode->xfbHeight * 4);
 	if (!img_buf) return;
 	Gui_DecodePNG_scale_to(ctx, img_buf, rmode->fbWidth, rmode->xfbHeight);
 	PNGU_ReleaseImageContext(ctx);
 	ctx = NULL;
 	//
-	time_t t = time(NULL);
-	struct tm *ti = localtime(&t);
-	if (ti->tm_mon == 3 && ti->tm_mday == 1) {
-		ctx = Gui_OpenPNG(introImg3, NULL, NULL);
+	if (i41) {
+		ctx = Gui_OpenPNG(introImg41, NULL, NULL);
 		if (ctx) {
 			PNGUPROP imgProp;
 			int x, y;
@@ -494,24 +529,27 @@ void Gui_DrawIntro(void)
 		}
 	}
 	//
-	VIDEO_WaitVSync();
+	//VIDEO_WaitVSync();
 	Video_DrawRGBA(0, 0, img_buf, rmode->fbWidth, rmode->xfbHeight);
+
+	get_time(&TIME.intro2);
+	
 	Video_AllocBg();
 	memcpy(bg_buf_rgba, img_buf, BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 4);
 	memcpy(bg_buf_ycbr, _Video_GetFB(-1), BACKGROUND_WIDTH * BACKGROUND_HEIGHT * 2);
 
 	//CON_InitTr(rmode, 552, 424, 88, 48, CONSOLE_BG_COLOR);
-	CON_InitTr(rmode, 32, 16, 640-32*2, 480-16*2, CONSOLE_BG_COLOR);
+	CON_InitTr(rmode, con_x, con_y, con_w, con_h, CONSOLE_BG_COLOR);
 	Con_Clear();
-	int i, x, y;
-	x = (640-32*2)/8 - 10; // 62
-	y = (480-16*2)/16 - 3; // 25
+print_ver:
+	x = w - 12; // 60
+	y = h - 3; // 25
 	for (i=0;i<y;i++) printf("\n");
 	printf("%*s", x, "");
 	printf("v%s\n", CFG_VERSION);
 	__console_flush(0);
 	
-	VIDEO_WaitVSync();
+	//VIDEO_WaitVSync();
 	SAFE_FREE(img_buf);
 }
 
@@ -649,7 +687,7 @@ void Gui_DrawCover(u8 *discid)
 
 	size = ret;
 
-	u32 width, height;
+	u32 width=0, height=0;
 
 	/* Get image dimensions */
 	ret = __Gui_GetPngDimensions(imgData, &width, &height);
@@ -1337,6 +1375,7 @@ GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h,
 		void *dest, int dest_w, int dest_h)
 {
 	int height, width;
+	int width_front;
 	void *buf1 = NULL;
 	void *buf2 = NULL;
 	GRRLIB_texImg my_texture;
@@ -1357,8 +1396,12 @@ GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h,
 	
 	//the full cover image is layed out like this:  back | spine | front
 	//so we want to paste the passed in image in the front section
+	//COVER_WIDTH_FRONT = (int)(COVER_HEIGHT / 1.4) >> 2 << 2;
+	// 512x336 ; 240 = 336/1.4 ; 240+32+240=512
+	width_front = (int)(dest_h / 1.4) >> 2 << 2;
 	CompositeRGBA(buf2, dest_w, dest_h,
-			dest_w - (COVER_WIDTH_FRONT/2) - (src_w/2), (dest_h/2) - (src_h/2), //place where front cover is located
+			//place where front cover is located
+			dest_w - (width_front/2) - (src_w/2), (dest_h/2) - (src_h/2),
 			buf1, src_w, src_h);
 	
 	SAFE_FREE(buf1);
@@ -1908,6 +1951,8 @@ void Grx_Load_BG_Gui()
  */
 void Grx_Init()
 {
+	if (!CFG.gui) return;
+
 	int ret;
 	GRRLIB_texImg tx_tmp;
 
@@ -1917,6 +1962,7 @@ void Grx_Init()
 	bool theme_change = (last_theme != cur_theme);
 	last_theme = cur_theme;
 
+	get_time(&TIME.guitheme1);
 	// on cover_style change, need to reload noimage cover
 	// (changing cover style invalidates cache and sets ccache_inv)
 	if (!grx_init || ccache_inv) {
@@ -1973,7 +2019,13 @@ void Grx_Init()
 		Load_Theme_Texture_1("font_clock.png", &tx_font_clock);
 		GRRLIB_InitFont(&tx_font_clock);
 		GRRLIB_TrimTile(&tx_font_clock, 128);
+
+		//store the hourglass image pasted into the noimage fullcover image
+		tx_tmp = Gui_paste_into_fullcover(tx_hourglass.data, tx_hourglass.w, tx_hourglass.h,
+				t2_nocover_full.tx.data, t2_nocover_full.tx.w, t2_nocover_full.tx.h);
+		cache2_tex(&t2_hourglass_full, &tx_tmp);
 	}
+	get_time(&TIME.guitheme2);
 
 	grx_init = 1;
 }
@@ -2361,9 +2413,10 @@ int Gui_Mode()
 	
 	memcheck();
 	//load all the commonly used images (background, pointers, etc)
+	// although already called at startup it needs to be called again
+	// in case theme changed
 	Grx_Init();
-
-	memcheck();
+	//memcheck();
 
 	// setup gui style
 	static int first_time = 1;
@@ -2459,7 +2512,7 @@ int Gui_Mode()
 		//dbg_time1();
 
 		buttons = Wpad_GetButtons();
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
 
 
 		//----------------------
@@ -2798,7 +2851,7 @@ int Gui_Mode()
 		//_CPU_ISR_Disable(level);
 		//draw the covers
 		if (gui_style == GUI_STYLE_COVERFLOW) {
-			//Wpad_getIR(WPAD_CHAN_0, &ir);
+			//Wpad_getIR(&ir);
 			game_select = Coverflow_drawCovers(&ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, gameCnt, true);
 		} else {
 			//draw the background

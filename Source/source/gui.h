@@ -78,6 +78,7 @@ void Gui_Print2(int x, int y, const char *str);
 void Gui_Print(int x, int y, char *str);
 void Gui_Print_Clock(int x, int y, FontColor font_color, time_t t);
 
+void Grx_Init();
 void Gui_RenderAAPass(int aaStep);
 void Gui_Render();
 void Gui_Init();

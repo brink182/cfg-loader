@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: xxdimixx\n"
 "Language-Team: GREEK <xxdimixx>\n"
@@ -374,6 +374,11 @@ msgstr "ΛΑΘΟΣ: Άκυρο Game ID"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "ΛΑΘΟΣ: Φορτώνω EHC module! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "ΛΑΘΟΣ: Δεν βρεθήκαν partitions! (ret = %d)"
@@ -417,6 +422,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "ΛΑΘΟΣ: Cache: Δεν υπάρχει περίσιος χώρος στη μνήμη"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr ""
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -838,6 +847,12 @@ msgstr ""
 "περιέχει WBFS σύστημα αρχείων. Αυτό είναι\n"
 "άκυρο setup. Πατήστε %s για να\n"
 "αλλάξετε τον τύπο του partition από επεκταμένο σε DATA."
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
+msgstr ""
 
 msgid "Network connection established."
 msgstr "Σύνδεση δικτύου OK."

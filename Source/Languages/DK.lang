@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -378,6 +378,13 @@ msgstr "FEJL: Ugyldig spil ID"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "FEJL: Indlæsning af EHC module! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+"FEJL: NTFS skrivning er deaktiveret!\n"
+"(set ntfs_write=1)"
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "FEJL: Ingen partitioner fundet! (ret = %d)"
@@ -425,6 +432,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "FEJL: cache: ikke mere hukommelse"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr "FEJL: kunne ikke skabe: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -849,6 +860,12 @@ msgstr ""
 "indeholder et WBFS filsystem. Det er et\n"
 "ugyldigt setup. Tryk %s for at ændre\n"
 "partition type fra EXTEND til data."
+
+msgid "NTFS compression not supported!"
+msgstr "NTFS kompression er ikke understøttet!"
+
+msgid "NTFS encryption not supported!"
+msgstr "NTFS kryptering er ikke understøttet!"
 
 msgid "Network connection established."
 msgstr "Netværks forbindelse oprettet"

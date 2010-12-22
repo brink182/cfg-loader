@@ -25,7 +25,7 @@ typedef struct wbfs_head
         u8  wbfs_sec_sz_s;     // size of a wbfs sec
         u8  padding3[2];
         u8  disc_table[0];	// size depends on hd sector size
-}__attribute((packed)) wbfs_head_t ;
+} __attribute((packed)) __attribute__((__may_alias__)) wbfs_head_t ;
 
 typedef struct wbfs_disc_info
 {

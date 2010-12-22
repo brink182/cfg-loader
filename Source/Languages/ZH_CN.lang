@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -372,6 +372,11 @@ msgstr "错误：无效的游戏ID"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "错误：读取EHC模块! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "错误：没有找到分区！(ret = %d)"
@@ -417,6 +422,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "错误：缓存：内存溢出"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr ""
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -834,6 +843,12 @@ msgid ""
 msgstr ""
 "注意：P#%d分区是扩展分区，但却具有WBFS文件系统！\n"
 "该设置无效，请按%s键将分区类型从扩展改为数据。"
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
+msgstr ""
 
 msgid "Network connection established."
 msgstr "网络连接已建立"

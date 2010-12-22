@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v60
+Configurable SD/USB Loader v61
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -485,6 +485,8 @@ Config file:
 #   Also changes the operation of button_H in the gui and game list.
 #   <magic word> is a 4 letter magic word for Priiloader
 #   <Channel ID> is a 4 letter channel ID in upper case to launch
+#   If home=screenshot then home has to be held for 1 second to make a screenshot
+#   otherwise it will exit to HBC
 #
 # buttons=[options_1], options_B, original
 #   (change button controls layout in the gui and game list.)
@@ -691,8 +693,9 @@ Config file:
 #   - iso: On NTFS it creates an exact dump to an iso file
 #     On WBFS/FAT it will behave same as 1:1
 #
-# fat_split_size = [4], 2
-#   Selects if the split is at 4gb-32kb or 2gb-32kb
+# fat_split_size = [4], 2, 0
+#   Selects if the split is at 4: 4gb-32kb or 2: 2gb-32kb
+#   or 0: no splits - ntfs only
 #
 # fat_install_dir = [1], 0, 2, 3
 #   Select install filename layout on fat:
@@ -701,6 +704,11 @@ Config file:
 #   fat_install_dir = 2 /wbfs/TITLE [GAMEID]/GAMEID.wbfs
 #   fat_install_dir = 3 /wbfs/TITLE [GAMEID].wbfs
 # fs_install_layout is an alias for fat_install_dir
+#
+# ntfs_write = [0], 1, norecover
+#   0 will disable and 1 will enable ntfs write support
+#   norecover will enable write but prevent mounting an uncleanly unmounted fs
+#     in case recovery on the PC is preferred.
 #
 # music = [1], 0, filename, PATH
 #   Play background music (only one option has to be specified)
@@ -885,6 +893,13 @@ Config file:
 #   gamercard_url =+ http://www.messageboardchampion.com/ncard/API/?cmd=tdbupdate&key={KEY}&game={ID6}
 #   gamercard_key = 
 #
+# intro = 0, 1, [2], 3
+#   intro=0 : black - only allowed when direct game launching
+#   intro=1 : black bg with program name (small)
+#   intro=2 : color image [default]
+#   intro=3 : grey image
+#   This option only works if set in meta.xml <arguments>
+#
 # Game Compatibility Options:
 # ===========================
 # 
@@ -975,6 +990,107 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+04-12-2010 cfg v61 (release)
+ * In case a CODE DUMP happens the wii will reset in 60 seconds
+   instead of waiting on the code dump screen
+ * full package changes:
+ - added a new default theme: stripes by abdias
+ - removed themes: BlueMatrix, NXE, cfg_*
+ - removed noimage_wide which is not used anymore
+ - removed cfg61-222.dol (available as a separate download)
+ In addition to cfg61-222.dol (with default ios 222-mload)
+ there's now also:
+ cfg61-compat.dol built with the old devkit 17+ogc 1.7.1
+ cfg61-dbg.dol with debugging enabled by default
+
+02-12-2010 cfg v61b9 (beta)
+ * fixed startup with multiple wiimotes
+   (libogc svn-4463 thanks to tueidj and tantric)
+ * fixed hourglass image in coverflow mode
+
+27-11-2010 cfg v61b8 (beta)
+ * Allow to disable splitting of installed games on NTFS with fat_split_size = 0
+ * If home=screenshot, don't disable it after screenshot is made in main menu
+
+27-11-2010 cfg v61b7 (beta)
+ * Fixed RAW fs / part.table detection
+
+25-11-2010 cfg v61b6 (beta)
+ * back to libogc 1.8.5 with CODBO fix (USB deinit, thanks to tueidj)
+
+21-11-2010 cfg v61b5 (beta)
+ * Fixed theme switching (Issue 69)
+ * Increased max themes from 100 to 300 (Issue 60)
+ * updated game count when downloading covers to start from 1 (Issue 92)
+ * Removed boxart.rowdyruff.net from the list of cover urls
+
+21-11-2010 cfg v61b4 (beta)
+ * Use libogc 1.8.3 to fix COD:BO
+ * Enable pointer control with any wiimote (but only one at a time -
+   the one with the lowest number that points to screen is used)
+ * more improvements to raw fs detection: in case the partition table is
+   ambiguous - if it appears there is a raw fs and a valid part. table then
+   make a decision based on device type: for sd assume raw, for usb assume p. table
+ * Updated mp3 player (triple buffering from libogc)
+
+19-11-2010 cfg v61b3 (beta)
+ * Fixed .mod playing
+
+18-11-2010 cfg v61t3 (debug test)
+ * print more debug info, debug enabled by default
+ * if home=screenshot then make a screenshot if home is being held for 1 second
+   otherwise exit to hbc. So a short press on home will exit while holding home
+   for 1 second will make a screenshot
+ * possible fix for corrupted console text
+
+cfg v61t2 (test)
+ * init usb immediately after ios reload
+
+cfg v61t1 (test)
+ * libfat and libntfs build with devkit 17 and -Os
+
+31-10-2010 cfg v61b2 (beta)
+ * Updated libogc to 1.8.5
+ * Fixed wiitdb synopsis for non-EN locale
+ * Print wiitdb download url when updating
+ * Reenabled loading a config file specified by args
+
+30-10-2010 cfg v61b (beta)
+ * Slightly faster startup time (by about 1-2 seconds)
+   (optimized loading of config and wiitdb)
+ * Selectable intro:
+   intro=0 : black - only allowed when direct game launching
+   intro=1 : black bg with program name (small)
+   intro=2 : color image [default]
+   intro=3 : grey image
+   This option only works if set in meta.xml <arguments>
+ * Improved NTFS related error messages: 
+   - when starting games from NTFS compressed or encrypted files
+   - when trying to install game or covers on ntfs with write disabled
+
+27-10-2010 cfg v61a3 (alpha)
+ * Upgraded devkitppc 17 to 22 (again)
+ * Fixed devkitppc 22 and net related crashes (hopefully)
+ * URL options will now accept also numeric IP address
+
+23-10-2010 cfg v61a2 (alpha)
+ * Reverted devkitppc from 22 back to 17 (libogc is still 1.8.4)
+   This seems to fix the wiitdb and net related crashes in v61a
+ * fixed: fat_install_dir = 3
+ * better compatibility with some forwarders
+   (ignore drive number (usb1:) in argv[0])
+
+19-10-2010 cfg v61a (alpha)
+ * Upgraded dev tools devkitppc 17 to 22 and libogc 1.7.1 to 1.8.4
+ * Improved partition check for raw fs (v60t1 fix)
+ * cios 222 shadow mload proper version (5.1) check
+ * debug stuff:
+  pressing + in global options screen will report:
+  - devkitppc and libogc version
+  - mem stats
+  - startup timings
+  option debug=16 will report game launch timings
 
 12-09-2010 cfg v60 (release)
  * Fixed install on ntfs to .wbfs file type

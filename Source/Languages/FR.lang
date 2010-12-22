@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-09-09 1:10+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
@@ -376,6 +376,11 @@ msgstr "ERREUR: ID du Jeu Invalide"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "ERREUR: Chargement du module EHC ! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "ERREUR: Aucune partition trouvée ! (ret = %d)"
@@ -423,6 +428,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "ERREUR: cache: plus de mémoire disponible"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr ""
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -849,6 +858,12 @@ msgstr ""
 "contient un système de fichiers  WBFS. C'est une\n"
 "configuration invalide. Appuyez sur %s pour changer\n"
 "le type de partition d'ÉTENDU à données."
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
+msgstr ""
 
 msgid "Network connection established."
 msgstr "Connexion au réseau établie."

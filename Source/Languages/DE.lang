@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
 "Last-Translator: Geridian\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero>\n"
@@ -378,6 +378,11 @@ msgstr "FEHLER: ungültige Spiel-ID"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "FEHLER : Lade EHC module! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "FEHLER : Keine Partitionen gefunden! (ret = %d)"
@@ -425,6 +430,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "FEHLER: Cache: nicht genug Speicher"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr ""
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -846,6 +855,12 @@ msgstr ""
 "beinhaltet ein WBFS Dateisystem. Dieses ist\n"
 "ein ungültiger Setup. Drücke %s um den\n"
 "Partitionstyp von ERWEITERT auf DATA zu setzen."
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
+msgstr ""
 
 msgid "Network connection established."
 msgstr "Netzwerkverbindung besteht."

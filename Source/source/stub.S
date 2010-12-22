@@ -105,15 +105,20 @@ ehcmodule5:
 sdhc_module:
 	.incbin "../data/sdhc_module_elf"
 
-	.globl introImg
+	.globl introImg2
 	.balign 32
-introImg:
-	.incbin "../data/intro4"
+introImg2:
+	.incbin "../data/intro2"
 
 	.globl introImg3
 	.balign 32
 introImg3:
 	.incbin "../data/intro3"
+
+	.globl introImg41
+	.balign 32
+introImg41:
+	.incbin "../data/intro41"
 
 ##; commented out
 #;	.globl opening_bnr

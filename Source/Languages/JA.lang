@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -266,7 +266,7 @@ msgstr "ダウンロードしました"
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "ゲーマーカード#%dのダウンロードに失敗しました"
 
 msgid "Downloadable Content"
 msgstr "追加データを受信可能"
@@ -374,6 +374,13 @@ msgstr "エラー:不正なゲームIDです"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "エラー:EHCモジュールの読み込み中(%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+"ERROR: NTFS書き込みは無効になっています!\n"
+"(「ntfs_write=1」をセットしてください)"
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "エラー:領域が見つかりません (ret = %d)"
@@ -423,6 +430,10 @@ msgid "ERROR: cache: out of memory"
 msgstr "エラー:メモリ不足"
 
 #, c-format
+msgid "ERROR: creating: %s"
+msgstr "%s作成中のエラー"
+
+#, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "エラー:フラグ取得リスト: %d"
 
@@ -440,7 +451,7 @@ msgid "ERROR: not enough free space!!"
 msgstr "エラー:空き容量がありません"
 
 msgid "ERROR: ntfs was not cleanly unmounted"
-msgstr ""
+msgstr "エラー:NTFSは取り外されていません"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -618,7 +629,7 @@ msgstr "ゲームキューブ"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "ゲーマーカード#%dに報告しました: %.*s"
 
 msgid "Global Options"
 msgstr "基本設定"
@@ -658,6 +669,9 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
+"もしCFGが起動しなければ\n"
+"boot.dol.bakをboot.dolに上書きして\n"
+"再試行してください"
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
@@ -840,11 +854,17 @@ msgstr ""
 "構成です。 %sボタンを押すと領域形式を\n"
 "拡張形式から変更します。"
 
+msgid "NTFS compression not supported!"
+msgstr "NTFS圧縮には対応していません"
+
+msgid "NTFS encryption not supported!"
+msgstr "NTFS解凍には対応していません"
+
 msgid "Network connection established."
 msgstr "接続しました"
 
 msgid "Network error. Can't update gamercards."
-msgstr ""
+msgstr "エラーが発生しました。ゲーマーカードを更新できません"
 
 msgid "New Themes"
 msgstr "新しいテーマ"
@@ -963,7 +983,7 @@ msgid "Party"
 msgstr "パーティ"
 
 msgid "Paused Start"
-msgstr ""
+msgstr "ポーズスタート"
 
 msgid "Platformer"
 msgstr "プラットフォーム"

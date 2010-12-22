@@ -10,6 +10,8 @@
 #include <ogcsys.h>
 #include <dirent.h>
 #include <malloc.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 #include "cfg.h"
 #include "wpad.h"
@@ -56,11 +58,14 @@ struct ID_Title
 {
 	u8 id[8];
 	char title[TITLE_MAX];
+	unsigned short hnext; // linked list next with same hash
 };
 
 // renamed titles
 int num_title = 0; //number of titles
 struct ID_Title *cfg_title = NULL;
+#define TITLE_HASH_MAX 4999 // prime
+unsigned short title_hash[TITLE_HASH_MAX];
 
 #define MAX_CFG_GAME 500
 int num_cfg_game = 0;
@@ -568,7 +573,7 @@ void cfg_default_url()
 	STRCOPY(CFG.cover_url_2d_norm,
 		" http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/cover/{ID6}.png"
-		" http://boxart.rowdyruff.net/flat/{ID6}.png"
+		//" http://boxart.rowdyruff.net/flat/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/2D%20Cover/{ID6}.png"
 		//" http://awiibit.com/BoxArt160x224/{ID6}.png"
@@ -577,7 +582,7 @@ void cfg_default_url()
 	STRCOPY(CFG.cover_url_3d_norm,
 		" http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/cover3D/{ID6}.png"
-		" http://boxart.rowdyruff.net/3d/{ID6}.png"
+		//" http://boxart.rowdyruff.net/3d/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/160/225/3D/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/3D%20Cover/{ID6}.png"
 		//" http://awiibit.com/3dBoxArt176x248/{ID6}.png"
@@ -588,7 +593,7 @@ void cfg_default_url()
 		" http://wiitdb.com/wiitdb/artwork/disccustom/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/disc/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/disccustom/{ID6}.png"
-		" http://boxart.rowdyruff.net/fulldisc/{ID6}.png"
+		//" http://boxart.rowdyruff.net/fulldisc/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/160/160/disc/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/Disc%20Cover/{ID6}.png"
 		//" http://awiibit.com/WiiDiscArt/{ID6}.png"
@@ -1062,20 +1067,31 @@ void CFG_Default_Theme()
 	CFG.button_save.num  = NUM_BUTTON_2;	
 }
 
+void CFG_default_path()
+{
+	snprintf(D_S(CFG.covers_path), "%s/%s", USBLOADER_PATH, "covers");
+	cfg_set_covers_path();
+	CFG_Default_Theme();
+	snprintf(D_S(CFG.bg_gui_wide), "%s/%s", USBLOADER_PATH, "bg_gui_wide.png");
+}
+
 void CFG_Default()
 {
 	memset(&CFG, 0, sizeof(CFG));
 
-	snprintf(D_S(CFG.covers_path), "%s/%s", USBLOADER_PATH, "covers");
-	cfg_set_covers_path();
+	CFG_default_path();
 	cfg_default_url();
-	CFG_Default_Theme();
-	snprintf(D_S(CFG.bg_gui_wide), "%s/%s", USBLOADER_PATH, "bg_gui_wide.png");
 	//STRCOPY(CFG.gui_font, "font.png");
 	STRCOPY(CFG.gui_font, "font_uni.png");
 	
 	//CFG.home     = CFG_HOME_REBOOT;
-	CFG.debug    = 0;
+#ifdef BUILD_DBG
+	CFG.debug = BUILD_DBG;
+	CFG.home = CFG_HOME_SCRSHOT;
+#else
+	CFG.debug = 0;
+	CFG.home = CFG_HOME_REBOOT;
+#endif
 	CFG.device   = CFG_DEV_ASK;
 	STRCOPY(CFG.partition, CFG_DEFAULT_PARTITION);
 	CFG.confirm_start = 1;
@@ -1105,8 +1121,9 @@ void CFG_Default()
 	//CFG.current_profile = 0;
 	STRCOPY(CFG.profile_names[0], "default");
 	STRCOPY(CFG.titles_url, "http://wiitdb.com/titles.txt?LANG={DBL}");
-	CFG.intro = 1;
+	CFG.intro = 2;
 	CFG.fat_install_dir = 1;
+	CFG.fat_split_size = 4;
 	CFG.db_show_info = 1;
 	//CFG.db_ignore_titles = 0;
 	//CFG.write_playlog = 0;
@@ -1287,7 +1304,7 @@ bool cfg_str_list(char *name, char *var, int size)
 	return false;
 }
 
-struct ID_Title* cfg_get_id_title(u8 *id)
+struct ID_Title* cfg_get_id_title_old(u8 *id)
 {
 	int i;
 	// search 6 letter ID first
@@ -1303,6 +1320,52 @@ struct ID_Title* cfg_get_id_title(u8 *id)
 			&& (memcmp(id, cfg_title[i].id, 4) == 0)) {
 			return &cfg_title[i];
 		}
+	}
+	return NULL;
+}
+
+extern u32 hash_string (const char *str_param);
+
+u32 hash_id4(u8 *id)
+{
+	// id4 is usually unique, except for customs
+	char id4[8];
+	memcpy(id4, id, 4);
+	id4[4] = 0;
+	return hash_string(id4);
+}
+
+struct ID_Title* cfg_get_id_title(u8 *id)
+{
+	int i, ii;
+	int ii4 = 0;
+	int n = 0;
+	char *tid;
+	// hash lookup
+	u32 h = hash_id4(id);
+	u32 hi = h % TITLE_HASH_MAX;
+	ii = title_hash[hi];
+	while (ii) {
+		i = ii - 1;
+		tid = (char*)cfg_title[i].id;
+		// match 6 letter ID first
+		if (strncmp(tid, (char*)id, 6) == 0) {
+			return &cfg_title[i];
+		}
+		// and 4 letter ID next
+		// but only if it was ID4 in titles.txt
+		if ((tid[4] == 0) && (strncmp(tid, (char*)id, 4) == 0)) {
+			ii4 = ii;
+		}
+		ii = cfg_title[i].hnext;
+		n++;
+		if (n > num_title+1) {
+			printf("title hash error\n");
+			sleep(5);
+		}
+	}
+	if (ii4) {
+		return &cfg_title[ii4 - 1];
 	}
 	return NULL;
 }
@@ -1353,6 +1416,10 @@ void title_set(char *id, char *title)
 		//strcopy(cfg_title[num_title].title, title, TITLE_MAX);
 		mbs_copy(cfg_title[num_title].title, title, TITLE_MAX);
 		num_title++;
+		// update hash
+		u32 hi = hash_id4((u8*)id) % TITLE_HASH_MAX;
+		cfg_title[num_title-1].hnext = title_hash[hi];
+		title_hash[hi] = num_title;
 	}
 }
 
@@ -1362,11 +1429,11 @@ char* trimcopy_n(char *dest, char *src, int n, int size)
 {
 	int len;
 	// trim leading white space
-	while (isspace(*src) && n>0) { src++; n--; }
+	while (ISSPACE(*src) && n>0) { src++; n--; }
 	len = strlen(src);
 	if (len > n) len = n;
 	// trim trailing white space
-	while (len > 0 && isspace(src[len-1])) len--;
+	while (len > 0 && ISSPACE(src[len-1])) len--;
 	// limit length
 	if (len >= size) len = size-1;
 	// safety
@@ -2132,12 +2199,16 @@ void cfg_set_early(char *name, char *val)
 	cfg_name = name;
 	cfg_val = val;
 	cfg_int_max("debug", &CFG.debug, 255);
+	if (CFG.debug & 16) {
+		CFG.time_launch = 1;
+		CFG.debug &= ~16;
+	}
 	cfg_int_max("debug_gecko", &CFG.debug_gecko, 255);
 	cfg_bool("widescreen", &CFG.widescreen);
 	cfg_map("widescreen", "auto", &CFG.widescreen, CFG_WIDE_AUTO);
 	cfg_ios(name, val);
 	CFG_STR("partition", CFG.partition);
-	cfg_bool("intro", &CFG.intro);
+	cfg_int_max("intro", &CFG.intro, 100);
 }
 
 void cfg_set(char *name, char *val)
@@ -2302,16 +2373,7 @@ void cfg_set(char *name, char *val)
 	cfg_map("install_partitions", "iso",
 			&CFG.install_partitions, CFG_INSTALL_ISO);
 
-	extern u64 OPT_split_size;
-	int split_size = 0;
-	if (cfg_int_max("fat_split_size", &split_size, 4)) {
-		if (split_size == 2) {
-			OPT_split_size = (u64)2LL * 1024 * 1024 * 1024 - 32 * 1024;
-		}
-		if (split_size == 4) {
-			OPT_split_size = (u64)4LL * 1024 * 1024 * 1024 - 32 * 1024;
-		}
-	}
+	cfg_int_max("fat_split_size", &CFG.fat_split_size, 4);
 
 	//cfg_bool("write_playlog", &CFG.write_playlog);
 
@@ -2542,12 +2604,15 @@ bool cfg_parsebuf(char *buf, void (*set_func)(char*, char*))
 	char line[500];
 	char *p, *nl;
 	int len;
-
+	char bom[] = {0xEF, 0xBB, 0xBF, 0};
+	int i = 0;
 	nl = buf;
+	// skip BOM UTF-8 (ef bb bf)
+	if (strncmp(nl, bom, 3) == 0) nl += 3;
 	for (;;) {
 		p = nl;
 		if (p == NULL) break;
-		while (*p == '\n') p++;
+		while (*p == '\n' || *p == '\r') p++;
 		if (*p == 0) break;
 		nl = strchr(p, '\n');
 		if (nl == NULL) {
@@ -2555,16 +2620,32 @@ bool cfg_parsebuf(char *buf, void (*set_func)(char*, char*))
 		} else {
 			len = nl - p;
 		}
+		if (!len) continue;
 		// lines starting with # are comments
 		if (*p == '#') continue;
 		if (len >= sizeof(line)) len = sizeof(line) - 1;
 		strcopy(line, p, len+1);
+		if (line[len-1] == '\r') {
+			line[len-1] = 0;
+			len--;
+		}
+
+		if (CFG.debug > 1) {
+			dbg_print(2, "\r[%d] <%.30s>%*s ", i, line, (len<30?30-len:0),"");
+			if (i<20) {
+				if (i<1) dbg_print(2, "\n");
+				VIDEO_WaitVSync();
+			}
+		}
+		i++;
+
 		cfg_parseline(line, set_func);
 	}
+	dbg_print(2, "\n");
 	return true;
 }
 
-bool cfg_parsefile(char *fname, void (*set_func)(char*, char*))
+bool cfg_parsefile_old(char *fname, void (*set_func)(char*, char*))
 {
 	FILE *f;
 	char line[500];
@@ -2598,6 +2679,46 @@ bool cfg_parsefile(char *fname, void (*set_func)(char*, char*))
 	return true;
 }
 
+bool cfg_parsefile(char *fname, void (*set_func)(char*, char*))
+{
+	int fd;
+	struct stat st;
+	char *buf = NULL;
+	int size;
+	bool ret;
+	int r;
+
+	dbg_print(2, "parse(%s)", fname);
+	r = stat(fname, &st);
+	if (r != 0) {
+		dbg_print(2, " -\n");
+		return false;
+	}
+	if (st.st_size == 0) {
+		dbg_print(2, " 0\n");
+		return true;
+	}
+	fd = open(fname, O_RDONLY);
+	dbg_print(2, " = %d\n", fd);
+	if (fd < 0) return false;
+	buf = malloc(st.st_size + 32);
+	if (!buf) return false;
+	dbg_print(2, "read(%d)", (int)st.st_size);
+	size = read(fd, buf, st.st_size);
+	dbg_print(2, " = ");
+	close(fd);
+	dbg_print(2, "%d\n", size);
+	if (size != st.st_size) {
+		SAFE_FREE(buf);
+		return false;
+	}
+	buf[size] = 0; // zero terminate
+	ret = cfg_parsebuf(buf, set_func);
+	SAFE_FREE(buf);
+	dbg_print(2, "EOF(%s)\n", fname);
+	return ret;
+}
+
 void cfg_parsearg(int argc, char **argv)
 {
 	int i;
@@ -2605,12 +2726,22 @@ void cfg_parsearg(int argc, char **argv)
 	bool is_opt;
 	for (i=1; i<argc; i++) {
 		//printf("arg[%d]: %s\n", i, argv[i]);
-		is_opt = strchr(argv[i], '=') || strchr(argv[i], '[');
+		is_opt = *argv[i] != '#' && (strchr(argv[i], '=') || strchr(argv[i], '['));
 		if (is_opt) {
 			cfg_parseline(argv[i], &cfg_set);
-		} else if (argv[i][0] != '#') {
-			snprintf(pathname, sizeof(pathname), "%s/%s", USBLOADER_PATH, argv[i]);
-			cfg_parsefile(pathname, &cfg_set);
+		}
+		else if (argv[i][0] != '#') {
+			char *p = strrchr(argv[i], '.');
+			if (p && (stricmp(p, ".txt")==0 || stricmp(p,".cfg")==0)) {
+				if (strchr(argv[i], ':')) {
+					// absolute path
+					cfg_parsefile(pathname, &cfg_set);
+				} else {
+					// relative path
+					snprintf(pathname, sizeof(pathname), "%s/%s", USBLOADER_PATH, argv[i]);
+					cfg_parsefile(pathname, &cfg_set);
+				}
+			}
 		}
 	}
 }
@@ -3027,8 +3158,6 @@ void CFG_release_game(struct Game_CFG_2 *game)
 
 // theme
 
-//int theme_ms = 0;
-
 void get_theme_list()
 {
 	//DIR *dir;
@@ -3069,8 +3198,6 @@ void get_theme_list()
 	}
 	//closedir(dir);	
 	dirclose(dir);	
-
-	//theme_ms = dbg_time2(NULL);
 
 	if (!num_theme) return;
 	qsort(theme_list, num_theme, sizeof(*theme_list),
@@ -3236,13 +3363,14 @@ void cfg_debug(int argc, char **argv)
 		Gui_Console_Enable();
 		__console_scroll = 1;
 	}
+	dbg_printf("debug: %d %d\n", CFG.debug, CFG.debug_gecko);
 	dbg_printf("base_path: %s\n", USBLOADER_PATH);
 	dbg_printf("apps_path: %s\n", APPS_DIR);
-	dbg_printf("bg_path: %s\n", *CFG.background ? CFG.background : "builtin");
-	dbg_printf("covers_path: %s\n", CFG.covers_path);
-	dbg_printf("theme_path: %s\n", CFG.theme_path);
-	dbg_printf("theme: %s \n", CFG.theme);
+	//dbg_printf("bg_path: %s\n", *CFG.background ? CFG.background : "builtin");
+	dbg_printf("covers: %s\n", CFG.covers_path);
+	dbg_printf("theme: %s\n", CFG.theme_path);
 	/*
+	dbg_printf("theme: %s \n", CFG.theme);
 	dbg_printf("covers: %d ", CFG.covers);
 	dbg_printf("w: %d ", COVER_WIDTH);
 	dbg_printf("h: %d ", COVER_HEIGHT);
@@ -3254,12 +3382,6 @@ void cfg_debug(int argc, char **argv)
 	dbg_printf("maxc: %d ", MAX_CHARACTERS);
 	dbg_printf("ent: %d ", ENTRIES_PER_PAGE);
 	*/
-	dbg_printf("music: %d ", CFG.music);
-	dbg_printf("gui: %d ", CFG.gui);
-	extern char *get_cc();
-	dbg_printf("CC: %s ", get_cc());
-	//dbg_printf("theme_ms: %d ", theme_ms);
-	dbg_printf("\n");
 	dbg_printf("url: %s\n", CFG.cover_url_2d_norm);
 	//dbg_printf("t[%.6s]=%s\n", cfg_title[0].id, cfg_title[0].title);
 	//dbg_printf("hide_hdd: %d\n", CFG.hide_hddinfo);
@@ -3267,23 +3389,25 @@ void cfg_debug(int argc, char **argv)
 	//dbg_printf("M1: %p - %p\n", __Arena1Lo, __Arena1Hi);
 	//dbg_printf("M2: %p - %p\n", __Arena2Lo, __Arena2Hi);
 	int i;
-	dbg_printf("\n");
-	dbg_printf("# Hidden Games: %d ", CFG.num_hide_game);
+	dbg_printf("hide: %d", CFG.num_hide_game);
 	for (i=0; i<CFG.num_hide_game; i++) {
-		dbg_printf("%.4s ", CFG.hide_game[i]);
+		dbg_printf(" %.4s", CFG.hide_game[i]);
 	}
 	dbg_printf("\n");
-	dbg_printf("args[%d]: ", argc);
+	dbg_printf("args[%d]:", argc);
 	for (i=0; i<argc; i++) {
-		dbg_printf("[%d]=%s ", i, argv[i]);
+		dbg_printf(" [%d]=%s", i, argv[i]);
 	}
 	dbg_printf("\n");
-	dbg_printf("device: %d\n", CFG.device);
+	dbg_printf("music: %d ", CFG.music);
+	dbg_printf("gui: %d ", CFG.gui);
+	extern char *get_cc();
+	dbg_printf("CC: %s ", get_cc());
+	dbg_printf("\n");
+	dbg_printf("device: %d ", CFG.device);
 	dbg_printf("partition: %s\n", CFG.partition);
 
 	if (CFG.debug) {
-		sleep(1);
-		dbg_printf("\n");
 		Menu_PrintWait();
 	}
 	if (CFG.debug & 2) test_unicode();
@@ -3292,46 +3416,52 @@ void cfg_debug(int argc, char **argv)
 
 void chdir_app(char *arg)
 {
-	char dir[200], *pos1, *pos2;
+	char *pos;
 	struct stat st;
+	int default_try = 0;
 	if (arg == NULL) goto default_dir;
-	// check if starts with sd: or usb:
-	if (strncmp(arg, "sd:/", 4) == 0
-		|| strncmp(arg, "usb:/", 5) == 0)
-	{
-		// trim /boot.dol
-		STRCOPY(APPS_DIR, arg);
-		pos1 = strrchr(APPS_DIR, '/');
-		if (!pos1) goto default_dir;
-		*pos1 = 0;
-		// still a valid path?
-		pos1 = strchr(APPS_DIR, '/');
-		if (!pos1) goto default_dir;
-	} else {
-		// replace fat: with sd:
-		pos1 = strchr(arg, ':');
-		// trim file name
-		pos2 = strrchr(arg, '/');
-		if (pos1 && pos2) {
-			pos1++;
-			//pos2++; don't want trailing /
-			strncpy(dir, pos1, pos2 - pos1);
-			dir[pos2 - pos1] = 0;
-			if (*dir == 0) {
-				// started with wiiload, use default apps_dir
-				goto default_dir;
-			}
-			strcpy(APPS_DIR, FAT_DRIVE);
-			strcat(APPS_DIR, dir);
-		} else {
-			// no path in arg, try the default APPS_DIR
-			default_dir:
-			snprintf(D_S(APPS_DIR), "%s%s", FAT_DRIVE, "/apps/USBLoader");
-		}
+	// replace fat: with sd:
+	if (strncmp(arg, "fat", strlen("fat")) == 0) {
+		pos = strchr(arg, ':');
+		if (!pos) goto default_dir;
+		STRCOPY(APPS_DIR, SDHC_MOUNT);
+		strcat(APPS_DIR, pos);
 	}
+	// check if starts with sd: usb: or ntfs:
+	else if (strncmp(arg, SDHC_MOUNT, strlen(SDHC_MOUNT)) == 0
+		|| strncmp(arg, USB_MOUNT, strlen(USB_MOUNT)) == 0
+		|| strncmp(arg, NTFS_MOUNT, strlen(NTFS_MOUNT)) == 0)
+	{
+		STRCOPY(APPS_DIR, arg);
+		// trim possible drive number
+		pos = strchr(APPS_DIR, ':');
+		if (!pos) goto default_dir;
+		pos--;
+		if (ISDIGIT(*pos)) {
+			memmove(pos, pos+1, strlen(pos));
+		}
+	} else {
+		goto default_dir;
+	}
+	// trim /boot.dol
+	pos = strrchr(APPS_DIR, '/');
+	if (!pos) goto default_dir;
+	*pos = 0;
+	// still a valid path?
+	pos = strchr(APPS_DIR, '/');
+	if (!pos) goto default_dir;
+	goto try_chdir;
+
+	// no path in arg, try the default APPS_DIR
+	default_dir:
+	snprintf(D_S(APPS_DIR), "%s%s", FAT_DRIVE, "/apps/USBLoader");
+	default_try = 1;
+
+	try_chdir:
 	if (stat(APPS_DIR, &st) == 0) {
 		chdir(APPS_DIR);
 	} else {
+		if (!default_try) goto default_dir;
 		*APPS_DIR = 0;
 	}
 }   
@@ -3505,6 +3635,7 @@ void cfg_direct_start(int argc, char **argv)
 // This has to be called BEFORE video & console init
 void CFG_Load(int argc, char **argv)
 {
+	char *arg0 = NULL;
 	char filename[200];
 	struct stat st;
 	bool try_sd = true;
@@ -3517,8 +3648,22 @@ void CFG_Load(int argc, char **argv)
 	// are we started from usb? then check usb first.
 	// also if wiiload supplied first argument is USB_DRIVE, start with usb.
 	if (argc && argv && argv[0]) {
-		if (strncmp(argv[0], USB_DRIVE, 4) == 0
-				|| (argc>1 && strcmp(argv[1], USB_DRIVE) == 0) )
+
+		arg0 = argv[0];
+		// verify that argv[0] is an actual full pathname
+		if (strstr(argv[0], ":/") == NULL) {
+			// it's not, check argv[1] instead
+			// can be useful when running from wiiload
+			if (argc > 1 && argv[1] && strchr(argv[1], ':')
+					&& !strchr(argv[1], '=')) // not an option
+			{
+				arg0 = argv[1];
+				dbg_printf("a1:%s\n", arg0);
+			}
+		}
+
+		// ignore : in case it's numbered
+		if (strncmp(arg0, USB_MOUNT, strlen(USB_MOUNT)) == 0)
 		{
 			if (MountUSB() == 0 && mount_find(USB_DRIVE)) {
 				strcpy(FAT_DRIVE, USB_DRIVE);
@@ -3527,8 +3672,7 @@ void CFG_Load(int argc, char **argv)
 			}
 		}
 		// same logic applies to ntfs:
-		else if (strncmp(argv[0], NTFS_DRIVE, 4) == 0
-				|| (argc>1 && strcmp(argv[1], NTFS_DRIVE) == 0) )
+		else if (strncmp(arg0, NTFS_MOUNT, strlen(NTFS_MOUNT)) == 0)
 		{
 			if (MountUSB() == 0 && mount_find(NTFS_DRIVE)) {
 				strcpy(FAT_DRIVE, NTFS_DRIVE);
@@ -3543,10 +3687,11 @@ void CFG_Load(int argc, char **argv)
 	snprintf(D_S(USBLOADER_PATH), "%s%s", FAT_DRIVE, "/usb-loader");
 
 	// Set current working directory to app path
-	chdir_app(argc ? argv[0] : "");
+	chdir_app(arg0);
 
 	// setup defaults
-  	CFG_Default();
+  	//CFG_Default(); // already called by cfg_parsearg_early
+  	CFG_default_path();
 
 	// load global config
 	snprintf(D_S(filename), "%s/%s", USBLOADER_PATH, "config.txt");
@@ -3561,7 +3706,7 @@ void CFG_Load(int argc, char **argv)
 		if (stat(filename, &st) == 0) {
 			// exists, use old base path
 			STRCOPY(USBLOADER_PATH, pathname);
-		  	CFG_Default(); // reset defaults with old path
+		  	CFG_default_path(); // reset defaults with old path
 			ret = cfg_parsefile(filename, &cfg_set);
 		}
 	}
@@ -3573,7 +3718,7 @@ void CFG_Load(int argc, char **argv)
 		if (stat(filename, &st) == 0) {
 			// exists, use APPS_DIR as base
 			STRCOPY(USBLOADER_PATH, APPS_DIR);
-		  	CFG_Default(); // reset defaults with APPS_DIR
+		  	CFG_default_path(); // reset defaults with APPS_DIR
 			ret = cfg_parsefile(filename, &cfg_set);
 		}
 	}
@@ -3655,6 +3800,7 @@ void CFG_Load(int argc, char **argv)
 
 void CFG_Setup(int argc, char **argv)
 {
+	get_time(&TIME.misc1);
 	cfg_setup3();
 
 	if (CFG.debug) Gui_Console_Enable();
@@ -3678,8 +3824,11 @@ void CFG_Setup(int argc, char **argv)
 		snprintf(D_S(fname), "%s/unifont.dat", USBLOADER_PATH);
 		console_load_unifont(fname);
 	}
+	get_time(&TIME.misc2);
 	// load database
+	get_time(&TIME.wiitdb1);
 	ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0);
+	get_time(&TIME.wiitdb2);
 	cfg_debug(argc, argv);
 }
 
@@ -3765,7 +3914,7 @@ int setPlayStat(u8 *id) {
 #include "wbfs.h"
 
 // initial/max game list size
-int fake_games = 2300;
+int fake_games = 200;
 //int fake_games = 0;
 
 // current game list size
@@ -3783,6 +3932,7 @@ int is_fake(char *id)
 	return 0;
 }
 
+#if 0
 // WBFS_GetCount
 s32 dbg_WBFS_GetCount(u32 *count)
 {
@@ -3841,6 +3991,42 @@ s32 dbg_WBFS_GetCount(u32 *count)
 	*count = fake_num;
 	return 0;
 }
+#else
+// WBFS_GetCount
+
+void add_fake(char *name, char *val)
+{
+	char id[8];
+	if (fake_num >= fake_games) return;
+	// is ID?
+	if (strlen(name) != 6) return;
+	memset(id, 0, sizeof(id));
+	STRCOPY(id, name);
+	// check if already exists, do not ignore region, we want more games
+	if (is_fake(id)) return;
+	fake_list = realloc(fake_list, sizeof(struct discHdr) * (fake_num+1));
+	memset(fake_list+fake_num, 0, sizeof(struct discHdr));
+	memcpy(fake_list[fake_num].id, id, sizeof(fake_list[fake_num].id));
+	STRCOPY(fake_list[fake_num].title, val);
+	//printf("fake %d %.6s %s\n", fake_num,
+	//		fake_list[fake_num].id, fake_list[fake_num].title);
+	fake_num++;
+}
+
+s32 dbg_WBFS_GetCount(u32 *count)
+{
+	char fname[100];
+
+	fake_num = 0;
+	SAFE_FREE(fake_list);
+	if (fake_games < 0) fake_games = 0;
+	sprintf(fname, "%s/%s", USBLOADER_PATH, "gamelist2.txt");
+	printf("fake list: %s\n", fname); sleep(1);
+	cfg_parsefile(fname, add_fake);
+	*count = fake_num;
+	return 0;
+}
+#endif
 
 // WBFS_GetHeaders
 s32 dbg_WBFS_GetHeaders(void *outbuf, u32 cnt, u32 len)

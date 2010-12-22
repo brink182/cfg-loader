@@ -207,7 +207,7 @@ int get_frag_list(u8 *id)
 		if (wbfs_part_fs == PART_FS_FAT) {
 			ret = _FAT_get_fragments(fname, &_frag_append, fs);
 			if (ret) {
-				printf("fat getf: %d\n", ret);
+				printf("ERROR: fat getf: %d\n", ret);
 				// don't return failure, let it fallback to old method
 				//ret_val = ret;
 				ret_val = 0;
@@ -216,9 +216,17 @@ int get_frag_list(u8 *id)
 		} else if (wbfs_part_fs == PART_FS_NTFS) {
 			ret = _NTFS_get_fragments(fname, &_frag_append, fs);
 			if (ret) {
-				printf("ntfs getf: %d\n", ret);
+				printf("ERROR: ntfs getf: %d\n", ret);
 				if (ret == -50 || ret == -500) {
 					printf(gt("Too many fragments! %d"), fs->num);
+					printf("\n");
+				}
+				if (ret == -31) {
+					printf(gt("NTFS compression not supported!"));
+					printf("\n");
+				}
+				if (ret == -32 || ret == -33 || ret == -35) {
+					printf(gt("NTFS encryption not supported!"));
 					printf("\n");
 				}
 				ret_val = ret;

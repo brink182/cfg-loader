@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -374,6 +374,11 @@ msgstr "FOUT: Ongeldig SpelID"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "FOUT: Laden van EHC module! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "FOUT: Geen partities gevonden! (ret = %d)"
@@ -421,6 +426,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "FOUT: cache: te weinig geheugen"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr ""
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -845,6 +854,12 @@ msgstr ""
 "maar bevat een wbfs systeem. Dit is een\n"
 "ongeldige setup. Druk %s om het partitie-\n"
 "type te wijzigen van EXTEND naar data."
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
+msgstr ""
 
 msgid "Network connection established."
 msgstr "Netwerk connectie geslaagd."

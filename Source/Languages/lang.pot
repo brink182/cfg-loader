@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -368,6 +368,11 @@ msgstr ""
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr ""
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr ""
@@ -410,6 +415,10 @@ msgid ""
 msgstr ""
 
 msgid "ERROR: cache: out of memory"
+msgstr ""
+
+#, c-format
+msgid "ERROR: creating: %s"
 msgstr ""
 
 #, c-format
@@ -804,6 +813,12 @@ msgid ""
 "contains a WBFS filesystem. This is an\n"
 "invalid setup. Press %s to change the\n"
 "partition type from EXTEND to data."
+msgstr ""
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
 msgstr ""
 
 msgid "Network connection established."

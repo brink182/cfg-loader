@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -376,6 +376,13 @@ msgstr "ERRORE: ID Gioco Non Valido"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "ERRORE: Loading EHC module! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+"ERRORE: scrittura su NTFS disabilitata!\n"
+"(impostare ntfs_write=1)"
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "ERRORE: Nessuna partizione trovata! (ret = %d)"
@@ -423,6 +430,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "ERRORE: cache: memoria terminata"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr "ERRORE: nella creazione di: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -847,6 +858,12 @@ msgstr ""
 "ma contiene un filesystem WBFS. Questa\n"
 "impostazione è errata. Premi %s per cambiare\n"
 "il tipo di partizione da EXTEND a DATA."
+
+msgid "NTFS compression not supported!"
+msgstr "compressione NTFS non supportata!"
+
+msgid "NTFS encryption not supported!"
+msgstr "criptazione NTFS non supportata!"
 
 msgid "Network connection established."
 msgstr "Connessione di rete stabilita."

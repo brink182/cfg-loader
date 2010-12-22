@@ -11,7 +11,7 @@ export LIBFAT_PATCH	:= 5
 export VERSTRING	:=	$(LIBFAT_MAJOR).$(LIBFAT_MINOR).$(LIBFAT_PATCH)
 
 
-default: release
+default: wii-release
 
 all: release dist
 

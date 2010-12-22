@@ -521,6 +521,7 @@ void Menu_Updates()
 	struct UpdateInfo *u;
 	char app_dir[100];
 	char app_path[100];
+	char app_bak[100];
 	struct stat st;
 	int cols, rows;
 	int max_desc;
@@ -538,8 +539,9 @@ void Menu_Updates()
 
 	STRCOPY(app_dir, APPS_DIR);
 	snprintf(D_S(app_path),"%s/%s", app_dir, "boot.dol");
+	snprintf(D_S(app_bak),"%s/%s", app_dir, "boot.dol.bak");
 	// check if app_dir/boot.dol exists
-	if (stat(app_path, &st) != 0) {
+	if (stat(app_path, &st) != 0 && stat(app_bak, &st) != 0) {
 		// not found, use default path
 		STRCOPY(app_dir, "sd:/apps/usbloader");
 		snprintf(D_S(app_path),"%s/%s", app_dir, "boot.dol");

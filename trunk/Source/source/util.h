@@ -10,6 +10,14 @@
 #include "mem.h"
 #include "debug.h"
 
+#define ISALNUM(c)  (isalnum((int)(unsigned char)(c)))
+#define ISALPHA(c)  (isalpha((int)(unsigned char)(c)))
+#define ISDIGIT(c)  (isdigit((int)(unsigned char)(c)))
+#define ISXDIGIT(c) (isxdigit((int)(unsigned char)(c)))
+#define ISSPACE(c)  (isspace((int)(unsigned char)(c)))
+#define ISLOWER(c)  (islower((int)(unsigned char)(c)))
+#define ISCNTRL(c)  (iscntrl((int)(unsigned char)(c)))
+
 #define STRCOPY(DEST,SRC) strcopy(DEST,SRC,sizeof(DEST)) 
 char* strcopy(char *dest, const char *src, int size);
 

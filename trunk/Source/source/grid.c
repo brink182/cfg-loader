@@ -632,7 +632,7 @@ void transition_scroll(int direction, int grid_i)
 		if (direction > 0) j = i; else j = tran_steps - i;
 		tran = (float)j / (float)tran_steps;
 		step = (float)BACKGROUND_HEIGHT / (float)tran_steps * (float)j;
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
 		GRRLIB_DrawSlice(0, 0, t2_bg_con.tx, 0, 1, 1, 0xFFFFFFFF,
 				0, step, BACKGROUND_WIDTH, BACKGROUND_HEIGHT - step);
 		GRRLIB_DrawSlice(0, BACKGROUND_HEIGHT - step, t2_bg.tx, 0, 1, 1, 0xFFFFFFFF,
@@ -654,7 +654,7 @@ void transition_fade(int direction, int grid_i)
 		if (direction > 0) j = i; else j = tran_steps - i;
 		tran = (float)j / (float)tran_steps;
 		alpha = 255 * j / tran_steps;
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
 
 		color = 0xFFFFFF00 | alpha;
 		GRRLIB_DrawImg(0, 0, t2_bg.tx, 0, 1, 1, color);
@@ -1072,7 +1072,7 @@ void grid_transit_style(int r)
 	grid_covers = max_n;
 	reset_grid();
 	for (i=1; i<tran_steps; i++) {
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
 		Gui_draw_background();
 
 		step = (float)i / (float)tran_steps;
@@ -1136,7 +1136,7 @@ void transition_page_grid(int gi_1, int gi_2)
 	
 	reset_grid();
 	for (i=1; i<tran_steps; i++) {
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
 		if (gi_2 > gi_1) dir = 1; else dir = -1;
 		step = (float)BACKGROUND_WIDTH / (float)tran_steps * (float)i;
 		Gui_draw_background();
@@ -1167,7 +1167,7 @@ void transition_page_flow(float new_scroll)
 	}
 	step = scroll_per_page / tran_steps * dir;
 	for (i=0; i<tran_steps && !end; i++) {
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
 		Gui_draw_background();
 		page_scroll += step;
 		end = update_scroll();

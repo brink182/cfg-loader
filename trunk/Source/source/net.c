@@ -8,6 +8,8 @@
 #include <ogcsys.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#define __LINUX_ERRNO_EXTENSIONS__ // for EBADFD
+#include <sys/errno.h>
 
 #include "disc.h"
 #include "gui.h"
@@ -20,6 +22,7 @@
 #include "xml.h" /* XML - Lustar */
 #include "menu.h"
 #include "gettext.h"
+#include "fat.h"
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
@@ -27,6 +30,7 @@ extern bool imageNotFound;
 extern int gui_style;
 
 static int net_top = -1;
+static int dl_abort = 0;
 
 /*Networking - Forsaekn*/
 int Net_Init(char *ip){
@@ -554,6 +558,16 @@ bool Download_Cover_Style(char *id, int style)
 	printf("[%.6s] : %s %s", id, style_name, gt("cover"));
 	//printf_(gt("Downloading %s cover... (%s)"), style_name, imgName);
 	printf("\n");
+
+	if (strncmp(path, NTFS_DRIVE, strlen(NTFS_DRIVE)) == 0) {
+		if (CFG.ntfs_write == 0) {
+			void print_ntfs_write_error();
+			print_ntfs_write_error();
+			dl_abort = 1;
+			goto dl_err;
+		}
+	}
+	
 	snprintf(imgPath, sizeof(imgPath), "%s/%s", path, imgName);
 
 	// try to download image
@@ -585,7 +599,7 @@ bool Download_Cover_Style(char *id, int style)
 	f = fopen(imgPath, "wb");
 	if (!f) {
 		printf("\n");
-		printf_(gt("Error opening: %s"), imgPath);
+		printf_(gt("ERROR: creating: %s"), imgPath);
 		printf("\n");
 		goto dl_err;
 	}
@@ -674,6 +688,7 @@ void Download_Cover(char *id, bool missing_only, bool verbose)
 	//the first time no image is found, attempt to init network
 	if(!Init_Net()) goto dl_err;
 	if (verbose) printf("\n");
+	dl_abort = 0;
 
 	if (CFG.download_all) {
 		Download_Cover_Missing(id, CFG_COVER_STYLE_2D, missing_only, verbose);
@@ -688,6 +703,7 @@ void Download_Cover(char *id, bool missing_only, bool verbose)
 				Download_Cover_Missing(id, CFG_COVER_STYLE_2D, missing_only, verbose);
 		}
 	}
+	if (dl_abort) goto dl_err;
 
 	return;
 	dl_err:
@@ -711,7 +727,7 @@ void Download_All_Covers(bool missing_only)
 	//dbg_time1();
 	for (i=0; i<gameCnt; i++) {
 		buttons = Wpad_GetButtons();
-		if (buttons & CFG.button_cancel.mask) {
+		if ((buttons & CFG.button_cancel.mask) || dl_abort) {
 			printf("\n");
 			printf_(gt("Cancelled."));
 			printf("\n");
@@ -719,7 +735,7 @@ void Download_All_Covers(bool missing_only)
 			return;
 		}
 		header = &gameList[i];
-		printf("%d / %d %.4s %.25s\n", i, gameCnt, header->id, get_title(header));
+		printf("%d / %d %.4s %.25s\n", i+1, gameCnt, header->id, get_title(header));
 		__console_flush(0);
 		Gui_DrawCover(header->id);
 		Download_Cover((char*)header->id, missing_only, false);
@@ -767,9 +783,12 @@ void Download_XML()
 		goto dl_err;	
 	}
 	printf_x(gt("Downloading database."));
-
-	struct block file = downloadfile_progress(zipurl,1);
 	printf("\n");
+	printf_("%s\n", zipurl);
+
+	printf_("[.");
+	struct block file = downloadfile_progress(zipurl, 64);
+	printf("]\n");
 	
 	if (file.data == NULL) {
 		printf_(gt("Error: no data."));

@@ -16,6 +16,7 @@
 #define SDHC_MEM2_SIZE		0x10000
 
 int sdhc_mode_sd = 0;
+int sdhc_inited = 0;
 
 /* Variables */
 static char fs[] ATTRIBUTE_ALIGN(32) = "/dev/sdio/sdhc";
@@ -30,8 +31,11 @@ bool SDHC_Init(void)
 {
 	s32 ret;
 
+	if (sdhc_inited) return true;
+
 	if (sdhc_mode_sd) {
-		return __io_wiisd.startup();
+		sdhc_inited = __io_wiisd.startup();
+		return sdhc_inited;
 	}
 
 	/* Already open */
@@ -61,6 +65,7 @@ bool SDHC_Init(void)
 	if (ret)
 		goto err;
 
+	sdhc_inited = 1;
 	return true;
 
 err:
@@ -75,6 +80,7 @@ err:
 
 bool SDHC_Close(void)
 {
+	sdhc_inited = 0;
 	if (sdhc_mode_sd) {
 		return __io_wiisd.shutdown();
 	}
@@ -197,7 +203,7 @@ bool __io_SDHC_NOP(void)
 	return true;
 }
 
-const DISC_INTERFACE __io_sdhc = {
+const DISC_INTERFACE my_io_sdhc = {
 	DEVICE_TYPE_WII_SD,
 	FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE | FEATURE_WII_SD,
 	(FN_MEDIUM_STARTUP)&SDHC_Init,
@@ -209,7 +215,7 @@ const DISC_INTERFACE __io_sdhc = {
 	(FN_MEDIUM_SHUTDOWN)&__io_SDHC_Close
 };
 
-const DISC_INTERFACE __io_sdhc_ro = {
+const DISC_INTERFACE my_io_sdhc_ro = {
 	DEVICE_TYPE_WII_SD,
 	FEATURE_MEDIUM_CANREAD | FEATURE_WII_SD,
 	(FN_MEDIUM_STARTUP)      &SDHC_Init,

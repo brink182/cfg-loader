@@ -14,7 +14,7 @@ s32 __Menu_GetEntries(void);
 void Menu_Loop(void);
 void Menu_Options(void);
 void Menu_Partition(bool must_select);
-void Handle_Home(int disable_screenshot);
+void Handle_Home();
 void Theme_Update();
 void Online_Update();
 void Download_Titles();

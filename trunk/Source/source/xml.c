@@ -14,9 +14,65 @@ Load game information from XML - Lustar
 #include "mem.h"
 #include "wpad.h"
 #include "gettext.h"
+#include "debug.h"
 
 #include "unzip/unzip.h"
 #include "unzip/miniunz.h"
+
+typedef struct xmlIndex
+{
+	char *start;
+	char *attr;
+	char *val;  // [-1]: '>' => '\0'
+	char *vend; // '<' => '\0'
+	char *end;  // '>' => '\0'
+} xmlIndex;
+
+struct xmlTag
+{
+	char name[16];
+	int len;
+	int opt;
+};
+
+enum TAG_I
+{
+	TAG_ID,
+	//TAG_TYPE,
+	TAG_REGION,
+	//TAG_LANGUAGES,
+	TAG_LOCALE,
+	TAG_DEVELOPER,
+	TAG_PUBLISHER,
+	TAG_DATE,
+	TAG_GENRE,
+	TAG_RATING,
+	TAG_WIFI,
+	TAG_INPUT,
+	//TAG_ROM,
+	TAG_CASE,
+	TAG_MAX
+};
+
+struct xmlTag tags[] =
+{
+	{ "id" },
+	//{ "type" },
+	{ "region" },
+	//{ "languages" },
+	{ "locale" },
+	{ "developer" },
+	{ "publisher" },
+	{ "date" },
+	{ "genre" },
+	{ "rating" },
+	{ "wi-fi" },
+	{ "input" },
+	//{ "rom" },
+	{ "case" }
+};
+
+struct xmlIndex idx[TAG_MAX];
 
 /* config */
 char xmlCfgLang[3];
@@ -198,6 +254,7 @@ void CloseXMLDatabase()
 
 bool OpenXMLFile(char *filename)
 {
+	get_time(&TIME.db_load1);
 	gameinfo = gameinfo_reset;
 	xml_loaded = false;
 	char* strresult = strstr(filename,".zip");
@@ -243,6 +300,7 @@ bool OpenXMLFile(char *filename)
 		unzCloseCurrentFile(unzfile);
 		unzClose(unzfile);
 	}
+	get_time(&TIME.db_load2);
 
 	xml_loaded = (xmlData == NULL) ? false : true;
 	return xml_loaded;
@@ -346,6 +404,127 @@ void strncpySafe(char *out, char *in, int max, int length) {
 	strlcpy(out, in, ((max < length+1) ? max : length+1));
 }
 
+void prep_tags()
+{
+	int i;
+	for (i=0; i<TAG_MAX; i++) {
+		tags[i].len = strlen(tags[i].name);
+	}
+	tags[TAG_LOCALE].opt = 1;
+}
+
+char* scan_index(char *s, char *etag)
+{
+	int i;
+	int first = 0;
+	int elen = strlen(etag);
+	memset(idx, 0, sizeof(idx));
+	while (1) {
+		s = strchr(s, '<');
+		if (!s) break;
+		s++;
+		if (*s == '/') {
+			s++;
+			// did we reach endtag?
+			if (memcmp(s, etag, elen)==0) {
+				// zero terminate
+				s[-2] = 0;
+				s += elen;
+				break;
+			}
+			continue;
+		}
+		for (i=first; i<TAG_MAX; i++) {
+			if (idx[i].start) {
+				if (i == first) first++;
+				continue;
+			}
+			if (memcmp(s, tags[i].name, tags[i].len)==0) {
+				idx[i].start = s-1;
+				s += tags[i].len;
+				idx[i].attr = s;
+				s = strchr(s, '>');
+				if (!s) goto out;
+				if (tags[i].opt) break;
+				// zero terminate
+				*s = 0;
+				s++;
+				// is closing /> ?
+				if (s[-2] != '/') {
+					idx[i].val = s;
+					// find closing tag
+					while (1) {
+						s = strstr(s, "</");
+						if (!s) goto out;
+						s += 2;
+						if (memcmp(s, tags[i].name, tags[i].len)==0) {
+							// zero terminate
+							s[-2] = 0;
+							idx[i].vend = s - 2;
+							s = strchr(s, '>');
+							if (!s) goto out;
+							idx[i].end = s;
+							s++;
+							break;
+						}
+					}
+				}
+				break;
+			}
+		} // for
+	} // while
+out:
+	/*for (i=0; i<TAG_MAX; i++) {
+		if (idx[i].start) gecko_printf("%s:%p\n", tags[i].name, idx[i].attr);
+	}*/
+	return s;
+}
+
+static inline
+int readVal(xmlIndex *x, char *val, int size)
+{
+	int len;
+	if (!x->val || !x->vend) return 0;
+	len = x->vend - x->val;
+
+	if (len >= size) len = size - 1;
+	//if (len < 0) return 0;
+	memcpy(val, x->val, len);
+	val[len] = 0;
+	return 1;
+}
+
+static inline
+char* readAttr(char *s, char *attr, char *val, int size)
+{
+	char *p1, *p2;
+	*val = 0;
+	if (!s) return NULL;
+	p1 = strstr(s, attr);
+	if (!p1) return NULL;
+	p1 += strlen(attr);
+	if (*p1 == '"') p1++;
+	p2 = strchr(p1, '"');
+	if (!p2) return NULL;
+	strncpySafe(val, p1, size, p2-p1);
+	return p2;
+}
+
+static inline
+char* readAttrInt(char *s, char *attr, int *val)
+{
+	char *p1, *p2;
+	*val = 0;
+	p1 = strstr(s, attr);
+	if (!p1) return NULL;
+	p1 += strlen(attr);
+	if (*p1 == '"') p1++;
+	p2 = strchr(p1, '"');
+	if (!p2) return NULL;
+	*val = atoi(p1);
+	return p2;
+}
+
 int intcpy(char *in, int length) {
 	char tmp[10];
 	strncpy(tmp, in, length);
@@ -362,139 +541,154 @@ void readNode(char * p, char to[], char * open, char * close) {
 	}
 }
 
-void readDate(char * tmp, int n) {
-	char date[5] = "";
-	readNode(tmp, date, "<date year=\"","\" month=\"");
-	game_info[n].year = atoi(date);
-	strlcpy(date, "", 4);
-	readNode(tmp, date, "\" month=\"","\" day=\"");
-	game_info[n].month = atoi(date);
-	strlcpy(date, "", 4);
-	readNode(tmp, date, "\" day=\"","\"/>");
-	game_info[n].day = atoi(date);
+void readDate(xmlIndex *x, struct gameXMLinfo *g)
+{
+	char *p;
+	p = x->attr;
+	if (!p) return;
+	p = readAttrInt(p, " year=", &g->year);
+	if (!p) return;
+	p = readAttrInt(p, " month=", &g->month);
+	if (!p) return;
+	p = readAttrInt(p, " day=", &g->day);
 }
 
-void readRatings(char * start, int n) {
-	char *locStart = strstr(start, "<rating type=\"");
-	char *locEnd = NULL;
-	if (locStart != NULL) {
-		locEnd = strstr(locStart, "</rating>");
-		if (locEnd == NULL) {
-			locEnd = strstr(locStart, "\" value=\"");
-			if (locEnd == NULL) return;
-			strncpySafe(game_info[n].ratingtype, locStart+14, sizeof(gameinfo.ratingtype), locEnd-(locStart+14));
-			locStart = locEnd;
-			locEnd = strstr(locStart, "\"/>");
-			strncpySafe(game_info[n].ratingvalue, locStart+9, sizeof(gameinfo.ratingvalue), locEnd-(locStart+9));
-		} else {
-			char * tmp = strndup(locStart, locEnd-locStart);
-			char * reset = tmp;
-			locEnd = strstr(locStart, "\" value=\"");
-			if (locEnd == NULL) return;
-			strncpySafe(game_info[n].ratingtype, locStart+14, sizeof(gameinfo.ratingtype), locEnd-(locStart+14));
-			locStart = locEnd;
-			locEnd = strstr(locStart, "\">");
-			strncpySafe(game_info[n].ratingvalue, locStart+9, sizeof(gameinfo.ratingvalue), locEnd-(locStart+9));
-			int z = 0;
-			while (tmp != NULL) {
-				if (z >= 15) break;
-				tmp = strstr(tmp, "<descriptor>");
-				if (tmp == NULL) {
-					break;
-				} else {
-					char * s = tmp+strlen("<descriptor>");
-					tmp = strstr(tmp+1, "</descriptor>");
-					strncpySafe(game_info[n].ratingdescriptors[z], s, sizeof(game_info[n].ratingdescriptors[z]), tmp-s);
-					z++;
-				}
+void readRatings(xmlIndex *x, struct gameXMLinfo *g)
+{
+	char *s, *p;
+	s = p = x->attr;
+	if (!s) return;
+	readAttr(s, " type=", g->ratingtype, sizeof(g->ratingtype));
+	readAttr(s, " value=", g->ratingvalue, sizeof(g->ratingvalue));
+	// descriptions not needed
+	/*
+	if (strncmp(locEnd-1, "/>", 2)==0) return;
+	locEnd = strstr(locStart, "</rating>");
+	if (!locEnd) return;
+	else {
+		char * tmp = strndup(locStart, locEnd-locStart);
+		char * reset = tmp;
+		locEnd = strstr(locStart, "\" value=\"");
+		if (locEnd == NULL) return;
+		strncpySafe(g_info->ratingtype, locStart+14, sizeof(gameinfo.ratingtype), locEnd-(locStart+14));
+		locStart = locEnd;
+		locEnd = strstr(locStart, "\">");
+		strncpySafe(g_info->ratingvalue, locStart+9, sizeof(gameinfo.ratingvalue), locEnd-(locStart+9));
+		int z = 0;
+		while (tmp != NULL) {
+			if (z >= 15) break;
+			tmp = strstr(tmp, "<descriptor>");
+			if (tmp == NULL) {
+				break;
+			} else {
+				char * s = tmp+strlen("<descriptor>");
+				tmp = strstr(tmp+1, "</descriptor>");
+				strncpySafe(g_info->ratingdescriptors[z], s, sizeof(g_info->ratingdescriptors[z]), tmp-s);
+				z++;
 			}
-			tmp = reset;
-			SAFE_FREE(tmp);
 		}
-		locStart = strstr(locEnd, "<rating type=\"");
+		tmp = reset;
+		SAFE_FREE(tmp);
+	}
+	*/
+}
+
+void readPlayers(xmlIndex *x, struct gameXMLinfo *g)
+{
+	readAttrInt(x->attr, "players=", &g->players);
+}
+
+void readCaseColor(xmlIndex *x, struct gameXMLinfo *g)
+{
+	char cc[16];
+	int len, num;
+	u32 col;
+	g->caseColor = 0x0;
+	if (!x->attr) return;
+	char *p = readAttr(x->attr, "color=", cc, sizeof(cc));
+	if (!p) return;
+	num = sscanf(cc, "%x%n", &col, &len);
+	if (num == 1 && len == 6) {
+		// force alpha to opaque and mark color found
+		// (so black can be specified too)
+		g->caseColor = (col << 8) | 0xFF;
+		//gecko_printf("case: %s -> %08x\n", cc, g->caseColor);
 	}
 }
 
-void readPlayers(char * start, int n) {
-	char *locStart = strstr(start, "<input players=\"");
-	char *locEnd = NULL;
-	if (locStart != NULL) {
-		locEnd = strstr(locStart, "</input>");
-		if (locEnd == NULL) {
-			locEnd = strstr(locStart, "\"/>");
-			if (locEnd == NULL) return;
-			game_info[n].players = intcpy(locStart+16, locEnd-(locStart+16));
+void readWifi(xmlIndex *x, struct gameXMLinfo *g)
+{
+	char *p;
+	if (!x->attr) return;
+	p = readAttrInt(x->attr, " players=", &g->wifiplayers);
+	if (!p) return;
+	char *tmp = x->val;
+	char *s;
+	int z = 0;
+	while (tmp != NULL) {
+		if (z >= 7) break;
+		tmp = strstr(tmp, "<feature>");
+		if (!tmp) break;
+		s = tmp+strlen("<feature>");
+		tmp = strstr(s, "</feature>");
+		if (!tmp) break;
+		strncpySafe(g->wififeatures[z], s, sizeof(g->wififeatures[z]), tmp-s);
+		z++;
+	}
+}
+
+
+void readControls(char * start, struct gameXMLinfo *g)
+{
+	int z = 0;
+	int y = 0;
+	char *p = start;
+	while (p != NULL) {
+		p = strstr(p, "<control type=\"");
+		if (p == NULL) {
+			break;
 		} else {
-			game_info[n].players = intcpy(locStart+16, strstr(locStart, "\">")-(locStart+16));
-		}
-	}
-}
-
-void readCaseColor(char * start, int n) {
-	game_info[n].caseColor = 0x0;
-	char *locStart = strstr(start, "<case color=\"");
-	if (locStart != NULL) {
-		char cc[9];
-		int col, len, num;
-		strcopy(cc, locStart+13, 7);
-		STRAPPEND(cc, "00");  //force alpha to 00
-		num = sscanf(cc,"%8x%n", &col, &len);
-		if (num == 1 && len == 8)
-			game_info[n].caseColor = (u32)col;
-	}
-}
-
-void readWifi(char * start, int n) {
-	char *locStart = strstr(start, "<wi-fi players=\"");
-	char *locEnd = NULL;
-	if (locStart != NULL) {
-		locEnd = strstr(locStart, "</wi-fi>");
-		if (locEnd == NULL) {
-			locEnd = strstr(locStart, "\"/>");
-			if (locEnd == NULL) return;
-			game_info[n].wifiplayers = intcpy(locStart+16, locEnd-(locStart+16));
-		} else {
-			game_info[n].wifiplayers = intcpy(locStart+16, strstr(locStart, "\">")-(locStart+16));
-			char * tmp = strndup(locStart, locEnd-locStart);
-			char * reset = tmp;
-			int z = 0;
-			while (tmp != NULL) {
-				if (z >= 7) break;
-				tmp = strstr(tmp, "<feature>");
-				if (tmp == NULL) {
-					break;
-				} else {
-					char * s = tmp+strlen("<feature>");
-					tmp = strstr(tmp+1, "</feature>");
-					strncpySafe(game_info[n].wififeatures[z], s, sizeof(game_info[n].wififeatures[z]), tmp-s);
-					z++;
-				}
+			if (y >= 15 && z >= 15) break;
+			char * s = p+strlen("<control type=\"");
+			p = strstr(p+1, "\" required=\"");
+			bool required = (*(p+12) == 't' || *(p+12) == 'T');
+			if (!required) {
+				if (z < 15) strncpySafe(g->accessories[z], s, sizeof(g->accessories[z]), p-s);
+				z++;
+			} else {
+				if (y < 15) strncpySafe(g->accessoriesReq[y], s, sizeof(g->accessoriesReq[y]), p-s);
+				y++;
 			}
-			tmp = reset;
-			SAFE_FREE(tmp);
 		}
 	}
 }
 
-void readTitles(char * start, int n) {
+
+void readTitles(xmlIndex *x, struct gameXMLinfo *g)
+{
 	char *locStart;
-	char *locEnd = start;
-	char tmpLang[3];
+	char *locEnd;
+	char *tmpLang;
 	int found = 0;
 	int title = 0;
 	int synopsis = 0;
 	char *locTmp;
 	char *titStart;
 	char *titEnd;
+
+	if (!x->start) return;
+	locEnd = x->start;
+
 	while ((locStart = strstr(locEnd, "<locale lang=\"")) != NULL) {
-		strcpy(tmpLang, "");
 		locEnd = strstr(locStart, "</locale>");
 		if (locEnd == NULL) {
 			locEnd = strstr(locStart, "\"/>");
 			if (locEnd == NULL) break;
 			continue;
 		}
-		strlcpy(tmpLang, locStart+14, 3);
+		*locEnd = 0; // zero terminate
+		locEnd++; // move to next entry
+		tmpLang = locStart+14;
 		if (memcmp(tmpLang, xmlCfgLang, 2) == 0) {
 			found = 3;
 		} else if (memcmp(tmpLang, "EN", 2) == 0) {
@@ -505,14 +699,14 @@ void readTitles(char * start, int n) {
 		// 3. get the configured language text
 		// 2. if not found, get english
 		// 1. else get whatever is found
-		locTmp = strndup(locStart, locEnd-locStart);
+		locTmp = locStart;
 		if (title < found) {
 			titStart = strstr(locTmp, "<title>");
 			if (titStart != NULL) {
 				titEnd = strstr(titStart, "</title>");
-				strncpySafe(game_info[n].title, titStart+7,
-						sizeof(game_info[n].title), titEnd-(titStart+7));
-				unescape(game_info[n].title, sizeof(game_info[n].title));
+				strncpySafe(g->title, titStart+7,
+						sizeof(g->title), titEnd-(titStart+7));
+				unescape(g->title, sizeof(g->title));
 				title = found;
 			}
 		}
@@ -520,38 +714,42 @@ void readTitles(char * start, int n) {
 			titStart = strstr(locTmp, "<synopsis>");
 			if (titStart != NULL) {
 				titEnd = strstr(titStart, "</synopsis>");
-				strncpySafe(game_info[n].synopsis, titStart+10,
-						sizeof(game_info[n].synopsis), titEnd-(titStart+10));
+				strncpySafe(g->synopsis, titStart+10,
+						sizeof(g->synopsis), titEnd-(titStart+10));
 				synopsis = found;
 			}
 		}
-		SAFE_FREE(locTmp);
-		if (synopsis == 3) break;
+		if (title == 3 && synopsis == 3) break;
 	}
 }
+
+
 
 void LoadTitlesFromXML(char *langtxt, bool forcejptoen)
 {
 	int n = 0;
-	char * reset = xmlData;
-	char * start;
-	char * end;
-	char * tmp;
+	char * pos = xmlData;
 	xmlgameCnt = 0;
 	bool forcelang = false;
+	struct gameXMLinfo *g;
 	if (strcmp(langtxt,""))
 		forcelang = true;
-	if (forcelang)
-		strcpy(xmlCfgLang, (strlen(langtxt) == 2) ? VerifyLangCode(langtxt) : ConvertLangTextToCode(langtxt)); // convert language text into ISO 639 two-letter language code
+	if (forcelang) {
+		// convert language text into ISO 639 two-letter language code
+		strcpy(xmlCfgLang, (strlen(langtxt) == 2) ? VerifyLangCode(langtxt) : ConvertLangTextToCode(langtxt));
+	}
 	if (forcejptoen && (!strcmp(xmlCfgLang,"JA")))
 		strcpy(xmlCfgLang,"EN");
+	
+	prep_tags();
+
 	while (1) {
 		if (xmlgameCnt >= array_size) {
 			void *ptr;
-			array_size++;
+			array_size += 10;
 			ptr = mem1_realloc(game_info, (array_size * sizeof(struct gameXMLinfo)));
 			if (!ptr) {
-				array_size--;
+				array_size -= 10;
 				printf("ERROR: out of memory!\n");
 				mem_stat();
 				xml_stat();
@@ -560,63 +758,37 @@ void LoadTitlesFromXML(char *langtxt, bool forcejptoen)
 			}
 			game_info = (struct gameXMLinfo*)ptr;
 		}
-		start = strstr(xmlData, "<game");
-		if (start == NULL) {
+		pos = strstr(pos, "<game");
+		if (pos == NULL) {
 			break;
 		}
-		end = strstr(start, "</game");
-		if (end == NULL) {
+		pos = scan_index(pos, "game");
+		if (pos == NULL) {
 			break;
 		}
-		tmp = strndup(start, end-start);
-		xmlData = end;
-		memset(&game_info[n], 0, sizeof(game_info[n]));
-		readNode(tmp, game_info[n].id, "<id>", "</id>");//ok
-		if (game_info[n].id[0] == '\0') { //WTF? ERROR
+		g = &game_info[n];
+		//memset(g, 0, sizeof(*g)); //already done by mem1_realloc
+		#define READ_VAL(T,V) readVal(idx+T, V, sizeof(V))
+		READ_VAL(TAG_ID, g->id);
+		if (g->id[0] == '\0') { //WTF? ERROR
 			printf(" ID NULL\n");
-			SAFE_FREE(tmp);
 			break;
 		}
-
-		readTitles(tmp, n);
-		readRatings(tmp, n);
-		readDate(tmp, n);
-		readWifi(tmp, n);
-		
-		int z = 0;
-		int y = 0;
-		char * p = tmp;
-		while (p != NULL) {
-			p = strstr(p, "<control type=\"");
-			if (p == NULL) {
-				break;
-			} else {
-				if (y >= 15 && z >= 15) break;
-				char * s = p+strlen("<control type=\"");
-				p = strstr(p+1, "\" required=\"");
-				bool required = (*(p+12) == 't' || *(p+12) == 'T');
-				if (!required) {
-					if (z < 15) strncpySafe(game_info[n].accessories[z], s, sizeof(game_info[n].accessories[z]), p-s);
-					z++;
-				} else {
-					if (y < 15) strncpySafe(game_info[n].accessoriesReq[y], s, sizeof(game_info[n].accessoriesReq[y]), p-s);
-					y++;
-				}
-			}
-		}
-		
-		readNode(tmp, game_info[n].region, "<region>", "</region>");
-		readNode(tmp, game_info[n].developer, "<developer>", "</developer>");
-		readNode(tmp, game_info[n].publisher, "<publisher>", "</publisher>");
-		readNode(tmp, game_info[n].genre, "<genre>", "</genre>");
-		readCaseColor(tmp, n);
-		readPlayers(tmp, n);
+		readTitles(idx+TAG_LOCALE, g);
+		readDate(idx+TAG_DATE, g);
+		readRatings(idx+TAG_RATING, g);
+		readWifi(idx+TAG_WIFI, g);
+		readControls(idx[TAG_INPUT].val, g);
+		READ_VAL(TAG_REGION, g->region);
+		READ_VAL(TAG_DEVELOPER, g->developer);
+		READ_VAL(TAG_PUBLISHER, g->publisher);
+		READ_VAL(TAG_GENRE, g->genre);
+		readCaseColor(idx+TAG_CASE, g);
+		readPlayers(idx+TAG_INPUT, g);
 		//ConvertRating(game_info[n].ratingvalue, gameinfo[n].ratingtype, "ESRB");
-		SAFE_FREE(tmp);
 		n++;
 		xmlgameCnt++;
 	}
-	xmlData = reset;
 	SAFE_FREE(xmlData);
 	return;
 }
@@ -862,4 +1034,44 @@ wchar_t* charToWideChar(char* strChar) {
 	
 	return *strWChar;
 }
+
+/*
+	<game name="Wii Play (USA) (EN,FR,ES)">
+		<id>RHAE01</id>
+		<type/>
+		<region>NTSC-U</region>
+		<languages>EN,FR,ES</languages>
+		<locale lang="EN">
+			<title>Wii Play</title>
+			<synopsis>Bundled with a Wii Remote, Wii Play offers a little something for everyone who enjoyed the pick-up-and-play gaming of Wii Sports.
+
+Wii Play is made up of nine games that will test the physical and mental reflexes of players of all ages.
+
+Whether you pick up the Wii Remote to play the shooting gallery that harkens back to the days of Duck Hunt or use it to find matching Miis, a world of fun is in your hands!
+
+In addition to the shooting gallery and Mii-matching game, Wii play offers billiards, air hockey, tank battles, table tennis rally, Mii poses and a cow-riding race.</synopsis>
+		</locale>
+		<locale lang="ZHTW">
+			<title>Wii第一次接觸(美)</title>
+			<synopsis/>
+		</locale>
+		<locale lang="ZHCN">
+			<title>Wii第一次接触(美)</title>
+			<synopsis/>
+		</locale>
+		<developer>Nintendo EAD</developer>
+		<publisher>Nintendo</publisher>
+		<date year="2007" month="2" day="12"/>
+		<genre>miscellaneous</genre>
+		<rating type="ESRB" value="E">
+			<descriptor>mild cartoon violence</descriptor>
+		</rating>
+		<wi-fi players="0"/>
+		<input players="2">
+			<control type="wiimote" required="true"/>
+			<control type="nunchuk" required="true"/>
+		</input>
+		<rom version="" name="Wii Play (USA) (EN,FR,ES).iso" size="4699979776" crc="ffbe5d7f" md5="ac33937e2e14673f7607b6889473089e" sha1="cf734f2c97292bc4e451bf263b217aa35599062e"/>
+	</game>
+*/
 

@@ -158,6 +158,7 @@ void getWiiMoteInfo() {
  *  @return void
  */
 void Coverflow_Grx_Init() {
+	GRRLIB_texImg tx_tmp;
 	showingFrontCover = true;
 
 	if (!grx_cover_init) {
@@ -169,11 +170,6 @@ void Coverflow_Grx_Init() {
 		GX_InitTexObj(&texCoverFront, tx_cover_front.data, tx_cover_front.w, tx_cover_front.h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
 		GX_InitTexObj(&texCoverSide, tx_cover_side.data, tx_cover_side.w, tx_cover_side.h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
 
-		//store the hourglass image pasted into the noimage fullcover image
-		GRRLIB_texImg tx_tmp;
-		tx_tmp = Gui_paste_into_fullcover(tx_hourglass.data, tx_hourglass.w, tx_hourglass.h, t2_nocover_full.tx.data, t2_nocover_full.tx.w, t2_nocover_full.tx.h);
-		cache2_tex(&t2_hourglass_full, &tx_tmp);
-		
 		if (CFG.gui_compress_covers) {
 			//store a CMPR version of the full cover
 			void *buf1;
@@ -307,19 +303,23 @@ float linearOut(float t, float b , float c, float d) {
 }
 
 float easeOutQuad(float t, float b , float c, float d) {
-	return -c *(t/=d)*(t-2) + b;
+	t /= d;
+	return -c * t*(t-2) + b;
 }
 
 float easeOutCubic(float t, float b , float c, float d) {
-	return c*((t=t/d-1)*t*t + 1) + b;
+	t = t/d - 1;
+	return c*(t*t*t + 1) + b;
 }
 
 float easeOutQuart(float t, float b , float c, float d) {
-	return -c * ((t=t/d-1)*t*t*t - 1) + b;
+	t = t/d - 1;
+	return -c * (t*t*t*t - 1) + b;
 }
 
 float easeOutQuint(float t, float b , float c, float d) {
-	return c*((t=t/d-1)*t*t*t*t + 1) + b; //Quint
+	t = t/d - 1;
+	return c*(t*t*t*t*t + 1) + b; //Quint
 }
 
 float easeOutExpo(float t, float b , float c, float d) {
@@ -2468,7 +2468,7 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
 				covertype = COVERPOS_CONSOLE_3D;
 			
 			//check if the pointer is over a cover
-			Wpad_getIR(WPAD_CHAN_0, &ir);
+			Wpad_getIR(&ir);
 			if (showingFrontCover) {
 				i = is_over_cover(&ir);
 			} else {
@@ -2505,7 +2505,7 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
 			CFG_cf_global.transition = CF_TRANS_MOVE_TO_CONSOLE;
 			//we have to loop the rendering here since we're leaving gui mode
 			for (i=0; i<CFG_cf_global.frameCount; i++) {
-				Wpad_getIR(WPAD_CHAN_0, &ir);
+				Wpad_getIR(&ir);
 				Coverflow_drawCovers(&ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, coverCount, false);
 				Gui_draw_pointer(&ir);
 				Gui_Render();
@@ -2540,7 +2540,7 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
 			CFG_cf_global.transition = CF_TRANS_MOVE_FROM_CONSOLE;
 			//loop the transition rendering...
 			for (i=0; i<CFG_cf_global.frameCount; i++) {
-				Wpad_getIR(WPAD_CHAN_0, &ir);
+				Wpad_getIR(&ir);
 				Coverflow_drawCovers(&ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, coverCount, false);
 				Gui_draw_pointer(&ir);
 				Gui_Render();

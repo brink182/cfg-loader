@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	60
+VERSION		:=	61
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
 BINBASE		:=	cfg$(VERSION)
@@ -33,16 +33,32 @@ INSTDIR		:=  ../Cfg_USB_Loader_$(VERSION)
 # options for code generation
 #---------------------------------------------------------------------------------
 
+DEVKITPPCVER := $(shell $(DEVKITPPC)/bin/$(CC) --version | sed 's/^.*(devkitPPC release \([0-9]*\)).*$$/\1/;q')
+ifeq ($(DEVKITPPCVER),17)
+	DKV		:=	$(DEVKITPPCVER)
+else
+	DKV		:=	$(DEVKITPPCVER)
+endif
+PORTLIBS = $(DEVKITPRO)/portlibs/ppc
+
 BUILD_222	:=	0
 ifeq ($(BUILD_222),1)
 	BUILD	:=	build_222
-	TARGET		:=	$(BINBASE)-222
+	TARGET	:=	$(BINBASE)-222
+	BUILD_222_FLAG := -DBUILD_222=$(BUILD_222)
 endif
-BUILD_FLAGS = -DBUILD_222=$(BUILD_222) -DVERSION=$(VERSION)
+
+BUILD_DEBUG	:=	0
+ifeq ($(BUILD_DEBUG),1)
+	BUILD	:=	build_dbg
+	TARGET	:=	$(BINBASE)-dbg
+	BUILD_DBG_FLAG := -DBUILD_DBG=3
+endif
 #"-g" tells the compiler to include support for the debugger
 #"-Wall" tells it to warn us about all suspicious-looking code
 DEBUG_OPT	= -Os
 #DEBUG_OPT	= -g
+BUILD_FLAGS = -DVERSION=$(VERSION) -DDEVKITPPCVER=$(DEVKITPPCVER) -DCCOPT=\"$(DEBUG_OPT)\" $(BUILD_222_FLAG) $(BUILD_DBG_FLAG)
 CFLAGS	= $(DEBUG_OPT) -Wall $(MACHDEP) $(INCLUDE) $(BUILD_FLAGS) $(DEFINES)
 CXXFLAGS	=	$(CFLAGS)
 
@@ -58,14 +74,21 @@ LDFLAGS	=	$(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80a80000
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 #LIBS	:=	-lmetaphrasis -lfreetype -lasnd -lpng -lz -lfat -lwiiuse -lbte -lmad -lmodplay -logc -lm -ltremor
-LIBS	:=	-lfat -lntfs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
+LIBAESND=$(wildcard $(LIBOGC_LIB)/libaesnd.a)
+ifneq ($(strip $(LIBAESND)),)
+LAESND  := -laesnd
+endif
+
+#LIBS	:=	-lfat$(DKV) -lntfs$(DKV) -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd $(LAESND) -logc -lm -lz
+LIBS	:=	-lfat$(DKV) -lntfs$(DKV) -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
+
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
 #LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/freetype $(CURDIR)/lib/libfat
-LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs_new $(CURDIR)/lib/jpeg
+LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs_new $(CURDIR)/lib/jpeg $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -125,10 +148,14 @@ $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@echo
 	@echo Building $(TARGET) $(BUILD_FLAGS)
-	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	@grep _V_STR $(LIBOGC_INC)/ogc/libversion.h | cut -f2 -d'"'
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 222:
-	@make --no-print-directory BUILD_222=1
+	@$(MAKE) --no-print-directory BUILD_222=1
+
+debug:
+	@$(MAKE) --no-print-directory BUILD_DEBUG=1
 
 #---------------------------------------------------------------------------------
 lang:
@@ -138,17 +165,18 @@ lang:
 	@xgettext --sort-output --no-wrap --no-location -k -kgt -o Languages/$@$(VERSION).pot source/*.c
 
 #---------------------------------------------------------------------------------
-all:
-	@echo Make All
-	@make --no-print-directory build
-	@make --no-print-directory BUILD_222=1
-	@make --no-print-directory lang
+all: $(BUILD) 222 lang
+	@echo Done All
+#	@make --no-print-directory build
+#	@make --no-print-directory BUILD_222=1
+#	@make --no-print-directory lang
 
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
 	@rm -fr $(BUILD)_222 $(OUTPUT)-222.elf $(OUTPUT)-222.dol
+	@rm -fr $(BUILD)_dbg $(OUTPUT)-dbg.elf $(OUTPUT)-dbg.dol
 
 cleanall: clean
 	@rm -fr *.dol *.elf
@@ -228,8 +256,8 @@ upload_full:
 
 install:
 	cp $(BINBASE).dol $(INSTDIR)/inSDRoot/apps/USBLoader/boot.dol
-	rm $(INSTDIR)/*.dol
-	cp $(BINBASE)-222.dol $(INSTDIR)/
+	-rm $(INSTDIR)/*.dol
+	#cp $(BINBASE)-222.dol $(INSTDIR)/
 	cp README-CFG.txt $(INSTDIR)/
 	sed -i 's/<version>.*</<version>'$(VERSION)' (release)</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
 	sed -i 's/<release_date>.*</<release_date>'`date +%Y%m%d000000`'</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
@@ -260,6 +288,10 @@ $(OUTPUT).elf: $(OFILES)
 %.ttf.o : %.ttf
 	@echo $(notdir $<)
 	@$(bin2o)
+
+#%.o: %.c
+#	@echo $(notdir $<)
+#	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@
 
 -include $(DEPENDS)
 

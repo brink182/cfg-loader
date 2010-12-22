@@ -14,6 +14,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
+#include <ogc/libversion.h>
 
 #include "mem.h"
 #include "util.h" // required for memcheck
@@ -275,6 +276,9 @@ void heap_init(heap *h, void *ptr, int size)
 	h->free_list.num = 1;
 	h->free_list.list[0].ptr = ptr;
 	h->free_list.list[0].size = size;
+	// 0.4 sec for 60mb
+	//memset(ptr, 0, size);
+	//DCFlushRange(ptr, size);
 }
 
 int heap_ptr_inside(heap *h, void *ptr)
@@ -304,11 +308,15 @@ void mem_init()
 	void *m1_start = (void*)0x80004000;
 	void *m1_end   = (void*)0x80a00000;
 	void *m2_start;
-	int   m2_size;
-	m2_size = SYS_GetArena2Hi() - SYS_GetArena2Lo();
-	// leave 512k of mem2 (sys_arena2) free
-	// 211k will be used by wpad, 300k remains just in case...
-	m2_size = (m2_size >> 2 << 2) - 512*1024;
+	u32   m2_size;
+	//m2_size = SYS_GetArena2Hi() - SYS_GetArena2Lo();
+	m2_size = SYS_GetArena2Size();
+	// leave 2MB of mem2 (sys_arena2) free
+	// 211k will be used by wpad, 64k net
+	// if less is free and devkit>17 it crashes at net download
+	m2_size -= 2*1024*1024;
+	// align to 32 bytes
+	m2_size &= ~(32-1);
 	m2_start = SYS_AllocArena2MemLo(m2_size, 32);
 	heap_init(&mem1, m1_start, m1_end - m1_start);
 	heap_init(&mem2, m2_start, m2_size);
@@ -426,8 +434,24 @@ void mem_stat_str(char * buffer)
 	heap_stats hs1, hs2;
 	heap_stat(&mem1, &hs1);
 	heap_stat(&mem2, &hs2);
-	*buffer = 0;
 	#define fMB (1024.0 * 1024.0)
+	void *p;
+	int size;
+	struct mallinfo m = mallinfo();
+	for (size = 10*1024*1024; size > 0; size -= 16*1024) {
+		p = memalign(32, size);
+		if (p) {
+			m = mallinfo();
+			free(p);
+			break;
+		}
+	}
+	*buffer = 0;
+	sprintf(buffer, "%slibc: s:%5.2f u:%5.2f f:%5.2f mx:%.2f\n", buffer,
+			m.arena / fMB,
+			(m.uordblks-size) / fMB,
+			(m.fordblks+size) / fMB,
+			size / fMB);
 	sprintf(buffer, "%smem1: s:%5.2f u:%5.2f f:%5.2f t:%d,%d\n", buffer,
 			hs1.size / fMB,
 			hs1.used / fMB,
@@ -442,34 +466,27 @@ void mem_stat_str(char * buffer)
 			(hs1.size+hs2.size) / fMB,
 			(hs1.used+hs2.used) / fMB,
 			(hs1.free+hs2.free) / fMB);
-	void *p;
-	int size;
-	struct mallinfo m = mallinfo();
-	for (size = 10*1024*1024; size > 0; size -= 16*1024) {
-		p = memalign(32, size);
-		if (p) {
-			m = mallinfo();
-			free(p);
-			break;
-		}
-	}
-	sprintf(buffer, "%ssys1: s:%5.2f u:%5.2f f:%5.2f mx:%.2f\n", buffer,
-			m.arena / fMB,
-			(m.uordblks-size) / fMB,
-			(m.fordblks+size) / fMB,
-			size / fMB);
 	sprintf(buffer, "%stotl: s:%5.2f u:%5.2f f:%5.2f\n", buffer,
 			(hs1.size+hs2.size + m.arena) / fMB,
 			(hs1.used+hs2.used + m.uordblks-size) / fMB,
 			(hs1.free+hs2.free + m.fordblks+size) / fMB);
-	//printf("max malloc: %.2f\n", (float)size/1024/1024);
 }
 
 void mem_stat()
 {
 	char buffer[1000];
+	printf("\n");
+#ifdef _V_OGC_SVN
+	printf("libOGC %s ", "svn" _V_OGC_SVN);
+#else
+	printf("libOGC %d.%d.%d ", _V_MAJOR_, _V_MINOR_, _V_PATCH_);
+#endif
+	printf("devkitPPC %d ", DEVKITPPCVER);
+	printf("(gcc%d.%d.%d)", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	//__VERSION__
+	printf(" %s\n", CCOPT);
 	mem_stat_str(buffer);
-	printf("\n%s", buffer);
+	printf("%s", buffer);
 
 	/*
 	printf("\n");

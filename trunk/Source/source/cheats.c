@@ -127,11 +127,11 @@ bool is_code(char *line)
 	if (line[8] != ' ') return false;
 	// check if address is valid
 	for (i=0; i<8; i++) {
-		if (!isxdigit(line[i])) return false;
+		if (!ISXDIGIT(line[i])) return false;
 	}
 	// check if value is hex
 	for (i=9; i<17; i++) {
-		if (!isalnum(line[i])) return false;
+		if (!ISALNUM(line[i])) return false;
 	}
 	return true;
 }
@@ -145,7 +145,7 @@ bool is_editable(char *line)
 	if (!is_code(line)) return false;
 	for (i=9; i<17; i++) {
 		// is hex digit?
-		if (!isxdigit(line[i])) return true;
+		if (!ISXDIGIT(line[i])) return true;
 	}
 	return false;
 }

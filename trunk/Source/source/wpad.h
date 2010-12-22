@@ -11,8 +11,10 @@ u32  Wpad_GetButtons(void);
 u32  Wpad_WaitButtons(void);
 u32  Wpad_WaitButtonsRpt(void);
 u32  Wpad_WaitButtonsCommon(void);
+u32  Wpad_HeldButtons(void);
 u32  Wpad_Held(int);
-void Wpad_getIR(int n, struct ir_t *ir);
+void Wpad_getIRx(int n, struct ir_t *ir);
+void Wpad_getIR(struct ir_t *ir);
 
 #define WPAD_BUTTON_Z					(0x0001<<16)
 #define WPAD_BUTTON_C					(0x0002<<16)

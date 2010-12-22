@@ -22,7 +22,7 @@
 								 printf("\n\n"); } while(0)
 
 // 1 cluster less than 4gb
-u64 OPT_split_size = (u64)4LL * 1024 * 1024 * 1024 - 32 * 1024;
+//u64 OPT_split_size = (u64)4LL * 1024 * 1024 * 1024 - 32 * 1024;
 // 1 cluster less than 2gb
 //u64 OPT_split_size = (u64)2LL * 1024 * 1024 * 1024 - 32 * 1024;
 

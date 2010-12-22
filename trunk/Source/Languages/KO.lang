@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-08-21 01:00+0100\n"
 "Last-Translator: cherries4u <cherries4u@hanmail.net>\n"
 "Language-Team: Korean Translation Team<cherries4u@hanmail.net>\n"
@@ -378,6 +378,13 @@ msgstr "오류: 잘못된 게임 ID 입니다."
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "오류: EHC모듈 불러오기 (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+"오류: NTFS 쓰기가 금지되어 있습니다.\n"
+"ntfs_write=1을 설정하세요."
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "오류: 파티션을 찾을 수 없습니다. (리턴값 = %d)"
@@ -426,6 +433,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "오류: 캐쉬 메모리 부족"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr "오류: %s 만들기"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -849,6 +860,12 @@ msgstr ""
 "WBFS 파일시스템을 설치하셨습니다. 이것은\n"
 "잘못된 설정이므로 %s 를 누르셔서 파티션\n"
 "타입을 확장에서 데이터로 바꾸세요."
+
+msgid "NTFS compression not supported!"
+msgstr "NTFS 압축이 지원되지 않습니다."
+
+msgid "NTFS encryption not supported!"
+msgstr "NTFS 암호화가 지원되지 않습니다."
 
 msgid "Network connection established."
 msgstr "네트워크에 접속했습니다."

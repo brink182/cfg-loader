@@ -376,14 +376,6 @@ void _Music_Start()
 void Music_Start()
 {
 	_Music_Start();
-	if (CFG.debug) {
-		sleep(1);
-		printf("\n");
-		printf_(gt("Press any button to continue..."));
-		printf("\n\n");
-		Wpad_WaitButtons();
-		Con_Clear();
-	}
 }
 
 #if 0

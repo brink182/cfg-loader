@@ -123,14 +123,43 @@ bool Device_WriteSectors(u32 device, u32 sector, u32 count, void *buffer)
 	return false;
 }
 
+int is_valid_ptable(partitionTable *table)
+{
+	int i, n;
+	partitionEntry *entry = &table->entries[0];
+	// check if there is something that looks like a partition table
+	n = 0;
+	for (i=0; i<4; i++) {
+		// boot (status) has to be 0 or 0x80
+		if (entry[i].boot != 0 && entry[i].boot != 0x80) return 0;
+		// check if partition used
+		if (entry[i].type == 0) continue;
+		n++;
+		// type has to be between 0-0x27 or 0x80-0xff
+		if (entry[i].type > 0x27 && entry[i].type < 0x80) return 0;
+		// used partition start and size have to be > 0
+		if (entry[i].start == 0 || entry[i].size == 0) return 0;
+	}
+	// there must be at least 1 valid partition
+	if (n == 0) return 0;
+	// all ok, looks like we have a partition table
+	return 1;
+}
+
 s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, int *num)
 {
-	static partitionTable table ATTRIBUTE_ALIGN(32);
+	static union {
+		u8 buf[512];
+		partitionTable table;
+		wbfs_head_t head;
+	} tbl ATTRIBUTE_ALIGN(32);
+	partitionTable *table = &tbl.table;
 	partitionEntry *entry;
 
 	u32 i, sector_size;
 	s32 ret;
 	int maxpart = *num;
+	int is_raw = 0;
 
 	// Get sector size
 	switch (device) {
@@ -151,20 +180,32 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 	u32 next = 0;
 
 	// Read partition table
-	u8* table_buf = memalign(32, sector_size);
-	ret = Device_ReadSectors(device, 0, 1, table_buf);
-	memcpy(&table, table_buf, sizeof(table));
-	SAFE_FREE(table_buf);
+	ret = Device_ReadSectors(device, 0, 1, tbl.buf);
 	if (!ret) return -1;
 	// Check if it's a RAW FS disc, without partition table
-	ret = get_fs_type(&table);
+	ret = get_fs_type(table);
 	dbg_printf("fstype(%d)=%d\n", device, ret);
 	if (ret != FS_TYPE_UNK) {
+		// looks like a raw fs
+		if (!is_valid_ptable(table)) {
+			// if invalid part. table then yes it's raw
+			is_raw = 1;
+		} else {
+			dbg_printf("WARNING: ambiguous part.table!\n", ret);
+			// ambiguous: looks like a raw fs and a valid part. table
+			// make a decision based on device type
+			// sd: assume raw; usb: assume part. table
+			if (device == WBFS_DEVICE_SDHC) {
+				is_raw = 1;
+			}
+		}
+	}
+	if (is_raw) {
 		dbg_printf("RAW\n", ret);
-		memset(outbuf, 0, sizeof(table.entries));
+		memset(outbuf, 0, sizeof(table->entries));
 		// create a fake partition entry
 		if (ret == FS_TYPE_WBFS) {
-			wbfs_head_t *head = (wbfs_head_t*)&table;
+			wbfs_head_t *head = &tbl.head;
 			outbuf->size = wbfs_ntohl(head->n_hd_sec);
 		} else {
 			outbuf->size = 1;
@@ -179,7 +220,7 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 	}
 	/* Swap endianess */
 	for (i = 0; i < 4; i++) {
-		entry = &table.entries[i];
+		entry = &table->entries[i];
 		entry->sector = swap32(entry->sector);
 		entry->size   = swap32(entry->size);
 		if (!ext && part_is_extended(entry->type)) {
@@ -187,7 +228,7 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 		}
 	}
 	/* Set partition entries */
-	memcpy(outbuf, table.entries, sizeof(table.entries));
+	memcpy(outbuf, table->entries, sizeof(table->entries));
 	// num primary
 	*num = 4;
 
@@ -195,17 +236,15 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 
 	next = ext;
 	// scan extended partition for logical
-	table_buf = memalign(32, sector_size);
 	for(i=0; i<maxpart-4; i++) {
-		ret = Device_ReadSectors(device, next, 1, table_buf);
-		memcpy(&table, table_buf, sizeof(table));
+		ret = Device_ReadSectors(device, next, 1, tbl.buf);
 		if (!ret) break;
 		if (i == 0) {
 			// handle the invalid scenario where wbfs is on an EXTENDED
 			// partition instead of on the Logical inside Extended.
-			if (get_fs_type(&table) == FS_TYPE_WBFS) break;
+			if (get_fs_type(table) == FS_TYPE_WBFS) break;
 		}
-		entry = &table.entries[0];
+		entry = &table->entries[0];
 		entry->sector = swap32(entry->sector);
 		entry->size   = swap32(entry->size);
 		if (entry->type && entry->size && entry->sector) {
@@ -223,7 +262,6 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 			}
 		}
 	}
-	SAFE_FREE(table_buf);
 
 	return 0;
 }
@@ -285,7 +323,7 @@ int get_fs_type(void *buff)
 {
 	char *buf = buff;
 	// WBFS
-	wbfs_head_t *head = (wbfs_head_t *)buf;
+	wbfs_head_t *head = (wbfs_head_t *)buff;
 	if (head->magic == wbfs_htonl(WBFS_MAGIC)) return FS_TYPE_WBFS;
 	// 55AA
 	if (buf[0x1FE] == 0x55 && buf[0x1FF] == 0xAA) {
@@ -337,10 +375,10 @@ s32 Partition_GetList(u32 device, PartList *plist)
 	for (i = 0; i < plist->num; i++) {
 		pinfo = &plist->pinfo[i];
 		entry = &plist->pentry[i];
-		dbg_printf("P#%d %u %u %d\n", i, 
-			plist->pentry[i].sector,
-			plist->pentry[i].size,
-			plist->pentry[i].type);
+		if (entry->sector || entry->size || entry->type) {
+			dbg_printf("P#%d %u %u %d\n", i, 
+				entry->sector, entry->size, entry->type);
+		}
 		if (!entry->size) continue;
 		if (!entry->type) continue;
 		if (!entry->sector) {

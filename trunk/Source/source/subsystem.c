@@ -36,5 +36,8 @@ void Subsystem_Close(void)
 
 	// Unmount all filesystems
 	UnmountAll(NULL);
+
+	// USB general (including bluetooth)
+	USB_Deinitialize();
 }
 

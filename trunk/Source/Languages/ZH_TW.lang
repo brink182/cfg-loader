@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-12 01:34+0200\n"
+"POT-Creation-Date: 2010-10-30 13:08+0200\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -374,6 +374,11 @@ msgstr "錯誤: 無效的遊戲 ID"
 msgid "ERROR: Loading EHC module! (%d)"
 msgstr "錯誤: 載入 EHC 模組! (%d)"
 
+msgid ""
+"ERROR: NTFS write disabled!\n"
+"(set ntfs_write=1)"
+msgstr ""
+
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
 msgstr "錯誤: 沒有找到分割區! (ret = %d)"
@@ -420,6 +425,10 @@ msgstr ""
 
 msgid "ERROR: cache: out of memory"
 msgstr "錯誤: 快取: 記憶體不足"
+
+#, c-format
+msgid "ERROR: creating: %s"
+msgstr ""
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -841,6 +850,12 @@ msgstr ""
 "注意: 分割區 P#%d 類型是延伸, 但它包含\n"
 "WBFS 檔案系統. 這是一個無效的設定. 請按\n"
 "%s 鈕變更延伸分割區類型."
+
+msgid "NTFS compression not supported!"
+msgstr ""
+
+msgid "NTFS encryption not supported!"
+msgstr ""
 
 msgid "Network connection established."
 msgstr "建立網路連線."

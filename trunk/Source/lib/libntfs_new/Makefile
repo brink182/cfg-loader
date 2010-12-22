@@ -1,5 +1,6 @@
 
-default: cube-release wii-release
+#default: cube-release wii-release
+default: wii-release
 
 all: debug release
 

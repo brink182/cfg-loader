@@ -314,6 +314,7 @@ u32 wbfs_sector_used(wbfs_t *p,wbfs_disc_info_t *di)
 u32 wbfs_sector_used2(wbfs_t *p, wbfs_disc_info_t *di, u32 *last_blk)
 {
         u32 tot_blk=0,j;
+        if (last_blk) *last_blk = 0;
         for(j=0;j<p->n_wbfs_sec_per_disc;j++)
                 if(wbfs_ntohs(di->wlba_table[j])) {
                         if (last_blk) *last_blk = j;
@@ -757,7 +758,7 @@ u32 wbfs_disc_sector_used(wbfs_disc_t *d, u32 *num_blk)
 		}
 		return st.st_blocks; // in 512 units (can be sparse)
 	}
-	u32 last_blk;
+	u32 last_blk = 0;
 	u32 ret;
 	ret = wbfs_sector_used2(d->p, d->header, &last_blk);
 	if (num_blk) {

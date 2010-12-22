@@ -1070,7 +1070,7 @@ char* get_ios_info_from_tmd()
 
 	t = (tmd*)SIGNATURE_PAYLOAD(TMD);
 
-	dbg_printf("tmd id: %llx %x-%x t: %x v: %d\n",
+	dbg_printf("\ntmd id: %llx %x-%x t: %x v: %d",
 			t->title_id, TITLE_HIGH(t->title_id), TITLE_LOW(t->title_id),
 			t->title_type, t->title_version);
 
@@ -1116,7 +1116,7 @@ char* get_ios_info_from_tmd()
 bool shadow_mload()
 {
 	if (!is_ios_type(IOS_TYPE_HERMES)) return false;
-	int v51 = (5 << 4) & 1;
+	int v51 = (5 << 4) | 1;
 	if (mload_ver >= v51) {
 		// shadow /dev/mload supported in hermes cios v5.1
 		printf_("[shadow ");

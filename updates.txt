@@ -13,6 +13,36 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 62 (release)
+size = 1450912
+date = 2010-12-22
+url = http://cfg-loader.googlecode.com/files/cfg62.dol
+ * Updated libogc to 1.8.6
+
+release = 62-222 (release)
+size = 1450912
+date = 2010-12-22
+url = http://cfg-loader.googlecode.com/files/cfg62-222.dol
+Same as 62 but with different
+default options:
+  ios=222-mload
+
+release = 62-compat (release)
+size = 1535360
+date = 2010-12-22
+url = http://cfg-loader.googlecode.com/files/cfg62-compat.dol
+Same as 62 but built with
+  devkit 17 and libogc 1.7.1
+
+release = 62-dbg (debug)
+size = 1450912
+date = 2010-12-22
+url = http://cfg-loader.googlecode.com/files/cfg62-dbg.dol
+Same as 62 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 62b3 (beta)
 size = 1450912
 date = 2010-12-21
@@ -28,40 +58,6 @@ size = 1450912
 date = 2010-12-21
 url = http://cfg-loader.googlecode.com/files/cfg62b3-222.dol
 Same as 62b3 but with different
-default options:
-  ios=222-mload
-
-release = 62b2 (beta)
-size = 1450912
-date = 2010-12-19
-url = http://cfg-loader.googlecode.com/files/cfg62b2.dol
-Minor gui theming fixes
-Added option: gui_title_area
-Renamed option gui_pager_pos
-  to gui_page_pos
-
-release = 62b2-222 (beta)
-size = 1450912
-date = 2010-12-19
-url = http://cfg-loader.googlecode.com/files/cfg62b2-222.dol
-Same as 62b2 but with different
-default options:
-  ios=222-mload
-
-release = 62b (beta)
-size = 1450976
-date = 2010-12-19
-url = http://cfg-loader.googlecode.com/files/cfg62b.dol
-fixed partition=auto for wbfs
-new themable options:
-  gui_clock_pos gui_pager_pos
-more translatable text
-
-release = 62b-222 (beta)
-size = 1450976
-date = 2010-12-19
-url = http://cfg-loader.googlecode.com/files/cfg62b-222.dol
-Same as 62b but with different
 default options:
   ios=222-mload
 

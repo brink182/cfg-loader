@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 63a2 (alpha)
+size = 1460288
+date = 2010-12-28
+url = http://cfg-loader.googlecode.com/files/cfg63a2.dol
+Updated dip+frag plugin for ciosx r21
+Added ciosx r21 base detection
+  (Thanks FIX94)
+
+release = 63a2-222 (alpha)
+size = 1460288
+date = 2010-12-28
+url = http://cfg-loader.googlecode.com/files/cfg63a2-222.dol
+Same as 63a2 but with different
+default options:
+  ios=222-mload
+
 release = 63a (alpha)
 size = 1459328
 date = 2010-12-28

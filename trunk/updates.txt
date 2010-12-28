@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 63a (alpha)
+size = 1459328
+date = 2010-12-28
+url = http://cfg-loader.googlecode.com/files/cfg63a.dol
+Added 2 more slots for waninkoko
+  cios: 245, 246
+Added saving of debug.log and
+  ioshash.txt from global options
+Fixed broken title in coverflow mode
+
+release = 63a-222 (alpha)
+size = 1459328
+date = 2010-12-28
+url = http://cfg-loader.googlecode.com/files/cfg63a-222.dol
+Same as 63a but with different
+default options:
+  ios=222-mload
+
 release = 62 (release)
 size = 1450912
 date = 2010-12-22
@@ -42,24 +60,6 @@ Same as 62 but with different
 default options:
   debug=3
   home=screenshot
-
-release = 62b3 (beta)
-size = 1450912
-date = 2010-12-21
-url = http://cfg-loader.googlecode.com/files/cfg62b3.dol
-More translatable strings
-Fixed: display of 3d cover when
-  selecting a game in coverflow mode
-  when 2d and full cover are missing
-Minor cleanups
-
-release = 62b3-222 (beta)
-size = 1450912
-date = 2010-12-21
-url = http://cfg-loader.googlecode.com/files/cfg62b3-222.dol
-Same as 62b3 but with different
-default options:
-  ios=222-mload
 
 release = 61 (release)
 size = 1397216

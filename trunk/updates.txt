@@ -13,6 +13,28 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 63a3 (alpha)
+size = 1460224
+date = 2010-12-29
+url = http://cfg-loader.googlecode.com/files/cfg63a3.dol
+Fixed using of ios slots 245 and 246
+Fixed hang when game fails to load
+
+release = 63a3-222 (alpha)
+size = 1460224
+date = 2010-12-29
+url = http://cfg-loader.googlecode.com/files/cfg63a3-222.dol
+Same as 63a3 but with different
+default options:
+  ios=222-mload
+
+release = 63a3-compat (alpha)
+size = 1538368
+date = 2010-12-29
+url = http://cfg-loader.googlecode.com/files/cfg63a3-compat.dol
+Same as 63a3 but built with
+  devkit 17 and libogc 1.7.1
+
 release = 63a2 (alpha)
 size = 1460288
 date = 2010-12-28

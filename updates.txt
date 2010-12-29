@@ -29,6 +29,13 @@ Same as 63a2 but with different
 default options:
   ios=222-mload
 
+release = 63a2-compat (alpha)
+size = 1538368
+date = 2010-12-29
+url = http://cfg-loader.googlecode.com/files/cfg63a2-compat.dol
+Same as 63a2 but built with
+  devkit 17 and libogc 1.7.1
+
 release = 63a (alpha)
 size = 1459328
 date = 2010-12-28

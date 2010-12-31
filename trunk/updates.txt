@@ -13,26 +13,26 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
-release = 63b (beta)
-size = 1464000
+release = 63b2 (beta)
+size = 1464992
 date = 2010-12-31
-url = http://cfg-loader.googlecode.com/files/cfg63b.dol
-Improved device init timeout handling
-Minor cleanups
+url = http://cfg-loader.googlecode.com/files/cfg63b2.dol
+Fixed improved device init
+  timeout handling
 
-release = 63b-222 (beta)
-size = 1464000
+release = 63b2-222 (beta)
+size = 1464992
 date = 2010-12-31
-url = http://cfg-loader.googlecode.com/files/cfg63b-222.dol
-Same as 63b but with different
+url = http://cfg-loader.googlecode.com/files/cfg63b2-222.dol
+Same as 63b2 but with different
 default options:
   ios=222-mload
 
-release = 63b-compat (beta)
+release = 63b2-compat (beta)
 size = 1542048
 date = 2010-12-31
-url = http://cfg-loader.googlecode.com/files/cfg63b-compat.dol
-Same as 63b but built with
+url = http://cfg-loader.googlecode.com/files/cfg63b2-compat.dol
+Same as 63b2 but built with
   devkit 17 and libogc 1.7.1
 
 release = 63a3 (alpha)

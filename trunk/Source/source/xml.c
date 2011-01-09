@@ -1012,7 +1012,12 @@ void PrintGameInfo(bool showfullinfo) {
 			mem_stat();
 			xml_stat();
 		}
-		wordWrap(linebuf, gameinfo.synopsis, 40, 8, sizeof(gameinfo.synopsis));
+		int cols, rows;
+		CON_GetMetrics(&cols, &rows);
+		cols -= 1;
+		rows -= 14;
+		if (rows < 2) rows = 2;
+		wordWrap(linebuf, gameinfo.synopsis, cols, rows, sizeof(gameinfo.synopsis));
 		printf("\n\n%s\n",linebuf);
 	}
 }

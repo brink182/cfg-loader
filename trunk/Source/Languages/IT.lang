@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-30 13:08+0200\n"
+"POT-Creation-Date: 2010-12-21 14:59+0100\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -56,6 +57,9 @@ msgstr "(%d secondi timeout)"
 
 msgid ".dol too small"
 msgstr ".dol troppo piccolo"
+
+msgid "3D cover"
+msgstr "Copertina 3D"
 
 msgid "< ASC  >"
 msgstr "< CRES >"
@@ -191,6 +195,9 @@ msgstr "Errore configurazione, raggiunto il MAX_DNS_ENTRIES ma l'elenco è vuoto
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "Errore di connessione da net_read()  Codice Errore: %i"
 
+msgid "Console Def."
+msgstr "Predef. Console"
+
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
 msgstr "Impossibile inizializzare il modulo DIP! (ret = %d)"
@@ -234,6 +241,12 @@ msgstr ""
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "Custom IOS %s OK Caricamento"
+
+msgid "DISC cover"
+msgstr "Imm. DISCO"
+
+msgid "DOWN"
+msgstr "GIU'"
 
 msgid "Dance Pad"
 msgstr "Dance Pad"
@@ -314,6 +327,9 @@ msgstr "Num. Download"
 
 msgid "Drums"
 msgstr "Tamburi"
+
+msgid "Dutch"
+msgstr "Olandese"
 
 msgid "ERROR"
 msgstr "ERRORE"
@@ -477,6 +493,12 @@ msgstr "ESTESA"
 msgid "Ejecting DVD..."
 msgstr "Espulsione DVD..."
 
+msgid "English"
+msgstr "Inglese"
+
+msgid "English Title"
+msgstr "Titolo Inglese"
+
 msgid "Enter Code: "
 msgstr "Inserire Codice: "
 
@@ -581,6 +603,12 @@ msgstr "FATAL: alloc grid(%d)"
 msgid "FILL %d"
 msgstr "RIEMPI %d"
 
+msgid "FLAT cover"
+msgstr "Copertina 2D"
+
+msgid "FULL cover"
+msgstr "Copertina FULL"
+
 msgid "Favorite Games"
 msgstr "Giochi Preferiti"
 
@@ -609,15 +637,30 @@ msgstr "Seleziona per Funzionalità Online"
 msgid "Fixing EXTEND partition..."
 msgstr "Sto correggendo partizione EXTEND..."
 
+msgid "Force NTSC"
+msgstr "Forza NTSC"
+
+msgid "Force PAL50"
+msgstr "Forza PAL50"
+
+msgid "Force PAL60"
+msgstr "Forza PAL60"
+
 msgid "Formatting"
 msgstr "Sto formattando"
 
 #, c-format
-msgid "Found %s Cover"
-msgstr "Trovata Copertina %s"
+msgid "Found %s"
+msgstr "Trovata %s"
+
+msgid "French"
+msgstr "Francese"
 
 msgid "GB"
 msgstr "GB"
+
+msgid "Game Default"
+msgstr "Predef. Gioco"
 
 msgid "Game Options"
 msgstr "Opzioni Gioco"
@@ -632,6 +675,9 @@ msgstr "Gamecube"
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "La gamercard #%d riporta: %.*s"
+
+msgid "German"
+msgstr "Tedesco"
 
 msgid "Global Options"
 msgstr "Opzioni Generali"
@@ -709,8 +755,23 @@ msgstr ".dol Non Valido"
 msgid "Invalid partition: '%s'"
 msgstr "Partizione non valida: '%s'"
 
+msgid "Italian"
+msgstr "Italiano"
+
+msgid "Japanese"
+msgstr "Giapponese"
+
+msgid "Japanese Title"
+msgstr "Titolo Giapponese"
+
 msgid "Keyboard"
 msgstr "Tastiera"
+
+msgid "Korean"
+msgstr "Coreano"
+
+msgid "LEFT"
+msgstr "SINISTRA"
 
 msgid "LOCKED!"
 msgstr "BLOCCATO!"
@@ -962,11 +1023,9 @@ msgstr "Punteggi Online"
 msgid "Opening DVD disc..."
 msgstr "Sto aprendo il DVD..."
 
-msgid "Opening FAT partition..."
-msgstr "Sto aprendo la partizione FAT..."
-
-msgid "Opening NTFS partition..."
-msgstr "Sto aprendo la partizione NTFS..."
+#, c-format
+msgid "Opening partition: %s"
+msgstr "Sto aprendo la partizione: %s"
 
 msgid "Options discarded for this game."
 msgstr "Opzioni del gioco sostituite."
@@ -1159,6 +1218,9 @@ msgstr "Puzzle"
 msgid "RAW"
 msgstr "RAW"
 
+msgid "RIGHT"
+msgstr "DESTRA"
+
 msgid "RPG"
 msgstr "Giochi Ruolo"
 
@@ -1202,6 +1264,9 @@ msgstr "Ritmo"
 
 msgid "Running benchmark, please wait"
 msgstr "Eseguo benchmark, attendere prego"
+
+msgid "S. Chinese"
+msgstr "Cinese Semplif."
 
 msgid "SD/SDHC Card"
 msgstr "Scheda SD/SDHC"
@@ -1255,6 +1320,9 @@ msgstr "Spara Spara"
 msgid "Simulation"
 msgstr "Simulazione"
 
+msgid "Size(GB) Type  Mount Used"
+msgstr "Dim.(GB) Tipo  Mount Usata"
+
 #, c-format
 msgid "Size: %d bytes"
 msgstr "Dimensione: %d bytes"
@@ -1265,6 +1333,9 @@ msgstr "Ordina Giochi"
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "Ordinamento: %s-%s"
+
+msgid "Spanish"
+msgstr "Spagnolo"
 
 msgid "Sports"
 msgstr "Sport"
@@ -1277,6 +1348,12 @@ msgstr "Vuoi avviare questo gioco?"
 
 msgid "Strategy"
 msgstr "Strategia"
+
+msgid "System Def."
+msgstr "Predef. Sistema"
+
+msgid "T. Chinese"
+msgstr "Cinese Tradiz."
 
 msgid "Theme"
 msgstr "Tema"
@@ -1324,6 +1401,12 @@ msgstr "Troppi frammenti! %d"
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "Sto provando (url#%d) ..."
+
+msgid "UNUSED"
+msgstr "NON USATO"
+
+msgid "UP"
+msgstr "SU"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1440,9 +1523,6 @@ msgstr "file wbfs corrotto: %s"
 
 msgid "calculating space, please wait..."
 msgstr "sto calcolando lo spazio, attendere prego..."
-
-msgid "cover"
-msgstr "copertina"
 
 msgid "delete"
 msgstr "eliminare"
@@ -1579,11 +1659,20 @@ msgstr "usati: %p - %p"
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: ritorno al vecchio metodo"
 
+#~ msgid "Found %s Cover"
+#~ msgstr "Trovata Copertina %s"
+
 #~ msgid "Missing"
 #~ msgstr "Mancanti"
 
 #~ msgid "Missing "
 #~ msgstr "Mancanti "
+
+#~ msgid "Opening FAT partition..."
+#~ msgstr "Sto aprendo la partizione FAT..."
+
+#~ msgid "Opening NTFS partition..."
+#~ msgstr "Sto aprendo la partizione NTFS..."
 
 #~ msgid "Press %s to select"
 #~ msgstr "Premere %s per scegliere"
@@ -1593,3 +1682,6 @@ msgstr "usati: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Sto passando al IOS222 per il supporto FAT"
+
+#~ msgid "cover"
+#~ msgstr "copertina"

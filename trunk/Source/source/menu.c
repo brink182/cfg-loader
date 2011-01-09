@@ -84,33 +84,38 @@ static int disable_options = 0;
 static int confirm_start = 1;
 static bool unlock_init = true;
 
-/*VIDEO OPTION - hungyip84 */
-char videos[CFG_VIDEO_MAX+1][15] = 
+char *videos[CFG_VIDEO_MAX+1] = 
 {
-{"System Def."},
-{"Game Default"},
-{"Force PAL50"},
-{"Force PAL60"},
-{"Force NTSC"}
-//{"Patch Game"},
+	gts("System Def."),
+	gts("Game Default"),
+	gts("Force PAL50"),
+	gts("Force PAL60"),
+	gts("Force NTSC")
 };
 
-/*LANGUAGE PATCH - FISHEARS*/
-char languages[11][22] =
+char *languages[11] =
 {
-{"Console Def."},
-{"Japanese"},
-{"English"},
-{"German"},
-{"French"},
-{"Spanish"},
-{"Italian"},
-{"Dutch"},
-{"S. Chinese"},
-{"T. Chinese"},
-{"Korean"}
+	gts("Console Def."),
+	gts("Japanese"),
+	gts("English"),
+	gts("German"),
+	gts("French"),
+	gts("Spanish"),
+	gts("Italian"),
+	gts("Dutch"),
+	gts("S. Chinese"),
+	gts("T. Chinese"),
+	gts("Korean")
 };
-/*LANGUAGE PATCH - FISHEARS*/
+
+char *playlog_name[4] =
+{
+	gts("Off"),
+	gts("On"),
+	gts("Japanese Title"),
+	gts("English Title")
+};
+
 
 int Menu_Global_Options();
 int Menu_Game_Options();
@@ -383,7 +388,7 @@ bool check_device(struct Game_CFG_2 *game_cfg, bool print)
 		}
 	}
 	*/
-	if (wbfs_part_idx > 1) {
+	if (wbfs_part_fs == PART_FS_WBFS && wbfs_part_idx > 1) {
 		if (!is_ios_idx_mload(ii))
 		{
 			if (print) {
@@ -1250,9 +1255,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Language:"), languages[game_cfg->language]);
+			PRINT_OPT_S(gt("Language:"), gt(languages[game_cfg->language]));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Video:"), videos[opt_video]);
+			PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Video Patch:"), str_vpatch[opt_video_patch]);
 		if (menu_window_mark(&menu))
@@ -1279,7 +1284,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Write Playlog:"), playlog_name[game_cfg->write_playlog]);
+			PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Clear Patches:"), str_vpatch[game_cfg->clean]);
 		DefaultColor();
@@ -1977,49 +1982,45 @@ void print_part(int i, PartList *plist)
 		printf("%s", i<4 ? "P" : "L");
 		printf("#%d", i+1);
 	}
-	printf(" %7.2f", size);
-	if (pinfo->wbfs_i) {
+	printf(" %7.2f ", size);
+	
+	if (pinfo->fs_index) {
 		bool is_ext = part_is_extended(entry->type);
-		printf(" ");
 		if (is_ext) {
-			printf(gt("EXTEND"));
+			printf("%s", part_type_name(entry->type));
 			printf("/");
 		}
-		printf("WBFS%d", pinfo->wbfs_i);
-		if (WBFS_Mounted() && wbfs_part_idx == pinfo->wbfs_i) {
+		char pname[16];
+		sprintf(pname, "%s%d", get_fs_name(pinfo->fs_type), pinfo->fs_index);
+		printf("%-5s", pname);
+
+		if (pinfo->fs_type == PART_FS_WBFS) {
 			if (!is_ext) printf("      ");
-			printf(gt("[USED]"));
-		}
-	} else if (pinfo->fat_i || pinfo->ntfs_i) {
-		if (pinfo->fat_i) {
-			printf(" FAT%d  ", pinfo->fat_i);
+			if (WBFS_Mounted() && wbfs_part_idx == pinfo->fs_index) {
+				printf(gt("[USED]"));
+			}
 		} else {
-			printf(" NTFS%d ", pinfo->ntfs_i);
-		}
-		MountPoint *m = mount_find_part(wbfsDev, entry->sector);
-		char mname[8] = "";
-		if (m) {
-			strcpy(mname, m->name);
-			strcat(mname, ":");
-		}
-		printf(" %-5s", mname);
-		if (WBFS_Selected() && entry->sector == wbfs_part_lba) {
-			printf(" ");
-			printf(gt("[USED]"));
-		}
-	} else {
-		char *pt = part_type_name(entry->type);
-		char *fs = get_fs_name(pinfo->fs_type);
-		printf(" %s", pt);
-		if (*fs == 0 && part_is_data(entry->type)) {
-			if (strncasecmp(pt, "fat", 3) == 0
-					|| strncasecmp(pt, "ntfs", 4) == 0)
-			{
-				fs = "-";
+			MountPoint *m = mount_find_part(wbfsDev, entry->sector);
+			char mname[16] = "";
+			if (m) {
+				mount_name2drive(m->name, mname);
+			}
+			printf(" %-5s", mname);
+			if (WBFS_Selected() && entry->sector == wbfs_part_lba) {
+				printf(" ");
+				printf(gt("[USED]"));
 			}
 		}
-		if (strcmp(pt, fs) != 0 && *fs) {
-			printf("/%s", fs);
+	} else {
+		printf("%s", part_type_name(entry->type));
+		char *pdata = part_type_data(entry->type);
+		if (pdata) {
+			if (strncmp(pdata,"FAT",3)==0
+				|| strncmp(pdata,"NTFS",4)==0
+				|| strncmp(pdata,"LINUX",5)==0)
+			{
+				printf("/?");
+			}
 		}
 	}
 }
@@ -2114,7 +2115,7 @@ loop:
 	DefaultColor();
 	printf_("[ %s ]\n\n", get_dev_name(wbfsDev));
 
-	printf_("P# Size(GB) Type Mount Used\n");
+	printf_("P# %s\n", gt("Size(GB) Type  Mount Used"));
 	printf_("-----------------------------\n");
 	//       P#1  400.00 FAT1  usb:  
 	//       P#2  400.00 FAT2  game: [USED]
@@ -2128,7 +2129,11 @@ loop:
 		MENU_MARK();
 		print_part(i, &plist);
 		printf("\n");
-		if (part_is_extended(entry->type) && plist.pinfo[i].wbfs_i && i < 4) {
+		if (part_is_extended(entry->type)
+				&& plist.pinfo[i].fs_type == PART_FS_WBFS
+				&& plist.pinfo[i].fs_index > 0
+				&& i < 4)
+		{
 			invalid_ext = i;
 		}
 	}
@@ -2185,23 +2190,13 @@ loop:
 		i = menu.current;
 		entry = &plist.pentry[i];
 		pinfo = &plist.pinfo[i];
-		int idx = pinfo->wbfs_i;
-		int part_fs = PART_FS_WBFS;
-		if (pinfo->fat_i) {
-			printf(gt("Opening FAT partition..."));
+		if (pinfo->fs_index) {
+			char pname[16];
+			sprintf(pname, "%s%d", get_fs_name(pinfo->fs_type), pinfo->fs_index);
+			printf(gt("Opening partition: %s"), pname);
 			printf("\n");
-			idx = pinfo->fat_i;
-			part_fs = PART_FS_FAT;
-		}
-		if (pinfo->ntfs_i) {
-			printf(gt("Opening NTFS partition..."));
-			printf("\n");
-			idx = pinfo->ntfs_i;
-			part_fs = PART_FS_NTFS;
-		}
-		__console_flush(0);
-		if (idx) {
-			ret = WBFS_OpenPart(part_fs, idx, entry->sector,
+			__console_flush(0);
+			ret = WBFS_OpenPart(pinfo->fs_type, pinfo->fs_index, entry->sector,
 					entry->size, CFG.partition);
 			if (ret == 0 && WBFS_Selected()) {
 				if (must_select) {
@@ -2987,7 +2982,7 @@ void Menu_Boot(bool disc)
 		printf("\n");
 		printf_h(gt("Press %s button for options."), (button_names[CFG.button_other.num]));
 	}
-	printf("\n\n");
+	printf("\n");
 	__console_flush(0);
 
 	// play banner sound
@@ -3031,6 +3026,7 @@ void Menu_Boot(bool disc)
 		return;
 	}
 	// A button: continue to boot
+	printf("\n");
 
 	skip_confirm:
 

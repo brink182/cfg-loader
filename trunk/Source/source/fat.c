@@ -14,8 +14,10 @@
 
 #include <fat.h>
 #include "ntfs.h"
+#include "ext2.h"
 
 #include "sdhc.h"
+#include "usbstorage.h"
 #include "wbfs.h"
 #include "util.h"
 #include "wpad.h"
@@ -26,7 +28,6 @@
 #include "partition.h"
 #include "fat.h"
 
-
 extern void ntfsInit();
 void fat_Unmount(const char* name);
 void _FAT_mem_init();
@@ -35,13 +36,6 @@ void _FAT_mem_init();
 #define FAT_CACHE 32
 #define FAT_SECTORS 64
 #define FAT_SECTORS_SD 32
-
-/* Disc interfaces */
-extern const DISC_INTERFACE my_io_sdhc;
-extern const DISC_INTERFACE my_io_usbstorage;
-// read-only
-extern const DISC_INTERFACE my_io_sdhc_ro;
-extern const DISC_INTERFACE my_io_usbstorage_ro;
 
 extern sec_t _FAT_startSector;
 
@@ -201,6 +195,17 @@ void* ntfs_align (size_t size)
 }
 
 void ntfs_free (void* mem)
+{
+	_FAT_mem_free(mem);
+}
+
+
+void* _EXT2_cache_mem_align (size_t a, size_t size)
+{
+	return _FAT_mem_align(size);
+}
+
+void _EXT2_cache_mem_free (void* mem)
 {
 	_FAT_mem_free(mem);
 }
@@ -483,9 +488,18 @@ int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
 			}
 		}
 
+	} else if (fstype == PART_FS_EXT) {
+
+		// EXT MOUNT
+		dbg_printf("ext2Mount(%s,%u)", name, sector);
+		// readonly = 0; write = EXT2_FLAG_RW
+		ret = ext2Mount(name, io, sector, page_count, page_size,
+				(0 | EXT2_FLAG_64BITS | EXT2_FLAG_JOURNAL_DEV_OK));
+		dbg_printf(" = %d\n", ret);
+
 	} else {
 		printf("Invalid fs type %d\n", fstype);
-		return -30;
+		return -40;
 	}
 
 	if (!ret) {
@@ -501,7 +515,7 @@ int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
 					errno);
 			sleep(2);
 		}
-		return -40;
+		return -50;
 	}
 
 	// OK
@@ -515,10 +529,12 @@ int UnmountFS(char *aname)
 {
 	MountPoint *m;
 	char name[16];
+	char drive[16];
 
 	dbg_printf("Unmount %s\n", aname);
 
 	mount_drive2name(aname, name);
+	mount_name2drive(name, drive);
 
 	m = mount_find(name);
 	if (!m) return -1;
@@ -527,6 +543,8 @@ int UnmountFS(char *aname)
 		fat_Unmount(name);
 	} else if (m->fstype == PART_FS_NTFS) {
 		ntfsUnmount(name, true);
+	} else if (m->fstype == PART_FS_EXT) {
+		ext2Unmount(drive);
 	} else {
 		return -2;
 	}
@@ -632,8 +650,22 @@ int MountUSB()
 	} else {
 		ret = Partition_FindFS(WBFS_DEVICE_USB, PART_FS_NTFS, 1, &sector);
 		if (ret == 0) {
-			// fat found.
+			// ntfs found.
 			ret = MountFS(NTFS_MOUNT, WBFS_DEVICE_USB, sector, PART_FS_NTFS, 0);
+			if (ret == 0) retval = 0; // OK
+		}
+	}
+
+	// find first EXT partition
+	sector = -1;
+	if (mount_find(EXT_MOUNT)) {
+		// already mounted
+		retval = 0;
+	} else {
+		ret = Partition_FindFS(WBFS_DEVICE_USB, PART_FS_EXT, 1, &sector);
+		if (ret == 0) {
+			// ext found.
+			ret = MountFS(EXT_MOUNT, WBFS_DEVICE_USB, sector, PART_FS_EXT, 0);
 			if (ret == 0) retval = 0; // OK
 		}
 	}

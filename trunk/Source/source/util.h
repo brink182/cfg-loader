@@ -9,52 +9,13 @@
 
 #include "mem.h"
 #include "debug.h"
-
-#define ISALNUM(c)  (isalnum((int)(unsigned char)(c)))
-#define ISALPHA(c)  (isalpha((int)(unsigned char)(c)))
-#define ISDIGIT(c)  (isdigit((int)(unsigned char)(c)))
-#define ISXDIGIT(c) (isxdigit((int)(unsigned char)(c)))
-#define ISSPACE(c)  (isspace((int)(unsigned char)(c)))
-#define ISLOWER(c)  (islower((int)(unsigned char)(c)))
-#define ISCNTRL(c)  (iscntrl((int)(unsigned char)(c)))
-
-#define STRCOPY(DEST,SRC) strcopy(DEST,SRC,sizeof(DEST)) 
-char* strcopy(char *dest, const char *src, int size);
-
-#define STRAPPEND(DST,SRC) strappend(DST,SRC,sizeof(DST))
-char *strappend(char *dest, char *src, int size);
-
-bool str_replace(char *str, char *olds, char *news, int size);
-bool str_replace_all(char *str, char *olds, char *news, int size);
-bool str_replace_tag_val(char *str, char *tag, char *val);
-
-bool trimsplit(char *line, char *part1, char *part2, char delim, int size);
-char* split_tokens(char *dest, char *src, char *delim, int size);
+#include "strutil.h"
 
 #define D_S(A) A, sizeof(A)
-
-/*
-void util_init();
-void util_clear();
-void* LARGE_memalign(size_t align, size_t size);
-void LARGE_free(void *ptr);
-size_t LARGE_used();
-void memstat2();
-
-#define SAFE_FREE(P) if(P){free(P);P=NULL;}
-*/
 
 void wiilight(int enable);
 
 #include "memcheck.h"
-
-/*
-#ifndef _MEMCHECK_H
-#define memstat() do{}while(0)
-#define memcheck() do{}while(0)
-#define memcheck_ptr(B,P) do{}while(0)
-#endif
-*/
 
 #define MAX_USORT_MAP 1024
 extern int usort_map[MAX_USORT_MAP];

@@ -232,14 +232,6 @@ char *hook_name[NUM_HOOK] =
 	"AXNextFrame"
 };
 
-char *playlog_name[4] =
-{
-	"Off",
-	"On",
-	"Japanese Title",
-	"English Title"
-};
-
 struct playStat {
 	char id[7];
 	s32 playCount;
@@ -252,8 +244,6 @@ struct playStat *playStats;
 
 int CFG_IOS_MAX = sizeof(map_ios) / sizeof(struct TextMap) - 2;
 int CURR_IOS_IDX = -1;
-
-static char *cfg_name, *cfg_val;
 
 
 
@@ -644,8 +634,8 @@ void CFG_Default_Coverflow_Themes()
 	int i = 0;
 	
 	//allocate the structure array
-	SAFE_FREE(CFG_cf_theme);
-	CFG_cf_theme = malloc(5 * sizeof *CFG_cf_theme);	
+	//SAFE_FREE(CFG_cf_theme);
+	//CFG_cf_theme = malloc(5 * sizeof *CFG_cf_theme);
 	
 	// coverflow 3D
 		CFG_cf_theme[i].rotation_frames = 40;
@@ -984,6 +974,7 @@ void CFG_Default_Coverflow_Themes()
 
 void CFG_Default_Theme()
 {
+	CFG_Default_Coverflow_Themes();
 	*CFG.theme = 0;
 	snprintf(D_S(CFG.background), "%s/%s", USBLOADER_PATH, "background.png");
 	snprintf(D_S(CFG.w_background), "%s/%s", USBLOADER_PATH, "background_wide.png");
@@ -1065,6 +1056,11 @@ void CFG_Default_Theme()
 	CFG.button_other.num  = NUM_BUTTON_1;
 	CFG.button_save.mask = WPAD_BUTTON_2;
 	CFG.button_save.num  = NUM_BUTTON_2;	
+
+	memset(&CFG.gui_cover_area, 0, sizeof(CFG.gui_cover_area));
+	memset(&CFG.gui_title_area, 0, sizeof(CFG.gui_title_area));
+	CFG.gui_clock_pos.x = -1;
+	CFG.gui_page_pos.x = -1;
 }
 
 void CFG_default_path()
@@ -1078,6 +1074,9 @@ void CFG_default_path()
 void CFG_Default()
 {
 	memset(&CFG, 0, sizeof(CFG));
+
+	// set coverflow defaults
+	CFG_Default_Coverflow();
 
 	CFG_default_path();
 	cfg_default_url();
@@ -1121,7 +1120,7 @@ void CFG_Default()
 	//CFG.current_profile = 0;
 	STRCOPY(CFG.profile_names[0], "default");
 	STRCOPY(CFG.titles_url, "http://wiitdb.com/titles.txt?LANG={DBL}");
-	CFG.intro = 2;
+	CFG.intro = 4;
 	CFG.fat_install_dir = 1;
 	CFG.fat_split_size = 4;
 	CFG.db_show_info = 1;
@@ -1137,56 +1136,6 @@ void CFG_Default()
 	// dvd slot check is handled properly now by all cios
 	// so the patch is disabled by default
 	CFG.disable_dvd_patch = 1;
-}
-
-int map_get_id(struct TextMap *map, char *name, int *id_val)
-{
-	int i;
-	for (i=0; map[i].name != NULL; i++)	{
-		if (strcmp(name, map[i].name) == 0) {
-			*id_val = map[i].id;
-			return i;
-		}
-	}
-	return -1;
-}
-
-int map_get_num(struct TextMap *map)
-{
-	int i;
-	for (i=0; map[i].name != NULL; i++);
-	return i;
-}
-
-char* map_get_name(struct TextMap *map, int id)
-{
-	int i;
-	for (i=0; map[i].name != NULL; i++)	{
-		if (id == map[i].id) return map[i].name;
-	}
-	return NULL;
-}
-
-int map_auto_i(char *name, char *name2, char *val, struct TextMap *map, int *var)
-{
-	if (strcmp(name, name2) != 0) return -1;
- 	int i, id;
-	i = map_get_id(map, val, &id);
-	if (i >= 0) *var = id;
-	//printf("MAP AUTO: %s=%s : %d [%d]\n", name, val, id, i); sleep(1);
-	return i;
-}
-
-bool map_auto(char *name, char *name2, char *val, struct TextMap *map, int *var)
-{
-	int i = map_auto_i(name, name2, val, map, var);
-	return i >= 0;
-}
-
-
-bool cfg_map_auto(char *name, struct TextMap *map, int *var)
-{
-	return map_auto(name, cfg_name, cfg_val, map, var);
 }
 
 bool map_auto_token(char *name, char *name2, char *val, struct TextMap *map, struct MenuButton *var)
@@ -1214,94 +1163,6 @@ bool map_auto_token(char *name, char *name2, char *val, struct TextMap *map, str
 bool cfg_map_auto_token(char *name, struct TextMap *map, struct MenuButton *var) 
 {
 	return map_auto_token(name, cfg_name, cfg_val, map, var);
-}
-
-bool cfg_map(char *name, char *val, int *var, int id)
-{
-	if (strcmp(name, cfg_name)==0 && strcmp(val, cfg_val)==0) {
-		*var = id;
-		return true;
-	}
-	return false;
-}
-
-// ignore value case:
-void cfg_map_case(char *name, char *val, int *var, int id)
-{
-	if (strcmp(name, cfg_name)==0 && stricmp(val, cfg_val)==0) *var = id;
-}
-
-bool cfg_bool(char *name, int *var)
-{
-	if (cfg_map(name, "0", var, 0)) return true;
-	if (cfg_map(name, "1", var, 1)) return true;
-	return false;
-}
-
-bool cfg_int_hex(char *name, int *var)
-{
-	if (strcmp(name, cfg_name)==0) {
-		int i;
-		if (sscanf(cfg_val, "%x", &i) == 1) {
-			*var = i;
-			return true;
-		}
-	}
-	return false;
-}
-
-bool cfg_int_max(char *name, int *var, int max)
-{
-	if (strcmp(name, cfg_name)==0) {
-		int i;
-		if (sscanf(cfg_val, "%d", &i) == 1) {
-			if (i >= 0 && i <= max) {
-				*var = i;
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-#define CFG_STR(name, var) cfg_str(name, var, sizeof(var))
-
-bool cfg_str(char *name, char *var, int size)
-{
-	if (strcmp(name, cfg_name)==0) {
-		if (strcmp(cfg_val,"0")==0) {
-			*var = 0;
-		} else {
-			strcopy(var, cfg_val, size);
-		}
-		return true;
-	}
-	return false;
-}
-
-#define CFG_STR_LIST(name, var) cfg_str_list(name, var, sizeof(var))
-
-// if val starting with + append to a space delimited list
-bool cfg_str_list(char *name, char *var, int size)
-{
-	if (strcmp(name, cfg_name)==0) {
-		if (cfg_val[0] == '+') {
-			if (*var) {
-				// append ' '
-				strappend(var, " ", size);
-			}
-			// skip +
-			char *val = cfg_val + 1;
-			// trim space
-			while (*val == ' ') val++;
-			// append val
-			strappend(var, val, size);
-		} else {
-			strcopy(var, cfg_val, size);
-		}
-		return true;
-	}
-	return false;
 }
 
 struct ID_Title* cfg_get_id_title_old(u8 *id)
@@ -1423,103 +1284,6 @@ void title_set(char *id, char *title)
 	}
 }
 
-// trim leading and trailing whitespace
-// copy at max n or at max size-1
-char* trimcopy_n(char *dest, char *src, int n, int size)
-{
-	int len;
-	// trim leading white space
-	while (ISSPACE(*src) && n>0) { src++; n--; }
-	len = strlen(src);
-	if (len > n) len = n;
-	// trim trailing white space
-	while (len > 0 && ISSPACE(src[len-1])) len--;
-	// limit length
-	if (len >= size) len = size-1;
-	// safety
-	if (len < 0) len = 0;
-	strncpy(dest, src, len);
-	dest[len] = 0;
-	//printf("trim_copy: '%s' %d\n", dest, len); //sleep(1);
-	return dest;
-}
-
-char* trimcopy(char *dest, char *src, int size)
-{
-	return trimcopy_n(dest, src, size, size);
-}
-
-// returns ptr to next token
-// note: omits empty tokens
-// on last token returns null
-char* split_token(char *dest, char *src, char delim, int size)
-{
-	char *next;
-	start:
-	next = strchr(src, delim);
-	if (next) {
-		trimcopy_n(dest, src, next-src, size);
-		next++;
-	} else {
-		trimcopy(dest, src, size);
-	}
-	if (next && *dest == 0) {
-		// omit empty tokens
-		src = next;
-		goto start;
-	}
-	return next;
-}
-
-// on last token returns ptr to end of string
-// when no more tokens returns null
-char* split_tokens(char *dest, char *src, char *delim, int size)
-{
-	char *next;
-	start:
-	// end of string?
-	if (*src == 0) return NULL;
-	// strcspn:
-	// returns the number of characters of str1 read before this first occurrence.
-	// The search includes the terminating null-characters, so the function will
-	// return the length of str1 if none of the characters of str2 are found in str1.
-	next = src + strcspn(src, delim);
-	if (*next) {
-		trimcopy_n(dest, src, next-src, size);
-		next++;
-	} else {
-		trimcopy(dest, src, size);
-	}
-	if (*dest == 0) {
-		// omit empty tokens
-		src = next;
-		goto start;
-	}
-	return next;
-}
-
-// split line to part1 delimiter part2 
-bool trimsplit(char *line, char *part1, char *part2, char delim, int size)
-{
-	char *eq = strchr(line, delim);
-	if (!eq) return false;
-	trimcopy_n(part1, line, eq-line, size);
-	trimcopy(part2, eq+1, size);
-	return true;
-}
-
-void unquote(char *dest, char *str, int size)
-{
-	// unquote "xx"
-	if (str[0] == '"' && str[strlen(str)-1] == '"') {
-		int len = strlen(str) - 2;
-		if (len > size-1) len = size-1;
-		if (len < 0) len = 0;
-		strcopy(dest, str+1, len + 1);
-	} else {
-		strcopy(dest, str, size);
-	}
-}
 
 #define COPY_PATH(D,S) copy_path(D,S,sizeof(D))
 
@@ -1666,8 +1430,45 @@ void font_color_set(char *base_name, struct FontColor *fc)
 	cfg_name = old_name;
 }
 
+int cfg_pos_xy(char *name, struct PosCoords *pos)
+{
+	if (strcmp(name, cfg_name)) return 0;
+	int i, x, y;
+	pos->x = -1;
+	pos->y = -1;
+	i = sscanf(cfg_val, "%d,%d", &x, &y);
+	if (i == 2) {
+		// check for valid range
+		if (x >= 0 && y >= 0 && x < 640 && y < 480) {
+			pos->x = x;
+			pos->y = y;
+			return 1;
+		}
+	}
+	return -1;
+}
 
-// theme options
+int cfg_pos_area(char *name, struct RectCoords *pos, int min_w, int min_h)
+{
+	if (strcmp(name, cfg_name)) return 0;
+	int i, x, y, w, h;
+	memset(pos, 0, sizeof(*pos));
+	i = sscanf(cfg_val, "%d,%d,%d,%d", &x, &y, &w, &h);
+	if (i == 4) {
+		// check for valid range
+		// min w * h : 480 * 320
+		if (x >= 0 && y >= 0 && w >= min_w && h >= min_h && x+w <= 640 && y+h <= 480) {
+			pos->x = x;
+			pos->y = y;
+			pos->w = w / 2 * 2;
+			pos->h = h / 2 * 2;
+			return 1;
+		}
+	}
+	return -1;
+}
+
+// theme options, these can be overriden in config.txt
 
 void theme_set_base(char *name, char *val)
 {
@@ -1862,6 +1663,8 @@ void theme_set_base(char *name, char *val)
 	}
 }
 
+// theme options, these can not be overriden in config.txt
+
 void theme_set(char *name, char *val)
 {
 	cfg_name = name;
@@ -1993,6 +1796,27 @@ void theme_set(char *name, char *val)
 			CFG.w_theme_previewH = h;
 		}
 	}
+
+	// coverflow reflection
+	if (strcmp(name, "coverflow_reflection")==0) {
+		int i, top=0, bot=0;
+		i = sscanf(val, "%x,%x", &top, &bot);
+		if (i > 0) {
+			if (i == 1) bot = top;
+			for (i=0; i<CF_THEME_NUM; i++) {
+				if (CFG_cf_theme[i].cover_center_reflection_used) {
+					CFG_cf_theme[i].reflections_color_bottom = top;
+					CFG_cf_theme[i].reflections_color_top = bot;
+				}
+			}
+		}
+	}
+
+	cfg_pos_area("gui_cover_area", &CFG.gui_cover_area, 480, 320);
+	cfg_pos_area("gui_title_area", &CFG.gui_title_area, 320, 10);
+	cfg_pos_xy("gui_clock_pos", &CFG.gui_clock_pos);
+	cfg_pos_xy("gui_page_pos", &CFG.gui_page_pos);
+	
 }
 
 // global options
@@ -2569,154 +2393,6 @@ bool set_hide_game(u8 *id, bool hide)
 	ret = add_to_list(id, CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	if (!ret) return ret;
 	return CFG_Save_Settings(0);
-}
-
-
-// split line to name = val and trim whitespace
-void cfg_parseline(char *line, void (*set_func)(char*, char*))
-{
-	// split name = value
-	char name[400], val[400];
-	// handle [group=param] as name=[group] val=param
-	// '=param' is optional
-	if (*line == '[') {
-		trimcopy(name, line, sizeof(name));
-		if (name[strlen(name)-1] != ']') return;
-		// check for optional =param
-		*val = 0;
-		char *eq = strchr(name, '=');
-		if (eq) {
-			trimcopy(val, eq+1, sizeof(val));
-			if (val[strlen(val)-1] == ']') {
-				val[strlen(val)-1] = 0;
-			}
-			strcpy(eq, "]");
-		}
-	} else {
-		if (!trimsplit(line, name, val, '=', sizeof(name))) return;
-	}
-	//printf("CFG: '%s=%s'\n", name, val); //sleep(1);
-	set_func(name, val);
-}
-
-bool cfg_parsebuf(char *buf, void (*set_func)(char*, char*))
-{
-	char line[500];
-	char *p, *nl;
-	int len;
-	char bom[] = {0xEF, 0xBB, 0xBF, 0};
-	int i = 0;
-	nl = buf;
-	// skip BOM UTF-8 (ef bb bf)
-	if (strncmp(nl, bom, 3) == 0) nl += 3;
-	for (;;) {
-		p = nl;
-		if (p == NULL) break;
-		while (*p == '\n' || *p == '\r') p++;
-		if (*p == 0) break;
-		nl = strchr(p, '\n');
-		if (nl == NULL) {
-			len = strlen(p);
-		} else {
-			len = nl - p;
-		}
-		if (!len) continue;
-		// lines starting with # are comments
-		if (*p == '#') continue;
-		if (len >= sizeof(line)) len = sizeof(line) - 1;
-		strcopy(line, p, len+1);
-		if (line[len-1] == '\r') {
-			line[len-1] = 0;
-			len--;
-		}
-
-		if (CFG.debug > 1) {
-			dbg_print(2, "\r[%d] <%.30s>%*s ", i, line, (len<30?30-len:0),"");
-			if (i<20) {
-				if (i<1) dbg_print(2, "\n");
-				VIDEO_WaitVSync();
-			}
-		}
-		i++;
-
-		cfg_parseline(line, set_func);
-	}
-	dbg_print(2, "\n");
-	return true;
-}
-
-bool cfg_parsefile_old(char *fname, void (*set_func)(char*, char*))
-{
-	FILE *f;
-	char line[500];
-	char bom[] = {0xEF, 0xBB, 0xBF};
-	int first_line = 1;
-
-	//printf("opening(%s)\n", fname); sleep(3);
-	f = fopen(fname, "rb");
-	if (!f) {
-		//printf("error opening(%s)\n", fname); sleep(3);
-		return false;
-	}
-
-	while (fgets(line, sizeof(line), f)) {
-		// skip BOM UTF-8 (ef bb bf)
-		if (first_line) {
-			if (memcmp(line, bom, sizeof(bom)) == 0) {
-				memmove(line, line+sizeof(bom), strlen(line)-sizeof(bom)+1);
-				/*printf("BOM found in %s\n", fname);
-				printf("line: '%s'\n", line);
-				sleep(3);*/
-			}
-			first_line = 0;
-		}
-		// lines starting with # are comments
-		if (line[0] == '#') continue;
-		// parse
-		cfg_parseline(line, set_func);
-	}
-	fclose(f);
-	return true;
-}
-
-bool cfg_parsefile(char *fname, void (*set_func)(char*, char*))
-{
-	int fd;
-	struct stat st;
-	char *buf = NULL;
-	int size;
-	bool ret;
-	int r;
-
-	dbg_print(2, "parse(%s)", fname);
-	r = stat(fname, &st);
-	if (r != 0) {
-		dbg_print(2, " -\n");
-		return false;
-	}
-	if (st.st_size == 0) {
-		dbg_print(2, " 0\n");
-		return true;
-	}
-	fd = open(fname, O_RDONLY);
-	dbg_print(2, " = %d\n", fd);
-	if (fd < 0) return false;
-	buf = malloc(st.st_size + 32);
-	if (!buf) return false;
-	dbg_print(2, "read(%d)", (int)st.st_size);
-	size = read(fd, buf, st.st_size);
-	dbg_print(2, " = ");
-	close(fd);
-	dbg_print(2, "%d\n", size);
-	if (size != st.st_size) {
-		SAFE_FREE(buf);
-		return false;
-	}
-	buf[size] = 0; // zero terminate
-	ret = cfg_parsebuf(buf, set_func);
-	SAFE_FREE(buf);
-	dbg_print(2, "EOF(%s)\n", fname);
-	return ret;
 }
 
 void cfg_parsearg(int argc, char **argv)
@@ -3788,10 +3464,6 @@ void CFG_Load(int argc, char **argv)
 	cfg_setup1();
 	cfg_setup2();
 	
-	// set coverflow defaults
-	CFG_Default_Coverflow();
-	CFG_Default_Coverflow_Themes();
-
 	// remount NTFS if write was enabled
 	RemountNTFS();
 }
@@ -3813,6 +3485,11 @@ void CFG_Setup(int argc, char **argv)
         fclose(f);
 		gettextLoadLanguage(language_file);
 	}
+
+	button_names[NUM_BUTTON_LEFT] = gt("LEFT");
+	button_names[NUM_BUTTON_RIGHT] = gt("RIGHT");
+	button_names[NUM_BUTTON_UP] = gt("UP");
+	button_names[NUM_BUTTON_DOWN] = gt("DOWN");
 
 	// read playstats
 	if (!playStatsRead) {
@@ -3908,132 +3585,4 @@ int setPlayStat(u8 *id) {
 	return 1;
 }
 
-#ifdef FAKE_GAME_LIST
-
-#include <malloc.h>
-#include "wbfs.h"
-
-// initial/max game list size
-int fake_games = 200;
-//int fake_games = 0;
-
-// current game list size
-int fake_num = 0;
-
-struct discHdr *fake_list = NULL;
-
-int is_fake(char *id)
-{
-	int i;
-	for (i=0; i<fake_num; i++) {
-		// ignore region, check only first 5
-		if (strncmp((char*)fake_list[i].id, (char*)id, 5) == 0) return 1;
-	}
-	return 0;
-}
-
-#if 0
-// WBFS_GetCount
-s32 dbg_WBFS_GetCount(u32 *count)
-{
-	DIR *dir;
-	struct dirent *dent;
-	char id[8], *p;
-	int ret, cnt, len;
-
-	fake_num = 0;
-	SAFE_FREE(fake_list);
-	if (fake_games < 0) fake_games = 0;
-
-	// first get the real list, then add fake entries
-	ret = WBFS_GetCount((u32*)&cnt);
-	if (ret >= 0) {
-		len = sizeof(struct discHdr) * cnt;
-		fake_list = (struct discHdr *)memalign(32, len);
-		if (!fake_list) return -1;
-		memset(fake_list, 0, len);
-		ret = WBFS_GetHeaders(fake_list, cnt, sizeof(struct discHdr));
-		if (ret >= 0) fake_num = cnt;
-		//printf("real games num: %d\n", fake_num); sleep(2);
-	}
-	if (fake_num > fake_games) fake_num = fake_games;
-
-	//printf("fake dir: %s\n", CFG.covers_path); sleep(1);
-	dir = opendir(CFG.covers_path);
-	if (!dir) {
-		printf("fake dir error! %s\n", CFG.covers_path); sleep(2);
-		return 0;
-	}
-
-	while ((dent = readdir(dir)) != NULL) {
-		if (fake_num >= fake_games) break;
-		if (dent->d_name[0] == '.') continue;
-		if (strstr(dent->d_name, ".png") == NULL
-			&& strstr(dent->d_name, ".PNG") == NULL) continue;
-		memset(id, 0, sizeof(id));
-		STRCOPY(id, dent->d_name);
-		p = strchr(id, '.');
-		if (p == NULL) continue;
-		*p = 0;
-		// check if already exists, do not ignore region, we want more games ;)
-		if (is_fake(id)) continue;
-		fake_list = realloc(fake_list, sizeof(struct discHdr) * (fake_num+1));
-		memset(fake_list+fake_num, 0, sizeof(struct discHdr));
-		memcpy(fake_list[fake_num].id, id, sizeof(fake_list[fake_num].id));
-		STRCOPY(fake_list[fake_num].title, dent->d_name);
-		//printf("fake %d %.6s %s\n", fake_num,
-		//		fake_list[fake_num].id, fake_list[fake_num].title);
-		fake_num++;
-
-	}
-	closedir(dir);
-	//sleep(2);
-	*count = fake_num;
-	return 0;
-}
-#else
-// WBFS_GetCount
-
-void add_fake(char *name, char *val)
-{
-	char id[8];
-	if (fake_num >= fake_games) return;
-	// is ID?
-	if (strlen(name) != 6) return;
-	memset(id, 0, sizeof(id));
-	STRCOPY(id, name);
-	// check if already exists, do not ignore region, we want more games
-	if (is_fake(id)) return;
-	fake_list = realloc(fake_list, sizeof(struct discHdr) * (fake_num+1));
-	memset(fake_list+fake_num, 0, sizeof(struct discHdr));
-	memcpy(fake_list[fake_num].id, id, sizeof(fake_list[fake_num].id));
-	STRCOPY(fake_list[fake_num].title, val);
-	//printf("fake %d %.6s %s\n", fake_num,
-	//		fake_list[fake_num].id, fake_list[fake_num].title);
-	fake_num++;
-}
-
-s32 dbg_WBFS_GetCount(u32 *count)
-{
-	char fname[100];
-
-	fake_num = 0;
-	SAFE_FREE(fake_list);
-	if (fake_games < 0) fake_games = 0;
-	sprintf(fname, "%s/%s", USBLOADER_PATH, "gamelist2.txt");
-	printf("fake list: %s\n", fname); sleep(1);
-	cfg_parsefile(fname, add_fake);
-	*count = fake_num;
-	return 0;
-}
-#endif
-
-// WBFS_GetHeaders
-s32 dbg_WBFS_GetHeaders(void *outbuf, u32 cnt, u32 len)
-{
-	memcpy(outbuf, fake_list, cnt*len);
-	return 0;
-}
-
-#endif
 

@@ -14,7 +14,8 @@ extern "C" {
     */
     const char *gettext(const char *msg);
 #define gt(s) gettext(s)
-//#define gt(s) (s)
+	// gts can be used in static initializations
+#define gts(s) s
 
 
 #ifdef __cplusplus

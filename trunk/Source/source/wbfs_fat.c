@@ -270,6 +270,7 @@ void WBFS_FAT_fname(u8 *id, char *fname, int len, char *path)
 	} else {
 		snprintf(fname, len, "%s/%.6s.wbfs", path, id);
 	}
+	//dbg_printf("WBFS_FAT_fname(%.6s %s)=%s\n", id, path?path:"", fname);
 }
 
 int WBFS_FAT_find_fname(u8 *id, char *fname, int len)
@@ -310,6 +311,7 @@ int WBFS_FAT_find_fname(u8 *id, char *fname, int len)
 			}
 			// look for .wbfs file
 			snprintf(fname, len, "%s/%s/%.6s.wbfs", path, name, id);
+			//dbg_printf("stat:%s\n", fname);
 			if (stat(fname, &st) == 0) break;
 			// look for .iso file
 			snprintf(fname, len, "%s/%s/%.6s.iso", path, name, id);
@@ -326,6 +328,7 @@ int WBFS_FAT_find_fname(u8 *id, char *fname, int len)
 			if (strncmp((char*)fn_id, (char*)id, 6) != 0) continue;
 			snprintf(fname, len, "%s/%s", path, name);
 		}
+		//dbg_printf("stat:%s\n", fname);
 		if (stat(fname, &st) == 0) break;
 		*fname = 0;
 	}
@@ -377,6 +380,7 @@ wbfs_disc_t* WBFS_FAT_OpenDisc(u8 *discid)
 {
 	char fname[MAX_FAT_PATH];
 
+	//dbg_printf("WBFS_FAT_OpenDisc(%.6s)\n", discid);
 	// wbfs 'partition' file
 	if ( !WBFS_FAT_find_fname(discid, fname, sizeof(fname)) ) return NULL;
 
@@ -572,6 +576,7 @@ wbfs_t* WBFS_FAT_OpenPart(char *fname)
 	wbfs_t *part = NULL;
 	int ret;
 
+	dbg_printf("WBFS_FAT_OpenPart(%s)\n", fname);
 	// wbfs 'partition' file
 	ret = split_open(&split, fname);
 	if (ret) return NULL;

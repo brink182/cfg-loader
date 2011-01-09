@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-30 13:08+0200\n"
+"POT-Creation-Date: 2010-12-21 14:59+0100\n"
 "PO-Revision-Date: 2010-07-26 11:24+0800\n"
 "Last-Translator: Clamis <clamis@gmail.com>\n"
 "Language-Team: Simplified Chinese(ZH_CN) <clamis@gmail.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -56,6 +57,9 @@ msgstr "(%d秒超时)"
 
 msgid ".dol too small"
 msgstr ".dol文件太小"
+
+msgid "3D cover"
+msgstr ""
 
 msgid "< ASC  >"
 msgstr "< 升序 >"
@@ -185,6 +189,9 @@ msgstr "设置错误，已到达MAX_DNS_ENTRIES但列表仍是空的"
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "net_read()报告网络连接错误，错误代码：%i"
 
+msgid "Console Def."
+msgstr ""
+
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
 msgstr "无法初始化DIP模块！(ret = %d)"
@@ -224,6 +231,12 @@ msgstr "cIOS %d文件不完整，请重新安装该cIOS！"
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "cIOS %s加载成功！"
+
+msgid "DISC cover"
+msgstr ""
+
+msgid "DOWN"
+msgstr ""
 
 msgid "Dance Pad"
 msgstr "支持跳舞毯"
@@ -304,6 +317,9 @@ msgstr "下载次数"
 
 msgid "Drums"
 msgstr "支持打鼓机"
+
+msgid "Dutch"
+msgstr ""
 
 msgid "ERROR"
 msgstr "错误"
@@ -463,6 +479,12 @@ msgstr "扩展"
 msgid "Ejecting DVD..."
 msgstr "正在弹出DVD..."
 
+msgid "English"
+msgstr ""
+
+msgid "English Title"
+msgstr ""
+
 msgid "Enter Code: "
 msgstr "输入代码："
 
@@ -567,6 +589,12 @@ msgstr "严重错误：分配网格(%d)"
 msgid "FILL %d"
 msgstr "填充%d"
 
+msgid "FLAT cover"
+msgstr ""
+
+msgid "FULL cover"
+msgstr ""
+
 msgid "Favorite Games"
 msgstr "最喜爱的游戏"
 
@@ -595,15 +623,30 @@ msgstr "按联机特性筛选"
 msgid "Fixing EXTEND partition..."
 msgstr "正在修复扩展分区..."
 
+msgid "Force NTSC"
+msgstr ""
+
+msgid "Force PAL50"
+msgstr ""
+
+msgid "Force PAL60"
+msgstr ""
+
 msgid "Formatting"
 msgstr "正在格式化中"
 
 #, c-format
-msgid "Found %s Cover"
-msgstr "已找到%s封面"
+msgid "Found %s"
+msgstr ""
+
+msgid "French"
+msgstr ""
 
 msgid "GB"
 msgstr "GB"
+
+msgid "Game Default"
+msgstr ""
 
 msgid "Game Options"
 msgstr "游戏选项"
@@ -617,6 +660,9 @@ msgstr "支持NGC手柄(GameCube)"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
+msgstr ""
+
+msgid "German"
 msgstr ""
 
 msgid "Global Options"
@@ -692,8 +738,23 @@ msgstr "无效的.dol文件"
 msgid "Invalid partition: '%s'"
 msgstr "无效分区：'%s'"
 
+msgid "Italian"
+msgstr ""
+
+msgid "Japanese"
+msgstr ""
+
+msgid "Japanese Title"
+msgstr ""
+
 msgid "Keyboard"
 msgstr "支持键盘"
+
+msgid "Korean"
+msgstr ""
+
+msgid "LEFT"
+msgstr ""
 
 msgid "LOCKED!"
 msgstr "已锁定！"
@@ -938,11 +999,9 @@ msgstr "支持在线成绩榜"
 msgid "Opening DVD disc..."
 msgstr "正在打开DVD光盘..."
 
-msgid "Opening FAT partition..."
-msgstr "正在读取FAT分区..."
-
-msgid "Opening NTFS partition..."
-msgstr "正在读取NTFS分区..."
+#, c-format
+msgid "Opening partition: %s"
+msgstr ""
 
 msgid "Options discarded for this game."
 msgstr "已放弃保存此游戏设置"
@@ -1135,6 +1194,9 @@ msgstr "益智游戏"
 msgid "RAW"
 msgstr "原始数据"
 
+msgid "RIGHT"
+msgstr ""
+
 msgid "RPG"
 msgstr "角色扮演游戏"
 
@@ -1178,6 +1240,9 @@ msgstr "节奏游戏"
 
 msgid "Running benchmark, please wait"
 msgstr "正在运行基准测试，请稍候"
+
+msgid "S. Chinese"
+msgstr ""
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHC卡"
@@ -1231,6 +1296,9 @@ msgstr "射击游戏"
 msgid "Simulation"
 msgstr "模拟游戏"
 
+msgid "Size(GB) Type  Mount Used"
+msgstr ""
+
 #, c-format
 msgid "Size: %d bytes"
 msgstr "大小：%d字节"
@@ -1241,6 +1309,9 @@ msgstr "游戏排序"
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "排序：%s-%s"
+
+msgid "Spanish"
+msgstr ""
 
 msgid "Sports"
 msgstr "体育游戏"
@@ -1253,6 +1324,12 @@ msgstr "开始这个游戏？"
 
 msgid "Strategy"
 msgstr "战略游戏"
+
+msgid "System Def."
+msgstr ""
+
+msgid "T. Chinese"
+msgstr ""
 
 msgid "Theme"
 msgstr "主题"
@@ -1298,6 +1375,12 @@ msgstr "碎片过多！%d"
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "尝试(url#%d)..."
+
+msgid "UNUSED"
+msgstr ""
+
+msgid "UP"
+msgstr ""
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1414,9 +1497,6 @@ msgstr "损坏的WBFS文件：%s"
 
 msgid "calculating space, please wait..."
 msgstr "正在计算所需空间，请稍候..."
-
-msgid "cover"
-msgstr "封面"
 
 msgid "delete"
 msgstr "删除"
@@ -1547,6 +1627,9 @@ msgstr "已使用：%p - %p"
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT：退回使用旧方法"
 
+#~ msgid "Found %s Cover"
+#~ msgstr "已找到%s封面"
+
 #~ msgid "Missing"
 #~ msgstr "缺失的"
 
@@ -1556,6 +1639,12 @@ msgstr "已使用：%p - %p"
 #~ msgid "Ocarina HookType:"
 #~ msgstr "Ocarina钩子类型："
 
+#~ msgid "Opening FAT partition..."
+#~ msgstr "正在读取FAT分区..."
+
+#~ msgid "Opening NTFS partition..."
+#~ msgstr "正在读取NTFS分区..."
+
 #~ msgid "Press %s to select"
 #~ msgstr "按%s键选择"
 
@@ -1564,3 +1653,6 @@ msgstr "已使用：%p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "切换到IOS222以支持FAT分区"
+
+#~ msgid "cover"
+#~ msgstr "封面"

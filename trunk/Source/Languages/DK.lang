@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-30 13:08+0200\n"
+"POT-Creation-Date: 2010-12-21 14:59+0100\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -58,6 +59,9 @@ msgstr "(%d sekunders timeout)"
 
 msgid ".dol too small"
 msgstr ".dol for lille"
+
+msgid "3D cover"
+msgstr "3D cover"
 
 msgid "< ASC  >"
 msgstr "< ASC  >"
@@ -193,6 +197,9 @@ msgstr "Konfiguration fejl, MAX_DNS_ENTRIES opnået mens listen er tom"
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "Forbindelses fejl fra net_read()  fejl kode: %i"
 
+msgid "Console Def."
+msgstr "Konsol Def."
+
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
 msgstr "Kunne ikke initialisere DIP modul! (ret = %d)"
@@ -236,6 +243,12 @@ msgstr ""
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "Custom IOS %s indlæst"
+
+msgid "DISC cover"
+msgstr "DISK cover"
+
+msgid "DOWN"
+msgstr "NED"
 
 msgid "Dance Pad"
 msgstr "Danse måtte"
@@ -316,6 +329,9 @@ msgstr "Downloads"
 
 msgid "Drums"
 msgstr "Trommer"
+
+msgid "Dutch"
+msgstr "Hollandsk"
 
 msgid "ERROR"
 msgstr "FEJL"
@@ -479,6 +495,12 @@ msgstr "UDVIDE"
 msgid "Ejecting DVD..."
 msgstr "Udskyder DVD..."
 
+msgid "English"
+msgstr "Engelsk"
+
+msgid "English Title"
+msgstr "Engelske Titler"
+
 msgid "Enter Code: "
 msgstr "Skriv kode: "
 
@@ -583,6 +605,12 @@ msgstr "ALVORLIG FEJL: alloc grid(%d)"
 msgid "FILL %d"
 msgstr "FYLD %d"
 
+msgid "FLAT cover"
+msgstr "FLAD cover"
+
+msgid "FULL cover"
+msgstr "FULD cover"
+
 msgid "Favorite Games"
 msgstr "Favorit spil"
 
@@ -611,15 +639,30 @@ msgstr "Filter ifølge Online egenskaber"
 msgid "Fixing EXTEND partition..."
 msgstr "Reparer UDVIDET partition..."
 
+msgid "Force NTSC"
+msgstr "Tvinge NTSC"
+
+msgid "Force PAL50"
+msgstr "Tvinge PAL50"
+
+msgid "Force PAL60"
+msgstr "Tvinge PAL60"
+
 msgid "Formatting"
 msgstr "Formaterer"
 
 #, c-format
-msgid "Found %s Cover"
-msgstr "Fundet %s cover"
+msgid "Found %s"
+msgstr "Fundet %s"
+
+msgid "French"
+msgstr "Fransk"
 
 msgid "GB"
 msgstr "GB"
+
+msgid "Game Default"
+msgstr "Spille standard"
 
 msgid "Game Options"
 msgstr "Spil indstilling"
@@ -634,6 +677,9 @@ msgstr "Gamecube"
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "Gamercard #%d reportere:"
+
+msgid "German"
+msgstr "Tysk"
 
 msgid "Global Options"
 msgstr "Global indstilling"
@@ -711,8 +757,23 @@ msgstr "Ugyldig .dol"
 msgid "Invalid partition: '%s'"
 msgstr "Ugyldig partition: '%s'"
 
+msgid "Italian"
+msgstr "Italiensk"
+
+msgid "Japanese"
+msgstr "Japansk"
+
+msgid "Japanese Title"
+msgstr "Japanske Titler"
+
 msgid "Keyboard"
 msgstr "Tastatur"
+
+msgid "Korean"
+msgstr "Koreansk"
+
+msgid "LEFT"
+msgstr "VENSTRE"
 
 msgid "LOCKED!"
 msgstr "LÅST!"
@@ -964,11 +1025,9 @@ msgstr "Online score list"
 msgid "Opening DVD disc..."
 msgstr "Åbner DVD disc..."
 
-msgid "Opening FAT partition..."
-msgstr "Åbner FAT partition..."
-
-msgid "Opening NTFS partition..."
-msgstr "Åbner NTFS partition..."
+#, c-format
+msgid "Opening partition: %s"
+msgstr "Åbner partition: %s"
 
 msgid "Options discarded for this game."
 msgstr "Indstillinger afvist for dette spil."
@@ -1161,6 +1220,9 @@ msgstr "Puzzle"
 msgid "RAW"
 msgstr "RAW"
 
+msgid "RIGHT"
+msgstr "HØJRE"
+
 msgid "RPG"
 msgstr "RGP"
 
@@ -1204,6 +1266,9 @@ msgstr "Rytme"
 
 msgid "Running benchmark, please wait"
 msgstr "Kører benchmark, vent venligst"
+
+msgid "S. Chinese"
+msgstr "S. Kinesisk"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHC Kort"
@@ -1257,6 +1322,9 @@ msgstr "Shooter"
 msgid "Simulation"
 msgstr "Simulering"
 
+msgid "Size(GB) Type  Mount Used"
+msgstr "Størrelse(GB) Type Mount Brugt"
+
 #, c-format
 msgid "Size: %d bytes"
 msgstr "Str: %d bytes"
@@ -1267,6 +1335,9 @@ msgstr "Sorter spil"
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "Sorter: %s-%s"
+
+msgid "Spanish"
+msgstr "Spansk"
 
 msgid "Sports"
 msgstr "Sport"
@@ -1279,6 +1350,12 @@ msgstr "Start dette spil?"
 
 msgid "Strategy"
 msgstr "Strategi"
+
+msgid "System Def."
+msgstr "System Std."
+
+msgid "T. Chinese"
+msgstr "T. Kinesisk"
 
 msgid "Theme"
 msgstr "Tema"
@@ -1326,6 +1403,12 @@ msgstr "For mange fragmenter! %d"
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "Prøver (url#%d) ..."
+
+msgid "UNUSED"
+msgstr "UBRUGT"
+
+msgid "UP"
+msgstr "OP"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1443,9 +1526,6 @@ msgstr "dårlig wbfs fil: %s"
 msgid "calculating space, please wait..."
 msgstr "Udregner plads, vent venligst..."
 
-msgid "cover"
-msgstr "Cover"
-
 msgid "delete"
 msgstr "Slet"
 
@@ -1556,5 +1636,17 @@ msgstr "Brugt: %p - %p"
 #~ msgid "FAT32 mount: "
 #~ msgstr "FAT32 mount: "
 
+#~ msgid "Found %s Cover"
+#~ msgstr "Fundet %s cover"
+
+#~ msgid "Opening FAT partition..."
+#~ msgstr "Åbner FAT partition..."
+
+#~ msgid "Opening NTFS partition..."
+#~ msgstr "Åbner NTFS partition..."
+
 #~ msgid "bad wbfs file:  %s"
 #~ msgstr "Dårlig wbfs fil: %s"
+
+#~ msgid "cover"
+#~ msgstr "Cover"

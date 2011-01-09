@@ -15,13 +15,13 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	61
+VERSION		:=	62
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
 BINBASE		:=	cfg$(VERSION)
 TARGET		:=	$(BINBASE)
 BUILD		:=	build
-SOURCES		:=	source source/libpng/pngu source/libwbfs source/unzip source/jpeg
+SOURCES		:=	source source/pngu source/libwbfs source/unzip
 DATA		:=	data
 INCLUDES	:=	
 GETTEXT		:=	tools/gettext
@@ -33,13 +33,8 @@ INSTDIR		:=  ../Cfg_USB_Loader_$(VERSION)
 # options for code generation
 #---------------------------------------------------------------------------------
 
-DEVKITPPCVER := $(shell $(DEVKITPPC)/bin/$(CC) --version | sed 's/^.*(devkitPPC release \([0-9]*\)).*$$/\1/;q')
-ifeq ($(DEVKITPPCVER),17)
-	DKV		:=	$(DEVKITPPCVER)
-else
-	DKV		:=	$(DEVKITPPCVER)
-endif
-PORTLIBS = $(DEVKITPRO)/portlibs/ppc
+DKV			:= $(shell $(DEVKITPPC)/bin/$(CC) --version | sed 's/^.*(devkitPPC release \([0-9]*\)).*$$/\1/;q')
+PORTLIBS	:= $(DEVKITPRO)/portlibs/ppc
 
 BUILD_222	:=	0
 ifeq ($(BUILD_222),1)
@@ -58,7 +53,7 @@ endif
 #"-Wall" tells it to warn us about all suspicious-looking code
 DEBUG_OPT	= -Os
 #DEBUG_OPT	= -g
-BUILD_FLAGS = -DVERSION=$(VERSION) -DDEVKITPPCVER=$(DEVKITPPCVER) -DCCOPT=\"$(DEBUG_OPT)\" $(BUILD_222_FLAG) $(BUILD_DBG_FLAG)
+BUILD_FLAGS = -DVERSION=$(VERSION) -DDEVKITPPCVER=$(DKV) -DCCOPT=\"$(DEBUG_OPT)\" $(BUILD_222_FLAG) $(BUILD_DBG_FLAG)
 CFLAGS	= $(DEBUG_OPT) -Wall $(MACHDEP) $(INCLUDE) $(BUILD_FLAGS) $(DEFINES)
 CXXFLAGS	=	$(CFLAGS)
 
@@ -79,8 +74,7 @@ ifneq ($(strip $(LIBAESND)),)
 LAESND  := -laesnd
 endif
 
-#LIBS	:=	-lfat$(DKV) -lntfs$(DKV) -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd $(LAESND) -logc -lm -lz
-LIBS	:=	-lfat$(DKV) -lntfs$(DKV) -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
+LIBS	:=	-lgrrlib -lfat -lntfs -lext2fs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
 
 
 #---------------------------------------------------------------------------------
@@ -88,7 +82,7 @@ LIBS	:=	-lfat$(DKV) -lntfs$(DKV) -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -la
 # include and lib
 #---------------------------------------------------------------------------------
 #LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/freetype $(CURDIR)/lib/libfat
-LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs_new $(CURDIR)/lib/jpeg $(PORTLIBS)
+LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs $(CURDIR)/lib/libext2fs $(CURDIR)/lib/jpeg $(CURDIR)/lib/grrlib $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -137,11 +131,11 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 #---------------------------------------------------------------------------------
 # build a list of library paths
 #---------------------------------------------------------------------------------
-export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib$(DKV) -L$(dir)/lib) \
 					-L$(LIBOGC_LIB)
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: $(BUILD) lang all clean
+.PHONY: $(BUILD) 222 debug lang all clean tags
 
 #---------------------------------------------------------------------------------
 $(BUILD):
@@ -162,7 +156,7 @@ lang:
 	@[ -d Languages ] || mkdir -p Languages
 	@echo
 	@echo "Building Language File ($@$(VERSION).pot)"
-	@xgettext --sort-output --no-wrap --no-location -k -kgt -o Languages/$@$(VERSION).pot source/*.c
+	@xgettext --sort-output --no-wrap --no-location -k -kgt -kgts -o Languages/$@$(VERSION).pot source/*.c
 
 #---------------------------------------------------------------------------------
 all: $(BUILD) 222 lang
@@ -265,6 +259,8 @@ install:
 	-rm $(INSTDIR)/inSDRoot/usb-loader/Languages/*_miss.lang
 	cp Languages/lang.pot $(INSTDIR)/inSDRoot/usb-loader/Languages
 
+tags:
+	cd source ; ctags -R .
 
 #---------------------------------------------------------------------------------
 else

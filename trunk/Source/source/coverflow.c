@@ -17,7 +17,7 @@
 #include "gui.h"
 #include "cache.h"
 #include "wpad.h"
-#include "GRRLIB.h"
+#include "my_GRRLIB.h"
 #include "xml.h"
 
 //defines for the mouseover detection
@@ -60,7 +60,7 @@ extern bool suppressCoverDrawing;
 extern struct GRRLIB_texImg aa_texBuffer[4];
 
 struct settings_cf_global CFG_cf_global;
-struct settings_cf_theme *CFG_cf_theme;
+struct settings_cf_theme CFG_cf_theme[CF_THEME_NUM];
 
 typedef struct CoverPos {
 	float x,y,z;			// screen co-ordinates 
@@ -93,9 +93,9 @@ extern unsigned char cover_front[];
 extern unsigned char cover_side[];
 extern unsigned char coverImg_full[];
 
-GRRLIB_texImg tx_cover_top;
-GRRLIB_texImg tx_cover_front;
-GRRLIB_texImg tx_cover_side;
+GRRLIB_texImg *tx_cover_top;
+GRRLIB_texImg *tx_cover_front;
+GRRLIB_texImg *tx_cover_side;
 struct M2_texImg t2_nocover_full_CMPR;
 struct M2_texImg t2_hourglass_full;
 struct M2_texImg t2_screenshot;
@@ -166,9 +166,15 @@ void Coverflow_Grx_Init() {
 		tx_cover_front = GRRLIB_LoadTexture(cover_front);
 		tx_cover_side = GRRLIB_LoadTexture(cover_side);
 
-		GX_InitTexObj(&texCoverTop, tx_cover_top.data, tx_cover_top.w, tx_cover_top.h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
-		GX_InitTexObj(&texCoverFront, tx_cover_front.data, tx_cover_front.w, tx_cover_front.h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
-		GX_InitTexObj(&texCoverSide, tx_cover_side.data, tx_cover_side.w, tx_cover_side.h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+		GX_InitTexObj(&texCoverTop,
+				tx_cover_top->data, tx_cover_top->w, tx_cover_top->h,
+				GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+		GX_InitTexObj(&texCoverFront,
+				tx_cover_front->data, tx_cover_front->w, tx_cover_front->h,
+			   	GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+		GX_InitTexObj(&texCoverSide,
+				tx_cover_side->data, tx_cover_side->w, tx_cover_side->h,
+				GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
 
 		if (CFG.gui_compress_covers) {
 			//store a CMPR version of the full cover
@@ -188,9 +194,9 @@ void Coverflow_Grx_Init() {
  */
 void Coverflow_Close() {
 	if (grx_cover_init) {
-		SAFE_FREE(tx_cover_top.data);
-		SAFE_FREE(tx_cover_front.data);
-		SAFE_FREE(tx_cover_side.data);
+		GRRLIB_FREE_TEX(tx_cover_top);
+		GRRLIB_FREE_TEX(tx_cover_front);
+		GRRLIB_FREE_TEX(tx_cover_side);
 	}
 }
 
@@ -279,7 +285,7 @@ void set2DProjectionMatrix() {
  */
 void set_camera() {
 	//set the view
-	Vector	cam = {CFG_cf_theme[CFG_cf_global.theme].cam_pos_x, 
+	guVector	cam = {CFG_cf_theme[CFG_cf_global.theme].cam_pos_x, 
 				CFG_cf_theme[CFG_cf_global.theme].cam_pos_y, 
 				CFG_cf_theme[CFG_cf_global.theme].cam_pos_z},
 				
@@ -326,6 +332,19 @@ float easeOutExpo(float t, float b , float c, float d) {
 	return (t==d) ? b+c : c * (-pow(2, -10 * t/d) + 1) + b;
 }
 
+float ease_x(int type, float t, float b, float c, float d)
+{
+	switch (type) {
+		default:
+		case 0: return linearOut(t, b, c, d);
+		case 1: return easeOutQuad(t, b, c, d);
+		case 2: return easeOutCubic(t, b, c, d);
+		case 3: return easeOutQuart(t, b, c, d);
+		case 4: return easeOutQuint(t, b, c, d);
+		case 5: return easeOutExpo(t, b, c, d);
+	}
+}
+
 
 /**
  * Method used to calculate the new position when moving an object.  Can be used for moving on any axis (x,y,z)
@@ -365,32 +384,47 @@ f32 calculateNewPosition(f32 startPos, f32 endPos, int index, int totalFrames, i
  *  @param ease_type int representing the type of easing to use in the calculation
  *  @return u32 next color in the iteration
  */
-u32 calculateNewColor(u32 startPos, u32 endPos, int index, int totalFrames, int ease_type) {
+u32 calculateNewColor(u32 startPos, u32 endPos, int index, int totalFrames, int ease_type)
+{
 	u32 color;
 	int a, a1, a2;
+	int i;
 
 	if (index > totalFrames || totalFrames==0 || startPos==endPos)
 		return endPos;
 	
-	a1 = startPos & 0xFF;
-	a2 = endPos & 0xFF;
-	switch (ease_type) {
-		default:
-		case 0: a = linearOut(index, a1, a2 - a1, totalFrames); break;
-		case 1: a = easeOutQuad(index, a1, a2 - a1, totalFrames); break;
-		case 2: a = easeOutCubic(index, a1, a2 - a1, totalFrames); break;
-		case 3: a = easeOutQuart(index, a1, a2 - a1, totalFrames); break;
-		case 4: a = easeOutQuint(index, a1, a2 - a1, totalFrames); break;
-		case 5: a = easeOutExpo(index, a1, a2 - a1, totalFrames); break;
+	// each component
+	color = 0;
+	for (i=0; i<4; i++) {
+		a1 = (startPos >> (i*8)) & 0xFF;
+		a2 = (endPos >> (i*8)) & 0xFF;
+		a = ease_x(ease_type, index, a1, a2 - a1, totalFrames);
+		// range check, just in case..
+		if (a < 0) a = 0;
+		if (a > 0xFF) a = 0xFF;
+		color |= (a << (i*8));
 	}
-	
-	if ((totalFrames/2) > index)
-		color = (startPos & 0xFFFFFF00) | (u8)a;
-	else
-		color = (endPos & 0xFFFFFF00) | (u8)a;
 	
 	return color;
 }
+
+u32 color_add(u32 c1, u32 c2, int neg)
+{
+	int i, x1, x2, c;
+	u32 color = 0;
+	// each component
+	for (i=0; i<4; i++) {
+		x1 = (c1 >> (i*8)) & 0xFF;
+		x2 = (c2 >> (i*8)) & 0xFF;
+		c = x1 + neg * x2;
+		// range check, possible overflow 
+		if (c < 0) c = 0;
+		if (c > 0xFF) c = 0xFF;
+		color |= (c << (i*8));
+	}
+	return color;
+}
+
 
 /**
  * Initializes the cover image layout in the current CFG_cf_theme[CFG_cf_global.theme].
@@ -609,9 +643,9 @@ void draw_2dcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xr
 	GXTexObj texObj;
 	f32 width, height;
 	
-	Vector xaxis = (Vector) {1, 0, 0};
-	Vector yaxis = (Vector) {0, 1, 0};
-	Vector zaxis = (Vector) {0, 0, 1};
+	guVector xaxis = (guVector) {1, 0, 0};
+	guVector yaxis = (guVector) {0, 1, 0};
+	guVector zaxis = (guVector) {0, 0, 1};
 
 	//set the view
 	set_camera();
@@ -828,9 +862,9 @@ void draw_fullcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 
 	f32 COVER_SIDE_NEAR_DEPTH = COVER_BOX_DEPTH - COVER_EDGE_DEPTH;
 	f32 COVER_SIDE_FAR_DEPTH = COVER_EDGE_DEPTH;
 
-	Vector xaxis = (Vector) {1, 0, 0};
-	Vector yaxis = (Vector) {0, 1, 0};
-	Vector zaxis = (Vector) {0, 0, 1};
+	guVector xaxis = (guVector) {1, 0, 0};
+	guVector yaxis = (guVector) {0, 1, 0};
+	guVector zaxis = (guVector) {0, 0, 1};
 
 	set_camera();
 
@@ -1194,9 +1228,9 @@ void draw_fullcover_image_reflection(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32
 	//depth of the edge
 	f32 COVER_EDGE_DEPTH = 0.3;
 
-	Vector xaxis = (Vector) {1, 0, 0};
-	Vector yaxis = (Vector) {0, 1, 0};
-	Vector zaxis = (Vector) {0, 0, 1};
+	guVector xaxis = (guVector) {1, 0, 0};
+	guVector yaxis = (guVector) {0, 1, 0};
+	guVector zaxis = (guVector) {0, 0, 1};
 
 	set_camera();
 	
@@ -1367,12 +1401,12 @@ void draw_phantom_cover (CoverPos *cover, u32 color) {
 	f32 width, height;
 	f32 COVER_BOX_DEPTH = 1.7;	
 
-	Vector xaxis = (Vector) {1, 0, 0};
-	Vector yaxis = (Vector) {0, 1, 0};
-	Vector zaxis = (Vector) {0, 0, 1};
+	guVector xaxis = (guVector) {1, 0, 0};
+	guVector yaxis = (guVector) {0, 1, 0};
+	guVector zaxis = (guVector) {0, 0, 1};
 
 	//set the view
-	Vector cam = {CFG_cf_theme[CFG_cf_global.theme].cam_pos_x, CFG_cf_theme[CFG_cf_global.theme].cam_pos_y, CFG_cf_theme[CFG_cf_global.theme].cam_pos_z},
+	guVector cam = {CFG_cf_theme[CFG_cf_global.theme].cam_pos_x, CFG_cf_theme[CFG_cf_global.theme].cam_pos_y, CFG_cf_theme[CFG_cf_global.theme].cam_pos_z},
 		up = {0.0F, 1.0F, 0.0F},
 		look = {CFG_cf_theme[CFG_cf_global.theme].cam_look_x, CFG_cf_theme[CFG_cf_global.theme].cam_look_y, CFG_cf_theme[CFG_cf_global.theme].cam_look_z};
 	guLookAt(GXview2D, &cam, &up, &look);
@@ -1612,11 +1646,11 @@ int is_over_cover(ir_t *ir) {
 void convert_2dCoords_into_3dCoords(int x_2d, int y_2d, int zpos, f32 *x_3d, f32 *y_3d) {
 	Mtx44 GXprojection2D;
 	Mtx GXview2D, GXView2D_Inverse;
-	Vector v1, v1_direction;
+	guVector v1, v1_direction;
 	f32 k;
 
 	//set the view
-	Vector cam = {CFG_cf_theme[CFG_cf_global.theme].cam_pos_x, CFG_cf_theme[CFG_cf_global.theme].cam_pos_y, CFG_cf_theme[CFG_cf_global.theme].cam_pos_z},
+	guVector cam = {CFG_cf_theme[CFG_cf_global.theme].cam_pos_x, CFG_cf_theme[CFG_cf_global.theme].cam_pos_y, CFG_cf_theme[CFG_cf_global.theme].cam_pos_z},
 		up = {0.0F, 1.0F, 0.0F},
 		look = {CFG_cf_theme[CFG_cf_global.theme].cam_look_x, CFG_cf_theme[CFG_cf_global.theme].cam_look_y, CFG_cf_theme[CFG_cf_global.theme].cam_look_z};
 	guLookAt(GXview2D, &cam, &up, &look);
@@ -1771,13 +1805,13 @@ void draw_cover_image(GRRLIB_texImg *tex,
 	if (selected) {
 		//light up selected game image
 		color = 0xFFFFFF00 | alpha;
-		reflectionBottom = reflectionColorBottom + 0x11111100;
-		reflectionTop = reflectionColorTop + 0x11111100;
+		reflectionBottom = color_add(reflectionColorBottom, 0x11111100, 1);
+		reflectionTop = color_add(reflectionColorTop, 0x11111100, 1);
 	} else {
 		//dim not selected game image
 		color = 0xDDDDDD00 | alpha;
-		reflectionBottom = reflectionColorBottom - 0x11111100;
-		reflectionTop = reflectionColorTop - 0x11111100;
+		reflectionBottom = color_add(reflectionColorBottom, 0x11111100, -1);
+		reflectionTop = color_add(reflectionColorTop, 0x11111100, -1);
 	}
 	//boxcover color
 	get_boxcover_edge_color(gi, selected, alpha, color, reflectionColorBottom, reflectionColorTop, &edgecolor, &reflectionBottomEdge, &reflectionTopEdge);
@@ -1925,10 +1959,24 @@ void Coverflow_draw_title(int selectedCover, int xpos, ir_t *ir) {
 	if (CFG.gui_title_top) {
 		title_y = 24.f + 2.f; // 24 = overscan
 	}
+	if (CFG.gui_title_area.w) {
+		if (xpos > 0) {
+			title_x = CFG.gui_title_area.x + CFG.gui_title_area.w/4;
+		} else {
+			title_x = CFG.gui_title_area.x + CFG.gui_title_area.w/2 
+				- (strlen(gameTitle)*(tx_font.tilew))/2;
+		}
+		title_y = CFG.gui_title_area.y;
+	}
+	// clock
+	if (CFG.gui_clock_pos.x >= 0) {
+		Gui_Print_Clock(CFG.gui_clock_pos.x, CFG.gui_clock_pos.y, CFG.gui_text2, -1);
+		do_clock = false;
+	}
 	if (do_clock) {
 		int x = BACKGROUND_WIDTH/2;
 		int y = title_y + tx_font.tileh/2;
-		Gui_Print_Clock(x, y, CFG.gui_text2, t);
+		Gui_Print_Clock(x, y, CFG.gui_text2, 0);
 	} else {
 		Gui_PrintEx(title_x, title_y, tx_font, font_color, gameTitle);
 	}
@@ -2138,14 +2186,14 @@ int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool dra
 
 		//if moving to/from console mode then fade the backgrounds
 		if (CFG_cf_global.transition == CF_TRANS_MOVE_TO_CONSOLE || CFG_cf_global.transition == CF_TRANS_MOVE_FROM_CONSOLE) {
-			alpha = 255 * (int)round((float)CFG_cf_global.frameIndex / CFG_cf_global.frameCount);
+			alpha = 255 * CFG_cf_global.frameIndex / CFG_cf_global.frameCount;
 			Gui_set_camera(NULL, 0);
 			if (CFG_cf_global.transition == CF_TRANS_MOVE_TO_CONSOLE) {
-				GRRLIB_DrawImg(0, 0, t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
-				GRRLIB_DrawImg(0, 0, t2_bg_con.tx, 0, 1, 1, 0xFFFFFF00 | (alpha));
+				GRRLIB_DrawImg(0, 0, &t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
+				GRRLIB_DrawImg(0, 0, &t2_bg_con.tx, 0, 1, 1, 0xFFFFFF00 | (alpha));
 			} else {
-				GRRLIB_DrawImg(0, 0, t2_bg_con.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
-				GRRLIB_DrawImg(0, 0, t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (alpha));
+				GRRLIB_DrawImg(0, 0, &t2_bg_con.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
+				GRRLIB_DrawImg(0, 0, &t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (alpha));
 			}
 			Gui_set_camera(NULL, 1);
 		} else {
@@ -2231,17 +2279,17 @@ int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool dra
 	}
 
 	if (CFG.debug == 3) {
-		GRRLIB_Printf(50, 10, tx_font, CFG.gui_text.color, 1, "center  start.x:%f end.x:%f", coverCoords_center.startPos.x, coverCoords_center.endPos.x);
-		GRRLIB_Printf(50, 25, tx_font, CFG.gui_text.color, 1, "center  start.y:%f end.y:%f", coverCoords_center.startPos.y, coverCoords_center.endPos.y);
-		GRRLIB_Printf(50, 40, tx_font, CFG.gui_text.color, 1, "center  start.z:%f end.z:%f", coverCoords_center.startPos.z, coverCoords_center.endPos.z);
-		GRRLIB_Printf(50, 55, tx_font, CFG.gui_text.color, 1, "center  start.yrot:%f end.yrot:%f", coverCoords_center.startPos.yrot, coverCoords_center.endPos.yrot);
-		GRRLIB_Printf(50, 70, tx_font, CFG.gui_text.color, 1, "trans? %i, framecount: %i, frameindex: %i  ease: %i", CFG_cf_global.transition, CFG_cf_global.frameCount, CFG_cf_global.frameIndex, ease);
+		GRRLIB_Printf(50, 10, &tx_font, CFG.gui_text.color, 1, "center  start.x:%f end.x:%f", coverCoords_center.startPos.x, coverCoords_center.endPos.x);
+		GRRLIB_Printf(50, 25, &tx_font, CFG.gui_text.color, 1, "center  start.y:%f end.y:%f", coverCoords_center.startPos.y, coverCoords_center.endPos.y);
+		GRRLIB_Printf(50, 40, &tx_font, CFG.gui_text.color, 1, "center  start.z:%f end.z:%f", coverCoords_center.startPos.z, coverCoords_center.endPos.z);
+		GRRLIB_Printf(50, 55, &tx_font, CFG.gui_text.color, 1, "center  start.yrot:%f end.yrot:%f", coverCoords_center.startPos.yrot, coverCoords_center.endPos.yrot);
+		GRRLIB_Printf(50, 70, &tx_font, CFG.gui_text.color, 1, "trans? %i, framecount: %i, frameindex: %i  ease: %i", CFG_cf_global.transition, CFG_cf_global.frameCount, CFG_cf_global.frameIndex, ease);
 		//to see the mouseover screenshot image:
 		//GRRLIB_DrawImg_format(0, 0, t2_screenshot.tx, GX_TF_I8, 0, 1, 1, 0xFFFFFFFF);
 		//currently selected color and cover index:
-		GRRLIB_Printf(200, 410, tx_font, CFG.gui_text.color, 1.0, "cover(gi): %i  color: %X", selectedCover, selectedColor);
+		GRRLIB_Printf(200, 410, &tx_font, CFG.gui_text.color, 1.0, "cover(gi): %i  color: %X", selectedCover, selectedColor);
 		//mouse pointer position:
-		//GRRLIB_Printf(50, 430, tx_font, CFG.gui_text.color, 1.0, "sx: %.2f  sy: %.2f  angle: %.2f v: %d %d %d", ir->sx, ir->sy, ir->angle,	ir->raw_valid, ir->smooth_valid, ir->valid);
+		//GRRLIB_Printf(50, 430, &tx_font, CFG.gui_text.color, 1.0, "sx: %.2f  sy: %.2f  angle: %.2f v: %d %d %d", ir->sx, ir->sy, ir->angle,	ir->raw_valid, ir->smooth_valid, ir->valid);
 	}
 	
 	return selectedCover;

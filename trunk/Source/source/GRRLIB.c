@@ -15,13 +15,18 @@ Download and Help Forum : http://grrlib.santo.fr
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
-#include "libpng/pngu/pngu.h"
+#include "pngu/pngu.h"
 #include <setjmp.h>
-#include "jpeg/jpeglib.h"
-#include "GRRLIB.h"
+#include "jpeglib.h"
+#include "my_GRRLIB.h"
 #include <fat.h> 
 #include "console.h"
+#include "mem.h"
 
+#define DEFAULT_FIFO_SIZE (256 * 1024)
+void *gp_fifo = NULL;
+
+#if 0
 
 #define DEFAULT_FIFO_SIZE (256 * 1024)
 
@@ -46,7 +51,7 @@ inline void GRRLIB_FillScreen(u32 color) {
  * @param color the color of the dot.
  */
 inline void GRRLIB_Plot(f32 x, f32 y, u32 color) {
-    Vector v[] = {{x,y,0.0f}};
+    guVector v[] = {{x,y,0.0f}};
 
     GRRLIB_NPlot(v, color, 1);
 }
@@ -57,7 +62,7 @@ inline void GRRLIB_Plot(f32 x, f32 y, u32 color) {
  * @param color
  * @param n
  */
-void GRRLIB_NPlot(Vector v[], u32 color, long n) {
+void GRRLIB_NPlot(guVector v[], u32 color, long n) {
     GRRLIB_GXEngine(v, color, n, GX_POINTS);
 }
 
@@ -70,7 +75,7 @@ void GRRLIB_NPlot(Vector v[], u32 color, long n) {
  * @param color line color.
  */
 inline void GRRLIB_Line(f32 x1, f32 y1, f32 x2, f32 y2, u32 color) {
-    Vector v[] = {{x1,y1,0.0f}, {x2,y2,0.0f}};
+    guVector v[] = {{x1,y1,0.0f}, {x2,y2,0.0f}};
 
     GRRLIB_NGone(v, color, 2);
 }
@@ -87,7 +92,7 @@ inline void GRRLIB_Line(f32 x1, f32 y1, f32 x2, f32 y2, u32 color) {
 inline void GRRLIB_Rectangle(f32 x, f32 y, f32 width, f32 height, u32 color, u8 filled) {
     f32 x2 = x+width;
     f32 y2 = y+height;
-    Vector v[] = {{x,y,0.0f}, {x2,y,0.0f}, {x2,y2,0.0f}, {x,y2,0.0f}, {x,y,0.0f}};
+    guVector v[] = {{x,y,0.0f}, {x2,y,0.0f}, {x2,y2,0.0f}, {x,y2,0.0f}, {x,y,0.0f}};
 
     if(!filled) {
         GRRLIB_NGone(v, color, 5);
@@ -103,7 +108,7 @@ inline void GRRLIB_Rectangle(f32 x, f32 y, f32 width, f32 height, u32 color, u8 
  * @param color
  * @param n
  */
-void GRRLIB_NGone(Vector v[], u32 color, long n) {
+void GRRLIB_NGone(guVector v[], u32 color, long n) {
     GRRLIB_GXEngine(v, color, n, GX_LINESTRIP);
 }
 
@@ -113,7 +118,7 @@ void GRRLIB_NGone(Vector v[], u32 color, long n) {
  * @param color
  * @param n
  */
-void GRRLIB_NGoneFilled(Vector v[], u32 color, long n) {
+void GRRLIB_NGoneFilled(guVector v[], u32 color, long n) {
     GRRLIB_GXEngine(v, color, n, GX_TRIANGLEFAN);
 }
 
@@ -168,6 +173,7 @@ GRRLIB_texImg GRRLIB_LoadTexturePNG(const unsigned char my_png[]) {
     return my_texture;
 }
 
+#endif
 
 /**
  * Convert a raw bmp (RGB, no alpha) to 4x4RGBA.
@@ -210,7 +216,6 @@ static void RawTo4x4RGBA(const unsigned char *src, void *dst, const unsigned int
     } /* block */
 }
 
-
 //*************************************************
 //* jpeglib code cleanup and error handling added by usptactical
 
@@ -252,6 +257,93 @@ METHODDEF(void) output_message(j_common_ptr cinfo)
 	printf("\nError with JPEG!\n");
 }
 
+
+/**
+ * Load a jpg from a buffer.
+ * Take Care to have a JPG finnishing by 0xFF 0xD9 !!!!
+ * @param my_jpg the JPEG buffer to load.
+ * @return allocated image buffer
+ */
+void* Load_JPG_RGB(const unsigned char my_jpg[], int *w, int *h)
+{
+	struct jpeg_decompress_struct cinfo;
+	struct my_error_mgr jerr;
+	JSAMPROW row_pointer[1];
+	unsigned char *tempBuffer = 0;
+	unsigned int i;
+	int n;
+
+	//init the texture object
+	*w = 0;
+	*h = 0;
+
+	//get the jpg size
+	n = 0;
+    if((my_jpg[0]==0xff) && (my_jpg[1]==0xd8) && (my_jpg[2]==0xff)) {
+        while(1) {
+            if((my_jpg[n]==0xff) && (my_jpg[n+1]==0xd9))
+                break;
+            n++;
+        }
+        n+=2;
+    }
+	
+	//Set up the error handler first in case the initialization step fails
+	cinfo.err = jpeg_std_error(&jerr.pub);
+	cinfo.err->error_exit = my_error_exit;
+	cinfo.err->output_message = output_message;
+	//Establish the setjmp return context for my_error_exit to use
+	if (setjmp(jerr.setjmp_buffer)) {
+		//If we get here, the JPEG code has signaled an error.
+		//We need to clean up the JPEG object, and return.
+		//TODO: mem is not being cleaned up properly - I assume jpeglib's mem alloc is the culprit
+		jpeg_destroy_decompress(&cinfo);
+		SAFE_FREE(row_pointer[0]);
+		SAFE_FREE(tempBuffer);
+		*w = -666;
+		return NULL;
+	}
+	
+	//initialize the decompression object
+    jpeg_create_decompress(&cinfo);
+    cinfo.progress = NULL;
+
+//	jpeg_memory_src(&cinfo, my_jpg, n);
+	jpeg_mem_src(&cinfo, (unsigned char *)my_jpg, n);
+
+    jpeg_read_header(&cinfo, TRUE);
+    if (cinfo.jpeg_color_space == JCS_GRAYSCALE)
+        cinfo.out_color_space = JCS_RGB; //JCS_CMYK; //JCS_RGB;
+	//these speed up decompression...
+	cinfo.do_fancy_upsampling = FALSE;
+	cinfo.do_block_smoothing = FALSE;
+	//initialize internal state, allocate working memory, and prepare for returning data
+	jpeg_start_decompress(&cinfo);
+	
+	tempBuffer = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
+    row_pointer[0] = malloc(cinfo.output_width * cinfo.output_components);
+
+    size_t location = 0;
+    while (cinfo.output_scanline < cinfo.output_height) {
+        jpeg_read_scanlines(&cinfo, row_pointer, 1);
+        for (i = 0; i < cinfo.image_width * cinfo.output_components; i++) {
+            /* Put the decoded scanline into the tempBuffer */
+            tempBuffer[ location++ ] = row_pointer[0][i];
+        }
+    }
+
+    //Complete the decompression cycle. This causes working memory 
+	// associated with the JPEG object to be released.
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
+    SAFE_FREE(row_pointer[0]);
+
+	//set texture dimensions
+    *w = cinfo.output_width;
+    *h = cinfo.output_height;
+    return tempBuffer;
+}
+
 /**
  * Load a texture from a buffer.
  * Take Care to have a JPG finnishing by 0xFF 0xD9 !!!!
@@ -259,7 +351,8 @@ METHODDEF(void) output_message(j_common_ptr cinfo)
  * @param my_jpg the JPEG buffer to load.
  * @return A GRRLIB_texImg structure filled with PNG informations.
  */
-GRRLIB_texImg GRRLIB_LoadTextureJPG(const unsigned char my_jpg[]) {
+GRRLIB_texImg my_GRRLIB_LoadTextureJPG(const unsigned char my_jpg[])
+{
 	struct jpeg_decompress_struct cinfo;
 	struct my_error_mgr jerr;
 	JSAMPROW row_pointer[1];
@@ -348,10 +441,11 @@ GRRLIB_texImg GRRLIB_LoadTextureJPG(const unsigned char my_jpg[]) {
 	//set texture dimensions
     my_texture.w = cinfo.output_width;
     my_texture.h = cinfo.output_height;
-    GRRLIB_FlushTex(my_texture);
+    GRRLIB_FlushTex(&my_texture);
     return my_texture;
 }
 
+#if 0
 
 /**
  * Print formatted output.
@@ -545,7 +639,7 @@ inline void GRRLIB_DrawImg(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees,
     height = tex.h * 0.5;
     guMtxIdentity (m1);
     guMtxScaleApply(m1, m1, scaleX, scaleY, 1.0);
-    Vector axis = (Vector) {0, 0, 1 };
+    guVector axis = (guVector) {0, 0, 1 };
     guMtxRotAxisDeg (m2, &axis, degrees);
     guMtxConcat(m2, m1, m);
 
@@ -578,11 +672,11 @@ inline void GRRLIB_DrawImg(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees,
 
 /**
  * Draw a textured quad.
- * @param pos Vector array of the 4 points.
+ * @param pos guVector array of the 4 points.
  * @param tex The texture to draw.
  * @param color Color in RGBA format.
  */
-inline void GRRLIB_DrawImgQuad(Vector pos[4], struct GRRLIB_texImg *tex, u32 color) {
+inline void GRRLIB_DrawImgQuad(guVector pos[4], struct GRRLIB_texImg *tex, u32 color) {
     if (tex == NULL || tex->data == NULL) {
         return;
     }
@@ -601,7 +695,7 @@ inline void GRRLIB_DrawImgQuad(Vector pos[4], struct GRRLIB_texImg *tex, u32 col
 
     guMtxIdentity(m1);
     guMtxScaleApply(m1, m1, 1, 1, 1.0);
-    Vector axis = (Vector) {0, 0, 1};
+    guVector axis = (guVector) {0, 0, 1};
     guMtxRotAxisDeg (m2, &axis, 0);
     guMtxConcat(m2, m1, m);
 
@@ -665,7 +759,7 @@ inline void GRRLIB_DrawTile(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees
     height = tex.tileh * 0.5f;
     guMtxIdentity (m1);
     guMtxScaleApply(m1, m1, scaleX, scaleY, 1.0f);
-    Vector axis = (Vector) {0, 0, 1 };
+    guVector axis = (guVector) {0, 0, 1 };
     guMtxRotAxisDeg (m2, &axis, degrees);
     guMtxConcat(m2, m1, m);
     guMtxTransApply(m, m, xpos+width, ypos+height, 0);
@@ -696,12 +790,12 @@ inline void GRRLIB_DrawTile(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees
 
 /**
  * Draw a tile in a quad.
- * @param pos Vector array of the 4 points.
+ * @param pos guVector array of the 4 points.
  * @param tex The texture to draw.
  * @param color Color in RGBA format.
  * @param frame Specifies the frame to draw.
  */
-inline void GRRLIB_DrawTileQuad(Vector pos[4], struct GRRLIB_texImg *tex, u32 color, int frame) {
+inline void GRRLIB_DrawTileQuad(guVector pos[4], struct GRRLIB_texImg *tex, u32 color, int frame) {
     if (tex == NULL || tex->data == NULL) {
         return;
     }
@@ -728,7 +822,7 @@ inline void GRRLIB_DrawTileQuad(Vector pos[4], struct GRRLIB_texImg *tex, u32 co
     /*guMtxIdentity(m1);
     guMtxScaleApply(m1, m1, 1, 1, 1.0f);
 
-    Vector axis = (Vector) {0, 0, 1};
+    guVector axis = (guVector) {0, 0, 1};
     guMtxRotAxisDeg(m2, &axis, 0);
     guMtxConcat(m2, m1, m);
 
@@ -1088,7 +1182,7 @@ void GRRLIB_BMFX_Scatter(GRRLIB_texImg texsrc, GRRLIB_texImg texdest, int factor
  * @param n
  * @param fmt
  */
-void GRRLIB_GXEngine(Vector v[], u32 color, long n, u8 fmt) {
+void GRRLIB_GXEngine(guVector v[], u32 color, long n, u8 fmt) {
     int i;
 
     GX_Begin(fmt, GX_VTXFMT0, n);
@@ -1119,6 +1213,8 @@ void _GRRLIB_Init_Video()
 
     VIDEO_Configure (rmode);
 }
+
+#endif
 
 int _GRRLIB_Init(void *fb0, void *fb1)
 {
@@ -1218,14 +1314,21 @@ int _GRRLIB_Init(void *fb0, void *fb1)
     GX_SetAlphaUpdate(GX_TRUE);
 
     GX_SetCullMode(GX_CULL_NONE);
+
+    GRRLIB_Settings.antialias = true;
+	
 	return 0;
 }
+
+#if 0
 
 void GRRLIB_Init()
 {
 	_GRRLIB_Init_Video();
 	_GRRLIB_Init(NULL, NULL);
 }
+
+#endif
 
 int GRRLIB_Init_VMode(GXRModeObj *a_rmode, void *fb0, void *fb1)
 {
@@ -1234,6 +1337,7 @@ int GRRLIB_Init_VMode(GXRModeObj *a_rmode, void *fb0, void *fb1)
 	return _GRRLIB_Init(fb0, fb1);
 }
 
+#if 0
 
 /**
  * Call this function after drawing.
@@ -1249,6 +1353,8 @@ void GRRLIB_Render() {
     VIDEO_Flush();
     VIDEO_WaitVSync();
 }
+
+#endif
 
 void _GRRLIB_Render() {
     GX_DrawDone ();
@@ -1275,6 +1381,7 @@ void _GRRLIB_SetFB(int cur_fb)
 	fb = cur_fb;
 }
 
+#if 0
 
 /**
  * Call this before exiting your application.
@@ -1297,6 +1404,8 @@ void GRRLIB_Exit() {
     }
 }
 
+#endif
+
 void _GRRLIB_Exit() {
     GX_Flush();
     GX_AbortFrame();
@@ -1306,6 +1415,8 @@ void _GRRLIB_Exit() {
         gp_fifo = NULL;
     }
 }
+
+#if 0
 
 /**
  * Make a PNG screenshot on the SD card.
@@ -1410,6 +1521,7 @@ void GRRLIB_FreeTexture(struct GRRLIB_texImg *tex) {
 }
 */
 
+#endif
 
 void GRRLIB_DrawTile_begin(GRRLIB_texImg tex)
 {
@@ -1442,7 +1554,7 @@ inline void GRRLIB_DrawTile_draw(f32 xpos, f32 ypos, GRRLIB_texImg tex, float de
     height = tex.tileh * 0.5f;
     guMtxIdentity (m1);
     guMtxScaleApply(m1, m1, scaleX, scaleY, 1.0f);
-    Vector axis = (Vector) {0, 0, 1 };
+    guVector axis = (guVector) {0, 0, 1 };
     guMtxRotAxisDeg (m2, &axis, degrees);
     guMtxConcat(m2, m1, m);
     guMtxTransApply(m, m, xpos+width, ypos+height, 0);
@@ -1554,7 +1666,7 @@ void GRRLIB_DrawSlice2(f32 xpos, f32 ypos, GRRLIB_texImg tex, float degrees,
     height = h * 0.5f;
     guMtxIdentity (m1);
     guMtxScaleApply(m1, m1, scaleX, scaleY, 1.0f);
-    Vector axis = (Vector) {0, 0, 1 };
+    guVector axis = (guVector) {0, 0, 1 };
     guMtxRotAxisDeg (m2, &axis, degrees);
     guMtxConcat(m2, m1, m);
     guMtxTransApply(m, m, xpos+width, ypos+height, 0);
@@ -1638,13 +1750,13 @@ int unifont_to_tx(struct GRRLIB_texImg *tx, int c)
 				} else {
 					color = 0x00000000;
 				}
-				GRRLIB_SetPixelTotexImg(xx+x, y, *tx, color);
+				GRRLIB_SetPixelTotexImg(xx+x, y, tx, color);
 			}
 			glyph++;
 		}
 		xx += 8;
 	}
-	GRRLIB_FlushTex(*tx);
+	GRRLIB_FlushTex(tx);
 	return len;
 }
 
@@ -1683,9 +1795,9 @@ int draw_unifont(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
 	len = unifont->index[c] & 0x0F;
 	if (len > 2) len = 2;
 	float s = (float)h / 16;
-	GRRLIB_DrawTile(xpos+2, ypos, *tx, 0, s, s, color, 0);
-	// hmm, why xpos+2?
-	// seems the 512 font chars are right aligned while unifont is left aligned
+	GRRLIB_DrawTile(xpos+2, ypos, tx, 0, s, s, color, 0);
+	// heh, why xpos+2?
+	// the 512 font chars are right aligned while unifont is left aligned
 	// and if the two are together they will touch
 	//GX_DrawDone();
 	// dbg:
@@ -1813,6 +1925,7 @@ void GRRLIB_Print(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, const
 	GRRLIB_Print2(xpos, ypos, tex, color, 0, 0, text);
 }
 
+#if 0
 
 /**
  * Make a snapshot of the screen to a pre-allocated texture.
@@ -1850,12 +1963,15 @@ GRRLIB_texImg GRRLIB_Screen2Texture() {
     return my_texture;
 }
 
+#endif
+
 //==============================================================
 // Stencil code...
 const int _stencilWidth = 128;
 const int _stencilHeight = 128;
 
-inline void GRRLIB_DrawImg_format(f32 xpos, f32 ypos, GRRLIB_texImg tex, u8 texFormat, float degrees, float scaleX, f32 scaleY, u32 color ) {
+void GRRLIB_DrawImg_format(f32 xpos, f32 ypos, GRRLIB_texImg tex, u8 texFormat, float degrees, float scaleX, f32 scaleY, u32 color )
+{
     GXTexObj texObj;
     u16 width, height;
     Mtx m, m1, m2, mv;
@@ -1870,7 +1986,7 @@ inline void GRRLIB_DrawImg_format(f32 xpos, f32 ypos, GRRLIB_texImg tex, u8 texF
     height = tex.h * 0.5;
     guMtxIdentity (m1);
     guMtxScaleApply(m1, m1, scaleX, scaleY, 1.0);
-    Vector axis = (Vector) {0, 0, 1 };
+    guVector axis = (guVector) {0, 0, 1 };
     guMtxRotAxisDeg (m2, &axis, degrees);
     guMtxConcat(m2, m1, m);
 
@@ -1971,7 +2087,7 @@ void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx)
 	GX_CopyTex(tx->data, GX_TRUE);
 	GX_PixModeSync();
 	GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);	
-	GRRLIB_FlushTex(*tx);
+	GRRLIB_FlushTex(tx);
 }
 
 /**
@@ -2181,3 +2297,15 @@ void GRRLIB_drawAAScene(int aa_cnt, GRRLIB_texImg *texAABuffer) {
 	GX_SetNumTexGens(1);
 	GX_SetNumTevStages(1);
 }
+
+void tx_store(struct GRRLIB_texImg *dest, struct GRRLIB_texImg *src)
+{
+	if (src) {
+		memcpy(dest, src, sizeof(struct GRRLIB_texImg));
+		SAFE_FREE(src);
+	} else {
+		memset(dest, 0, sizeof(struct GRRLIB_texImg));
+	}
+}
+
+

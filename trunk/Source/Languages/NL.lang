@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-30 13:08+0200\n"
+"POT-Creation-Date: 2010-12-21 14:59+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -56,6 +57,9 @@ msgstr "(%d seconden timeout)"
 
 msgid ".dol too small"
 msgstr ".dol te klein"
+
+msgid "3D cover"
+msgstr "3D hoesje"
 
 msgid "< ASC  >"
 msgstr "< Opl >"
@@ -189,6 +193,9 @@ msgstr "Instellingsfout, MAX_DNS_ENTRIES bereikt terwijl de lijst leeg is"
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "Connectiefout van net_read()  Foutcode: %i"
 
+msgid "Console Def."
+msgstr "Console Def."
+
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
 msgstr "Kon de DIP module niet initialiseren! (ret = %d)"
@@ -232,6 +239,12 @@ msgstr ""
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "custom IOS %s geladen"
+
+msgid "DISC cover"
+msgstr "Disc afbeelding"
+
+msgid "DOWN"
+msgstr "OMLAAG"
 
 msgid "Dance Pad"
 msgstr "Dansmat"
@@ -313,6 +326,9 @@ msgstr "Downloads"
 msgid "Drums"
 msgstr "Drums"
 
+msgid "Dutch"
+msgstr ""
+
 msgid "ERROR"
 msgstr "FOUT"
 
@@ -378,6 +394,8 @@ msgid ""
 "ERROR: NTFS write disabled!\n"
 "(set ntfs_write=1)"
 msgstr ""
+"FOUT: naar NTFS schrijven uitgeschakeld!\n"
+"(zet ntfs_write=1)"
 
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
@@ -429,7 +447,7 @@ msgstr "FOUT: cache: te weinig geheugen"
 
 #, c-format
 msgid "ERROR: creating: %s"
-msgstr ""
+msgstr "FOUT bij creeeren: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -472,6 +490,12 @@ msgstr "EXTEND"
 
 msgid "Ejecting DVD..."
 msgstr "DVD uitwerpen..."
+
+msgid "English"
+msgstr ""
+
+msgid "English Title"
+msgstr ""
 
 msgid "Enter Code: "
 msgstr "Geef de code in: "
@@ -577,6 +601,12 @@ msgstr "FATAAL: alloc grid(%d)"
 msgid "FILL %d"
 msgstr "VUL %d"
 
+msgid "FLAT cover"
+msgstr "2D hoesje"
+
+msgid "FULL cover"
+msgstr "HD hoesje"
+
 msgid "Favorite Games"
 msgstr "Favoriete spellen"
 
@@ -605,15 +635,30 @@ msgstr "Filter per Online functies"
 msgid "Fixing EXTEND partition..."
 msgstr "EXTEND partitie herstellen..."
 
+msgid "Force NTSC"
+msgstr "Forceer NTSC"
+
+msgid "Force PAL50"
+msgstr "Forceer PAL50"
+
+msgid "Force PAL60"
+msgstr "Forceer PAL60"
+
 msgid "Formatting"
 msgstr "Bezig met formatteren"
 
 #, c-format
-msgid "Found %s Cover"
-msgstr "%s hoesje(s) gevonden"
+msgid "Found %s"
+msgstr "Gevonden %s"
+
+msgid "French"
+msgstr ""
 
 msgid "GB"
 msgstr "GB"
+
+msgid "Game Default"
+msgstr "Spel standaard"
 
 msgid "Game Options"
 msgstr "Spel opties"
@@ -628,6 +673,9 @@ msgstr "Gamecube"
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "Spelerkaart #%d meldt: %.*s"
+
+msgid "German"
+msgstr ""
 
 msgid "Global Options"
 msgstr "Globale opties"
@@ -705,8 +753,23 @@ msgstr "Ongeldige .dol"
 msgid "Invalid partition: '%s'"
 msgstr "Ongeldige partitie: '%s'"
 
+msgid "Italian"
+msgstr ""
+
+msgid "Japanese"
+msgstr ""
+
+msgid "Japanese Title"
+msgstr ""
+
 msgid "Keyboard"
 msgstr "Toetsenbord"
+
+msgid "Korean"
+msgstr ""
+
+msgid "LEFT"
+msgstr "LINKS"
 
 msgid "LOCKED!"
 msgstr "OP SLOT!"
@@ -856,13 +919,13 @@ msgstr ""
 "type te wijzigen van EXTEND naar data."
 
 msgid "NTFS compression not supported!"
-msgstr ""
+msgstr "NTFS compressie wordt niet ondersteund"
 
 msgid "NTFS encryption not supported!"
-msgstr ""
+msgstr "NTFS versleuteling wordt niet ondersteund!"
 
 msgid "Network connection established."
-msgstr "Netwerk connectie geslaagd."
+msgstr "Netwerk verbinding geslaagd."
 
 msgid "Network error. Can't update gamercards."
 msgstr "Fout in netwerkverbinding. Kan spelerkaarten niet bijwerken."
@@ -958,11 +1021,9 @@ msgstr "Online scorebord"
 msgid "Opening DVD disc..."
 msgstr "DVD disc openen..."
 
-msgid "Opening FAT partition..."
-msgstr "FAT partitie openen..."
-
-msgid "Opening NTFS partition..."
-msgstr "NTFS partitie openen..."
+#, c-format
+msgid "Opening partition: %s"
+msgstr "Openen partitie: %s"
 
 msgid "Options discarded for this game."
 msgstr "Opties voor dit spel verwijderd."
@@ -1155,6 +1216,9 @@ msgstr "Puzzel"
 msgid "RAW"
 msgstr "RAW"
 
+msgid "RIGHT"
+msgstr "RECHTS"
+
 msgid "RPG"
 msgstr "RPG"
 
@@ -1198,6 +1262,9 @@ msgstr "Ritme"
 
 msgid "Running benchmark, please wait"
 msgstr "Benchmark is bezig, even geduld"
+
+msgid "S. Chinese"
+msgstr ""
 
 msgid "SD/SDHC Card"
 msgstr "SD(HC) Kaart"
@@ -1251,6 +1318,9 @@ msgstr "Schietspel"
 msgid "Simulation"
 msgstr "Simulatie"
 
+msgid "Size(GB) Type  Mount Used"
+msgstr "Grootte(GB) Type MOunt gebruikt"
+
 #, c-format
 msgid "Size: %d bytes"
 msgstr "Grootte: %d bytes"
@@ -1261,6 +1331,9 @@ msgstr "Spellen sorteren"
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "Sortering: %s-%s"
+
+msgid "Spanish"
+msgstr ""
 
 msgid "Sports"
 msgstr "Sport"
@@ -1273,6 +1346,12 @@ msgstr "Spel starten?"
 
 msgid "Strategy"
 msgstr "Strategie"
+
+msgid "System Def."
+msgstr ""
+
+msgid "T. Chinese"
+msgstr ""
 
 msgid "Theme"
 msgstr "Thema"
@@ -1320,6 +1399,12 @@ msgstr "Te veel fragmenten! %d"
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "Proberen (url#%d) ..."
+
+msgid "UNUSED"
+msgstr "ONGEBRUIKT"
+
+msgid "UP"
+msgstr "OMHOOG"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1436,9 +1521,6 @@ msgstr "slecht wbfs bestand: %s"
 
 msgid "calculating space, please wait..."
 msgstr "ruimte bereken, even geduld..."
-
-msgid "cover"
-msgstr "hoesje"
 
 msgid "delete"
 msgstr "verwijder"
@@ -1575,11 +1657,20 @@ msgstr "gebruikt: %p - %p"
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT: terug naar oude methode"
 
+#~ msgid "Found %s Cover"
+#~ msgstr "%s hoesje(s) gevonden"
+
 #~ msgid "Missing"
 #~ msgstr "Ontbreekt"
 
 #~ msgid "Missing "
 #~ msgstr "Ontbreekt "
+
+#~ msgid "Opening FAT partition..."
+#~ msgstr "FAT partitie openen..."
+
+#~ msgid "Opening NTFS partition..."
+#~ msgstr "NTFS partitie openen..."
 
 #~ msgid "Press %s to select"
 #~ msgstr "Druk %s om te selecteren"
@@ -1589,3 +1680,6 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Schakel over op IOS222 voor FAT ondersteuning."
+
+#~ msgid "cover"
+#~ msgstr "hoesje"

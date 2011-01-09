@@ -20,14 +20,14 @@ for L in *.lang ; do
 	echo $L
 
 	# check for duplicates
-	del_bom < $L | msguniq.exe -d > $L.dup
+	del_bom < $L | msguniq -d > $L.dup
 	if [ -s $L.dup ]; then
 		echo DUPLICATES: $L.dup
 	else
 		rm $L.dup
 	fi
 
-	del_bom < $L | msguniq.exe --use-first | msgmerge.exe --sort-output --no-wrap --no-location -N - "$POT" | add_bom > $L.new
+	del_bom < $L | msguniq --use-first | msgmerge --sort-output --no-wrap --no-location -N - "$POT" | add_bom > $L.new
 	mv $L.new $L
 done
 

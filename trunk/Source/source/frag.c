@@ -6,6 +6,7 @@
 
 #include "fat.h"
 #include "ntfs.h"
+#include "ext2_frag.h"
 #include "libwbfs/libwbfs.h"
 #include "wbfs.h"
 #include "wbfs_fat.h"
@@ -213,37 +214,49 @@ int get_frag_list(u8 *id)
 				ret_val = 0;
 				goto out;
 			}
-		} else if (wbfs_part_fs == PART_FS_NTFS) {
-			ret = _NTFS_get_fragments(fname, &_frag_append, fs);
-			if (ret) {
-				printf("ERROR: ntfs getf: %d\n", ret);
-				if (ret == -50 || ret == -500) {
-					printf(gt("Too many fragments! %d"), fs->num);
-					printf("\n");
+		} else {
+			if (wbfs_part_fs == PART_FS_NTFS) {
+				ret = _NTFS_get_fragments(fname, &_frag_append, fs);
+				if (ret) {
+					printf("ERROR: ntfs getf: %d\n", ret);
+					if (ret == -50 || ret == -500) {
+						printf(gt("Too many fragments! %d"), fs->num);
+						printf("\n");
+					}
+					if (ret == -31) {
+						printf(gt("NTFS compression not supported!"));
+						printf("\n");
+					}
+					if (ret == -32 || ret == -33 || ret == -35) {
+						printf(gt("NTFS encryption not supported!"));
+						printf("\n");
+					}
+					ret_val = ret;
+					goto out;
 				}
-				if (ret == -31) {
-					printf(gt("NTFS compression not supported!"));
-					printf("\n");
+			} else if (wbfs_part_fs == PART_FS_EXT) {
+				ret = _EXT2_get_fragments(fname, &_frag_append, fs);
+				if (ret) {
+					printf("ERROR: ext getf: %d\n", ret);
+					ret_val = ret;
+					goto out;
 				}
-				if (ret == -32 || ret == -33 || ret == -35) {
-					printf(gt("NTFS encryption not supported!"));
-					printf("\n");
-				}
-				ret_val = ret;
-				goto out;
+			} else {
+				printf("Unsupported FS %s %d!\n",
+						get_fs_name(wbfs_part_fs), wbfs_part_fs);
 			}
 			// offset to start of partition
-			int ntfs_sec;
+			int part_sec;
 			MountPoint *m = mount_find(wbfs_fs_drive);
 			if (!m) {
 				printf("mount %s not found!\n", wbfs_fs_drive);
 				ret_val = -2;
 				goto out;
 			}
-			ntfs_sec = m->sector;
+			part_sec = m->sector;
 
 			for (j=0; j<fs->num; j++) {
-				fs->frag[j].sector += ntfs_sec;
+				fs->frag[j].sector += part_sec;
 			}
 		}
 		frag_dump(fs);

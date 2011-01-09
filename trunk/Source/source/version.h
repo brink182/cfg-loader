@@ -27,7 +27,7 @@
 
 #else
 
-   #define CFG_VERSION_STR VERSION_STR
+   #define CFG_VERSION_STR VERSION_STR"\0\0\0\0"
    #define DEFAULT_IOS_IDX CFG_IOS_249 
    //#define CFG_DEFAULT_PARTITION "WBFS1" 
    #define CFG_DEFAULT_PARTITION "auto" 

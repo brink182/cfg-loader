@@ -25,7 +25,12 @@ extern u32 diff_msec(long long start,long long end);
 float coord[2] = {320,240};
 bool padMoved = false;
 
-char *button_names[MAX_BUTTONS] = {"UP", "RIGHT", "DOWN", "LEFT", "-", "+", "A", "B", "HOME", "1", "2", "X", "Y", "Z", "C", "L", "R"};
+const char *button_names[MAX_BUTTONS] =
+{
+	"UP", "RIGHT", "DOWN", "LEFT",
+	"-", "+", "A", "B", "HOME", "1", "2",
+	"X", "Y", "Z", "C", "L", "R"
+};
 
 void Do_Shutdown() {
 	Services_Close();

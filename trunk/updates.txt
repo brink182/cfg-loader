@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 63b6 (beta)
+size = 1469152
+date = 2011-01-09
+url = http://cfg-loader.googlecode.com/files/cfg63b6.dol
+Fixed crash when missing wiitdb
+Translatable page indicator
+  for wiitdb game info
+
+release = 63b6-222 (beta)
+size = 1469152
+date = 2011-01-09
+url = http://cfg-loader.googlecode.com/files/cfg63b6-222.dol
+Same as 63b6 but with different
+default options:
+  ios=222-mload
+
 release = 63b5 (beta)
 size = 1469088
 date = 2011-01-09

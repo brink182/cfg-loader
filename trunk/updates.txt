@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 63b5 (beta)
+size = 1469088
+date = 2011-01-09
+url = http://cfg-loader.googlecode.com/files/cfg63b5.dol
+Fixed coverflow slowdowns
+Improved switching between games
+  in confirmation screen
+More info in debug.log (mem, time)
+Minor cleanups
+
+release = 63b5-222 (beta)
+size = 1469088
+date = 2011-01-09
+url = http://cfg-loader.googlecode.com/files/cfg63b5-222.dol
+Same as 63b5 but with different
+default options:
+  ios=222-mload
+
 release = 63b4 (beta)
 size = 1468448
 date = 2011-01-08

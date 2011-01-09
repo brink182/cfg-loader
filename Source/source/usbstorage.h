@@ -1,6 +1,10 @@
 #ifndef _USBSTORAGE_H_
 #define _USBSTORAGE_H_ 
 
+/* Disc interfaces */
+extern const DISC_INTERFACE my_io_usbstorage;
+extern const DISC_INTERFACE my_io_usbstorage_ro;
+
 /* Prototypes */
 u32  USBStorage_GetCapacity(u32 *);
 s32  USBStorage_Init(void);

@@ -49,7 +49,7 @@ void Wpad_getIR(struct ir_t *ir);
 #define NUNCHUK	4
 #define MASTER  5
 
-char *button_names[MAX_BUTTONS];
+const char *button_names[MAX_BUTTONS];
 void makeButtonMap(void);
 u32 buttonmap[6][MAX_BUTTONS];
 

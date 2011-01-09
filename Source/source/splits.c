@@ -46,10 +46,11 @@ int split_open_file(split_info_t *s, int idx)
 	char fname[1024];
 	split_get_fname(s, idx, fname);
 	//char *mode = s->create_mode ? "wb+" : "rb+";
-	int mode = s->create_mode ? (O_CREAT | O_RDWR) : O_RDWR ;
+	int mode = s->create_mode ? (O_CREAT | O_RDWR) : O_RDONLY ;
 	//printf("SPLIT OPEN %s %s %d\n", fname, mode, idx); //Wpad_WaitButtons();
 	//f = fopen(fname, mode);
 	fd = open(fname, mode);
+	//dbg_printf("split_open_f(%s %d) = %d\n", fname, mode, fd);
 	if (fd<0) return -1;
 	if (idx > 0 && s->create_mode) {
 		printf(gt("%s Split: %d %s"),

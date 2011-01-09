@@ -7,6 +7,19 @@
 #include <gctypes.h>
 #include "disc.h"
 #include "util.h"
+#include "cfgutil.h"
+#include "strutil.h"
+
+typedef struct PosCoords
+{
+	int x, y;
+} PosCoords;
+
+typedef struct RectCoords
+{
+	int x, y, w, h;
+} RectCoords;
+
 
 #define CFG_IOS_247       0
 #define CFG_IOS_248       1
@@ -181,7 +194,6 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_PLAYLOG_ON       1
 #define CFG_PLAYLOG_JAPANESE 2
 #define CFG_PLAYLOG_ENGLISH  3
-extern char *playlog_name[4];
 
 extern char FAT_DRIVE[];
 extern char USBLOADER_PATH[];
@@ -363,6 +375,10 @@ struct CFG
 	int gui_antialias;
 	int gui_compress_covers;
 	int clock_style;
+	struct RectCoords gui_cover_area;
+	struct RectCoords gui_title_area;
+	struct PosCoords gui_clock_pos;
+	struct PosCoords gui_page_pos;
 	// global saved state
 	int saved_global;
 	char saved_theme[32];
@@ -533,7 +549,8 @@ struct settings_cf_theme {
 	f32 cover_right_yrot;
 	f32 cover_right_zrot;
 };
-extern struct settings_cf_theme *CFG_cf_theme;
+#define CF_THEME_NUM 5
+extern struct settings_cf_theme CFG_cf_theme[CF_THEME_NUM];
 
 extern int num_theme;
 extern int cur_theme;
@@ -545,7 +562,6 @@ bool CFG_Load_Settings();
 bool CFG_Save_Settings(int verbose);
 bool CFG_Save_Global_Settings();
 void cfg_parsearg_early(int argc, char **argv);
-bool cfg_parsefile(char *fname, void (*set_func)(char*, char*));
 
 char *cfg_get_title(u8 *id);
 char *get_title(struct discHdr *header);
@@ -578,8 +594,6 @@ bool set_hide_game(u8 *id, bool hide);
 bool is_hide_game(u8 *id);
 
 int CFG_filter_favorite(struct discHdr *list, int cnt);
-char* split_token(char *dest, char *src, char delim, int size);
-char* trimcopy(char *dest, char *src, int size);
 
 char *get_clock_str(time_t t);
 
@@ -588,27 +602,9 @@ u32 getPlayCount(u8 *id);
 time_t getLastPlay(u8 *id);
 int setPlayStat(u8 *id);
 
-struct TextMap
-{
-	char *name;
-	int id;
-};
-
-int map_get_num(struct TextMap *map);
-char* map_get_name(struct TextMap *map, int id);
-
 extern struct TextMap map_video_patch[];
 
 #define NUM_HOOK 8
 extern char *hook_name[NUM_HOOK];
-
-//#define FAKE_GAME_LIST
-
-#ifdef FAKE_GAME_LIST
-// Debug Test mode with fake game list
-extern int fake_games;
-s32 dbg_WBFS_GetCount(u32 *count);
-s32 dbg_WBFS_GetHeaders(void *outbuf, u32 cnt, u32 len);
-#endif
 
 #endif

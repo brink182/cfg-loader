@@ -1,6 +1,8 @@
 #ifndef _PARTITION_H_
 #define _PARTITION_H_
 
+#include <gccore.h>
+
 /* 'partition entry' structure */
 typedef struct {
 	/* Boot indicator */
@@ -26,18 +28,22 @@ typedef struct {
 #define MAX_PARTITIONS		4
 #define MAX_PARTITIONS_EX	10
 
-#define FS_TYPE_UNK   0
-#define FS_TYPE_FAT16 1
-#define FS_TYPE_FAT32 2
-#define FS_TYPE_NTFS  3
-#define FS_TYPE_WBFS  4
+#define PART_TYPE_LINUX 0x83
+
+#define PART_FS_WBFS 0
+#define PART_FS_FAT  1
+#define PART_FS_NTFS 2
+#define PART_FS_EXT  3
+#define PART_FS_UNK  4
+
+#define PART_FS_FIRST 0
+#define PART_FS_NUM  4
 
 typedef struct
 {
 	int fs_type;
-	int wbfs_i;  // seq wbfs part index starting with 1
-	int fat_i;   // seq fat  part index starting with 1
-	int ntfs_i;  // seq ntfs part index starting with 1
+	// sequence indexes of a fs type starting with 1
+	int fs_index;
 } PartInfo;
 
 typedef struct
@@ -45,9 +51,7 @@ typedef struct
 	int num;
 	u32 sector_size;
 	partitionEntry pentry[MAX_PARTITIONS_EX];
-	int wbfs_n;
-	int fat_n;
-	int ntfs_n;
+	int fs_n[PART_FS_NUM];
 	PartInfo pinfo[MAX_PARTITIONS_EX];
 } PartList;
 
@@ -64,7 +68,7 @@ int Partition_FindFS(u32 device, int part_fstype, int seq_i, sec_t *sector);
 bool  part_is_extended(int type);
 bool  part_is_data(int type);
 char* part_type_data(int type);
-char* part_type_name(int type);
+const char* part_type_name(int type);
 bool  part_valid_data(partitionEntry *entry);
 int   get_fs_type(void *buf);
 bool  is_type_fat(int type);

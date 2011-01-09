@@ -12,14 +12,10 @@
 #include "gui.h"
 #include "cache.h"
 #include "wpad.h"
-#include "GRRLIB.h"
+#include "my_GRRLIB.h"
 #include "sys.h"
 #include "gettext.h"
 
-
-extern void GRRLIB_DrawSlice(f32 xpos, f32 ypos, GRRLIB_texImg tex,
-		float degrees, float scaleX, f32 scaleY, u32 color,
-		float x, float y, float w, float h);
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
@@ -29,7 +25,7 @@ extern int gui_style;
 extern float cam_f;
 extern float cam_dir;
 extern float cam_z;
-extern Vector cam_look;
+extern guVector cam_look;
 
 
 typedef struct Grid_State
@@ -50,15 +46,13 @@ struct Grid_State *grid_state = NULL;
 //int spacing_over_y = 24; // overscan 5% of 480 
 //int spacing_over_x = 32; // overscan 6.7% of 640 
 //int spacing_text = 24; // max font height
-//int text_y = 480-20*2+5; //BACKGROUND_HEIGHT-spacing*2+5;
+//int title_y = 480-20*2+5; //BACKGROUND_HEIGHT-spacing*2+5;
 #define spacing        20 // between covers
 #define spacing_over_y 24 // overscan 5% of 480 
 #define spacing_over_x 20 // overscan 6.7% of 640 = 42
 #define spacing_text   24 // max font height
 
-const int text_y_bottom = BACKGROUND_HEIGHT - spacing_over_y - spacing_text + 2;
-const int text_x = spacing_over_x + spacing;
-int text_y;
+struct RectCoords cover_area;
 
 int grid_columns = 5;
 int grid_rows = 2;
@@ -111,6 +105,21 @@ void grid_allocate()
 			sleep(5);
 			Sys_Exit();
 		}
+	}
+}
+
+void init_cover_area()
+{
+	if (CFG.gui_cover_area.w == 0) {
+		cover_area.x = spacing_over_x;
+		cover_area.y = spacing_over_y;
+		if (CFG.gui_title_top) {
+			cover_area.y += spacing_text;
+		}
+		cover_area.w = BACKGROUND_WIDTH - spacing_over_x * 2;
+		cover_area.h = BACKGROUND_HEIGHT - spacing_over_y * 2 - spacing_text;
+	} else {
+		cover_area = CFG.gui_cover_area;
 	}
 }
 
@@ -172,18 +181,17 @@ void update_grid_state(struct Grid_State *GS)
 
 void calc_scroll_range()
 {
-	int cover_area_width = BACKGROUND_WIDTH - spacing_over_x * 2;
-	int cover_area_height = BACKGROUND_HEIGHT - spacing_over_y * 2 - spacing_text;
-	max_w = (float)((cover_area_width - spacing) / grid_columns - spacing);
-	max_h = (float)((cover_area_height - spacing) / grid_rows - spacing);
+	max_w = (float)((cover_area.w - spacing) / grid_columns - spacing);
+	max_h = (float)((cover_area.h - spacing) / grid_rows - spacing);
 	scroll_per_cover = max_w + spacing;
 	scroll_per_page = scroll_per_cover * grid_columns;
 	// last corner_x
-	int last_corner_x = spacing_over_x + spacing
+	int last_corner_x = cover_area.x + spacing
 		+ (int)(max_w+spacing) * ((grid_covers-1) / grid_rows);
 
 	scroll_max = last_corner_x + max_w + spacing
-		- (BACKGROUND_WIDTH - spacing_over_x);
+		- (cover_area.x + cover_area.w);
+	// - cover_area.w
 
 	if (scroll_max < 0) scroll_max = 0;
 }
@@ -202,13 +210,8 @@ void grid_calc_i(int game_i)
 
 	calc_scroll_range();
 
-	int base_x = spacing_over_x + spacing;
-	int base_y;
-	if (CFG.gui_title_top) {
-		base_y = spacing_over_y + spacing_text + spacing;
-	} else {
-		base_y = spacing_over_y + spacing;
-	}
+	int base_x = cover_area.x + spacing;
+	int base_y = cover_area.y + spacing;
 
 	for (i=0; i<grid_covers; i++) {
 
@@ -294,21 +297,22 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 		color = 0xDDDDDDFF;
 	}
 
-	#if 0
-	if (GS->gi == page_gi) {
-		GRRLIB_Rectangle(screen_x + GS->center_x-max_w/2-spacing,
-				screen_y + GS->center_y-max_h/2-spacing,
-				max_w+spacing*2, max_h+spacing*2, 0x0000FFFF, 1);
+	if (CFG.debug) {
+		if (GS->gi == page_gi) {
+			GRRLIB_Rectangle(screen_x + GS->center_x-max_w/2-spacing,
+					screen_y + GS->center_y-max_h/2-spacing,
+					max_w+spacing*2, max_h+spacing*2, 0x0000FF80, 1);
+		}
+		if (GS->gi == page_gi + page_visible - 1
+				|| GS->gi == gameCnt - 1) {
+			GRRLIB_Rectangle(screen_x + GS->center_x-max_w/2-spacing,
+					screen_y + GS->center_y-max_h/2-spacing,
+					max_w+spacing*2, max_h+spacing*2, 0xFF000080, 1);
+		}
 	}
-	if (GS->gi == page_gi + page_visible - 1) {
-		GRRLIB_Rectangle(screen_x + GS->center_x-max_w/2-spacing,
-				screen_y + GS->center_y-max_h/2-spacing,
-				max_w+spacing*2, max_h+spacing*2, 0xFF0000FF, 1);
-	}
-	#endif
 
 	GRRLIB_DrawImg(screen_x + GS->img_x, screen_y + GS->img_y,
-		GS->tx, GS->angle, sx, sy, color);
+		&GS->tx, GS->angle, sx, sy, color);
 
 	// favorite
 	if (is_favorite(gameList[GS->gi].id)) {
@@ -327,8 +331,15 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 		}
 		float star_x = star_center_x - tx_star.w/2;
 		float star_y = star_center_y - tx_star.h/2;
+		/*
+		GRRLIB_Rectangle(screen_x + star_x, screen_y + star_y,
+			tx_star.w, tx_star.h, 0x00FF0080, 1); 
+		GRRLIB_Printf(50, 50, &tx_font, 0xFFFFFFFF, 1, "%d %d %d %d",
+				tx_star.offsetx, tx_star.offsety,
+				tx_star.handlex, tx_star.handley);
+		*/
 		GRRLIB_DrawImg( screen_x + star_x, screen_y + star_y,
-			tx_star, 0, sx, sy, color);
+			&tx_star, 0, sx, sy, color);
 	}
 	
 	if (miss) {
@@ -366,6 +377,9 @@ void draw_grid(int selected, float screen_x, float screen_y)
 	}
 	if (post) {
 		draw_grid_1(post, screen_x, screen_y);
+	}
+	if (CFG.debug) {
+		GRRLIB_Rectangle(cover_area.x, cover_area.y, cover_area.w, cover_area.h, 0x0000FFFF, 0);
 	}
 }
 
@@ -417,10 +431,10 @@ bool is_over(struct Grid_State *GS, ir_t *ir, float screen_x, float screen_y)
 	y1 += screen_y;
 	y2 += screen_y;
 	if (gui_style == GUI_STYLE_FLOW_Z) {
-		Vector p1 = { x1, y1, 0.0 };
-		Vector p2 = { x2, y1, 0.0 };
-		Vector p3 = { x1, y2, 0.0 };
-		Vector p4 = { x2, y2, 0.0 };
+		guVector p1 = { x1, y1, 0.0 };
+		guVector p2 = { x2, y1, 0.0 };
+		guVector p3 = { x1, y2, 0.0 };
+		guVector p4 = { x2, y2, 0.0 };
 		gui_tilt_pos(&p1);
 		gui_tilt_pos(&p2);
 		gui_tilt_pos(&p3);
@@ -657,12 +671,12 @@ void transition_fade(int direction, int grid_i)
 		Wpad_getIR(&ir);
 
 		color = 0xFFFFFF00 | alpha;
-		GRRLIB_DrawImg(0, 0, t2_bg.tx, 0, 1, 1, color);
+		GRRLIB_DrawImg(0, 0, &t2_bg.tx, 0, 1, 1, color);
 
 		draw_grid_t(0, 0, grid_i, NULL, 1-tran);
 
 		color = 0xFFFFFF00 | (255-alpha);
-		GRRLIB_DrawImg(0, 0, t2_bg_con.tx, 0, 1, 1, color);
+		GRRLIB_DrawImg(0, 0, &t2_bg_con.tx, 0, 1, 1, color);
 
 		draw_grid_sel(gameSelected, -page_scroll, 0);
 		
@@ -902,12 +916,17 @@ void grid_copy_vis(struct Grid_State *grid, int *gi, int *gnum)
 	}
 }
 
+int action_alpha = 0x00;
+extern char action_string[40];
+
 static int style_alpha = 0x00;
-static int style_x, page_x;
+//static int style_x;
+static int page_x, page_y;
 
 void print_style(int change)
 {
 	char *style_name[] = { "grid", "flow", "flow-z", "coverflow" };
+	char str[16] = "";
 	FontColor font_color = CFG.gui_text;
 	if (change) {
 		style_alpha = font_color.color & 0xFF;
@@ -920,113 +939,138 @@ void print_style(int change)
 	Gui_set_camera(NULL, 0);
 	if (CFG.gui_lock) {
 		// print only rows
-		int text_w = tx_font.tilew * (3 + 1);
-		style_x = page_x - text_w;
-		Gui_PrintfEx(style_x, text_y, tx_font, font_color, "[%d]", grid_rows);
+		sprintf(str, "[%d]", grid_rows);
 	} else {
 		// print style and rows
-		int text_w = tx_font.tilew * (10 + 1);
-		style_x = page_x - text_w;
-		Gui_PrintfEx(style_x, text_y, tx_font, font_color,
-				"[%s %d]", style_name[gui_style], grid_rows);
+		sprintf(str, "[%s %d]", style_name[gui_style], grid_rows);
+	}
+	/*
+	int text_w = tx_font.tilew * (strlen(str) + 1);
+	style_x = page_x - text_w;
+	Gui_PrintfEx(style_x, page_y, tx_font, font_color, "%s", str);
+	*/
+	if (change) {
+		strcpy(action_string, str);
+		action_alpha = 0xFF;
+		style_alpha = 0;
 	}
 }
 
-int action_alpha = 0x00;
-extern char action_string[40];
-
 void grid_print_title(int selected)
 {
+	int title_x = spacing_over_x + spacing;
+	int title_y;
+	int title_w = BACKGROUND_WIDTH - spacing_over_x - title_x;
+	char title[80] = "";
+	FontColor font_color = CFG.gui_text;
 	int w;
 	// reset camera
 	Gui_set_camera(NULL, 0);
 	// position
 	if (CFG.gui_title_top) {
-		text_y = spacing_over_y;
+		title_y = spacing_over_y;
 	} else {
-		text_y = text_y_bottom;
+		title_y = BACKGROUND_HEIGHT - spacing_over_y - spacing_text + 2;
+	}
+
+	if (CFG.gui_title_area.w) {
+		title_x = CFG.gui_title_area.x;
+		title_y = CFG.gui_title_area.y;
+		title_w = CFG.gui_title_area.w;
 	}
 	
 	// page
-	//GRRLIB_Printf(BACKGROUND_WIDTH - spacing*2 - 50, text_y, tx_font,
-	//	CFG.gui_text.color, 1.0, "%d / %d", page_i+1, num_pages);
 	char page_str[16];
 	snprintf(page_str, sizeof(page_str), "%d/%d", page_i+1, num_pages);
 	w = tx_font.tilew * strlen(page_str);
-	page_x = BACKGROUND_WIDTH - spacing_over_x - spacing - w;
-	//Gui_Printf(page_x, text_y, "%d/%d", page_i+1, num_pages);
-	Gui_Print(page_x, text_y, page_str);
+	if (CFG.gui_page_pos.x < 0) {
+		//page_x = BACKGROUND_WIDTH - title_x - w;
+		page_x = title_x + title_w - w;
+		page_y = title_y;
+		title_w -= w;
+	} else {
+		page_x = CFG.gui_page_pos.x;
+		page_y = CFG.gui_page_pos.y;
+	}
+	Gui_Print(page_x, page_y, page_str);
 	
 	// style
 	print_style(0);
 
-	//GRRLIB_Printf(spacing*2, text_y, tx_font,
-	//	CFG.gui_text.color, 1.0, "%s", get_title(&gameList[selected]));
-	int x, center, max_w, max_len, len;
-	char *title;
-	max_w = page_x - text_x;
-	center = text_x + max_w / 2;
+	// clock
+	if (CFG.gui_clock_pos.x >= 0) {
+		Gui_Print_Clock(CFG.gui_clock_pos.x, CFG.gui_clock_pos.y, CFG.gui_text, -1);
+	}
+
+	int x, center, max_len, len;
+
+	center = title_x + title_w / 2;
 
 	static time_t last_time = 0;
 
 	// action
 	if (action_alpha) {
-		FontColor font_color = CFG.gui_text;
 		font_color.color = (font_color.color & 0xFFFFFF00) | action_alpha;
 		if (action_alpha > 0) action_alpha -= 3;
 		if (action_alpha < 0) action_alpha = 0;
 		last_time = 0;
-
-		max_len = max_w / tx_font.tilew;
+		/*
+		max_len = title_w / tx_font.tilew;
 		len = strlen(action_string);
 		if (len > max_len) len = max_len;
 		x = center - len * tx_font.tilew / 2;
 		if (style_alpha) {
-			max_w = style_x - x;
-			max_len = max_w / tx_font.tilew;
+			title_w = style_x - x;
+			max_len = title_w / tx_font.tilew;
 			if (len > max_len) len = max_len;
 		}
-		//GRRLIB_Rectangle(text_x, text_y, 600, spacing_text, 0x0000FFFF, 1);
-		//GRRLIB_Rectangle(text_x, text_y+spacing_text, 600, spacing, 0xFF0000FF, 1);
-		//GRRLIB_Rectangle(text_x, text_y-spacing, 600, spacing, 0xFF0000FF, 1);
-		Gui_PrintfEx(x, text_y, tx_font, font_color, "%.*s", len, action_string);
+		//GRRLIB_Rectangle(title_x, title_y-spacing, 600, spacing, 0xFF0000FF, 1);
+		Gui_PrintfEx(x, title_y, tx_font, font_color, "%.*s", len, action_string);
 		return;
-	}
+		*/
+		STRCOPY(title, action_string);
 
-	// clock
-	if (selected < 0) {
-		if (!CFG.clock_style) return;
-		time_t t = time(NULL);
-		// wait 2 seconds before showing clock
-		if (last_time == 0) { last_time = t; return; }
-		if (t - last_time < 2) return;
-		int x = BACKGROUND_WIDTH/2;
-		int y = text_y + tx_font.tileh/2;
-		Gui_Print_Clock(x, y, CFG.gui_text, t);
-		return;
-	}
-	last_time = 0;
+	} else {
 
-	// title
-	max_len = max_w / tx_font.tilew;
-	title = get_title(&gameList[selected]);
-	//len = strlen(title);
+		// clock
+		if (CFG.gui_clock_pos.x < 0) {
+			if (selected < 0) {
+				if (!CFG.clock_style) return;
+				time_t t = time(NULL);
+				// wait 2 seconds before showing clock
+				if (last_time == 0) { last_time = t; return; }
+				if (t - last_time < 2) return;
+				int x = BACKGROUND_WIDTH/2;
+				int y = title_y + tx_font.tileh/2;
+				Gui_Print_Clock(x, y, CFG.gui_text, 0);
+				return;
+			}
+			last_time = 0;
+		}
+
+		// title
+		if (selected < 0) return;
+		STRCOPY(title, get_title(&gameList[selected]));
+	}
+	max_len = title_w / tx_font.tilew;
 	len = con_len(title);
 	if (len > max_len) len = max_len;
 	x = center - len * tx_font.tilew / 2;
+	/*
 	if (style_alpha) {
-		max_w = style_x - x;
-		max_len = max_w / tx_font.tilew;
+		title_w = style_x - x;
+		max_len = title_w / tx_font.tilew;
 		if (len > max_len) len = max_len;
-	}
-	//GRRLIB_Rectangle(text_x, text_y, 600, spacing_text, 0x0000FFFF, 1);
-	//GRRLIB_Rectangle(text_x, text_y+spacing_text, 600, spacing, 0xFF0000FF, 1);
-	//GRRLIB_Rectangle(text_x, text_y-spacing, 600, spacing, 0xFF0000FF, 1);
-	//Gui_Printf(x, text_y, "%.*s", len, title);
+	}*/
+	//GRRLIB_Rectangle(title_x, title_y, 600, spacing_text, 0x0000FFFF, 1);
+	//GRRLIB_Rectangle(title_x, title_y+spacing_text, 600, spacing, 0xFF0000FF, 1);
+	//GRRLIB_Rectangle(title_x, title_y-spacing, 600, spacing, 0xFF0000FF, 1);
+	//Gui_Printf(x, title_y, "%.*s", len, title);
 	char trunc_title[strlen(title)+1];
 	STRCOPY(trunc_title, title);
 	con_trunc(trunc_title, len);
-	Gui_Printf(x, text_y, "%s", trunc_title);
+	//Gui_Printf(x, title_y, "%s", trunc_title);
+	Gui_PrintfEx(x, title_y, tx_font, font_color, "%s", trunc_title);
 }
 
 
@@ -1236,6 +1280,7 @@ void page_move_to(int gi)
 void grid_init(int game_sel)
 {
 	grid_allocate();
+	init_cover_area();
 	grid_set_style(gui_style, grid_rows);
 	// move page to currently selected
 	page_move_to(game_sel);

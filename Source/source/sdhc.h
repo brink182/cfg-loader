@@ -4,6 +4,10 @@
 /* Constants */
 #define SDHC_SECTOR_SIZE	0x200
 
+/* Disc interfaces */
+extern const DISC_INTERFACE my_io_sdhc;
+extern const DISC_INTERFACE my_io_sdhc_ro;
+
 /* Prototypes */
 bool SDHC_Init(void);
 bool SDHC_Close(void);

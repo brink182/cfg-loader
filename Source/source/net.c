@@ -492,14 +492,14 @@ struct block Download_URL(char *id, char *url_list, int style)
 	return file;
 }
 
-char *get_style_name(int style)
+const char *get_style_name(int style)
 {
 	switch (style) {
 		default:
-		case CFG_COVER_STYLE_2D: return "FLAT";
-		case CFG_COVER_STYLE_3D: return "3D";
-		case CFG_COVER_STYLE_DISC: return "DISC";
-		case CFG_COVER_STYLE_FULL: return "FULL";
+		case CFG_COVER_STYLE_2D: return gt("FLAT cover");
+		case CFG_COVER_STYLE_3D: return gt("3D cover");
+		case CFG_COVER_STYLE_DISC: return gt("DISC cover");
+		case CFG_COVER_STYLE_FULL: return gt("FULL cover");
 	}
 }
 
@@ -507,37 +507,24 @@ bool Download_Cover_Style(char *id, int style)
 {
 	char imgName[100];
 	char imgPath[100];
-	char *style_name = "";
 	char *path = "";
 	char *url = "";
 	char *wide = "";
 	bool success = false;
-	//int do_wide = 0;
 
-	/*if (CFG.widescreen && CFG.download_wide) {
-		wide = "_wide";
-		do_wide = 1;
-	}*/
-	style_name = get_style_name(style);
 	switch (style) {
 		default:
 		case CFG_COVER_STYLE_2D:
-			//if (do_wide) url = CFG.cover_url_2d_wide;
-			//else
 			url = CFG.cover_url_2d_norm;
 			path = CFG.covers_path_2d;
 			break;
 
 		case CFG_COVER_STYLE_3D:
-			//if (do_wide) url = CFG.cover_url_3d_wide;
-			//else
 			url = CFG.cover_url_3d_norm;
 			path = CFG.covers_path_3d;
 			break;
 
 		case CFG_COVER_STYLE_DISC:
-			//if (do_wide) url = CFG.cover_url_disc_wide;
-			//else
 			url = CFG.cover_url_disc_norm;
 			path = CFG.covers_path_disc;
 			break;
@@ -555,8 +542,7 @@ bool Download_Cover_Style(char *id, int style)
 		// save as 4 character ID
 		snprintf(imgName, sizeof(imgName), "%.4s%s.png", id, wide);
 	}
-	printf("[%.6s] : %s %s", id, style_name, gt("cover"));
-	//printf_(gt("Downloading %s cover... (%s)"), style_name, imgName);
+	printf("[%.6s] : %s", id, get_style_name(style));
 	printf("\n");
 
 	if (strncmp(path, NTFS_DRIVE, strlen(NTFS_DRIVE)) == 0) {
@@ -652,7 +638,7 @@ bool Download_Cover_Missing(char *id, int style, bool missing_only, bool verbose
 				if (tx_tmp.data) {
 					SAFE_FREE(tx_tmp.data);
 					if (verbose) {
-						printf_(gt("Found %s Cover"), gt(get_style_name(style)));
+						printf_(gt("Found %s"), get_style_name(style));
 						printf("\n");
 					}
 					return true;

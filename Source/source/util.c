@@ -12,162 +12,9 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-
 #include "console.h"
 #include "menu.h"
 #include "util.h"
-
-/*
-extern void* SYS_GetArena2Lo();
-extern void* SYS_GetArena2Hi();
-extern void* SYS_AllocArena2MemLo(u32 size,u32 align);
-extern void* __SYS_GetIPCBufferLo();
-extern void* __SYS_GetIPCBufferHi();
-
-static void *mem2_start = NULL;
-*/
-
-
-char* strcopy(char *dest, const char *src, int size)
-{
-	strncpy(dest,src,size);
-	dest[size-1] = 0;
-	return dest;
-}
-
-char *strappend(char *dest, char *src, int size)
-{
-	int len = strlen(dest);
-	strcopy(dest+len, src, size-len);
-	return dest;
-}
-
-bool str_replace(char *str, char *olds, char *news, int size)
-{
-	char *p;
-	int len;
-	p = strstr(str, olds);
-	if (!p) return false;
-	// new len
-	len = strlen(str) - strlen(olds) + strlen(news);
-	// check size
-	if (len >= size) return false;
-	// move remainder to fit (and nul)
-	memmove(p+strlen(news), p+strlen(olds), strlen(p)-strlen(olds)+1);
-	// copy new in place
-	memcpy(p, news, strlen(news));
-	// terminate
-	str[len] = 0;
-	return true;
-}
-
-bool str_replace_all(char *str, char *olds, char *news, int size) {
-	int cnt = 0;
-	bool ret = str_replace(str, olds, news, size);
-	while (ret) {
-		ret = str_replace(str, olds, news, size);
-		cnt++;
-	}
-	return (cnt > 0);
-}
-
-bool str_replace_tag_val(char *str, char *tag, char *val)
-{
-	char *p, *end;
-	p = strstr(str, tag);
-	if (!p) return false;
-	p += strlen(tag);
-	end = strstr(p, "</");
-	if (!end) return false;
-	dbg_printf("%s '%.*s' -> '%s'\n", tag, end-p, p, val);
-	// make space for new val
-	memmove(p+strlen(val), end, strlen(end)+1); // +1 for 0 termination
-	// copy over new val
-	memcpy(p, val, strlen(val));
-	return true;
-}
-
-
-#if 0
-void* LARGE_memalign(size_t align, size_t size)
-{
-	return SYS_AllocArena2MemLo(size, align);
-}
-
-void LARGE_free(void *ptr)
-{
-	// nothing
-}
-
-size_t LARGE_used()
-{
-	size_t size = SYS_GetArena2Lo() - (void*)0x90000000;
-	return size;
-}
-
-void memstat2()
-{
-	void *m2base = (void*)0x90000000;
-	void *m2lo = SYS_GetArena2Lo();
-	void *m2hi = SYS_GetArena2Hi();
-	void *ipclo = __SYS_GetIPCBufferLo();
-	void *ipchi = __SYS_GetIPCBufferHi();
-	size_t isize = ipchi - ipclo;
-	printf("\n");
-	printf("MEM2: %p %p %p\n", m2base, m2lo, m2hi);
-	printf("s:%d u:%d f:%d\n", m2hi - m2base, m2lo - m2base, m2hi - m2lo);
-	printf("s:%.2f MB u:%.2f MB f:%.2f MB\n",
-			(float)(m2hi - m2base)/1024/1024,
-			(float)(m2lo - m2base)/1024/1024,
-			(float)(m2hi - m2lo)/1024/1024);
-	printf("IPC:  %p %p %d\n", ipclo, ipchi, isize);
-}
-
-// save M2 ptr
-void util_init()
-{
-	void _con_alloc_buf(s32 *conW, s32 *conH);
-	_con_alloc_buf(NULL, NULL);
-	mem2_start = SYS_GetArena2Lo();
-}
-
-void util_clear()
-{
-	// game start: 0x80004000
-	// game end:   0x80a00000 approx
-	void *game_start = (void*)0x80004000;
-	void *game_end   = (void*)0x80a00000;
-	u32 size;
-
-	// clear mem1 main
-	size = game_end - game_start;
-	//printf("Clear %p [%x]\n", game_start, size); __console_flush(0);
-	memset(game_start, 0, size);
-	DCFlushRange(game_start, size);
-
-	// clear mem2
-	if (mem2_start == NULL) return;
-	size = SYS_GetArena2Lo() - mem2_start;
-	//printf("Clear %p [%x]\n", mem2_start, size); __console_flush(0); sleep(2);
-	memset(mem2_start, 0, size);
-	DCFlushRange(mem2_start, size);
-
-	// clear mem1 heap
-	// find appropriate size
-	void *p;
-	for (size = 10*1024*1024; size > 0; size -= 128*1024) {
-		p = memalign(32, size);
-		if (p) {
-			//printf("Clear %p [%x] %p\n", p, size, p+size);
-			//__console_flush(0); sleep(2);
-			memset(p, 0, size);
-			DCFlushRange(p, size);
-			free(p);
-			break;
-		}
-	}
-}
-#endif
 
 // Thanks Dteyn for this nice feature =)
 // Toggle wiilight (thanks Bool for wiilight source)
@@ -401,20 +248,6 @@ void hex_dump3(void *p, int size)
 }
 
 
-#if 0
-
-void memstat()
-{
-	//malloc_stats();
-}
-
-void memcheck()
-{
-	//mallinfo();
-}
-
-#endif
-
 /* Copyright 2005 Shaun Jackman
  * Permission to use, copy, modify, and distribute this software
  * is freely granted, provided that this notice is preserved.
@@ -440,7 +273,6 @@ char* dirname(char *path)
 		(*p = '\0', path);
 }
 
-#include "wpad.h"
 
 // code modified from http://niallohiggins.com/2009/01/08/mkpath-mkdir-p-alike-in-c-for-unix/
 int mkpath(const char *s, int mode){
@@ -470,3 +302,4 @@ out:
 			SAFE_FREE(path);
         return (rv);
 }
+

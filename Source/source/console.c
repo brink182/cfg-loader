@@ -23,7 +23,7 @@
 
 #include "util.h"
 
-#include "libpng/pngu/pngu.h"
+#include "pngu/pngu.h"
 
 extern void *bg_buf_rgba;
 extern void *bg_buf_ycbr;

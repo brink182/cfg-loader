@@ -2,7 +2,7 @@
 #define _GUI_H_
 
 #include "wpad.h"
-#include "GRRLIB.h"
+#include "my_GRRLIB.h"
 #include "cfg.h"
 
 #define BACKGROUND_WIDTH	640
@@ -30,7 +30,7 @@ extern GRRLIB_texImg tx_font;
 extern float cam_f;
 extern float cam_dir;
 extern float cam_z;
-extern Vector cam_look;
+extern guVector cam_look;
 
 extern int game_select;
 
@@ -60,7 +60,7 @@ GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h, void *de
 s32 __Gui_GetPngDimensions(void *img, u32 *w, u32 *h);
 void Gui_set_camera(ir_t *ir, int);
 void Gui_Wpad_IR(int, struct ir_t *ir);
-void gui_tilt_pos(Vector *pos);
+void gui_tilt_pos(guVector *pos);
 void cache2_tex(struct M2_texImg *dest, GRRLIB_texImg *src);
 void cache2_tex_alloc(struct M2_texImg *dest, int w, int h);
 void cache2_tex_alloc_fullscreen(struct M2_texImg *dest);
@@ -76,7 +76,7 @@ void Gui_PrintfEx(int x, int y, GRRLIB_texImg font, FontColor font_color, char *
 void Gui_Printf(int x, int y, char *fmt, ...);
 void Gui_Print2(int x, int y, const char *str);
 void Gui_Print(int x, int y, char *str);
-void Gui_Print_Clock(int x, int y, FontColor font_color, time_t t);
+void Gui_Print_Clock(int x, int y, FontColor font_color, int align);
 
 void Grx_Init();
 void Gui_RenderAAPass(int aaStep);

@@ -1,4 +1,10 @@
 
+libfat:  1.0.5 + frag
+libntfs: 3g-2010.8.8 + frag
+
+jpeg:    8a
+png:     1.2.34
+
 libfat/lib:
 
 libfat.a    - devkit 17, -O2

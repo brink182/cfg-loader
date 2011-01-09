@@ -1,7 +1,8 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-#include "libpng/pngu/pngu.h"
+#include <ogcsys.h>
+#include "pngu/pngu.h"
 
 /* Prototypes */
 void Con_Init(u32, u32, u32, u32);

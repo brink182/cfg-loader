@@ -379,6 +379,7 @@ s32 WBFS_Open(void)
 	if (!hdd)
 		return -1;
 	wbfs_part_idx = 1;
+	wbfs_part_lba = hdd->part_lba;
 
 	return 0;
 }
@@ -388,22 +389,11 @@ s32 WBFS_OpenPart(u32 part_fs, u32 part_idx, u32 part_lba, u32 part_size, char *
 	// close
 	WBFS_Close();
 
-	/*
-	if (part_fs == PART_FS_FAT) {
-		//if (wbfsDev != WBFS_DEVICE_USB) return -1;
-		if (wbfsDev == WBFS_DEVICE_USB && part_lba == fat_usb_sec) {
-			strcpy(wbfs_fs_drive, USB_MOUNT":");
-		} else if (wbfsDev == WBFS_DEVICE_SDHC && part_lba == fat_sd_sec) {
-			strcpy(wbfs_fs_drive, SDHC_MOUNT":");
-		} else {
-			if (Fat_MountWBFS(part_lba)) return -1;
-			strcpy(wbfs_fs_drive, GAME_MOUNT":");
-		}
-	} else if (part_fs == PART_FS_NTFS) {
-		if (MountNTFS(part_lba)) return -1;
-		strcpy(wbfs_fs_drive, NTFS_MOUNT":");
-	*/
-	if (part_fs == PART_FS_FAT || part_fs == PART_FS_NTFS) {
+	dbg_printf("openpart(%d %d %d %d)\n", part_fs, part_idx, part_lba, part_size);
+	if (part_fs == PART_FS_UNK) return -1;
+	if (part_fs == PART_FS_WBFS) {
+		if (WBFS_OpenLBA(part_lba, part_size)) return -1;
+	} else {
 		MountPoint *mp = mount_find_part(wbfsDev, part_lba);
 		if (mp) {
 			mount_name2drive(mp->name, wbfs_fs_drive);
@@ -411,18 +401,13 @@ s32 WBFS_OpenPart(u32 part_fs, u32 part_idx, u32 part_lba, u32 part_size, char *
 			if (MountFS(GAME_MOUNT, wbfsDev, part_lba, part_fs, 1)) return -1;
 			mount_name2drive(GAME_MOUNT, wbfs_fs_drive);
 		}
-	} else {
-		if (WBFS_OpenLBA(part_lba, part_size)) return -1;
 	}
 
 	// success
 	wbfs_part_fs  = part_fs;
 	wbfs_part_idx = part_idx;
 	wbfs_part_lba = part_lba;
-	char *fs = "WBFS";
-	if (wbfs_part_fs == PART_FS_FAT) fs = "FAT";
-	if (wbfs_part_fs == PART_FS_NTFS) fs = "NTFS";
-	sprintf(partition, "%s%d", fs, wbfs_part_idx);
+	sprintf(partition, "%s%d", get_fs_name(part_fs), wbfs_part_idx);
 	dbg_printf("game part=%s\n", partition);
 	return 0;
 }
@@ -453,90 +438,50 @@ s32 WBFS_OpenNamed(char *partition)
 	u32 part_lba = 0;
 	s32 ret = 0;
 	PartList plist;
-	int auto_mode = 0;
+	int x, fs;
 
 	// close
 	WBFS_Close();
 
 	dbg_printf("open_part(%s)\n", partition);
-	// parse partition option
-	if (strncasecmp(partition, "WBFS", 4) == 0) {
-		i = atoi(partition+4);
-		if (i < 1 || i > 4) goto err;
-		part_fs  = PART_FS_WBFS;
-		part_idx = i;
-	} else if (strncasecmp(partition, "FAT", 3) == 0) {
-		i = atoi(partition+3);
-		if (i < 1 || i > 9) goto err;
-		part_fs  = PART_FS_FAT;
-		part_idx = i;
-	} else if (strncasecmp(partition, "NTFS", 4) == 0) {
-		i = atoi(partition+4);
-		if (i < 1 || i > 9) goto err;
-		part_fs  = PART_FS_NTFS;
-		part_idx = i;
-	} else if (strcasecmp(partition, "auto") == 0) {
-		auto_mode = 1;
-	} else {
-		goto err;
-	}
 
 	// Get partition entries
 	ret = Partition_GetList(wbfsDev, &plist);
 	if (ret || plist.num == 0) return -1;
 
-	if (auto_mode) {
-		// find first
-		// WBFS
-		for (i=0; i<plist.num; i++) {
-			if (plist.pinfo[i].wbfs_i == 1) {
-				part_fs = PART_FS_WBFS;
+	// parse partition option
+	if (strcasecmp(partition, "auto") == 0) {
+		int fs_list[] = { PART_FS_WBFS, PART_FS_FAT, PART_FS_NTFS }; // PART_FS_EXT
+		int n = sizeof(fs_list) / sizeof(int);
+		for (x=0; x<n; x++) {
+			fs = fs_list[x];
+			i = PartList_FindFS(&plist, fs, 1, NULL);
+			if (i < 0) continue;
+			if ((fs == PART_FS_WBFS) || is_game_fs(wbfsDev, plist.pentry[i].sector)) {
+				part_fs = fs;
 				part_idx = 1;
 				goto found;
 			}
 		}
-		// FAT
-		for (i=0; i<plist.num; i++) {
-			if (plist.pinfo[i].fat_i == 1) {
-				if (is_game_fs(wbfsDev, plist.pentry[i].sector)) {
-					part_fs = PART_FS_FAT;
-					part_idx = 1;
+	} else {
+		for (x=0; x<PART_FS_NUM; x++) {
+			fs = PART_FS_FIRST + x;
+			char *fsname = get_fs_name(fs);
+			int len = strlen(fsname);
+			if (strncasecmp(partition, fsname, len) == 0) {
+				int idx = atoi(partition + len);
+				if (idx < 1 || idx > 9) goto err;
+				i = PartList_FindFS(&plist, fs, idx, NULL);
+				if (i >= 0) {
+					part_fs = fs;
+					part_idx = idx;
 					goto found;
 				}
-				break;
 			}
 		}
-		// NTFS
-		for (i=0; i<plist.num; i++) {
-			if (plist.pinfo[i].ntfs_i == 1) {
-				if (is_game_fs(wbfsDev, plist.pentry[i].sector)) {
-					part_fs = PART_FS_NTFS;
-					part_idx = 1;
-					goto found;
-				}
-				break;
-			}
-		}
-		// nothing found
-		goto err;
 	}
-
-	if (part_fs == PART_FS_WBFS) {
-		if (part_idx > plist.wbfs_n) goto err;
-		for (i=0; i<plist.num; i++) {
-			if (plist.pinfo[i].wbfs_i == part_idx) break;
-		}
-	} else if (part_fs == PART_FS_FAT) {
-		if (part_idx > plist.fat_n) goto err;
-		for (i=0; i<plist.num; i++) {
-			if (plist.pinfo[i].fat_i == part_idx) break;
-		}
-	} else if (part_fs == PART_FS_NTFS) {
-		if (part_idx > plist.ntfs_n) goto err;
-		for (i=0; i<plist.num; i++) {
-			if (plist.pinfo[i].ntfs_i == part_idx) break;
-		}
-	}
+	// nothing found
+	goto err;
 
 found:
 	if (i >= plist.num) goto err;
@@ -792,6 +737,7 @@ s32 WBFS_DiskSpace(f32 *used, f32 *free)
 
 wbfs_disc_t* WBFS_OpenDisc(u8 *discid)
 {
+	//dbg_printf("WBFS_OpenDisc(%.6s) %d\n", discid, wbfs_part_fs);
 	if (wbfs_part_fs) return WBFS_FAT_OpenDisc(discid);
 
 	/* No device open */
@@ -874,6 +820,7 @@ int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle)
 {
 	void *banner = NULL;
 	int size;
+	//dbg_printf("WBFS_Banner(%.6s %d %d)\n", discid, getSound, getTitle);
 
 	if (!getSound && !getTitle) return 0;
 
@@ -917,4 +864,132 @@ int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle)
 	return 0;
 }
 
+#ifdef FAKE_GAME_LIST
+
+#include <malloc.h>
+#include "wbfs.h"
+
+// initial/max game list size
+int fake_games = 200;
+//int fake_games = 0;
+
+// current game list size
+int fake_num = 0;
+
+struct discHdr *fake_list = NULL;
+
+int is_fake(char *id)
+{
+	int i;
+	for (i=0; i<fake_num; i++) {
+		// ignore region, check only first 5
+		if (strncmp((char*)fake_list[i].id, (char*)id, 5) == 0) return 1;
+	}
+	return 0;
+}
+
+#if 0
+// WBFS_GetCount
+s32 dbg_WBFS_GetCount(u32 *count)
+{
+	DIR *dir;
+	struct dirent *dent;
+	char id[8], *p;
+	int ret, cnt, len;
+
+	fake_num = 0;
+	SAFE_FREE(fake_list);
+	if (fake_games < 0) fake_games = 0;
+
+	// first get the real list, then add fake entries
+	ret = WBFS_GetCount((u32*)&cnt);
+	if (ret >= 0) {
+		len = sizeof(struct discHdr) * cnt;
+		fake_list = (struct discHdr *)memalign(32, len);
+		if (!fake_list) return -1;
+		memset(fake_list, 0, len);
+		ret = WBFS_GetHeaders(fake_list, cnt, sizeof(struct discHdr));
+		if (ret >= 0) fake_num = cnt;
+		//printf("real games num: %d\n", fake_num); sleep(2);
+	}
+	if (fake_num > fake_games) fake_num = fake_games;
+
+	//printf("fake dir: %s\n", CFG.covers_path); sleep(1);
+	dir = opendir(CFG.covers_path);
+	if (!dir) {
+		printf("fake dir error! %s\n", CFG.covers_path); sleep(2);
+		return 0;
+	}
+
+	while ((dent = readdir(dir)) != NULL) {
+		if (fake_num >= fake_games) break;
+		if (dent->d_name[0] == '.') continue;
+		if (strstr(dent->d_name, ".png") == NULL
+			&& strstr(dent->d_name, ".PNG") == NULL) continue;
+		memset(id, 0, sizeof(id));
+		STRCOPY(id, dent->d_name);
+		p = strchr(id, '.');
+		if (p == NULL) continue;
+		*p = 0;
+		// check if already exists, do not ignore region, we want more games ;)
+		if (is_fake(id)) continue;
+		fake_list = realloc(fake_list, sizeof(struct discHdr) * (fake_num+1));
+		memset(fake_list+fake_num, 0, sizeof(struct discHdr));
+		memcpy(fake_list[fake_num].id, id, sizeof(fake_list[fake_num].id));
+		STRCOPY(fake_list[fake_num].title, dent->d_name);
+		//printf("fake %d %.6s %s\n", fake_num,
+		//		fake_list[fake_num].id, fake_list[fake_num].title);
+		fake_num++;
+
+	}
+	closedir(dir);
+	//sleep(2);
+	*count = fake_num;
+	return 0;
+}
+#else
+// WBFS_GetCount
+
+void add_fake(char *name, char *val)
+{
+	char id[8];
+	if (fake_num >= fake_games) return;
+	// is ID?
+	if (strlen(name) != 6) return;
+	memset(id, 0, sizeof(id));
+	STRCOPY(id, name);
+	// check if already exists, do not ignore region, we want more games
+	if (is_fake(id)) return;
+	fake_list = realloc(fake_list, sizeof(struct discHdr) * (fake_num+1));
+	memset(fake_list+fake_num, 0, sizeof(struct discHdr));
+	memcpy(fake_list[fake_num].id, id, sizeof(fake_list[fake_num].id));
+	STRCOPY(fake_list[fake_num].title, val);
+	//printf("fake %d %.6s %s\n", fake_num,
+	//		fake_list[fake_num].id, fake_list[fake_num].title);
+	fake_num++;
+}
+
+s32 dbg_WBFS_GetCount(u32 *count)
+{
+	char fname[100];
+
+	fake_num = 0;
+	SAFE_FREE(fake_list);
+	if (fake_games < 0) fake_games = 0;
+	sprintf(fname, "%s/%s", USBLOADER_PATH, "gamelist2.txt");
+	printf("fake list: %s\n", fname); sleep(1);
+	cfg_parsefile(fname, add_fake);
+	*count = fake_num;
+	return 0;
+}
+#endif
+
+// WBFS_GetHeaders
+s32 dbg_WBFS_GetHeaders(void *outbuf, u32 cnt, u32 len)
+{
+	memcpy(outbuf, fake_list, cnt*len);
+	return 0;
+}
+
+#endif
 

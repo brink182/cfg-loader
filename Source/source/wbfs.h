@@ -2,6 +2,7 @@
 #define _WBFS_H_
 
 #include "libwbfs/libwbfs.h"
+#include "partition.h"
 #include "util.h"
 
 /* Device list */
@@ -13,10 +14,6 @@ enum {
 /* Macros */
 #define WBFS_MIN_DEVICE		1
 #define WBFS_MAX_DEVICE		2
-
-#define PART_FS_WBFS 0
-#define PART_FS_FAT  1
-#define PART_FS_NTFS 2
 
 extern s32 wbfsDev;
 extern int wbfs_part_fs;
@@ -56,5 +53,13 @@ typedef struct DOL_LIST
 
 int WBFS_GetDolList(u8 *discid, DOL_LIST *list);
 int WBFS_Banner(u8 *discid, SoundInfo *snd, u8 *title, u8 getSound, u8 getTitle);
+
+//#define FAKE_GAME_LIST
+#ifdef FAKE_GAME_LIST
+// Debug Test mode with fake game list
+extern int fake_games;
+s32 dbg_WBFS_GetCount(u32 *count);
+s32 dbg_WBFS_GetHeaders(void *outbuf, u32 cnt, u32 len);
+#endif
 
 #endif

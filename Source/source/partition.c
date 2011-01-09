@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "wbfs.h"
 #include "libwbfs/libwbfs.h"
+#include "ext2.h"
+#include "gettext.h"
 
 /* 'partition table' structure */
 typedef struct {
@@ -185,7 +187,7 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 	// Check if it's a RAW FS disc, without partition table
 	ret = get_fs_type(table);
 	dbg_printf("fstype(%d)=%d\n", device, ret);
-	if (ret != FS_TYPE_UNK) {
+	if (ret != PART_FS_UNK) {
 		// looks like a raw fs
 		if (!is_valid_ptable(table)) {
 			// if invalid part. table then yes it's raw
@@ -204,13 +206,13 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 		dbg_printf("RAW\n", ret);
 		memset(outbuf, 0, sizeof(table->entries));
 		// create a fake partition entry
-		if (ret == FS_TYPE_WBFS) {
+		if (ret == PART_FS_WBFS) {
 			wbfs_head_t *head = &tbl.head;
 			outbuf->size = wbfs_ntohl(head->n_hd_sec);
 		} else {
 			outbuf->size = 1;
 		}
-		if (ret == FS_TYPE_NTFS) {
+		if (ret == PART_FS_NTFS) {
 			outbuf->type = 0x07;
 		} else {
 			outbuf->type = 0x0b;
@@ -242,7 +244,7 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 		if (i == 0) {
 			// handle the invalid scenario where wbfs is on an EXTENDED
 			// partition instead of on the Logical inside Extended.
-			if (get_fs_type(table) == FS_TYPE_WBFS) break;
+			if (get_fs_type(table) == PART_FS_WBFS) break;
 		}
 		entry = &table->entries[0];
 		entry->sector = swap32(entry->sector);
@@ -292,7 +294,7 @@ char* part_type_data(int type)
 	switch (type) {
 		case 0x01: return "FAT12";
 		case 0x04: return "FAT16";
-		case 0x06: return "FAT16"; //+
+		case 0x06: return "FAT16"; // FAT16+
 		case 0x07: return "NTFS";
 		case 0x0b: return "FAT32";
 		case 0x0c: return "FAT32";
@@ -308,11 +310,11 @@ char* part_type_data(int type)
 	return NULL;
 }
 
-char *part_type_name(int type)
+const char *part_type_name(int type)
 {
 	static char unk[8];
-	if (type == 0) return "UNUSED";
-	if (part_is_extended(type)) return "EXTEND";
+	if (type == 0) return gt("UNUSED");
+	if (part_is_extended(type)) return gt("EXTEND");
 	char *p = part_type_data(type);
 	if (p) return p;
 	sprintf(unk, "UNK-%02x", type);
@@ -324,33 +326,34 @@ int get_fs_type(void *buff)
 	char *buf = buff;
 	// WBFS
 	wbfs_head_t *head = (wbfs_head_t *)buff;
-	if (head->magic == wbfs_htonl(WBFS_MAGIC)) return FS_TYPE_WBFS;
+	if (head->magic == wbfs_htonl(WBFS_MAGIC)) return PART_FS_WBFS;
 	// 55AA
 	if (buf[0x1FE] == 0x55 && buf[0x1FF] == 0xAA) {
 		// FAT
-		if (memcmp(buf+0x36,"FAT",3) == 0) return FS_TYPE_FAT16;
-		if (memcmp(buf+0x52,"FAT",3) == 0) return FS_TYPE_FAT32;
+		if (memcmp(buf+0x36,"FAT",3) == 0) return PART_FS_FAT; //FAT16;
+		if (memcmp(buf+0x52,"FAT",3) == 0) return PART_FS_FAT; //FAT32;
 		// NTFS
-		if (memcmp(buf+0x03,"NTFS",4) == 0) return FS_TYPE_NTFS;
+		if (memcmp(buf+0x03,"NTFS",4) == 0) return PART_FS_NTFS;
 	}
-	return FS_TYPE_UNK;
+	return PART_FS_UNK;
 }
 
 bool is_type_fat(int type)
 {
-	return (type == FS_TYPE_FAT16 || type == FS_TYPE_FAT32);
+	//return (type == PART_FS_FAT16 || type == PART_FS_FAT32);
+	return (type == PART_FS_FAT);
 }
 
 
 char *get_fs_name(int i)
 {
 	switch (i) {
-		case FS_TYPE_FAT16: return "FAT16";
-		case FS_TYPE_FAT32: return "FAT32";
-		case FS_TYPE_NTFS:  return "NTFS";
-		case FS_TYPE_WBFS:  return "WBFS";
+		case PART_FS_WBFS: return "WBFS";
+		case PART_FS_FAT:  return "FAT";
+		case PART_FS_NTFS: return "NTFS";
+		case PART_FS_EXT:  return "EXT";
 	}
-	return "";
+	return "UNK";
 }
 
 s32 Partition_GetList(u32 device, PartList *plist)
@@ -358,6 +361,7 @@ s32 Partition_GetList(u32 device, PartList *plist)
 	partitionEntry *entry = NULL;
 	PartInfo *pinfo = NULL;
 	int i, ret;
+	int linux_found = 0;
 
 	memset(plist, 0, sizeof(PartList));
 
@@ -375,6 +379,7 @@ s32 Partition_GetList(u32 device, PartList *plist)
 	for (i = 0; i < plist->num; i++) {
 		pinfo = &plist->pinfo[i];
 		entry = &plist->pentry[i];
+		pinfo->fs_type = PART_FS_UNK;
 		if (entry->sector || entry->size || entry->type) {
 			dbg_printf("P#%d %u %u %d\n", i, 
 				entry->sector, entry->size, entry->type);
@@ -389,19 +394,49 @@ s32 Partition_GetList(u32 device, PartList *plist)
 		//if (!part_is_data(entry->type)) continue;
 		if (!Device_ReadSectors(device, entry->sector, 1, buf)) continue;
 		pinfo->fs_type = get_fs_type(buf);
-		if (pinfo->fs_type == FS_TYPE_WBFS) {
+		if (pinfo->fs_type == PART_FS_WBFS) {
 			// multiple wbfs on sdhc not supported
-			if (device == WBFS_DEVICE_SDHC && (plist->wbfs_n > 1 || i > 4)) continue;
-			plist->wbfs_n++;
-			pinfo->wbfs_i = plist->wbfs_n;
-		} else if (is_type_fat(pinfo->fs_type)) {
-			plist->fat_n++;
-			pinfo->fat_i = plist->fat_n;
-		} else if (pinfo->fs_type == FS_TYPE_NTFS) {
-			plist->ntfs_n++;
-			pinfo->ntfs_i = plist->ntfs_n;
+			if (device == WBFS_DEVICE_SDHC && (plist->fs_n[PART_FS_WBFS] > 1 || i > 4)) {
+				continue;
+			}
+		}
+		if (pinfo->fs_type != PART_FS_UNK) {
+			plist->fs_n[pinfo->fs_type]++;
+			pinfo->fs_index = plist->fs_n[pinfo->fs_type];
+		} else if (entry->type == PART_TYPE_LINUX) {
+			linux_found = 1;
 		}
 	}
+	// scan for linux ext2fs
+	if (linux_found) {
+		const DISC_INTERFACE *io;
+		sec_t *ext_part;
+		int j;
+		if (device == WBFS_DEVICE_SDHC) {
+			io = &my_io_sdhc_ro;
+		} else {
+			io = &my_io_usbstorage_ro;
+		}
+		ret = ext2FindPartitions(io, &ext_part);
+		if (ret > 0 && ext_part) {
+			for (i = 0; i < plist->num; i++) {
+				pinfo = &plist->pinfo[i];
+				entry = &plist->pentry[i];
+				if (!entry->sector || !entry->size || !entry->type) continue;
+				if (pinfo->fs_type != PART_FS_UNK) continue;
+				for (j=0; j<ret; j++) {
+					if (ext_part[j] == entry->sector) {
+						pinfo->fs_type = PART_FS_EXT;
+						plist->fs_n[pinfo->fs_type]++;
+						pinfo->fs_index = plist->fs_n[pinfo->fs_type];
+						break;
+					}
+				}
+			}
+			SAFE_FREE(ext_part);
+		}
+	}
+
 	return 0;
 }
 
@@ -428,19 +463,24 @@ int Partition_FixEXT(u32 device, int part, u32 sec_size)
 int PartList_FindFS(PartList *plist, int part_fstype, int seq_i, sec_t *sector)
 {
 	int i;
-    if (seq_i <= 0) return -2; // index has to start with 1
-    for (i=0; i<plist->num; i++) {
-        if (part_fstype == PART_FS_FAT && plist->pinfo[i].fat_i == seq_i) goto found;
-        if (part_fstype == PART_FS_NTFS && plist->pinfo[i].ntfs_i == seq_i) goto found;
-        if (part_fstype == PART_FS_WBFS && plist->pinfo[i].wbfs_i == seq_i) goto found;
-    }
-    // not found
-    return -1;
+	PartInfo *pinfo = NULL;
+	dbg_printf("part_find(%d %d)\n");
+	if (seq_i <= 0) return -2; // index has to start with 1
+	for (i=0; i<plist->num; i++) {
+		pinfo = &plist->pinfo[i];
+		if (pinfo->fs_type == part_fstype && pinfo->fs_index == seq_i) {
+			goto found;
+		}
+	}
+	// not found
+	return -1;
 
-    found:
-    *sector = plist->pentry[i].sector;
+found:
+	if (sector) {
+		*sector = plist->pentry[i].sector;
+	}
 	//dbg_printf("Part found: %u\n", *sector);
-    return 0;
+	return i;
 }
 
 int Partition_FindFS(u32 device, int part_fstype, int seq_i, sec_t *sector)
@@ -449,12 +489,14 @@ int Partition_FindFS(u32 device, int part_fstype, int seq_i, sec_t *sector)
 	PartList plist;
 
 	//dbg_printf("Part_Find(%d, %d, %d)\n", device, part_fstype, seq_i);
-    if (seq_i <= 0) return -2; // index has to start with 1
+	if (seq_i <= 0) return -2; // index has to start with 1
 
 	ret = Partition_GetList(device, &plist);
-    if (ret < 0) return ret;
+	if (ret < 0) return ret;
 
-    return PartList_FindFS(&plist, part_fstype, seq_i, sector);
+	ret = PartList_FindFS(&plist, part_fstype, seq_i, sector);
+	if (ret < 0) return ret;
+	return 0;
 }
 
 

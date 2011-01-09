@@ -24,6 +24,23 @@ static heap mem1;
 static heap mem2;
 static void *mem2_start = NULL;
 
+#define ALIGN_VAL 32
+
+inline size_t align_up(size_t s)
+{
+	if (s == 0) return ALIGN_VAL;
+	s += ALIGN_VAL - 1;
+	s &= ~(ALIGN_VAL - 1);
+	return s;
+}
+
+inline size_t align_down(size_t s)
+{
+	s &= ~(ALIGN_VAL - 1);
+	return s;
+}
+
+
 mem_blk* blk_find_size(blk_list *bl, int size)
 {
 	int i;
@@ -159,9 +176,8 @@ mem_blk* blk_merge_add(blk_list *list, mem_blk *ab)
 void *heap_alloc(heap *h, int size)
 {
 	mem_blk *ab, *fb;
-	// round up to 32bit (4byte) aligned size
-	if (size == 0) size = 4;
-	size = ((size+3) >> 2) << 2;
+	// align size
+	size = align_up(size);
 	if (h->used_list.num >= MAX_MEM_BLK - 1) return NULL;
 	fb = blk_find_size(&h->free_list, size);
 	if (!fb) return NULL;
@@ -200,9 +216,8 @@ void *heap_realloc(heap *h, void *ptr, int size)
 	void *new_ptr;
 	int delta;
 
-	// round up to 32bit (4byte) aligned size
-	if (size == 0) size = 4;
-	size = ((size+3) >> 2) << 2;
+	// align size
+	size = align_up(size);
 	
 	// new allocation
 	if (ptr == NULL) {
@@ -268,13 +283,13 @@ void heap_init(heap *h, void *ptr, int size)
 	memset(h, 0, sizeof(heap));
 	h->start = ptr;
 	h->size = size;
-	// round to 4 bytes
-	d = ((((unsigned)ptr + 3) >> 2) << 2) - (unsigned)ptr;
-	ptr += d;
+	// align ptr
+	void *a_ptr = (void*)align_up((size_t)ptr);
+	d = a_ptr - ptr;
 	size -= d;
-	size = (size >> 2) << 2;
+	size = align_down(size);
 	h->free_list.num = 1;
-	h->free_list.list[0].ptr = ptr;
+	h->free_list.list[0].ptr = a_ptr;
 	h->free_list.list[0].size = size;
 	// 0.4 sec for 60mb
 	//memset(ptr, 0, size);
@@ -316,7 +331,7 @@ void mem_init()
 	// if less is free and devkit>17 it crashes at net download
 	m2_size -= 2*1024*1024;
 	// align to 32 bytes
-	m2_size &= ~(32-1);
+	m2_size = align_down(m2_size);
 	m2_start = SYS_AllocArena2MemLo(m2_size, 32);
 	heap_init(&mem1, m1_start, m1_end - m1_start);
 	heap_init(&mem2, m2_start, m2_size);
@@ -335,9 +350,8 @@ void *mem2_alloc(int size)
 void *mem_alloc(int size)
 {
 	void *ptr;
-	// round up to 32bit (4byte) aligned size
-	if (size == 0) size = 4;
-	size = ((size+3) >> 2) << 2;
+	// align size
+	size = align_up(size);
 	// mem2
 	ptr = mem2_alloc(size);
 	if (ptr) return ptr;
@@ -353,9 +367,8 @@ void *mem_alloc(int size)
 // defaults to MEM2
 void *mem_realloc(void *ptr, int size)
 {
-	// round up to 32bit (4byte) aligned size
-	if (size == 0) size = 4;
-	size = ((size+3) >> 2) << 2;
+	// align size
+	size = align_up(size);
 	// first time
 	if (ptr == NULL) {
 		return mem_alloc(size);
@@ -584,7 +597,7 @@ void util_clear()
 	memset(mem2_start, 0, size);
 	DCFlushRange(mem2_start, size);
 
-	// clear mem1 heap
+	// clear mem1 libc heap
 	// find appropriate size
 	void *p;
 	for (size = 10*1024*1024; size > 0; size -= 128*1024) {

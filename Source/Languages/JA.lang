@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-30 13:08+0200\n"
+"POT-Creation-Date: 2010-12-21 14:59+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -58,6 +59,9 @@ msgstr "(%d秒でタイムアウト)"
 
 msgid ".dol too small"
 msgstr ".dolが小さすぎます"
+
+msgid "3D cover"
+msgstr "3Dカバー"
 
 msgid "< ASC  >"
 msgstr "< 昇順  >"
@@ -187,6 +191,9 @@ msgstr "設定エラーが発生しました"
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "接続エラーが発生しました:%i"
 
+msgid "Console Def."
+msgstr "コンソールの標準"
+
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
 msgstr "DIPモジュールを初期化できませんでした"
@@ -230,6 +237,12 @@ msgstr ""
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "cIOS%sを読み込みました"
+
+msgid "DISC cover"
+msgstr "ディスクカバー"
+
+msgid "DOWN"
+msgstr "下"
 
 msgid "Dance Pad"
 msgstr "ダンスマット"
@@ -312,6 +325,9 @@ msgstr "ダウンロード数"
 
 msgid "Drums"
 msgstr "タルコンガ"
+
+msgid "Dutch"
+msgstr "オランダ語"
 
 msgid "ERROR"
 msgstr "エラー"
@@ -475,6 +491,12 @@ msgstr "拡張"
 msgid "Ejecting DVD..."
 msgstr "DVDを取り出しています…"
 
+msgid "English"
+msgstr "英語"
+
+msgid "English Title"
+msgstr "英語名"
+
 msgid "Enter Code: "
 msgstr "コードを入力してください:"
 
@@ -579,6 +601,12 @@ msgstr "致命的:アロケーショングリッド(%d)"
 msgid "FILL %d"
 msgstr "満タン %d"
 
+msgid "FLAT cover"
+msgstr "正面カバー"
+
+msgid "FULL cover"
+msgstr "完全なカバー"
+
 msgid "Favorite Games"
 msgstr "お気に入りのゲーム"
 
@@ -607,15 +635,30 @@ msgstr "ネットワーク対応で検索する"
 msgid "Fixing EXTEND partition..."
 msgstr "拡張領域を修復中です…"
 
+msgid "Force NTSC"
+msgstr "強制NTSC"
+
+msgid "Force PAL50"
+msgstr "強制PAL50"
+
+msgid "Force PAL60"
+msgstr "強制PAL60"
+
 msgid "Formatting"
 msgstr "初期化中"
 
 #, c-format
-msgid "Found %s Cover"
-msgstr "%sのカバーが見つかりました"
+msgid "Found %s"
+msgstr "%s見つかりました"
+
+msgid "French"
+msgstr "フランス語"
 
 msgid "GB"
 msgstr "GB"
+
+msgid "Game Default"
+msgstr "ゲームの標準"
 
 msgid "Game Options"
 msgstr "ゲーム設定"
@@ -630,6 +673,9 @@ msgstr "ゲームキューブ"
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "ゲーマーカード#%dに報告しました: %.*s"
+
+msgid "German"
+msgstr "ドイツ語"
 
 msgid "Global Options"
 msgstr "基本設定"
@@ -707,8 +753,23 @@ msgstr "不正なdolです"
 msgid "Invalid partition: '%s'"
 msgstr "不正な領域です: '%s'"
 
+msgid "Italian"
+msgstr "イタリア語"
+
+msgid "Japanese"
+msgstr "日本語"
+
+msgid "Japanese Title"
+msgstr "日本語名"
+
 msgid "Keyboard"
 msgstr "キーボード"
+
+msgid "Korean"
+msgstr "韓国語"
+
+msgid "LEFT"
+msgstr "左"
 
 msgid "LOCKED!"
 msgstr "ロックしました"
@@ -957,11 +1018,9 @@ msgstr "オンラインスコアリスト"
 msgid "Opening DVD disc..."
 msgstr "DVDを開いています…"
 
-msgid "Opening FAT partition..."
-msgstr "FAT領域を開いています…"
-
-msgid "Opening NTFS partition..."
-msgstr "NTFS領域を開いています…"
+#, c-format
+msgid "Opening partition: %s"
+msgstr "開いている領域: %s"
 
 msgid "Options discarded for this game."
 msgstr "このゲームのため設定を破棄しました"
@@ -1154,6 +1213,9 @@ msgstr "パズル"
 msgid "RAW"
 msgstr "無圧縮"
 
+msgid "RIGHT"
+msgstr "右"
+
 msgid "RPG"
 msgstr "RPG"
 
@@ -1197,6 +1259,9 @@ msgstr "リズム"
 
 msgid "Running benchmark, please wait"
 msgstr "ベンチマークを起動しています､お待ちください"
+
+msgid "S. Chinese"
+msgstr "簡体字中国語"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHCカード"
@@ -1250,6 +1315,9 @@ msgstr "シューティング"
 msgid "Simulation"
 msgstr "シミュレーション"
 
+msgid "Size(GB) Type  Mount Used"
+msgstr "サイズ(GB) 形式 マウント 使用中"
+
 #, c-format
 msgid "Size: %d bytes"
 msgstr "サイズ: %dバイト"
@@ -1260,6 +1328,9 @@ msgstr "ゲームを並び替え"
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "並び替え; %s～%s"
+
+msgid "Spanish"
+msgstr "スペイン語"
 
 msgid "Sports"
 msgstr "スポーツ"
@@ -1272,6 +1343,12 @@ msgstr "このゲームを始めますか?"
 
 msgid "Strategy"
 msgstr "戦略ゲーム"
+
+msgid "System Def."
+msgstr "システムの標準"
+
+msgid "T. Chinese"
+msgstr "繁体字中国語"
 
 msgid "Theme"
 msgstr "テーマ"
@@ -1319,6 +1396,12 @@ msgstr "フラグが多すぎます%d"
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "試しています(url#%d)…"
+
+msgid "UNUSED"
+msgstr "不使用"
+
+msgid "UP"
+msgstr "上"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1418,7 +1501,7 @@ msgid "[ FOUND ]"
 msgstr "[ あります ]"
 
 msgid "[ SAVED ]"
-msgstr "[ 保存されました ]"
+msgstr "[ 保存済み ]"
 
 msgid "[ SD/SDHC Card ]"
 msgstr "[ SD/SDHCカード ]"
@@ -1435,9 +1518,6 @@ msgstr "不正なwbfsファイルです: %s"
 
 msgid "calculating space, please wait..."
 msgstr "領域の計算中です、お待ちください…"
-
-msgid "cover"
-msgstr "カバー"
 
 msgid "delete"
 msgstr "削除"
@@ -1559,6 +1639,15 @@ msgstr "使用済み: %p - %p"
 #~ msgid "FAT: fallback to old method"
 #~ msgstr "FAT:古いメソッドへの縮退運転"
 
+#~ msgid "Found %s Cover"
+#~ msgstr "%sのカバーが見つかりました"
+
+#~ msgid "Opening FAT partition..."
+#~ msgstr "FAT領域を開いています…"
+
+#~ msgid "Opening NTFS partition..."
+#~ msgstr "NTFS領域を開いています…"
+
 #~ msgid "Press %s button to select"
 #~ msgstr "%sボタンで選びます"
 
@@ -1570,3 +1659,6 @@ msgstr "使用済み: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "FATへの対応のためIOS222に変更しています"
+
+#~ msgid "cover"
+#~ msgstr "カバー"

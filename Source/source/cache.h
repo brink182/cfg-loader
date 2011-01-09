@@ -8,7 +8,7 @@
 #include <ogc/cond.h>
 #include <ogc/mutex.h>
 
-#include "GRRLIB.h"
+#include "my_GRRLIB.h"
 
 #define CS_IDLE     0
 #define CS_LOADING  1

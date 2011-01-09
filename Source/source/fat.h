@@ -4,18 +4,20 @@
 #ifndef _FAT_H_
 #define _FAT_H_
 
-#define MOUNT_MAX 4
+#define MOUNT_MAX 5
 // sd: usb: ntfs: game:
 
 #define SDHC_MOUNT	"sd"
 #define USB_MOUNT	"usb"
 #define GAME_MOUNT	"game"
 #define NTFS_MOUNT	"ntfs"
+#define EXT_MOUNT	"ext"
 
 #define SDHC_DRIVE SDHC_MOUNT":"
 #define USB_DRIVE  USB_MOUNT":"
 #define GAME_DRIVE GAME_MOUNT":"
 #define NTFS_DRIVE NTFS_MOUNT":"
+#define EXT_DRIVE  EXT_MOUNT":"
 
 /* Prototypes */
 s32 Fat_ReadFile(const char *, void **);

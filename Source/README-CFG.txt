@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v61
+Configurable SD/USB Loader v62
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -470,6 +470,27 @@ Config file:
 #
 # gui_title_top = [0], 1
 #   If 1, gui text appears above covers.  If 0, below.
+#
+# coverflow_reflection = color_top, color_bottom
+#   color is hex rgba, 0,0 will disable reflections
+#   default: coverflow_reflection = 666666FF, AAAAAA33 
+#
+# gui_cover_area = x, y, w, h
+#   default: gui_cover_area = 20, 24, 600, 408
+#   minimum accepted w, h: 480, 320
+#   enabling debug will draw the area rectangle
+#
+# gui_title_area = x, y, w, h
+#   default: 0,0,0,0 meaning, position depends on gui_title_top
+#   min w, h: 320, 10 note: h is not yet used
+#
+# gui_clock_pos = x, y
+#   default: -1,-1 meaning, title position is used
+#   clock position, if set clock is displayed all the time
+#
+# gui_page_pos = x, y
+#   default: -1,-1 meaning, title position is used
+#   specifies the page indicator position
 #
 # preview_coords = x,y,width,height
 # wpreview_coords = x,y,width,height   (widescreen)
@@ -990,6 +1011,73 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+22-12-2010 cfg v62 (release)
+ * Updated libogc to 1.8.6
+
+21-12-2010 cfg v62b3 (beta)
+ * More translatable strings (languages, playlog)
+ * Fixed: display of 3d cover when selecting a game in coverflow mode
+   when a 2d and full cover are missing
+ * Minor cleanups
+
+19-12-2010 cfg v62b2 (beta)
+ * Fixed gui_clock_pos alignment
+ * Fixed title in grid mode when no game is selected
+ * gui style change notification is now printed in title area
+   the same way as button actions (profile change, ...)
+ * Added option: gui_title_area = x, y, w, h
+   default: 0,0,0,0 meaning, position depends on gui_title_top
+   min w, h: 320, 10 note: h is not yet used
+ * renamed option gui_pager_pos to gui_page_pos
+
+19-12-2010 cfg v62b (beta)
+ * fixed partition=auto for wbfs
+ * new themable options:
+ - gui_clock_pos = x, y
+   default: -1,-1 meaning, title position is used
+   if set clock is displayed all the time
+ - gui_pager_pos = x, y
+   default: -1,-1 meaning, title position is used
+ * Translatable (Jabe & cambric request):
+ - button names
+ - partition types and header
+ - video and language options
+ - cover styles
+
+18-12-2010 cfg v62a5 (alpha)
+ * Fixed partition = auto
+ * Better formatting of wiitdb info
+
+18-12-2010 cfg v62a4 (alpha)
+ * fixed ext2fs support
+ * fixed error message about multiple wbfs partitions
+   when using a second fat or ntfs or ext2fs part.
+
+18-12-2010 cfg v62a3 (alpha)
+ * fixed partition selection and crash from 62a2
+
+17-12-2010 cfg v62a2 (alpha)
+ * ext2fs support (Thanks to Dimok!)
+ * new theme option: coverflow_reflection = color_top, color_bottom
+   color is hex rgba, 0,0 will disable reflections
+   default: coverflow_reflection = 666666FF, AAAAAA33 
+ * new theme option: gui_cover_area = x, y, w, h
+   default: gui_cover_area = 20, 24, 600, 408
+   minimum accepted w, h: 480, 320
+   enabling debug will draw the area rectangle
+ * Improved coverflow to console transition
+ * Updated libntfs (sync with wiiflow)
+ * Updated grrlib: 4.0.0 -> 4.3.1
+ * Updated intro 4 (smaller)
+
+07-12-2010 cfg v62a (alpha)
+ * Updated libs:
+ - libfat 1.0.5 -> 1.0.7
+ - jpeg 8a -> 8b
+ - png 1.2.34 -> 1.4.4
+ - zlib 1.2.4 -> 1.2.5
+ * New default intro=4 : stripes themed (by abdias)
 
 04-12-2010 cfg v61 (release)
  * In case a CODE DUMP happens the wii will reset in 60 seconds

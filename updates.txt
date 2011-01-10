@@ -13,6 +13,36 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 63 (release)
+size = 1469536
+date = 2011-01-10
+url = http://cfg-loader.googlecode.com/files/cfg63.dol
+Minor cleanups
+
+release = 63-222 (release)
+size = 1469536
+date = 2011-01-10
+url = http://cfg-loader.googlecode.com/files/cfg63-222.dol
+Same as 63 but with different
+default options:
+  ios=222-mload
+
+release = 63-compat (release)
+size = 1546848
+date = 2011-01-10
+url = http://cfg-loader.googlecode.com/files/cfg63-compat.dol
+Same as 63 but built with
+  devkit 17 and libogc 1.7.1
+
+release = 63-dbg (debug)
+size = 1469536
+date = 2011-01-10
+url = http://cfg-loader.googlecode.com/files/cfg63-dbg.dol
+Same as 63 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 63b6 (beta)
 size = 1469152
 date = 2011-01-09
@@ -28,82 +58,6 @@ url = http://cfg-loader.googlecode.com/files/cfg63b6-222.dol
 Same as 63b6 but with different
 default options:
   ios=222-mload
-
-release = 63b5 (beta)
-size = 1469088
-date = 2011-01-09
-url = http://cfg-loader.googlecode.com/files/cfg63b5.dol
-Fixed coverflow slowdowns
-Improved switching between games
-  in confirmation screen
-More info in debug.log (mem, time)
-Minor cleanups
-
-release = 63b5-222 (beta)
-size = 1469088
-date = 2011-01-09
-url = http://cfg-loader.googlecode.com/files/cfg63b5-222.dol
-Same as 63b5 but with different
-default options:
-  ios=222-mload
-
-release = 63b4 (beta)
-size = 1468448
-date = 2011-01-08
-url = http://cfg-loader.googlecode.com/files/cfg63b4.dol
-Scrollable wiitdb game description
-Switch to prev/next game in the
-  start confirmation screen
-Added DUTag to gamercard_url
-Fixed partition=ask
-
-release = 63b4-222 (beta)
-size = 1468448
-date = 2011-01-08
-url = http://cfg-loader.googlecode.com/files/cfg63b4-222.dol
-Same as 63b4 but with different
-default options:
-  ios=222-mload
-
-release = 63b3 (beta)
-size = 1465184
-date = 2011-01-04
-url = http://cfg-loader.googlecode.com/files/cfg63b3.dol
-Changed covers_path_2d default
- value to /usb-loader/covers/2d
-Optimization and improvements to
-  sorting, filtering and wiitdb
-Tentative fix for 4096 sector size
-
-release = 63b3-222 (beta)
-size = 1465184
-date = 2011-01-04
-url = http://cfg-loader.googlecode.com/files/cfg63b3-222.dol
-Same as 63b3 but with different
-default options:
-  ios=222-mload
-
-release = 63b2 (beta)
-size = 1464992
-date = 2010-12-31
-url = http://cfg-loader.googlecode.com/files/cfg63b2.dol
-Fixed improved device init
-  timeout handling
-
-release = 63b2-222 (beta)
-size = 1464992
-date = 2010-12-31
-url = http://cfg-loader.googlecode.com/files/cfg63b2-222.dol
-Same as 63b2 but with different
-default options:
-  ios=222-mload
-
-release = 63b2-compat (beta)
-size = 1542048
-date = 2010-12-31
-url = http://cfg-loader.googlecode.com/files/cfg63b2-compat.dol
-Same as 63b2 but built with
-  devkit 17 and libogc 1.7.1
 
 release = 62 (release)
 size = 1450912

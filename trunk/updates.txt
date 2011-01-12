@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 64a (alpha)
+size = 1469568
+date = 2011-01-12
+url = http://cfg-loader.googlecode.com/files/cfg64a.dol
+Support for ID4 wiitdb entries
+Fixed unnecessary re-downloading
+  of HQ full covers
+Better HTTP error reporting
+  when downloading cover fails
+
+release = 64a-222 (alpha)
+size = 1469568
+date = 2011-01-12
+url = http://cfg-loader.googlecode.com/files/cfg64a-222.dol
+Same as 64a but with different
+default options:
+  ios=222-mload
+
 release = 63 (release)
 size = 1469536
 date = 2011-01-10
@@ -42,22 +60,6 @@ Same as 63 but with different
 default options:
   debug=3
   home=screenshot
-
-release = 63b6 (beta)
-size = 1469152
-date = 2011-01-09
-url = http://cfg-loader.googlecode.com/files/cfg63b6.dol
-Fixed crash when missing wiitdb
-Translatable page indicator
-  for wiitdb game info
-
-release = 63b6-222 (beta)
-size = 1469152
-date = 2011-01-09
-url = http://cfg-loader.googlecode.com/files/cfg63b6-222.dol
-Same as 63b6 but with different
-default options:
-  ios=222-mload
 
 release = 62 (release)
 size = 1450912

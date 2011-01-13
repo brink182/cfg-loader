@@ -13,24 +13,6 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
-release = 64b (beta)
-size = 1470496
-date = 2011-01-13
-url = http://cfg-loader.googlecode.com/files/cfg64b.dol
-Fixed downloading large cheat codes
-  Possibly fixes corrupted covers
-Added USBStorage_Deinit() to shutdown
-Turn off wiimotes after idle 5 min.
-Display game supported controllers
-
-release = 64b-222 (beta)
-size = 1470496
-date = 2011-01-13
-url = http://cfg-loader.googlecode.com/files/cfg64b-222.dol
-Same as 64b but with different
-default options:
-  ios=222-mload
-
 release = 64a (alpha)
 size = 1469568
 date = 2011-01-12

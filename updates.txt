@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 64b4 (beta)
+size = 1471072
+date = 2011-01-15
+url = http://cfg-loader.googlecode.com/files/cfg64b4.dol
+ * Fixed BCA with hermes cios v5.1
+ * Cleanups
+
+release = 64b4-222 (beta)
+size = 1471072
+date = 2011-01-15
+url = http://cfg-loader.googlecode.com/files/cfg64b4-222.dol
+Same as 64b4 but with different
+default options:
+  ios=222-mload
+
 release = 64b3 (beta)
 size = 1470624
 date = 2011-01-14

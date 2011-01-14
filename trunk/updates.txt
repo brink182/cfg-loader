@@ -17,8 +17,8 @@ release = 64b4 (beta)
 size = 1471072
 date = 2011-01-15
 url = http://cfg-loader.googlecode.com/files/cfg64b4.dol
- * Fixed BCA with hermes cios v5.1
- * Cleanups
+Fixed BCA with hermes cios v5.1
+Cleanups
 
 release = 64b4-222 (beta)
 size = 1471072

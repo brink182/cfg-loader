@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 64b5 (beta)
+size = 1471328
+date = 2011-01-15
+url = http://cfg-loader.googlecode.com/files/cfg64b5.dol
+Improved USB timeout handling when
+  searching for config.txt on USB
+
+release = 64b5-222 (beta)
+size = 1471328
+date = 2011-01-15
+url = http://cfg-loader.googlecode.com/files/cfg64b5-222.dol
+Same as 64b5 but with different
+default options:
+  ios=222-mload
+
 release = 64b4 (beta)
 size = 1471072
 date = 2011-01-15

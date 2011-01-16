@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 64b6 (beta)
+size = 1472128
+date = 2011-01-17
+url = http://cfg-loader.googlecode.com/files/cfg64b6.dol
+Fixed sort by install date
+
+release = 64b6-222 (beta)
+size = 1472128
+date = 2011-01-17
+url = http://cfg-loader.googlecode.com/files/cfg64b6-222.dol
+Same as 64b6 but with different
+default options:
+  ios=222-mload
+
 release = 64b5 (beta)
 size = 1471328
 date = 2011-01-15

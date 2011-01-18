@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	62
+VERSION		:=	63
 RELEASE		:=	devel
 # to override RELEASE use: make announce RELEASE=beta
 BINBASE		:=	cfg$(VERSION)
@@ -255,9 +255,9 @@ install:
 	cp README-CFG.txt $(INSTDIR)/
 	sed -i 's/<version>.*</<version>'$(VERSION)' (release)</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
 	sed -i 's/<release_date>.*</<release_date>'`date +%Y%m%d000000`'</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
-	cp Languages/*.lang $(INSTDIR)/inSDRoot/usb-loader/Languages
-	-rm $(INSTDIR)/inSDRoot/usb-loader/Languages/*_miss.lang
-	cp Languages/lang.pot $(INSTDIR)/inSDRoot/usb-loader/Languages
+	cp Languages/*.lang $(INSTDIR)/inSDRoot/usb-loader/languages
+	-rm $(INSTDIR)/inSDRoot/usb-loader/languages/*_miss.lang
+	cp Languages/lang.pot $(INSTDIR)/inSDRoot/usb-loader/languages
 
 tags:
 	cd source ; ctags -R .

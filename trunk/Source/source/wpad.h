@@ -11,6 +11,7 @@ u32  Wpad_GetButtons(void);
 u32  Wpad_WaitButtons(void);
 u32  Wpad_WaitButtonsRpt(void);
 u32  Wpad_WaitButtonsCommon(void);
+u32  Wpad_WaitButtonsTimeout(int ms);
 u32  Wpad_HeldButtons(void);
 u32  Wpad_Held(int);
 void Wpad_getIRx(int n, struct ir_t *ir);

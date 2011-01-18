@@ -577,7 +577,6 @@ print_ver:
 	SAFE_FREE(img_buf);
 }
 
-
 /**
  * Tries to read the game cover image from disk.  This method uses the passed
  *  in cover_style value to determine which file path to use.  
@@ -593,35 +592,28 @@ int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cov
 {
 	s32 ret = -1;
 	char filepath[200];
-	char coverpath[200];
+	char *coverpath;
 
-	if (path) path = 0;
-	if (*discid) {
-		switch(cover_style){
-			case(CFG_COVER_STYLE_FULL):
-				STRCOPY(coverpath, CFG.covers_path_full);
-				break;
-			case(CFG_COVER_STYLE_3D):
-				STRCOPY(coverpath, CFG.covers_path_3d);
-				break;
-			case(CFG_COVER_STYLE_DISC):
-				STRCOPY(coverpath, CFG.covers_path_disc);
-				break;
-			default:
-			case(CFG_COVER_STYLE_2D):
-				STRCOPY(coverpath, CFG.covers_path_2d);
-				break;
-		}
-		
+	if (path) *path = 0;
+
+	coverpath = cfg_get_covers_path(cover_style);
+
+	if (discid && *discid) {
+		L_retry:
 		/* Generate cover filepath for full covers */
 		snprintf(filepath, sizeof(filepath), "%s/%.6s.png", coverpath, discid);
 		/* Open cover */
 		ret = Fat_ReadFile(filepath, p_imgData);
 		if (ret <= 0) {
-		
 			// if 6 character id not found, try 4 character id
 			snprintf(filepath, sizeof(filepath), "%s/%.4s.png", coverpath, discid);
 			ret = Fat_ReadFile(filepath, p_imgData);
+		}
+		if (ret <= 0) {
+			if (cover_style == CFG_COVER_STYLE_2D && coverpath == CFG.covers_path) {
+				coverpath = CFG.covers_path_2d;
+				goto L_retry;
+			}
 		}
 		if (ret <= 0) {
 			imageNotFound = true;
@@ -630,9 +622,16 @@ int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cov
 		}
 	}
 	if (ret <= 0 && load_noimage) {
-		snprintf(filepath, sizeof(filepath), "%s/noimage.png",
-				CFG.covers_path);
+		coverpath = cfg_get_covers_path(cover_style);
+		L_retry2:
+		snprintf(filepath, sizeof(filepath), "%s/noimage.png", coverpath);
 		ret = Fat_ReadFile(filepath, p_imgData);
+		if (ret <= 0) {
+			if (cover_style == CFG_COVER_STYLE_2D && coverpath == CFG.covers_path) {
+				coverpath = CFG.covers_path_2d;
+				goto L_retry2;
+			}
+		}
 	}
 	return ret;
 }
@@ -1998,7 +1997,6 @@ void Grx_Init()
 	bool theme_change = (last_theme != cur_theme);
 	last_theme = cur_theme;
 
-	get_time(&TIME.guitheme1);
 	// on cover_style change, need to reload noimage cover
 	// (changing cover style invalidates cache and sets ccache_inv)
 	if (!grx_init || ccache_inv) {
@@ -2058,7 +2056,6 @@ void Grx_Init()
 				t2_nocover_full.tx.data, t2_nocover_full.tx.w, t2_nocover_full.tx.h);
 		cache2_tex(&t2_hourglass_full, &tx_tmp);
 	}
-	get_time(&TIME.guitheme2);
 
 	grx_init = 1;
 }
@@ -2184,7 +2181,6 @@ void Gui_reset_previous_cover_style() {
 	cache_release_all();
 	cache_wait_idle();
 	cfg_set_cover_style(prev_cover_style);
-	cfg_setup_cover_style();
 	//set cover width and height back to original
 	COVER_HEIGHT = prev_cover_height;
 	COVER_WIDTH = prev_cover_width;
@@ -2476,12 +2472,10 @@ int Gui_Mode()
 		if (CFG_cf_global.covers_3d) {
 			if (CFG.cover_style != CFG_COVER_STYLE_FULL) {
 				cfg_set_cover_style(CFG_COVER_STYLE_FULL);
-				cfg_setup_cover_style();
 			}
 		} else {
 			if (CFG.cover_style != CFG_COVER_STYLE_2D) {
 				cfg_set_cover_style(CFG_COVER_STYLE_2D);
-				cfg_setup_cover_style();
 			}
 		}
 		
@@ -2545,7 +2539,7 @@ int Gui_Mode()
 
 		restart:
 
-		//dbg_time1();
+		dbg_time_usec();
 
 		buttons = Wpad_GetButtons();
 		Wpad_getIR(&ir);
@@ -2708,12 +2702,10 @@ int Gui_Mode()
 				if (CFG_cf_global.covers_3d) {
 					if (CFG.cover_style != CFG_COVER_STYLE_FULL) {
 						cfg_set_cover_style(CFG_COVER_STYLE_FULL);
-						cfg_setup_cover_style();
 					}
 				} else {
 					if (CFG.cover_style != CFG_COVER_STYLE_2D) {
 						cfg_set_cover_style(CFG_COVER_STYLE_2D);
-						cfg_setup_cover_style();
 					}
 				}
 				Cache_Invalidate();
@@ -2903,8 +2895,10 @@ int Gui_Mode()
 
 		//wgui_test(&ir, buttons);
 
-		//int ms = dbg_time2(NULL);
-		//GRRLIB_Printf(20, 20, tx_font, 0xFF00FFFF, 1, "%3d ms: %d", fr_cnt, ms);
+		int us = dbg_time_usec();
+		if (CFG.debug == 3)
+			GRRLIB_Printf(20, 20, &tx_font, 0xFF00FFFF, 1,
+					"%4d ms:'%5.2f'", fr_cnt, (float)us/1000.0);
 		//draw_Cache();
 		//GRRLIB_DrawImg(0, 50, tx_font, 0, 1, 1, 0xFFFFFFFF); // entire font
 		Gui_draw_pointer(&ir);

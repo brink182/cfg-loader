@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
-"PO-Revision-Date: 2010-12-21 19:24+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"PO-Revision-Date: 2011-01-05 10:54+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
 "Language: \n"
@@ -34,10 +34,6 @@ msgstr "%d disponibles"
 #, c-format
 msgid "%d more notes"
 msgstr "%d plus de notes"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s Aucun jeu trouvé !"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -259,6 +255,9 @@ msgstr "Suppression"
 
 msgid "Developer"
 msgstr "Développeur"
+
+msgid "Device is not responding!"
+msgstr "Le périphérique ne répond pas !"
 
 msgid "Device:"
 msgstr "Périph.:"
@@ -950,6 +949,9 @@ msgstr "Non"
 msgid "No domain part in URL '%s'"
 msgstr "Aucune partie de domaine dans l'URL '%s'"
 
+msgid "No games found!"
+msgstr "Aucun jeu trouvé !"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "Plus de mémoire disponible pour copier le fichier à partir de la réponse HTTP"
 
@@ -1188,6 +1190,21 @@ msgstr "Appuyez sur %s pour MàJ sans meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Appuyez sur %s/%s pour choisir le périphérique."
 
+msgid "Press 2 to reload IOS"
+msgstr "Faites 2 pour recharger l'IOS"
+
+msgid "Press A to select device"
+msgstr "Faites A pour choisir le périphérique"
+
+msgid "Press B to exit to HBC"
+msgstr "Faites B pour sortir vers l'HBC "
+
+msgid "Press HOME to reset"
+msgstr "Faites HOME pour redémarrer"
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr "Faites GAUCHE/DROITE pour choisir l'IOS"
+
 msgid "Press any button to continue..."
 msgstr "Appuyez sur un bouton pour continuer..."
 
@@ -1283,6 +1300,9 @@ msgstr "RÉUSSI !"
 msgid "Save .gct"
 msgstr "Sauvegarder .gct"
 
+msgid "Save debug.log"
+msgstr "Sauvegarder debug.log"
+
 msgid "Saving Settings... "
 msgstr "Sauvegarde des Paramètres..."
 
@@ -1294,6 +1314,9 @@ msgstr "Sauvegarde de gamelist.txt ... "
 
 msgid "Saving settings..."
 msgstr "Sauvegarde des paramètres..."
+
+msgid "Saving:"
+msgstr "Sauvegarde:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1502,6 +1525,15 @@ msgstr "Taille incorrecte: %d (%d)"
 msgid "Yes"
 msgstr "Oui"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+"Vous pouvez aussi essayer de débrancher\n"
+"et rebrancher le périphérique,\n"
+"ou patienter juste un peu plus"
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1513,12 +1545,6 @@ msgstr "[ TROUVÉ ]"
 
 msgid "[ SAVED ]"
 msgstr "[ SAUVEGARDÉ ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ Carte SD/SDHC ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ Périphérique de stockage USB ]"
 
 msgid "[USED]"
 msgstr "[UTILISÉ]"
@@ -1597,6 +1623,9 @@ msgstr "sauvegarder"
 #, c-format
 msgid "split error: %s"
 msgstr "erreur en scindant: %s"
+
+msgid "uDraw GameTablet"
+msgstr "Tablette de jeu uDraw"
 
 msgid "unable to open wii disc"
 msgstr "incapable d'ouvrir le disque wii"
@@ -1691,6 +1720,12 @@ msgstr "utilisé: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Passe à l'IOS222 pour le support FAT."
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ Carte SD/SDHC ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ Périphérique de stockage USB ]"
 
 #~ msgid "cover"
 #~ msgstr "jaquette"

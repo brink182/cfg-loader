@@ -20,8 +20,6 @@
 #define MAX_Y	480
 
 extern u8 shutdown;
-extern long long gettime();
-extern u32 diff_msec(long long start,long long end);
 float coord[2] = {320,240};
 bool padMoved = false;
 
@@ -421,8 +419,9 @@ u32 Wpad_WaitButtons(void)
 	u32 buttons = 0;
 
 	/* Wait for button pressing */
-	while (!buttons) {
+	for (;;) {
 		buttons = Wpad_GetButtons();
+		if (buttons) break;
 		VIDEO_WaitVSync();
 	}
 
@@ -503,4 +502,18 @@ u32 Wpad_WaitButtonsRpt(void)
 
 	return buttons;
 }
+
+u32 Wpad_WaitButtonsTimeout(int ms)
+{
+	u32 buttons = 0;
+	long long t = gettime();
+	for (;;) {
+		buttons = Wpad_GetButtons();
+		if (buttons) break;
+		if (diff_msec(t, gettime()) >= ms) break;
+		VIDEO_WaitVSync();
+	}
+	return buttons;
+}
+
 

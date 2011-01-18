@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -36,10 +36,6 @@ msgstr "%dが利用可能です"
 #, c-format
 msgid "%d more notes"
 msgstr "%dその他のノート"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s ゲームが見つかりません"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -255,6 +251,9 @@ msgstr "削除中"
 
 msgid "Developer"
 msgstr "開発者"
+
+msgid "Device is not responding!"
+msgstr ""
 
 msgid "Device:"
 msgstr "使用デバイス:"
@@ -943,6 +942,9 @@ msgstr "いいえ"
 msgid "No domain part in URL '%s'"
 msgstr "'%s'のURLにドメインがありません"
 
+msgid "No games found!"
+msgstr "ゲームが見つかりません"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "HTTPからコピーするためのメモリが不足しています"
 
@@ -1177,6 +1179,21 @@ msgstr "%sボタンでboot.dolのみ更新します"
 msgid "Press %s/%s to select device."
 msgstr "%s/%sボタンでデバイスを選んでください"
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr "何かボタンを押すと続行します"
 
@@ -1272,6 +1289,9 @@ msgstr "成功しました!"
 msgid "Save .gct"
 msgstr "gctを保存"
 
+msgid "Save debug.log"
+msgstr ""
+
 msgid "Saving Settings... "
 msgstr "設定を保存中…"
 
@@ -1283,6 +1303,9 @@ msgstr "gamelist.txtを保存中…"
 
 msgid "Saving settings..."
 msgstr "設定を保存中…"
+
+msgid "Saving:"
+msgstr ""
 
 #, c-format
 msgid "Saving: %s"
@@ -1491,6 +1514,12 @@ msgstr "不正なサイズです: %d (%d)"
 msgid "Yes"
 msgstr "はい"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr "Wiiザッパー"
 
@@ -1502,12 +1531,6 @@ msgstr "[ あります ]"
 
 msgid "[ SAVED ]"
 msgstr "[ 保存済み ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD/SDHCカード ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USBデバイス ]"
 
 msgid "[USED]"
 msgstr "[使用済み]"
@@ -1587,6 +1610,9 @@ msgstr "保存"
 msgid "split error: %s"
 msgstr "分割エラー: %s"
 
+msgid "uDraw GameTablet"
+msgstr ""
+
 msgid "unable to open wii disc"
 msgstr "Wiiディスクを開けません"
 
@@ -1659,6 +1685,12 @@ msgstr "使用済み: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "FATへの対応のためIOS222に変更しています"
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD/SDHCカード ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USBデバイス ]"
 
 #~ msgid "cover"
 #~ msgstr "カバー"

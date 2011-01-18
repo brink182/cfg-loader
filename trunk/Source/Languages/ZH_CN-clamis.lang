@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-07-26 11:24+0800\n"
 "Last-Translator: Clamis <clamis@gmail.com>\n"
 "Language-Team: Simplified Chinese(ZH_CN) <clamis@gmail.com>\n"
@@ -34,10 +34,6 @@ msgstr "%d个可用"
 #, c-format
 msgid "%d more notes"
 msgstr "%d更多注释"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s没有发现游戏！！"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -249,6 +245,9 @@ msgstr "删除中"
 
 msgid "Developer"
 msgstr "开发商"
+
+msgid "Device is not responding!"
+msgstr ""
 
 msgid "Device:"
 msgstr "设备："
@@ -924,6 +923,9 @@ msgstr "否"
 msgid "No domain part in URL '%s'"
 msgstr "URL'%s'中没有域名部分"
 
+msgid "No games found!"
+msgstr "没有发现游戏！"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "没有足够的内存去复制来自HTTP响应的文件"
 
@@ -1158,6 +1160,21 @@ msgstr "按%s键下载更新(不更新meta.xml描述文件)"
 msgid "Press %s/%s to select device."
 msgstr "按%s/%s键选择设备"
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr "按任意键继续..."
 
@@ -1253,6 +1270,9 @@ msgstr "成功！"
 msgid "Save .gct"
 msgstr "保存.gct文件"
 
+msgid "Save debug.log"
+msgstr ""
+
 msgid "Saving Settings... "
 msgstr "正在保存设置..."
 
@@ -1264,6 +1284,9 @@ msgstr "正在保存gamelist.txt..."
 
 msgid "Saving settings..."
 msgstr "正在保存设置..."
+
+msgid "Saving:"
+msgstr ""
 
 #, c-format
 msgid "Saving: %s"
@@ -1470,6 +1493,12 @@ msgstr "错误大小：%d (%d)"
 msgid "Yes"
 msgstr "是"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr "支持枪托(Wii Zapper)"
 
@@ -1481,12 +1510,6 @@ msgstr "[ 已找到 ]"
 
 msgid "[ SAVED ]"
 msgstr "[ 已保存 ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD/SDHC卡 ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USB大容量存储设备 ]"
 
 msgid "[USED]"
 msgstr "[已使用]"
@@ -1565,6 +1588,9 @@ msgstr "保存"
 #, c-format
 msgid "split error: %s"
 msgstr "分割错误：%s"
+
+msgid "uDraw GameTablet"
+msgstr ""
 
 msgid "unable to open wii disc"
 msgstr "无法打开Wii光盘"
@@ -1653,6 +1679,12 @@ msgstr "已使用：%p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "切换到IOS222以支持FAT分区"
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD/SDHC卡 ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USB大容量存储设备 ]"
 
 #~ msgid "cover"
 #~ msgstr "封面"

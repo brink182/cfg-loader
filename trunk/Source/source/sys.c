@@ -349,10 +349,12 @@ void mk_mload_version()
 			}
 		}
 		if (IOS_GetRevision() > 4) {
-			int v, s;
+			int v, s = 0;
 			v = mload_ver = mload_get_version();
-			s = v & 0x0F;
-			v = v >> 4;
+			if (v>0) {
+				s = v & 0x0F;
+				v = v >> 4;
+			}
 			sprintf(mload_ver_str + strlen(mload_ver_str), "mload v%d.%d ", v, s);
 		} else {
 			sprintf(mload_ver_str + strlen(mload_ver_str), "mload v%d ", IOS_GetRevision());
@@ -654,9 +656,10 @@ int ReloadIOS(int subsys, int verbose)
 	}
 
 	/* Load Custom IOS */
+	dbg_printf("IOS_Reload(%d)\n", CFG.ios);
 	usleep(100000);
 	ret = IOS_ReloadIOS(CFG.ios);
-	usleep(300000);
+	usleep(100000);
 	if (ret < 0) {
 		//if (verbose) {
 			printf("\n");
@@ -867,7 +870,8 @@ void try_hello()
 #endif
 
 #ifndef size_dip249
-#define size_dip249 5264
+// #define size_dip249 5264  // r18-r20
+#define size_dip249 5680  // r21
 #endif
 
 extern u8 dip_plugin_249[size_dip249];
@@ -901,6 +905,8 @@ void load_dip_249()
 int get_ios_type()
 {
 	switch (IOS_GetVersion()) {
+		case 245:
+		case 246:
 		case 247:
 		case 248:
 		case 249:
@@ -981,7 +987,7 @@ s32 checkIOS(u32 IOS)
 // ios base detection from NeoGamma R9 (by WiiPower)
 
 
-#define info_number 23
+#define info_number (23+12)
 
 static u32 hashes[info_number][5] = {
 {0x20e60607, 0x4e02c484, 0x2bbc5758, 0xee2b40fc, 0x35a68b0a},		// cIOSrev13a
@@ -1006,7 +1012,20 @@ static u32 hashes[info_number][5] = {
 {0x687a2698, 0x3efe5a08, 0xc01f6ae3, 0x3d8a1637, 0xadab6d48},		// cIOS60 rev20
 {0xea6610e4, 0xa6beae66, 0x887be72d, 0x5da3415b, 0xa470523c},		// cIOS61 rev20
 {0x64e1af0e, 0xf7167fd7, 0x0c696306, 0xa2035b2d, 0x6047c736},		// cIOS70 rev20
-{0x0df93ca9, 0x833cf61f, 0xb3b79277, 0xf4c93cd2, 0xcd8eae17}		// cIOS80 rev20
+{0x0df93ca9, 0x833cf61f, 0xb3b79277, 0xf4c93cd2, 0xcd8eae17},		// cIOS80 rev20
+// rev21
+{0x074dfb39, 0x90a5da61, 0x67488616, 0x68ccb747, 0x3a5b59b3}, // IOS249 r21 Base: 36
+{0x6956a016, 0x59542728, 0x8d2efade, 0xad8ed01e, 0xe7f9a780}, // IOS249 r21 Base: 37
+{0xdc8b23e6, 0x9d95fefe, 0xac10668a, 0x6891a729, 0x2bdfbca0}, // IOS249 r21 Base: 38
+{0xaa2cdd40, 0xd628bc2e, 0x96335184, 0x1b51404c, 0x6592b992}, // IOS249 r21 Base: 53
+{0x4a3d6d15, 0x014f5216, 0x84d65ffe, 0x6daa0114, 0x973231cf}, // IOS249 r21 Base: 55
+{0xca883eb0, 0x3fe8e45c, 0x97cc140c, 0x2e2d7533, 0x5b369ba5}, // IOS249 r21 Base: 56
+{0x469831dc, 0x918acc3e, 0x81b58a9a, 0x4493dc2c, 0xaa5e57a0}, // IOS249 r21 Base: 57
+{0xe5af138b, 0x029201c7, 0x0c1241e7, 0x9d6a5d43, 0x37a1456a}, // IOS249 r21 Base: 58
+{0x0fdee208, 0xf1d031d3, 0x6fedb797, 0xede8d534, 0xd3b77838}, // IOS249 r21 Base: 60
+{0xaf588570, 0x13955a32, 0x001296aa, 0x5f30e37f, 0x0be91316}, // IOS249 r21 Base: 61
+{0x50deaba2, 0x9328755c, 0x7c2deac8, 0x385ecb49, 0x65ea3b2b}, // IOS249 r21 Base: 70
+{0x811b6a0b, 0xe26b9419, 0x7ffd4930, 0xdccd6ed3, 0x6ea2cdd2}, // IOS249 r21 Base: 80
 };
 
 static char infos[info_number][24] = {
@@ -1032,7 +1051,20 @@ static char infos[info_number][24] = {
 {"60 rev20"},
 {"61 rev20"},
 {"70 rev20"},
-{"80 rev20"}
+{"80 rev20"},
+// rev21
+{"36 rev21"},
+{"37 rev21"},
+{"38 rev21"},
+{"53 rev21"},
+{"55 rev21"},
+{"56 rev21"},
+{"57 rev21"},
+{"58 rev21"},
+{"60 rev21"},
+{"61 rev21"},
+{"70 rev21"},
+{"80 rev21"},
 };	
 
 s32 brute_tmd(tmd *p_tmd) 
@@ -1108,6 +1140,32 @@ char* get_ios_info_from_tmd()
 		}
 	}
 
+	out:
+	SAFE_FREE(TMD);
+    return info;
+}
+
+char* get_ios_tmd_hash_str(char *str)
+{
+	signed_blob *TMD = NULL;
+	tmd *t = NULL;
+	u32 TMD_size = 0;
+	char *info = NULL;
+
+	int ret = GetTMD((((u64)(1) << 32) | (IOS_GetVersion())), &TMD, &TMD_size);
+	if (ret != 0) goto out;
+	t = (tmd*)SIGNATURE_PAYLOAD(TMD);
+	dbg_printf("\ntmd id: %llx %x-%x t: %x v: %d",
+			t->title_id, TITLE_HIGH(t->title_id), TITLE_LOW(t->title_id),
+			t->title_type, t->title_version);
+	// safety check
+	if (t->title_id != TITLE_ID(1, IOS_GetVersion())) goto out;
+	sha1 hash;
+	SHA1((u8 *)TMD, TMD_size, hash);
+	int *x = (int*)&hash;
+	sprintf(str, "{0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x},",
+		x[0], x[1], x[2], x[3], x[4]);
+	info = str;
 	out:
 	SAFE_FREE(TMD);
     return info;

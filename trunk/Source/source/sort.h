@@ -33,9 +33,11 @@ int Menu_Filter2(void);
 int Menu_Filter3(void);
 int Menu_Sort(void);
 
+int get_accesory_id(char *accessory);
+int get_feature_id(char *feature);
 
 #define featureCnt 4
-#define accessoryCnt 16
+#define accessoryCnt 17
 #define genreCnt 14
 #define sortCnt 9
 

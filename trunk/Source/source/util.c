@@ -11,6 +11,7 @@
 //#include <libgen.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #include "console.h"
 #include "menu.h"
@@ -27,30 +28,35 @@ void wiilight(int enable)
 }
 
 
-int mbs_len(char *s)
+int mbs_len(const char *s)
 {
-	int count, n;
-	for (count = 0; *s; count++) {
-		n = mblen(s, 4);
+	int count = 0;
+	int n;
+	while (*s) {
+		n = mblen(s, MB_LEN_MAX);
+		if (n == 0) break;
 		if (n < 0) {
 			// invalid char, ignore
 			n = 1;
 		}
 		s += n;
+		count++;
 	}
 	return count;
 }
 
 int mbs_len_valid(char *s)
 {
-	int count, n;
-	for (count = 0; *s; count++) {
-		n = mblen(s, 4);
-		if (n < 0) {
+	int count = 0;
+	int n;
+	while (*s) {
+		n = mblen(s, MB_LEN_MAX);
+		if (n <= 0) {
 			// invalid char, stop
 			break;
 		}
 		s += n;
+		count++;
 	}
 	return count;
 }
@@ -62,8 +68,8 @@ char *mbs_copy(char *dest, char *src, int size)
 	strcopy(dest, src, size);
 	s = dest;
 	while (*s) {
-		n = mblen(s, 4);
-		if (n < 0) {
+		n = mblen(s, MB_LEN_MAX);
+		if (n <= 0) {
 			// invalid char, stop
 			*s = 0;
 			break;
@@ -126,7 +132,7 @@ int mbs_coll(char *a, char *b)
 	return 0;
 }
 
-int con_char_len(int c)
+int con_len_wchar(wchar_t c)
 {
 	int cc;
 	int len;
@@ -141,7 +147,27 @@ int con_char_len(int c)
 	return len;
 }
 
-int con_len(char *s)
+int con_len_mbchar(char *mb)
+{
+	wchar_t wc;
+	int cc;
+	int len;
+	int n;
+	n = mbtowc(&wc, mb, MB_LEN_MAX);
+	if (n < 0) return 1;
+	if (n == 0) return 0;
+	if (wc < 512) return 1;
+	cc = map_ufont(wc);
+	if (cc != 0) return 1;
+	if (wc < 0 || wc > 0xFFFF) return 1;
+	if (unifont == NULL) return 1;
+	len = unifont->index[wc] & 0x0F;
+	if (len < 1) return 1;
+	if (len > 2) return 2;
+	return len;
+}
+
+int con_len(const char *s)
 {
 	int i, len = 0;
 	int n = mbs_len(s);
@@ -150,7 +176,7 @@ int con_len(char *s)
 	mbstowcs(wbuf, s, n);
 	wbuf[n] = 0;
 	for (i=0; i<n; i++) {
-		len += con_char_len(wbuf[i]);
+		len += con_len_wchar(wbuf[i]);
 	}
 	return len;
 }
@@ -164,7 +190,7 @@ bool con_trunc(char *s, int n)
 	mbstowcs(wbuf, s, n);
 	wbuf[n] = 0;
 	for (i=0; i<n; i++) {
-		len += con_char_len(wbuf[i]);
+		len += con_len_wchar(wbuf[i]);
 		if (len > n) break;
 	}
 	wbuf[i] = 0; // terminate;
@@ -302,4 +328,184 @@ out:
 			SAFE_FREE(path);
         return (rv);
 }
+
+// replace spaces with \n so that text fits width
+// or insert \n in the middle of a word if longer than width
+void con_wordwrap(char *str, int width, int size)
+{
+	char *s = str;
+	char *e = NULL; // last white space
+	int w = 0;
+	int n;
+	while (*s) {
+		n = mblen(s, MB_LEN_MAX);
+		if (n <= 0) {
+			// terminate at invalid utf8 sequence
+			*s = 0;
+			break;
+		}
+		if (*s == '\n') {
+			found_nl:
+			w = 0;
+			e = NULL;
+			s++;
+			continue;
+		}
+		if (ISSPACE(*s)) {
+			e = s;
+		}
+		w += con_len_mbchar(s);
+		if (w > width) {
+			if (e) {
+				// break line
+				s = e;
+				*s = '\n';
+			} else {
+				// insert nl
+				str_insert_at(str, s, '\n', 1, size);
+			}
+			goto found_nl;
+		}
+		if (s + n >= str + size) {
+			*s = 0;
+		}
+		s += n;
+	}
+}
+
+// line starts with 0
+// returns n - printed lines
+int print_lines(char *str, int line, int n)
+{
+	char *s = str;
+	while (line) {
+		s = strchr(s, '\n');
+		if (!s) return n;
+		s++;
+		line--;
+	}
+	char *e = s;
+	while (n) {
+		e = strchr(e, '\n');
+		if (!e) break;
+		e++;
+		n--;
+	}
+	if (e) {
+		int len = e - s;
+		printf("%.*s", len, s);
+	} else {
+		printf("%s\n", s);
+		n--;
+	}
+	return n;
+}
+
+// if trailing nl is missing it is assumed
+// so "a\nb\n" and "a\nb" both count as 2 lines
+int count_lines(char *str)
+{
+	char *s = str;
+	int n = 1;
+	while (*s) {
+		if (*s == '\n') n++;
+		s++;
+	}
+	if (s > str) {
+		if (s[-1] == '\n') n--;
+	}
+	return n;
+}
+
+// page starts with 0
+int print_page(char *str, int lines, int page, int *num)
+{
+	int n;
+	int overlap = 1;
+	lines -= overlap;
+	if (lines < 1) return -1;
+	if (*num == 0) {
+		*num = 1 + (count_lines(str) - 1) / lines;
+	}
+	n = print_lines(str, page * lines, lines + overlap);
+	while (n) {
+		printf("\n");
+		n--;
+	}
+	return 0;
+}
+
+int hash_init(HashTable *ht, int size,
+		u32 (*hash_fun)(void *key),
+		bool (*compare_key)(void *key, int handle),
+		int* (*next_handle)(int handle)
+		)
+{
+	int i;
+	memset(ht, 0, sizeof(HashTable));
+	if (size == 0) size = 4999; // default size
+	ht->table = calloc(size, sizeof(*ht->table));
+	if (!ht->table) return -1;
+	for (i=0; i<size; i++) {
+		ht->table[i] = -1;
+	}
+	ht->size = size;
+	ht->hash_fun = hash_fun;
+	ht->compare_key = compare_key;
+	ht->next_handle = next_handle;
+	return 0;
+}
+
+void hash_close(HashTable *ht)
+{
+	SAFE_FREE(ht->table);
+	memset(ht, 0, sizeof(HashTable));
+}
+
+void hash_add(HashTable *ht, void *key, int handle)
+{
+	if (!ht->table) return;
+	u32 hh = ht->hash_fun(key);
+	int hi = hh % ht->size;
+	int *next = ht->next_handle(handle);
+	*next = ht->table[hi];
+	ht->table[hi] = handle;
+}
+
+int hash_get(HashTable *ht, void *key)
+{
+	if (!ht->table) return -1;
+	u32 hh = ht->hash_fun(key);
+	int hi = hh % ht->size;
+	int handle = ht->table[hi];
+	while (handle != -1) {
+		if (ht->compare_key(key, handle)) return handle;
+		handle = *ht->next_handle(handle);
+	}
+	return -1;
+}
+
+int hash_getx(HashTable *ht, void *key)
+{
+	if (!ht->table) return -1;
+	u32 hh = ht->hash_fun(key);
+	int hi = hh % ht->size;
+	int *prev = NULL;
+	int handle = ht->table[hi];
+	while (handle != -1) {
+		if (ht->compare_key(key, handle)) {
+			if (prev) {
+				// push result to front so that next time it's faster
+				*prev = *ht->next_handle(handle);
+				*ht->next_handle(handle) = ht->table[hi];
+				ht->table[hi] = handle;
+			}
+			return handle;
+		}
+		prev = ht->next_handle(handle);
+		handle = *prev;
+	}
+	return -1;
+}
+
 

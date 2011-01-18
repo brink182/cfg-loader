@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: xxdimixx\n"
 "Language-Team: GREEK <xxdimixx>\n"
@@ -36,10 +36,6 @@ msgstr "%d διαθέσιμα"
 #, c-format
 msgid "%d more notes"
 msgstr "%d περισσότερες σημειώσης"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s Δεν βρεθήκαν παιχνίδια!"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -257,6 +253,9 @@ msgstr "Διαγράφω"
 
 msgid "Developer"
 msgstr "εμφανιστής"
+
+msgid "Device is not responding!"
+msgstr ""
 
 msgid "Device:"
 msgstr "Μονάδα:"
@@ -937,6 +936,9 @@ msgstr "Όχι"
 msgid "No domain part in URL '%s'"
 msgstr "No domain part in URL '%s'"
 
+msgid "No games found!"
+msgstr "Δεν βρεθήκαν παιχνίδια!"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "Δεν υπάρχει ελεύθερος χώρος γαι να αντιγραφτεί το αρχείο απο HTTP"
 
@@ -1171,6 +1173,21 @@ msgstr "Πατήστε %s: Αναβάθμιση χωρίς meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Πατήστε αριστερά/δεξιά: επιλογή μονάδας"
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr "Πατήστε πλήκτρο για συνέχεια..."
 
@@ -1266,6 +1283,9 @@ msgstr "ΕΠΙΤΥΧΙΑ!"
 msgid "Save .gct"
 msgstr "Αποθηκεύω .gct"
 
+msgid "Save debug.log"
+msgstr ""
+
 msgid "Saving Settings... "
 msgstr "Αποθηκεύω ρυθμίσεις..."
 
@@ -1277,6 +1297,9 @@ msgstr "Αποθηκεύω gamelist.txt..."
 
 msgid "Saving settings..."
 msgstr "Αποθηκεύω ρυθμίσεις..."
+
+msgid "Saving:"
+msgstr ""
 
 #, c-format
 msgid "Saving: %s"
@@ -1483,6 +1506,12 @@ msgstr "Λάθος μέγεθος: %d (%d)"
 msgid "Yes"
 msgstr "Ναι"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1494,12 +1523,6 @@ msgstr "[ ΒΡΕΘΗΚΑΝ ]"
 
 msgid "[ SAVED ]"
 msgstr "[ ΑΠΟΘΗΚΕΥΤΗΚΕ ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD/SDHC κάρτα ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USB ΜΟΝΑΔΑ ]"
 
 msgid "[USED]"
 msgstr "[ΧΡΗΣΙΜΟΠΟΙΕΙΤΑΙ]"
@@ -1578,6 +1601,9 @@ msgstr "Αποθήκευση"
 #, c-format
 msgid "split error: %s"
 msgstr "Split λάθος: %s"
+
+msgid "uDraw GameTablet"
+msgstr ""
 
 msgid "unable to open wii disc"
 msgstr "Το άνοιγμα της Wii Disk δεν είναι δυνατόν"
@@ -1672,6 +1698,12 @@ msgstr "Χρησιμοποιείται: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Αλαγή σε IOS222 για υποστήριξη FAT."
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD/SDHC κάρτα ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USB ΜΟΝΑΔΑ ]"
 
 #~ msgid "cover"
 #~ msgstr "Cover"

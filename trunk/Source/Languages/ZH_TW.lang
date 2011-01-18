@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -36,10 +36,6 @@ msgid "%d more notes"
 msgstr "%d 更多註釋"
 
 #, c-format
-msgid "%s No games found!!"
-msgstr "%s 沒有找到遊戲!!"
-
-#, c-format
 msgid "%s Split: %d %s"
 msgstr "%s 分割: %d %s"
 
@@ -59,7 +55,7 @@ msgid ".dol too small"
 msgstr ".dol 太小"
 
 msgid "3D cover"
-msgstr ""
+msgstr "3D 封面"
 
 msgid "< ASC  >"
 msgstr "< 遞增 >"
@@ -194,7 +190,7 @@ msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "從 net_read() 連線錯誤  錯誤代碼: %i"
 
 msgid "Console Def."
-msgstr ""
+msgstr "預設主控台."
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -241,10 +237,10 @@ msgid "Custom IOS %s Loaded OK"
 msgstr "cIOS %s 載入完成"
 
 msgid "DISC cover"
-msgstr ""
+msgstr "光碟封面"
 
 msgid "DOWN"
-msgstr ""
+msgstr "下"
 
 msgid "Dance Pad"
 msgstr "跳舞踏墊"
@@ -257,6 +253,9 @@ msgstr "正在刪除"
 
 msgid "Developer"
 msgstr "開發成員"
+
+msgid "Device is not responding!"
+msgstr ""
 
 msgid "Device:"
 msgstr "裝置:"
@@ -327,7 +326,7 @@ msgid "Drums"
 msgstr "康加鼓"
 
 msgid "Dutch"
-msgstr ""
+msgstr "荷蘭文"
 
 msgid "ERROR"
 msgstr "錯誤"
@@ -394,6 +393,8 @@ msgid ""
 "ERROR: NTFS write disabled!\n"
 "(set ntfs_write=1)"
 msgstr ""
+"錯誤: NTFS 寫入已經停用!\n"
+"(請設定 ntfs_write=1)"
 
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
@@ -444,7 +445,7 @@ msgstr "錯誤: 快取: 記憶體不足"
 
 #, c-format
 msgid "ERROR: creating: %s"
-msgstr ""
+msgstr "錯誤: 正在建立: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -489,10 +490,10 @@ msgid "Ejecting DVD..."
 msgstr "正在退出 DVD..."
 
 msgid "English"
-msgstr ""
+msgstr "英文"
 
 msgid "English Title"
-msgstr ""
+msgstr "英文標題"
 
 msgid "Enter Code: "
 msgstr "輸入代碼:"
@@ -599,10 +600,10 @@ msgid "FILL %d"
 msgstr "填滿 %d"
 
 msgid "FLAT cover"
-msgstr ""
+msgstr "平面封面"
 
 msgid "FULL cover"
-msgstr ""
+msgstr "完整封面"
 
 msgid "Favorite Games"
 msgstr "最愛的遊戲"
@@ -633,29 +634,29 @@ msgid "Fixing EXTEND partition..."
 msgstr "正在修復擴充分割區..."
 
 msgid "Force NTSC"
-msgstr ""
+msgstr "強制 NTSC"
 
 msgid "Force PAL50"
-msgstr ""
+msgstr "強制 PAL50"
 
 msgid "Force PAL60"
-msgstr ""
+msgstr "強制 PAL60"
 
 msgid "Formatting"
 msgstr "正在格式化"
 
 #, c-format
 msgid "Found %s"
-msgstr ""
+msgstr "找到 %s"
 
 msgid "French"
-msgstr ""
+msgstr "法文"
 
 msgid "GB"
 msgstr "GB"
 
 msgid "Game Default"
-msgstr ""
+msgstr "遊戲預設"
 
 msgid "Game Options"
 msgstr "遊戲選項"
@@ -672,7 +673,7 @@ msgid "Gamercard #%d reported: %.*s"
 msgstr "Gamercard #%d 報告: %.*s"
 
 msgid "German"
-msgstr ""
+msgstr "德文"
 
 msgid "Global Options"
 msgstr "全域選項"
@@ -751,22 +752,22 @@ msgid "Invalid partition: '%s'"
 msgstr "無效的分割區: '%s'"
 
 msgid "Italian"
-msgstr ""
+msgstr "義大利文"
 
 msgid "Japanese"
-msgstr ""
+msgstr "日文"
 
 msgid "Japanese Title"
-msgstr ""
+msgstr "日文標題"
 
 msgid "Keyboard"
 msgstr "鍵盤"
 
 msgid "Korean"
-msgstr ""
+msgstr "韓文"
 
 msgid "LEFT"
-msgstr ""
+msgstr "左"
 
 msgid "LOCKED!"
 msgstr "已鎖定!"
@@ -913,10 +914,10 @@ msgstr ""
 "%s 鈕變更延伸分割區類型."
 
 msgid "NTFS compression not supported!"
-msgstr ""
+msgstr "尚未支援 NTFS 壓縮!"
 
 msgid "NTFS encryption not supported!"
-msgstr ""
+msgstr "尚未支援 NTFS 加密!"
 
 msgid "Network connection established."
 msgstr "建立網路連線."
@@ -939,6 +940,9 @@ msgstr "否"
 #, c-format
 msgid "No domain part in URL '%s'"
 msgstr "沒有域名部分在 URL '%s'"
+
+msgid "No games found!"
+msgstr ""
 
 msgid "No more memory to copy file from HTTP response"
 msgstr "沒有更多的記憶體複製從 HTTP 回應的檔案"
@@ -1017,7 +1021,7 @@ msgstr "正在開啟 DVD 光碟..."
 
 #, c-format
 msgid "Opening partition: %s"
-msgstr ""
+msgstr "正在開啟分割區: %s"
 
 msgid "Options discarded for this game."
 msgstr "放棄這個遊戲設定."
@@ -1174,6 +1178,21 @@ msgstr "請按 %s 更新外部 meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "請按 %s/%s 選擇裝置."
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr "請按任意按鈕繼續..."
 
@@ -1211,7 +1230,7 @@ msgid "RAW"
 msgstr "未經處理"
 
 msgid "RIGHT"
-msgstr ""
+msgstr "右"
 
 msgid "RPG"
 msgstr "角色扮演"
@@ -1258,7 +1277,7 @@ msgid "Running benchmark, please wait"
 msgstr "正在執行基準, 請等候"
 
 msgid "S. Chinese"
-msgstr ""
+msgstr "中文 (簡體)"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHC 卡"
@@ -1268,6 +1287,9 @@ msgstr "成功!"
 
 msgid "Save .gct"
 msgstr "儲存 .gct"
+
+msgid "Save debug.log"
+msgstr ""
 
 msgid "Saving Settings... "
 msgstr "正在儲存設定..."
@@ -1280,6 +1302,9 @@ msgstr "正在儲存 gamelist.txt ... "
 
 msgid "Saving settings..."
 msgstr "正在儲存設定..."
+
+msgid "Saving:"
+msgstr ""
 
 #, c-format
 msgid "Saving: %s"
@@ -1313,7 +1338,7 @@ msgid "Simulation"
 msgstr "模擬"
 
 msgid "Size(GB) Type  Mount Used"
-msgstr ""
+msgstr "大小(GB) 類型 掛載 已使用"
 
 #, c-format
 msgid "Size: %d bytes"
@@ -1327,7 +1352,7 @@ msgid "Sort: %s-%s"
 msgstr "排序: %s-%s"
 
 msgid "Spanish"
-msgstr ""
+msgstr "西班牙文"
 
 msgid "Sports"
 msgstr "運動"
@@ -1342,10 +1367,10 @@ msgid "Strategy"
 msgstr "戰略"
 
 msgid "System Def."
-msgstr ""
+msgstr "系統預設."
 
 msgid "T. Chinese"
-msgstr ""
+msgstr "中文 (繁體)"
 
 msgid "Theme"
 msgstr "主題"
@@ -1395,10 +1420,10 @@ msgid "Trying (url#%d) ..."
 msgstr "嘗試 (url#%d) ..."
 
 msgid "UNUSED"
-msgstr ""
+msgstr "尚未使用"
 
 msgid "UP"
-msgstr ""
+msgstr "上"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1488,6 +1513,12 @@ msgstr "錯誤的大小: %d (%d)"
 msgid "Yes"
 msgstr "是"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr "槍架"
 
@@ -1499,12 +1530,6 @@ msgstr "[ 已找到 ]"
 
 msgid "[ SAVED ]"
 msgstr "[ 已儲存 ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD/SDHC 卡 ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USB 大型存放裝置 ]"
 
 msgid "[USED]"
 msgstr "[已使用]"
@@ -1584,12 +1609,18 @@ msgstr "儲存"
 msgid "split error: %s"
 msgstr "分割錯誤: %s"
 
+msgid "uDraw GameTablet"
+msgstr ""
+
 msgid "unable to open wii disc"
 msgstr "無法開啟 Wii 光碟"
 
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
+
+#~ msgid "%s No games found!!"
+#~ msgstr "%s 沒有找到遊戲!!"
 
 #~ msgid ""
 #~ "ERROR: CIOS222 or CIOS223 required for\n"
@@ -1653,6 +1684,12 @@ msgstr "已使用: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "切換到 IOS222 的 FAT 支援."
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD/SDHC 卡 ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USB 大型存放裝置 ]"
 
 #~ msgid "cover"
 #~ msgstr "封面"

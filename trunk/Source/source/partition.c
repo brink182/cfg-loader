@@ -151,7 +151,7 @@ int is_valid_ptable(partitionTable *table)
 s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, int *num)
 {
 	static union {
-		u8 buf[512];
+		u8 buf[4096];
 		partitionTable table;
 		wbfs_head_t head;
 	} tbl ATTRIBUTE_ALIGN(32);
@@ -177,6 +177,12 @@ s32 Partition_GetEntriesEx(u32 device, partitionEntry *outbuf, u32 *psect_size, 
 	}
 	/* Set sector size */
 	*psect_size = sector_size;
+
+	if (sector_size < 512 || sector_size > 4096) {
+		printf("ERROR: sector size: %u\n", sector_size);
+		sleep(5);
+		return -2;
+	}
 
 	u32 ext = 0;
 	u32 next = 0;
@@ -374,7 +380,7 @@ s32 Partition_GetList(u32 device, PartList *plist)
 
 	char buf[plist->sector_size];
 
-	dbg_printf("Plist(%d) = %d\n", device, plist->num);
+	dbg_printf("Plist(%d)=%d ss:%u\n", device, plist->num, plist->sector_size);
 	// scan partitions for filesystem type
 	for (i = 0; i < plist->num; i++) {
 		pinfo = &plist->pinfo[i];

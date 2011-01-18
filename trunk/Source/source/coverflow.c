@@ -19,6 +19,7 @@
 #include "wpad.h"
 #include "my_GRRLIB.h"
 #include "xml.h"
+#include "gettext.h"
 
 //defines for the mouseover detection
 #define MOUSEOVER_COVER_OFFSCREEN 0xFFFFFFFF
@@ -53,6 +54,7 @@
 #define EASING_TYPE_LINEAR 0
 
 extern struct discHdr *gameList;
+extern s32 gameCnt;
 extern bool loadGame;
 extern bool suppressCoverDrawing;
 
@@ -1924,7 +1926,15 @@ void Coverflow_draw_title(int selectedCover, int xpos, ir_t *ir) {
 			if (action_alpha < 0) action_alpha = 0;
 			last_time = 0;
 			strncpy(gameTitle, action_string, TITLE_MAX);
-		} else snprintf(gameTitle, TITLE_MAX, "%s", get_title(&gameList[selectedCover]));
+		} else {
+			if (!gameCnt) {
+				strcpy(gameTitle, gt("No games found!"));
+			} else if (selectedCover < 0 || selectedCover >= gameCnt) {
+				sprintf(gameTitle, "error %d", selectedCover);
+			} else {
+				snprintf(gameTitle, TITLE_MAX, "%s", get_title(&gameList[selectedCover]));
+			}
+		}
 	} else {
 		// clock
 		t = time(NULL);

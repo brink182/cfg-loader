@@ -26,18 +26,28 @@ static void *mem2_start = NULL;
 
 #define ALIGN_VAL 32
 
-inline size_t align_up(size_t s)
+inline size_t xalign_up(int a, size_t s)
 {
-	if (s == 0) return ALIGN_VAL;
-	s += ALIGN_VAL - 1;
+	if (s == 0) return a;
+	s += a - 1;
+	s &= ~(a - 1);
+	return s;
+}
+
+inline size_t xalign_down(int a, size_t s)
+{
 	s &= ~(ALIGN_VAL - 1);
 	return s;
 }
 
+inline size_t align_up(size_t s)
+{
+	return xalign_up(ALIGN_VAL, s);
+}
+
 inline size_t align_down(size_t s)
 {
-	s &= ~(ALIGN_VAL - 1);
-	return s;
+	return xalign_down(ALIGN_VAL, s);
 }
 
 
@@ -55,6 +65,7 @@ mem_blk* blk_find_size(blk_list *bl, int size)
 mem_blk* blk_find_ptr(blk_list *bl, void *ptr)
 {
 	int i;
+	if (ptr == NULL) return NULL;
 	for (i=0; i < bl->num; i++) {
 		if (ptr == bl->list[i].ptr) {
 			return &bl->list[i];
@@ -210,70 +221,111 @@ int heap_free(heap *h, void *ptr)
 	return 0;
 }
 
-void *heap_realloc(heap *h, void *ptr, int size)
+// resize an existing allocation, without changing location
+// return:
+//   0 on success
+//  -1 on error
+//  >0 the max delta that is possible to resize by
+int heap_resize(heap *h, void *ptr, int size)
 {
-	mem_blk *ab, *fb, bb;
-	void *new_ptr;
+	mem_blk *ab, *fb;
+	mem_blk bb;
 	int delta;
 
 	// align size
 	size = align_up(size);
 	
 	// new allocation
-	if (ptr == NULL) {
-		return heap_alloc(h, size);
-	}
+	if (ptr == NULL) return -1;
 
 	// find existing
 	ab = blk_find_ptr(&h->used_list, ptr);
-	if (!ab) {
-		// fatal
-		return NULL;
-	}
+	if (!ab) return -1; // invalid ptr
 
 	// size equal? - do nothing
-	if (size == ab->size) {
-		return ptr;
-	}
-
-	// size larger?
-	if (size > ab->size) {
-		delta = size - ab->size;
-		// find a free block at the end
-		fb = blk_find_ptr(&h->free_list, ptr + ab->size);
-		if (fb && fb->size >= delta ) {
-			// extend
-			memset(fb->ptr, 0, delta);
-			fb->ptr  += delta;
-			fb->size -= delta;
-			ab->size = size;
-			if (fb->size == 0) {
-				blk_remove(&h->free_list, fb);
-			}
-			return ptr;
-		}
-		// can't extend
-		new_ptr = heap_alloc(h, size);
-		if (!new_ptr) {
-			return NULL;
-		}
-		memcpy(new_ptr, ptr, ab->size);
-		memset(new_ptr + ab->size, 0, delta);
-		heap_free(h, ptr);
-		return new_ptr;
-	}
+	if (size == ab->size) return 0;
 
 	// size smaller
-	// insert or merge a free block
-	bb.ptr  = ab->ptr + size;
-	bb.size = ab->size - size;
-	fb = blk_merge_add(&h->free_list, &bb);
-	if (!fb) {
-		// fatal
+	if (size < ab->size) {
+		// insert or merge a free block
+		bb.ptr  = ab->ptr + size;
+		bb.size = ab->size - size;
+		fb = blk_merge_add(&h->free_list, &bb);
+		if (!fb) {
+			// fatal
+			return -1;
+		}
+		ab->size = size;
+		return 0;
+	}
+
+	// size larger
+	delta = size - ab->size;
+	// find a free block at the end
+	fb = blk_find_ptr(&h->free_list, ptr + ab->size);
+	if (!fb) return -1;
+	if (delta > fb->size) {
+		// can't extend
+		// return by how much it's possible to extend
+		if (fb->size > 0) return fb->size;
+		return -1;
+	}
+	// extend
+	memset(fb->ptr, 0, delta);
+	fb->ptr  += delta;
+	fb->size -= delta;
+	ab->size = size;
+	if (fb->size == 0) {
+		blk_remove(&h->free_list, fb);
+	}
+	return 0;
+}
+
+void *heap_realloc(heap *h, void *ptr, int size)
+{
+	mem_blk *ab;
+	void *new_ptr;
+	int delta;
+
+	// free if size 0
+	if (size == 0) {
+		heap_free(h, ptr);
 		return NULL;
 	}
-	ab->size = size;
-	return ptr;
+	// align size
+	size = align_up(size);
+	// new allocation
+	if (ptr == NULL) {
+		return heap_alloc(h, size);
+	}
+	// try resize
+	delta = heap_resize(h, ptr, size);
+	if (delta == 0) {
+		// ok
+		return ptr;
+	}
+	// can't resize, try realloc
+	ab = blk_find_ptr(&h->used_list, ptr);
+	if (!ab) {
+		// invalid ptr
+		return NULL;
+	}
+	new_ptr = heap_alloc(h, size);
+	if (!new_ptr) {
+		// out of mem
+		return NULL;
+	}
+	// copy to new location
+	delta = size - ab->size;
+	if (delta > 0) {
+		memcpy(new_ptr, ptr, ab->size);
+		memset(new_ptr + ab->size, 0, delta);
+	} else {
+		memcpy(new_ptr, ptr, size);
+	}
+	// free old location
+	heap_free(h, ptr);
+	return new_ptr;
 }
 
 void heap_init(heap *h, void *ptr, int size)
@@ -367,6 +419,11 @@ void *mem_alloc(int size)
 // defaults to MEM2
 void *mem_realloc(void *ptr, int size)
 {
+	// free if size 0
+	if (size == 0) {
+		mem_free(ptr);
+		return NULL;
+	}
 	// align size
 	size = align_up(size);
 	// first time
@@ -409,6 +466,21 @@ void mem_free(void *ptr)
 	}
 	// sys
 	free(ptr);
+}
+
+int mem_resize(void *ptr, int size)
+{
+	if (ptr == NULL) return -1;
+	// mem2
+	if (heap_ptr_inside(&mem2, ptr)) {
+		return heap_resize(&mem2, ptr, size);
+	}
+	// mem1
+	if (heap_ptr_inside(&mem1, ptr)) {
+		return heap_resize(&mem1, ptr, size);
+	}
+	// sys
+	return -1;
 }
 
 #if 0
@@ -485,21 +557,21 @@ void mem_stat_str(char * buffer)
 			(hs1.free+hs2.free + m.fordblks+size) / fMB);
 }
 
-void mem_stat()
+void mem_statf(FILE *f)
 {
 	char buffer[1000];
-	printf("\n");
+	fprintf(f, "\n");
 #ifdef _V_OGC_SVN
-	printf("libOGC %s ", "svn" _V_OGC_SVN);
+	fprintf(f, "libOGC %s ", "svn" _V_OGC_SVN);
 #else
-	printf("libOGC %d.%d.%d ", _V_MAJOR_, _V_MINOR_, _V_PATCH_);
+	fprintf(f, "libOGC %d.%d.%d ", _V_MAJOR_, _V_MINOR_, _V_PATCH_);
 #endif
-	printf("devkitPPC %d ", DEVKITPPCVER);
-	printf("(gcc%d.%d.%d)", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	fprintf(f, "devkitPPC %d ", DEVKITPPCVER);
+	fprintf(f, "(gcc%d.%d.%d)", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 	//__VERSION__
-	printf(" %s\n", CCOPT);
+	fprintf(f, " %s\n", CCOPT);
 	mem_stat_str(buffer);
-	printf("%s", buffer);
+	fprintf(f, "%s", buffer);
 
 	/*
 	printf("\n");
@@ -512,6 +584,10 @@ void mem_stat()
 	
 }
 
+void mem_stat()
+{
+	mem_statf(stdout);
+}
 
 // moved from util.c:
 
@@ -612,4 +688,96 @@ void util_clear()
 		}
 	}
 }
+
+void obb_init(obj_block *obb)
+{
+	memset(obb, 0, sizeof(obj_block));
+}
+
+void *obb_alloc(obj_block *obb, obj_allocator *alloc, int size)
+{
+	void *ptr;
+	int reqsize;
+	int newsize;
+	int x;
+	size = xalign_up(4, size);
+	reqsize = obb->used + size;
+	if (!obb->ptr) {
+		// alloc
+		newsize = reqsize + alloc->chunk;
+		ptr = alloc->m_realloc(NULL, newsize);
+		if (ptr == NULL) {
+			newsize = reqsize;
+			ptr = alloc->m_realloc(NULL, newsize);
+		}
+		if (ptr == NULL) return NULL;
+		obb->size = newsize;
+		obb->ptr = ptr;
+	}
+	if (reqsize > obb->size) {
+		// resize
+		newsize = reqsize + alloc->chunk;
+		x = alloc->m_resize(obb->ptr, newsize);
+		if (x > 0 && x >= size) {
+			newsize = obb->size + x;
+			x = alloc->m_resize(obb->ptr, newsize);
+		}
+		if (x != 0) return NULL; // resize failed
+		obb->size = newsize;
+	}
+	ptr = obb->ptr + obb->used;
+	obb->used += size;
+	return ptr;
+}
+
+void obb_freeall(obj_block *obb, obj_allocator *alloc)
+{
+	if (obb->ptr) {
+		alloc->m_realloc(obb->ptr, 0);
+	}
+	memset(obb, 0, sizeof(obj_block));
+}
+
+void obs_init(obj_stack *obs, int chunk,
+		void* (*m_realloc)(void *ptr, int size),
+		int (*m_resize)(void *ptr, int size))
+{
+	memset(obs, 0, sizeof(obj_stack));
+	obs->alloc.chunk = chunk;
+	obs->alloc.m_realloc = m_realloc;
+	obs->alloc.m_resize = m_resize;
+	obb_init(&obs->block[0]);
+	obs->num = 1;
+}
+
+void *obs_alloc(obj_stack *obs, int size)
+{
+	void *ptr;
+	obj_block *obb;
+	if (obs->num <= 0) return NULL;
+	obb = &obs->block[obs->num - 1];
+	ptr = obb_alloc(obb, &obs->alloc, size);
+	if (ptr) return ptr;
+	// create new block
+	if (obs->num >= OBS_MAX_BLOCKS) return NULL;
+	obs->num++;
+	obb = &obs->block[obs->num - 1];
+	obb_init(obb);
+	ptr = obb_alloc(obb, &obs->alloc, size);
+	if (ptr) return ptr;
+	// release block
+	obb_freeall(obb, &obs->alloc);
+	obs->num--;
+	return NULL;
+}
+
+void obs_freeall(obj_stack *obs)
+{
+	int i;
+	for (i=0; i<obs->num; i++) {
+		obb_freeall(&obs->block[i], &obs->alloc);
+	}
+	memset(obs, 0, sizeof(obj_stack));
+}
+
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -34,10 +34,6 @@ msgstr "%d beschikbaar"
 #, c-format
 msgid "%d more notes"
 msgstr "%d meer opmerkingen"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s Geen spellen gevonden!"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -258,6 +254,9 @@ msgstr "Bezig met verwijderen"
 msgid "Developer"
 msgstr "Ontwikkelaar"
 
+msgid "Device is not responding!"
+msgstr ""
+
 msgid "Device:"
 msgstr "Apparaat"
 
@@ -327,7 +326,7 @@ msgid "Drums"
 msgstr "Drums"
 
 msgid "Dutch"
-msgstr ""
+msgstr "Nederlands"
 
 msgid "ERROR"
 msgstr "FOUT"
@@ -492,10 +491,10 @@ msgid "Ejecting DVD..."
 msgstr "DVD uitwerpen..."
 
 msgid "English"
-msgstr ""
+msgstr "Engels"
 
 msgid "English Title"
-msgstr ""
+msgstr "Engelse Titel"
 
 msgid "Enter Code: "
 msgstr "Geef de code in: "
@@ -652,7 +651,7 @@ msgid "Found %s"
 msgstr "Gevonden %s"
 
 msgid "French"
-msgstr ""
+msgstr "Frans"
 
 msgid "GB"
 msgstr "GB"
@@ -675,7 +674,7 @@ msgid "Gamercard #%d reported: %.*s"
 msgstr "Spelerkaart #%d meldt: %.*s"
 
 msgid "German"
-msgstr ""
+msgstr "Duits"
 
 msgid "Global Options"
 msgstr "Globale opties"
@@ -754,19 +753,19 @@ msgid "Invalid partition: '%s'"
 msgstr "Ongeldige partitie: '%s'"
 
 msgid "Italian"
-msgstr ""
+msgstr "Italiaans"
 
 msgid "Japanese"
-msgstr ""
+msgstr "Japans"
 
 msgid "Japanese Title"
-msgstr ""
+msgstr "Japanse Titel"
 
 msgid "Keyboard"
 msgstr "Toetsenbord"
 
 msgid "Korean"
-msgstr ""
+msgstr "Koreaans"
 
 msgid "LEFT"
 msgstr "LINKS"
@@ -945,6 +944,9 @@ msgstr "Nee"
 #, c-format
 msgid "No domain part in URL '%s'"
 msgstr "Geen domein in URL '%s'"
+
+msgid "No games found!"
+msgstr "Geen spellen gevonden"
 
 msgid "No more memory to copy file from HTTP response"
 msgstr "Geen geheugen meer om het bestand van het web te kopiëren"
@@ -1180,6 +1182,21 @@ msgstr "Druk %s om te updaten zonder meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Druk LINKS/RECHTS om een apparaat te kiezen."
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr "Druk om verder te gaan..."
 
@@ -1264,7 +1281,7 @@ msgid "Running benchmark, please wait"
 msgstr "Benchmark is bezig, even geduld"
 
 msgid "S. Chinese"
-msgstr ""
+msgstr "Chinees (simpel)"
 
 msgid "SD/SDHC Card"
 msgstr "SD(HC) Kaart"
@@ -1274,6 +1291,9 @@ msgstr "SUCCES!"
 
 msgid "Save .gct"
 msgstr ".gct opslaan"
+
+msgid "Save debug.log"
+msgstr "Opslaan debug.log"
 
 msgid "Saving Settings... "
 msgstr "Opties opslaan..."
@@ -1286,6 +1306,9 @@ msgstr "gamelist.txt opslaan ..."
 
 msgid "Saving settings..."
 msgstr "Opties opslaan..."
+
+msgid "Saving:"
+msgstr "Opslaan:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1333,7 +1356,7 @@ msgid "Sort: %s-%s"
 msgstr "Sortering: %s-%s"
 
 msgid "Spanish"
-msgstr ""
+msgstr "Spaans"
 
 msgid "Sports"
 msgstr "Sport"
@@ -1348,10 +1371,10 @@ msgid "Strategy"
 msgstr "Strategie"
 
 msgid "System Def."
-msgstr ""
+msgstr "Systeem def."
 
 msgid "T. Chinese"
-msgstr ""
+msgstr "Chinees (trad.)"
 
 msgid "Theme"
 msgstr "Thema"
@@ -1494,6 +1517,12 @@ msgstr "Verkeerde grootte: %d (%d)"
 msgid "Yes"
 msgstr "Ja"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1505,12 +1534,6 @@ msgstr "[ GEVONDEN ]"
 
 msgid "[ SAVED ]"
 msgstr "[ OPGESLAGEN ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD(HC) Kaart ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USB apparaat voor massa opslag ]"
 
 msgid "[USED]"
 msgstr "[GEBRUIKT]"
@@ -1590,12 +1613,18 @@ msgstr "opslaan"
 msgid "split error: %s"
 msgstr "splits fout: %s"
 
+msgid "uDraw GameTablet"
+msgstr ""
+
 msgid "unable to open wii disc"
 msgstr "kan wii disc niet openen"
 
 #, c-format
 msgid "used: %p - %p"
 msgstr "gebruikt: %p - %p"
+
+#~ msgid "%s No games found!!"
+#~ msgstr "%s Geen spellen gevonden!"
 
 #~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
 #~ msgstr "Disk IOS %u kan niet worden geladen! (ret = %d)"
@@ -1680,6 +1709,12 @@ msgstr "gebruikt: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Schakel over op IOS222 voor FAT ondersteuning."
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD(HC) Kaart ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USB apparaat voor massa opslag ]"
 
 #~ msgid "cover"
 #~ msgstr "hoesje"

@@ -12,15 +12,24 @@
 #include "cfg.h"
 #include "console.h"
 
-extern long long gettime();
-extern u32 diff_msec(long long start, long long end);
-
 struct timestats TIME;
 
 int gecko_enabled = 0;
 
 static long long dbg_t1, dbg_t2;
+static long long dbg_t;
 
+static int debug_inited = 0;
+static int debug_logging = 1;
+char dbg_log_buf[10240]; // 10k
+
+long long dbg_time_usec()
+{
+	long long t = gettime();
+	long long d = diff_usec(dbg_t, t);
+	dbg_t = t;
+	return d;
+}
 
 void dbg_time1()
 {
@@ -37,13 +46,19 @@ unsigned dbg_time2(char *msg)
 	return ms;
 }
 
+int gecko_prints(const char *str)
+{
+	if (!gecko_enabled) return 0;
+	return usb_sendbuffer(EXI_CHANNEL_1, str, strlen(str));
+}
+
 int gecko_printv(const char *fmt, va_list ap)
 {
 	char str[1024];
 	int r;
 	if (!gecko_enabled) return 0;
 	r = vsnprintf(str, sizeof(str), fmt, ap);
-	usb_sendbuffer(EXI_CHANNEL_1, str, strlen(str));
+	gecko_prints(str);
 	return r;
 }
 
@@ -58,21 +73,37 @@ int gecko_printf(const char *fmt, ... )
 	return r;
 }
 
+int dbg_printv(int level, const char *fmt, va_list ap)
+{
+	char str[1024];
+	int r = 0;
+	if (!CFG.debug  && !CFG.debug_gecko && !debug_logging) return 0;
+	r = vsnprintf(str, sizeof(str), fmt, ap);
+	if (debug_logging) {
+		strappend(dbg_log_buf, str, sizeof(dbg_log_buf));
+		if (strlen(dbg_log_buf) >= sizeof(dbg_log_buf) - 1) {
+			// buf full, disable log
+			debug_logging = 0;
+		}
+	}
+	if (debug_inited) {
+		if (CFG.debug >= level) {
+			printf("%s", str);
+		}
+		if (gecko_enabled && (CFG.debug_gecko & 1)) {
+			gecko_prints(str);
+		}
+	}
+	return r;
+}
+
 int dbg_printf(const char *fmt, ... )
 {
 	va_list ap;
 	int r = 0;
-
-	if (CFG.debug) {
-		va_start(ap, fmt);
-		r = vprintf(fmt, ap);
-		va_end(ap);
-	}
-	if (gecko_enabled && (CFG.debug_gecko & 1)) {
-		va_start(ap, fmt);
-		r = gecko_printv(fmt, ap);
-		va_end(ap);
-	}
+	va_start(ap, fmt);
+	r = dbg_printv(1, fmt, ap);
+	va_end(ap);
 	return r;
 }
 
@@ -80,18 +111,9 @@ int dbg_print(int level, const char *fmt, ...)
 {
 	va_list ap;
 	int r = 0;
-	bool dl = CFG.debug >= level;
-	if (!dl && level > 1) return r;
-	if (dl) {
-		va_start(ap, fmt);
-		r = vprintf(fmt, ap);
-		va_end(ap);
-	}
-	if (gecko_enabled && (CFG.debug_gecko & 1)) {
-		va_start(ap, fmt);
-		r = gecko_printv(fmt, ap);
-		va_end(ap);
-	}
+	va_start(ap, fmt);
+	r = dbg_printv(level, fmt, ap);
+	va_end(ap);
 	return r;
 }
 
@@ -110,12 +132,16 @@ void InitDebug()
 			usb_flush(EXI_CHANNEL_1);
 			if (!gecko_enabled) {
 				gecko_enabled = 1;
-				gecko_printf("\n\n====================\n\n");
+				gecko_prints("\n\n====================\n\n");
 			}
 		}
 	}
 	if (CFG.debug_gecko & 2) {
 		CON_EnableGecko(EXI_CHANNEL_1, 0);
+	}
+	debug_inited = 1;
+	if (strlen(dbg_log_buf)) {
+		gecko_printf(">>>\n%s\n<<<\n", dbg_log_buf);
 	}
 }
 
@@ -129,24 +155,22 @@ void get_time2(long long *t, char *s)
 {
 	if (!t) return;
 	if (*t == 0) *t = gettime();
-	if (CFG.debug || CFG.debug_gecko) {
-		char c;
-		char *p;
-		char ss[32];
-		char *dir;
-		int len;
-		long long tt = gettime();
-		p = strchr(s, '.');
-		if (p) p++; else p = s;
-		STRCOPY(ss, p);
-		len = strlen(ss) - 1;
-		c = ss[len];
-		if (c == '1') { dir = "-->"; ss[len] = 0; }
-		else if (c == '2') { dir = "<--"; ss[len] = 0; }
-		else return; //dir = "---";
-		dbg_printf("[%.3f] %s %s\n", diff_fsec(TIME.boot1, tt), dir, ss);
-		__console_flush(0);
-	}
+	char c;
+	char *p;
+	char ss[32];
+	char *dir;
+	int len;
+	long long tt = gettime();
+	p = strchr(s, '.');
+	if (p) p++; else p = s;
+	STRCOPY(ss, p);
+	len = strlen(ss) - 1;
+	c = ss[len];
+	if (c == '1') { dir = "-->"; ss[len] = 0; }
+	else if (c == '2') { dir = "<--"; ss[len] = 0; }
+	else return; //dir = "---";
+	dbg_printf("[%.3f] %s %s\n", diff_fsec(TIME.boot1, tt), dir, ss);
+	if (CFG.debug) __console_flush(0);
 }
 
 long tm_sum;
@@ -154,8 +178,7 @@ long tm_sum;
 #define TIME_S(X) ((float)TIME_MS(X)/1000.0)
 
 #define printx(...) do{ \
-	printf(__VA_ARGS__); \
-	if(f)fprintf(f,__VA_ARGS__); \
+	fprintf(f,__VA_ARGS__); \
    	gecko_printf(__VA_ARGS__); \
     }while(0)
 
@@ -169,20 +192,9 @@ long tm_sum;
 #define print_tn(X) print_t3(#X,X,"\n")
 
 
-void time_stats()
+void time_statsf(FILE *f)
 {
 	long sum;
-	FILE *f = NULL;
-	/*
-	char name[100];
-	sprintf(name, "%s/%s", USBLOADER_PATH, "debug.txt");
-	f = fopen(name, "w");
-	if (!f) {
-		printf("Error opening %s\n", name);
-	} else {
-		fprintf(f,"CFG v%s\n", CFG_VERSION_STR);
-	}
-	*/
 	printx("times in seconds:\n");
 	tm_sum = 0;
 	print_t_(intro);
@@ -210,15 +222,21 @@ void time_stats()
 	printx("sum: %.3f ", (float)sum/1000.0);
 	printx("uncounted: %.3f\n", (float)((long)TIME_MS(boot)-sum)/1000.0);
 	print_t2("total startup", boot);
+}
 
-	if (f) fclose(f);
+void time_stats()
+{
+	time_statsf(stdout);
 }
 
 void time_stats2()
 {
-	FILE *f = NULL;
+	FILE *f = stdout;
 	long sum;
-	if (!CFG.time_launch) return;
+	if (!CFG.time_launch) {
+		if (CFG.debug) goto out;
+		return;
+	}
 	printx("times in seconds:\n");
 	tm_sum = 0;
 	print_tn(rios);
@@ -233,6 +251,7 @@ void time_stats2()
 	printx("size: %.2f MB\n", (float)TIME.size / 1024.0 / 1024.0);
 	printx("speed: %.2f MB/s\n",
 			(float)TIME.size / (float)TIME_MS(load) * 1000.0 / 1024.0 / 1024.0);
+	out:;
 	extern void Menu_PrintWait();
 	Menu_PrintWait();
 }

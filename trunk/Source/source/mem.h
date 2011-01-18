@@ -1,6 +1,9 @@
 #ifndef _MEM_H
 #define _MEM_H
 
+#include <stdio.h>
+
+// max number of mem allocations in mem1/mem2 heaps
 #define MAX_MEM_BLK 1024
 
 typedef struct
@@ -43,6 +46,7 @@ mem_blk* blk_merge_add(blk_list *list, mem_blk *ab);
 // heap
 void* heap_alloc(heap *h, int size);
 int   heap_free(heap *h, void *ptr);
+int   heap_resize(heap *h, void *ptr, int size);
 void* heap_realloc(heap *h, void *ptr, int size);
 void  heap_init(heap *h, void *ptr, int size);
 int   heap_ptr_inside(heap *h, void *ptr);
@@ -54,10 +58,12 @@ void* mem1_alloc(int size);
 void* mem1_realloc(void *ptr, int size);
 void* mem2_alloc(int size);
 void* mem_alloc(int size);
+int   mem_resize(void *ptr, int size);
 void* mem_realloc(void *ptr, int size);
 void  mem_free(void *ptr);
 void  mem_stat();
 void  mem_stat_str(char * buffer);
+void  mem_statf(FILE *f);
 
 // ogc sys
 extern void* SYS_GetArena2Lo();
@@ -76,6 +82,38 @@ void  util_init();
 void  util_clear();
 
 #define SAFE_FREE(P) if(P){mem_free(P);P=NULL;}
+
+typedef struct obj_block
+{
+	void *ptr;
+	int used;
+	int size;
+} obj_block;
+
+typedef struct obj_allocator
+{
+	int chunk;
+	void* (*m_realloc)(void *ptr, int size);
+	int (*m_resize)(void *ptr, int size);
+} obj_allocator;
+
+#define OBS_MAX_BLOCKS 100
+
+typedef struct obj_stack
+{
+	int num;
+	obj_block block[OBS_MAX_BLOCKS];
+	obj_allocator alloc;
+} obj_stack;
+
+void obb_init(obj_block *obb);
+void *obb_alloc(obj_block *obb, obj_allocator *alloc, int size);
+void obb_freeall(obj_block *obb, obj_allocator *alloc);
+void obs_init(obj_stack *obs, int chunk,
+		void* (*m_realloc)(void *ptr, int size),
+		int (*m_resize)(void *ptr, int size));
+void *obs_alloc(obj_stack *obs, int size);
+void obs_freeall(obj_stack *obs);
 
 #endif
 

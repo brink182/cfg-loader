@@ -58,14 +58,14 @@ struct ID_Title
 {
 	u8 id[8];
 	char title[TITLE_MAX];
-	unsigned short hnext; // linked list next with same hash
+	int hnext; // linked list next with same hash
 };
 
 // renamed titles
 int num_title = 0; //number of titles
 struct ID_Title *cfg_title = NULL;
-#define TITLE_HASH_MAX 4999 // prime
-unsigned short title_hash[TITLE_HASH_MAX];
+HashTable title_hash_id6;
+HashTable title_hash_id4;
 
 #define MAX_CFG_GAME 500
 int num_cfg_game = 0;
@@ -128,15 +128,17 @@ struct TextMap map_layout[] =
 
 struct TextMap map_ios[] =
 {
+	{ "245",        CFG_IOS_245 },
+	{ "246",        CFG_IOS_246 },
 	{ "247",        CFG_IOS_247 },
 	{ "248",        CFG_IOS_248 },
 	{ "249",        CFG_IOS_249 },
+	{ "250",        CFG_IOS_250 },
 	{ "222-mload",  CFG_IOS_222_MLOAD },
 	{ "223-mload",  CFG_IOS_223_MLOAD },
 	{ "224-mload",  CFG_IOS_224_MLOAD },
 	{ "222-yal",    CFG_IOS_222_YAL },
 	{ "223-yal",    CFG_IOS_223_YAL },
-	{ "250",        CFG_IOS_250 },
 	{ NULL, -1 }
 };
 
@@ -466,11 +468,34 @@ void set_colors(int x)
 
 void cfg_set_covers_path()
 {
-	STRCOPY(CFG.covers_path_2d, CFG.covers_path);
+	//STRCOPY(CFG.covers_path_2d, CFG.covers_path);
+	snprintf(D_S(CFG.covers_path_2d), "%s/%s", CFG.covers_path, "2d");
 	snprintf(D_S(CFG.covers_path_3d), "%s/%s", CFG.covers_path, "3d");
 	snprintf(D_S(CFG.covers_path_disc), "%s/%s", CFG.covers_path, "disc");
 	snprintf(D_S(CFG.covers_path_full), "%s/%s", CFG.covers_path, "full");
+	CFG.covers_path_2d_set = 0;
 }
+
+char *cfg_get_covers_path(int style)
+{
+	switch (style) {
+		case CFG_COVER_STYLE_FULL:
+			return CFG.covers_path_full;
+		case CFG_COVER_STYLE_3D:
+			return CFG.covers_path_3d;
+		case CFG_COVER_STYLE_DISC:
+			return CFG.covers_path_disc;
+		default:
+		case CFG_COVER_STYLE_2D:
+			if (CFG.covers_path_2d_set) {
+				return CFG.covers_path_2d;
+			} else {
+				return CFG.covers_path;
+			}
+	}
+	return NULL;
+}
+
 
 void cfg_set_cover_style(int style)
 {
@@ -520,33 +545,30 @@ void cfg_set_cover_style_str(char *val)
 }
 
 // setup cover style: path & url
+/*
 void cfg_setup_cover_style()
 {
 	switch (CFG.cover_style) {
 		case CFG_COVER_STYLE_3D:
 			STRCOPY(CFG.covers_path, CFG.covers_path_3d); 
-			STRCOPY(CFG.cover_url_norm, CFG.cover_url_3d_norm);
-			//STRCOPY(CFG.cover_url_wide, CFG.cover_url_3d_wide);
+			STRCOPY(CFG.cover_url, CFG.cover_url_3d);
 			break;
 		case CFG_COVER_STYLE_DISC:
 			STRCOPY(CFG.covers_path, CFG.covers_path_disc); 
-			STRCOPY(CFG.cover_url_norm, CFG.cover_url_disc_norm);
-			//STRCOPY(CFG.cover_url_wide, CFG.cover_url_disc_wide);
+			STRCOPY(CFG.cover_url, CFG.cover_url_disc);
 			break;
 		case CFG_COVER_STYLE_FULL:
 			STRCOPY(CFG.covers_path, CFG.covers_path_full);
-			STRCOPY(CFG.cover_url_norm, CFG.cover_url_full_norm);
-			//STRCOPY(CFG.cover_url_wide, CFG.cover_url_full_norm);
+			STRCOPY(CFG.cover_url, CFG.cover_url_full);
 			break;
 		default:
 		case CFG_COVER_STYLE_2D:
 			STRCOPY(CFG.covers_path, CFG.covers_path_2d); 
-			STRCOPY(CFG.cover_url_norm, CFG.cover_url_2d_norm);
-			//STRCOPY(CFG.cover_url_wide, CFG.cover_url_2d_wide);
+			STRCOPY(CFG.cover_url, CFG.cover_url_2d);
 			break;
 	}
 }
-
+*/
 
 void cfg_default_url()
 {
@@ -555,12 +577,12 @@ void cfg_default_url()
 	//strcpy(CFG.download_cc_pal, "EN");
 	*CFG.download_cc_pal = 0; // means AUTO - console language
 
-	*CFG.cover_url_2d_norm = 0;
-	*CFG.cover_url_3d_norm = 0;
-	*CFG.cover_url_disc_norm = 0;
-	*CFG.cover_url_full_norm = 0;
+	*CFG.cover_url_2d = 0;
+	*CFG.cover_url_3d = 0;
+	*CFG.cover_url_disc = 0;
+	*CFG.cover_url_full = 0;
 
-	STRCOPY(CFG.cover_url_2d_norm,
+	STRCOPY(CFG.cover_url_2d,
 		" http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/cover/{ID6}.png"
 		//" http://boxart.rowdyruff.net/flat/{ID6}.png"
@@ -569,7 +591,7 @@ void cfg_default_url()
 		//" http://awiibit.com/BoxArt160x224/{ID6}.png"
 		);
 
-	STRCOPY(CFG.cover_url_3d_norm,
+	STRCOPY(CFG.cover_url_3d,
 		" http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/cover3D/{ID6}.png"
 		//" http://boxart.rowdyruff.net/3d/{ID6}.png"
@@ -578,7 +600,7 @@ void cfg_default_url()
 		//" http://awiibit.com/3dBoxArt176x248/{ID6}.png"
 		);
 
-	STRCOPY(CFG.cover_url_disc_norm,
+	STRCOPY(CFG.cover_url_disc,
 		" http://wiitdb.com/wiitdb/artwork/disc/{CC}/{ID6}.png"
 		" http://wiitdb.com/wiitdb/artwork/disccustom/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/disc/{ID6}.png"
@@ -589,7 +611,7 @@ void cfg_default_url()
 		//" http://awiibit.com/WiiDiscArt/{ID6}.png"
 		);
 
-	STRCOPY(CFG.cover_url_full_norm,
+	STRCOPY(CFG.cover_url_full,
 		" http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/coverfull/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png"
@@ -599,6 +621,7 @@ void cfg_default_url()
 	STRCOPY(CFG.gamercard_url,
 		" http://www.wiinnertag.com/wiinnertag_scripts/update_sign.php?key={KEY}&game_id={ID6}"
 		" http://www.messageboardchampion.com/ncard/API/?cmd=tdbupdate&key={KEY}&game={ID6}"
+		" http://tag.darkumbra.net/{KEY}.update={ID6}"
 		);
 
 	*CFG.gamercard_key = 0;
@@ -1165,69 +1188,47 @@ bool cfg_map_auto_token(char *name, struct TextMap *map, struct MenuButton *var)
 	return map_auto_token(name, cfg_name, cfg_val, map, var);
 }
 
-struct ID_Title* cfg_get_id_title_old(u8 *id)
-{
-	int i;
-	// search 6 letter ID first
-	for (i=0; i<num_title; i++) {
-		if (memcmp(id, cfg_title[i].id, 6) == 0) {
-			return &cfg_title[i];
-		}
-	}
-	// and 4 letter ID next
-	for (i=0; i<num_title; i++) {
-		// only if it was ID4 in titles.txt
-		if ((cfg_title[i].id[4] == 0)
-			&& (memcmp(id, cfg_title[i].id, 4) == 0)) {
-			return &cfg_title[i];
-		}
-	}
-	return NULL;
-}
-
 extern u32 hash_string (const char *str_param);
+extern u32 hash_string_n (const char *str_param, int n);
 
-u32 hash_id4(u8 *id)
+u32 hash_id4(void *id)
 {
 	// id4 is usually unique, except for customs
-	char id4[8];
-	memcpy(id4, id, 4);
-	id4[4] = 0;
-	return hash_string(id4);
+	return hash_string_n(id, 4);
+}
+
+u32 hash_id6(void *id)
+{
+	return hash_string_n(id, 6);
+}
+
+bool title_cmp_id6(void *key, int i)
+{
+	if (i < 0 || i > num_title) return false;
+	return strncmp((char*)cfg_title[i].id, (char*)key, 6) == 0;
+}
+
+bool title_cmp_id4(void *key, int i)
+{
+	if (i < 0 || i > num_title) return false;
+	return strncmp((char*)cfg_title[i].id, (char*)key, 4) == 0;
+}
+
+int* title_get_hnext(int i)
+{
+	if (i < 0 || i > num_title) return NULL;
+	return &cfg_title[i].hnext;
 }
 
 struct ID_Title* cfg_get_id_title(u8 *id)
 {
-	int i, ii;
-	int ii4 = 0;
-	int n = 0;
-	char *tid;
-	// hash lookup
-	u32 h = hash_id4(id);
-	u32 hi = h % TITLE_HASH_MAX;
-	ii = title_hash[hi];
-	while (ii) {
-		i = ii - 1;
-		tid = (char*)cfg_title[i].id;
-		// match 6 letter ID first
-		if (strncmp(tid, (char*)id, 6) == 0) {
-			return &cfg_title[i];
-		}
-		// and 4 letter ID next
-		// but only if it was ID4 in titles.txt
-		if ((tid[4] == 0) && (strncmp(tid, (char*)id, 4) == 0)) {
-			ii4 = ii;
-		}
-		ii = cfg_title[i].hnext;
-		n++;
-		if (n > num_title+1) {
-			printf("title hash error\n");
-			sleep(5);
-		}
+	// check ID6 first
+	int i = hash_get(&title_hash_id6, id);
+	if (i == -1) {
+		// if not found try ID4
+		i = hash_get(&title_hash_id4, id);
 	}
-	if (ii4) {
-		return &cfg_title[ii4 - 1];
-	}
+	if (i >= 0 && i < num_title) return &cfg_title[i];
 	return NULL;
 }
 
@@ -1238,11 +1239,9 @@ char *cfg_get_title(u8 *id)
 	if (idt) return idt->title;
 	// wiitdb
 	if (!CFG.db_ignore_titles) {
-		int index = getIndexFromId(id);
-		if (index >= 0) {
-			if (game_info[index].title[0] != 0)
-				return game_info[index].title;
-		}
+		gameXMLinfo *g = get_game_info_id(id);
+		if (!g)	return NULL;
+		if (g->title[0] != 0) return g->title;
 	}
 	return NULL;
 }
@@ -1261,10 +1260,8 @@ void title_set(char *id, char *title)
 	struct ID_Title *idt = cfg_get_id_title((u8*)id);
 	if (idt && strncmp(id, (char*)idt->id, 6) == 0) {
 		// replace
-		//strcopy(idt->title, title, TITLE_MAX);
 		mbs_copy(idt->title, title, TITLE_MAX);
 	} else {
-		//cfg_title = realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
 		cfg_title = mem1_realloc(cfg_title, (num_title+1) * sizeof(struct ID_Title));
 		if (!cfg_title) {
 			// error
@@ -1274,13 +1271,18 @@ void title_set(char *id, char *title)
 		// add
 		memset(&cfg_title[num_title], 0, sizeof(cfg_title[num_title]));
 		strcopy((char*)cfg_title[num_title].id, id, 7);
-		//strcopy(cfg_title[num_title].title, title, TITLE_MAX);
 		mbs_copy(cfg_title[num_title].title, title, TITLE_MAX);
-		num_title++;
 		// update hash
-		u32 hi = hash_id4((u8*)id) % TITLE_HASH_MAX;
-		cfg_title[num_title-1].hnext = title_hash[hi];
-		title_hash[hi] = num_title;
+		if (id[3] == 0 || id[4] == 0) {
+			// id3 or id4
+			hash_check_init(&title_hash_id4, 0, hash_id4, title_cmp_id4, title_get_hnext);
+			hash_add(&title_hash_id4, id, num_title);
+		} else {
+			// id6
+			hash_check_init(&title_hash_id6, 0, hash_id6, title_cmp_id6, title_get_hnext);
+			hash_add(&title_hash_id6, id, num_title);
+		}
+		num_title++;
 	}
 }
 
@@ -1833,6 +1835,12 @@ void cfg_ios_set_idx(int ios_idx)
 	CFG.ios_mload = 0;
 
 	switch (ios_idx) {
+		case CFG_IOS_245:
+			CFG.ios = 245;
+			break;
+		case CFG_IOS_246:
+			CFG.ios = 246;
+			break;
 		case CFG_IOS_247:
 			CFG.ios = 247;
 			break;
@@ -1922,6 +1930,8 @@ bool is_ios_idx_mload(int ios_idx)
 int get_ios_idx_type(int ios_idx)
 {
 	switch (ios_idx) {
+		case CFG_IOS_245:
+		case CFG_IOS_246:
 		case CFG_IOS_247:
 		case CFG_IOS_248:
 		case CFG_IOS_249:
@@ -2106,6 +2116,7 @@ void cfg_set(char *name, char *val)
 	}
 	if (strcmp(name, "covers_path_2d")==0) {
 		COPY_PATH(CFG.covers_path_2d, val);
+		CFG.covers_path_2d_set = 1;
 	}
 	if (strcmp(name, "covers_path_3d")==0) {
 		COPY_PATH(CFG.covers_path_3d, val);
@@ -2123,23 +2134,15 @@ void cfg_set(char *name, char *val)
 	// urls
 	CFG_STR("titles_url", CFG.titles_url);
 	// url_2d
-	CFG_STR_LIST("cover_url", CFG.cover_url_2d_norm);
-	CFG_STR_LIST("cover_url_norm", CFG.cover_url_2d_norm);
-	//CFG_STR_LIST("cover_url_wide", CFG.cover_url_2d_wide);
+	CFG_STR_LIST("cover_url", CFG.cover_url_2d);
 	// url_3d
-	CFG_STR_LIST("cover_url_3d", CFG.cover_url_3d_norm);
-	CFG_STR_LIST("cover_url_3d_norm", CFG.cover_url_3d_norm);
-	//CFG_STR_LIST("cover_url_3d_wide", CFG.cover_url_3d_wide);
+	CFG_STR_LIST("cover_url_3d", CFG.cover_url_3d);
 	// url_disc
-	CFG_STR_LIST("cover_url_disc", CFG.cover_url_disc_norm);
-	CFG_STR_LIST("cover_url_disc_norm", CFG.cover_url_disc_norm);
-	//CFG_STR_LIST("cover_url_disc_wide", CFG.cover_url_disc_wide);
+	CFG_STR_LIST("cover_url_disc", CFG.cover_url_disc);
 	// url_full
-	CFG_STR_LIST("cover_url_full", CFG.cover_url_full_norm);
-	CFG_STR_LIST("cover_url_full_norm", CFG.cover_url_full_norm);
+	CFG_STR_LIST("cover_url_full", CFG.cover_url_full);
 	// download options
 	cfg_bool("download_all_styles", &CFG.download_all);
-	//cfg_bool("download_wide", &CFG.download_wide); // OBSOLETE
 	cfg_map("download_id_len", "4", &CFG.download_id_len, 4);
 	cfg_map("download_id_len", "6", &CFG.download_id_len, 6);
 	if (strcmp("download_cc_pal", name) == 0) {
@@ -3058,7 +3061,7 @@ void cfg_debug(int argc, char **argv)
 	dbg_printf("maxc: %d ", MAX_CHARACTERS);
 	dbg_printf("ent: %d ", ENTRIES_PER_PAGE);
 	*/
-	dbg_printf("url: %s\n", CFG.cover_url_2d_norm);
+	dbg_printf("url: %s\n", CFG.cover_url_2d);
 	//dbg_printf("t[%.6s]=%s\n", cfg_title[0].id, cfg_title[0].title);
 	//dbg_printf("hide_hdd: %d\n", CFG.hide_hddinfo);
 	//dbg_printf("text start: %p\n", __text_start);
@@ -3183,7 +3186,7 @@ void cfg_setup1()
 void cfg_setup2()
 {
 	// setup cover style: path & url
-	cfg_setup_cover_style();
+	//cfg_setup_cover_style();
 
 	// setup cover dimensions
 	CFG.N_COVER_WIDTH = COVER_WIDTH;

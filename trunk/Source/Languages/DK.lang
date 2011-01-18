@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -36,10 +36,6 @@ msgstr "%d tilgængelig"
 #, c-format
 msgid "%d more notes"
 msgstr "%d flere noter"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s Ingen spil fundet!!"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -261,6 +257,9 @@ msgstr "Sletter"
 
 msgid "Developer"
 msgstr "Udvikler"
+
+msgid "Device is not responding!"
+msgstr "Enhed reagere ikke!"
 
 msgid "Device:"
 msgstr "Enhed:"
@@ -950,6 +949,9 @@ msgstr "Nej"
 msgid "No domain part in URL '%s'"
 msgstr "Ingen domæne del i URL '%s'"
 
+msgid "No games found!"
+msgstr "Ingen spil fundet!"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "Ikke mere hukommelse til at kopier fra HTTP svar"
 
@@ -1184,6 +1186,21 @@ msgstr "Tryk %s for at opdater uden meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Tryk %s/%s for at vælge enhed."
 
+msgid "Press 2 to reload IOS"
+msgstr "Pres 2 for at reload IOS"
+
+msgid "Press A to select device"
+msgstr "Pres A for at vælge enhed"
+
+msgid "Press B to exit to HBC"
+msgstr "Pres B for at forlade til HBC"
+
+msgid "Press HOME to reset"
+msgstr "Pres HOME for at nulstille"
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr "Pres VENSTRE/HØJRE for at vælge IOS"
+
 msgid "Press any button to continue..."
 msgstr "Tryk på en knap for at fortsætte..."
 
@@ -1279,6 +1296,9 @@ msgstr "LYKKEDES!"
 msgid "Save .gct"
 msgstr "Gem .gct"
 
+msgid "Save debug.log"
+msgstr "Gem debug.log"
+
 msgid "Saving Settings... "
 msgstr "Gemmer indstillinger..."
 
@@ -1290,6 +1310,9 @@ msgstr "Gemmer gamelist.txt ..."
 
 msgid "Saving settings..."
 msgstr "Gemmer indstillinger..."
+
+msgid "Saving:"
+msgstr "Gemmer:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1498,6 +1521,15 @@ msgstr "Forkert Str: %d (%d)"
 msgid "Yes"
 msgstr "Ja"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+"Du kan også prøve at trække ud\n"
+"og tilslutte enheden igen,\n"
+"eller vente lidt længere"
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1509,12 +1541,6 @@ msgstr "[ FUNDET ]"
 
 msgid "[ SAVED ]"
 msgstr "[ GEMT ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD/SDHC Kort ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USB Lager enhed ]"
 
 msgid "[USED]"
 msgstr "[BRUGT]"
@@ -1594,6 +1620,9 @@ msgstr "Gem"
 msgid "split error: %s"
 msgstr "split fejl: %s"
 
+msgid "uDraw GameTablet"
+msgstr "uDraw Spil tavle"
+
 msgid "unable to open wii disc"
 msgstr "Kunne ikke åbne Wii disc"
 
@@ -1644,6 +1673,12 @@ msgstr "Brugt: %p - %p"
 
 #~ msgid "Opening NTFS partition..."
 #~ msgstr "Åbner NTFS partition..."
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD/SDHC Kort ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USB Lager enhed ]"
 
 #~ msgid "bad wbfs file:  %s"
 #~ msgstr "Dårlig wbfs fil: %s"

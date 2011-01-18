@@ -21,15 +21,17 @@ typedef struct RectCoords
 } RectCoords;
 
 
-#define CFG_IOS_247       0
-#define CFG_IOS_248       1
-#define CFG_IOS_249       2
-#define CFG_IOS_222_MLOAD 3
-#define CFG_IOS_223_MLOAD 4
-#define CFG_IOS_224_MLOAD 5
-#define CFG_IOS_222_YAL   6
-#define CFG_IOS_223_YAL   7
-#define CFG_IOS_250       8
+#define CFG_IOS_245       0
+#define CFG_IOS_246       1
+#define CFG_IOS_247       2
+#define CFG_IOS_248       3
+#define CFG_IOS_249       4
+#define CFG_IOS_250       5 
+#define CFG_IOS_222_MLOAD 6
+#define CFG_IOS_223_MLOAD 7
+#define CFG_IOS_224_MLOAD 8
+#define CFG_IOS_222_YAL   9
+#define CFG_IOS_223_YAL  10
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
@@ -251,8 +253,9 @@ struct CFG
 	char w_background[200];
 	char bg_gui[200];
 	char bg_gui_wide[200];
-	char covers_path[200]; // currently used
+	char covers_path[200]; // covers path base
 	char covers_path_2d[200];
+	int  covers_path_2d_set;
 	char covers_path_3d[200];
 	char covers_path_disc[200];
 	char covers_path_full[200];
@@ -329,11 +332,11 @@ struct CFG
 	char sort_ignore[200];
 	// cover urls
 	int cover_style;
-	char cover_url_norm[1000];
-	char cover_url_2d_norm[1000];
-	char cover_url_3d_norm[1000];
-	char cover_url_disc_norm[1000];
-	char cover_url_full_norm[1000];
+	//char cover_url[1000];
+	char cover_url_2d[1000];
+	char cover_url_3d[1000];
+	char cover_url_disc[1000];
+	char cover_url_full[1000];
 
 	// database  options - Lustar
 	char db_url[512];
@@ -344,7 +347,6 @@ struct CFG
 	char sort[20];
 	char translation[50];
 	
-	//int download_wide;
 	int download_id_len;
 	int download_all;
 	char download_cc_pal[4];
@@ -601,6 +603,8 @@ int readPlayStats(void);
 u32 getPlayCount(u8 *id);
 time_t getLastPlay(u8 *id);
 int setPlayStat(u8 *id);
+
+char *cfg_get_covers_path(int style);
 
 extern struct TextMap map_video_patch[];
 

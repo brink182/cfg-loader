@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -36,10 +36,6 @@ msgstr "%d disponible"
 #, c-format
 msgid "%d more notes"
 msgstr "%d más notas"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s No hay juegos!!"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -261,6 +257,9 @@ msgstr "Eliminando"
 
 msgid "Developer"
 msgstr "Desarrollador"
+
+msgid "Device is not responding!"
+msgstr "El dispositivo no está respondiendo!"
 
 msgid "Device:"
 msgstr "Dispositivo:"
@@ -949,6 +948,9 @@ msgstr "No"
 msgid "No domain part in URL '%s'"
 msgstr "Ninguna parte de dominio en la URL '%s'"
 
+msgid "No games found!"
+msgstr "No hay juegos!"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "No hay más memoria para copiar el archivo de respuesta HTTP"
 
@@ -1183,6 +1185,21 @@ msgstr "Presiona %s para actualizar sin meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Presiona IZQUIERDA/DERECHA para seleccionar dispositivo."
 
+msgid "Press 2 to reload IOS"
+msgstr "Presiona 2 para recargar IOS"
+
+msgid "Press A to select device"
+msgstr "Presiona A para elegir dispositivo"
+
+msgid "Press B to exit to HBC"
+msgstr "Presiona B para salir al HBC"
+
+msgid "Press HOME to reset"
+msgstr "Presiona HOME para reiniciar"
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr "Presiona IZQUIERDA/DERECHA para seleccionar IOS"
+
 msgid "Press any button to continue..."
 msgstr "Presiona cualquier botón para continuar..."
 
@@ -1204,11 +1221,11 @@ msgid "Press button %s to eject DVD."
 msgstr "Presiona el botón %s para expulsar el DVD."
 
 msgid "Profile:"
-msgstr "Perfíl:"
+msgstr "Perfil:"
 
 #, c-format
 msgid "Profile: %s"
-msgstr "Perfíl: %s"
+msgstr "Perfil: %s"
 
 msgid "Publisher"
 msgstr "Editor"
@@ -1278,6 +1295,9 @@ msgstr "ÉXITO!"
 msgid "Save .gct"
 msgstr "Guardar .gct"
 
+msgid "Save debug.log"
+msgstr "Guardar debug.log"
+
 msgid "Saving Settings... "
 msgstr "Guardando Configuraciones... "
 
@@ -1289,6 +1309,9 @@ msgstr "Guardando gamelist.txt ... "
 
 msgid "Saving settings..."
 msgstr "Guardando configuraciones..."
+
+msgid "Saving:"
+msgstr "Guardando:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1497,6 +1520,15 @@ msgstr "Tamaño Erroneo: %d (%d)"
 msgid "Yes"
 msgstr "Si"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+"Puedes tratar de desconectar y\n"
+"conectar de nuevo el dispositivo,\n"
+"o solamente esperar un poco más"
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1508,12 +1540,6 @@ msgstr "[ ENCONTRADO ]"
 
 msgid "[ SAVED ]"
 msgstr "[ GUARDADO ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ Tarjeta SD/SDHC ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ Dispositivo de Almacenamiento USB ]"
 
 msgid "[USED]"
 msgstr "[USADO]"
@@ -1592,6 +1618,9 @@ msgstr "guardar"
 #, c-format
 msgid "split error: %s"
 msgstr "error de división: %s"
+
+msgid "uDraw GameTablet"
+msgstr "Tableta de uDraw"
 
 msgid "unable to open wii disc"
 msgstr "no se puede abrir el disco de wii"
@@ -1683,6 +1712,12 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Cambiar a IOS222 para soporte de FAT."
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ Tarjeta SD/SDHC ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ Dispositivo de Almacenamiento USB ]"
 
 #~ msgid "cover"
 #~ msgstr "portada"

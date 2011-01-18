@@ -139,6 +139,8 @@ s32 USBStorage_OpenDev()
 s32 USBStorage_Init(void)
 {
 	s32 ret;
+	u32 cap;
+	u32 sect_size;
 	get_time(&TIME.usb_init1);
 	USBStorage_OpenDev();
 	get_time(&TIME.usb_open);
@@ -151,10 +153,10 @@ s32 USBStorage_Init(void)
 	get_time(&TIME.usb_cap);
 
 	/* Get device capacity */
-	ret = USBStorage_GetCapacity(NULL);
-	dbg_printf(" cap:%d\n", ret);
+	cap = USBStorage_GetCapacity(&sect_size);
+	dbg_printf(" cap:%u ss:%u\n", cap, sect_size);
 	get_time(&TIME.usb_init2);
-	if (!ret)
+	if (cap < 10000)
 		goto err;
 
 	return 0;

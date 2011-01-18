@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v62
+Configurable SD/USB Loader v63
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -615,7 +615,7 @@ Config file:
 #
 # covers_path = [sd:/usb-loader/covers]
 #   Changing covers_path will change all covers_path_* like this: 
-# covers_path_2d = covers_path
+# covers_path_2d = covers_path/2d
 # covers_path_3d = covers_path/3d
 # covers_path_disc = covers_path/disc
 # covers_path_full = covers_path/full
@@ -909,10 +909,11 @@ Config file:
 #
 #   The tags {KEY} and {ID6} can be used in the URLs.
 #
-#   Defaults are for WiinnerTag and NCard in that order, but with blank keys:
+#   Defaults are for WiinnerTag, NCard and DUTag in that order, but with blank keys:
 #   gamercard_url =  http://www.wiinnertag.com/wiinnertag_scripts/update_sign.php?key={KEY}&game_id={ID6}
 #   gamercard_url =+ http://www.messageboardchampion.com/ncard/API/?cmd=tdbupdate&key={KEY}&game={ID6}
-#   gamercard_key = 
+#   gamercard_url =+ http://tag.darkumbra.net/{KEY}.update={ID6}
+#   gamercard_key = 0 0 0
 #
 # intro = 0, 1, [2], 3
 #   intro=0 : black - only allowed when direct game launching
@@ -1011,6 +1012,65 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+10-01-2011 cfg v63 (release)
+ * Minor cleanups
+ * Full package changes: covers/2d, Languages -> languages
+
+09-01-2011 cfg v63b6 (beta)
+ * Fixed crash when missing wiitdb.zip
+ * Translatable page indicator for wiitdb game info
+
+09-01-2011 cfg v63b5 (beta)
+ * Fixed coverflow slowdowns when using wiitdb
+ * Improved switching between games in confirmation screen
+   (disabled background mp3 while switching because of banner sounds)
+ * Removed obsolete options cover_url_*_norm
+ * More info in debug.log (mem, time)
+ * Minor cleanups
+
+08-01-2011 cfg v63b4 (beta)
+ * Scrollable wiitdb game description (buttons UP/DOWN)
+ * Switch to prev/next game in the confirmation screen (buttons LEFT/RIGHT)
+ * Added DUTag to gamercard_url: http://tag.darkumbra.net/{KEY}.update={ID6}
+ * Fixed partition=ask
+
+04-01-2011 cfg v63b3 (beta)
+ * Changed covers_path_2d default value to /usb-loader/covers/2d
+   instead of /usb-loader/covers however both locations are still
+   looked up so existing setups should not be affected. Downloading
+   2d covers will save to /usb-loader/covers/2d only if it exists,
+   otherwise /usb-loader/covers is used - same as before.
+   If the option covers_path_2d is set manually in config.txt then
+   it works same as before, the behaviour isn't changed.
+ * Optimized sort by install date
+ * Wiitdb optimisations
+ * Added uDraw to filter by controller
+ * Fixed WBFS partition on a 4k sector size drive
+ * Minor cleanups
+
+31-12-2010 cfg v63b2 (beta)
+ * Fixed device init timeout handling
+
+31-12-2010 cfg v63b (beta)
+ * Improved device init timeout handling:
+   If the device doesn't respond in 3 seconds one can
+   try reloading IOS or exiting to HBC or sys menu
+   timeout has been increased from 30 to 90 seconds
+ * Minor cleanups
+
+29-12-2010 cfg v63a3 (alpha)
+ * Fixed using of ios slots 245 and 246
+ * Fixed hang when game fails to load (at "Press any button to exit")
+
+28-12-2010 cfg v63a2 (alpha)
+ * Updated dip+frag plugin for ciosx r21
+ * Added ciosx r21 base detection (Thanks FIX94)
+
+28-12-2010 cfg v63a (alpha)
+ * Added 2 more slots for waninkoko cios: 245, 246
+ * Added saving of debug.log and ioshash.txt from global options screen
+ * Fixed broken title in coverflow mode when no games are installed
 
 22-12-2010 cfg v62 (release)
  * Updated libogc to 1.8.6

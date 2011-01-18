@@ -22,6 +22,7 @@ extern u32 wbfs_part_lba;
 extern char wbfs_fs_drive[16];
 
 /* Prototypes */
+s32 WBFS_Init_Dev(u32 device);
 s32 WBFS_Init(u32, u32);
 s32 WBFS_Open(void);
 s32 WBFS_Format(u32, u32);

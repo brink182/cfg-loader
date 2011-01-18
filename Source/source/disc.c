@@ -3,7 +3,6 @@
 #include <string.h>
 #include <ogcsys.h>
 #include <ogc/lwp_watchdog.h>
-#include <ogc/libversion.h>
 
 #include "apploader.h"
 #include "disc.h"
@@ -29,10 +28,6 @@
 #define ALIGNED(x) __attribute__((aligned(x)))
 
 /* Extern */
-
-#if (_V_MAJOR_*10+_V_MINOR_) <= 17
-extern void settime(long long);
-#endif
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000

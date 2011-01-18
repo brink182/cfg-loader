@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -38,10 +38,6 @@ msgid "%d more notes"
 msgstr "%d更多注释"
 
 #, c-format
-msgid "%s No games found!!"
-msgstr "%s没有发现游戏!!"
-
-#, c-format
 msgid "%s Split: %d %s"
 msgstr "%s 分割：%d %s"
 
@@ -61,7 +57,7 @@ msgid ".dol too small"
 msgstr ".dol文件太小"
 
 msgid "3D cover"
-msgstr ""
+msgstr "3D封面"
 
 msgid "< ASC  >"
 msgstr "< 升序 >"
@@ -196,7 +192,7 @@ msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "从net_read()网络连接错误，错误代码：%i"
 
 msgid "Console Def."
-msgstr ""
+msgstr "主机定义。"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -239,10 +235,10 @@ msgid "Custom IOS %s Loaded OK"
 msgstr "cIOS %s加载成功！"
 
 msgid "DISC cover"
-msgstr ""
+msgstr "光盘封面"
 
 msgid "DOWN"
-msgstr ""
+msgstr "向下"
 
 msgid "Dance Pad"
 msgstr "对应跳舞毯"
@@ -255,6 +251,9 @@ msgstr "删除中"
 
 msgid "Developer"
 msgstr "开发小组"
+
+msgid "Device is not responding!"
+msgstr "设备无响应！"
 
 msgid "Device:"
 msgstr "设备："
@@ -325,7 +324,7 @@ msgid "Drums"
 msgstr "对应太鼓"
 
 msgid "Dutch"
-msgstr ""
+msgstr "荷兰语"
 
 msgid "ERROR"
 msgstr "错误"
@@ -392,6 +391,8 @@ msgid ""
 "ERROR: NTFS write disabled!\n"
 "(set ntfs_write=1)"
 msgstr ""
+"错误：NTFS分区写数据功能禁用！\n"
+"请在config.txt添加参数ntfs_write=1"
 
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
@@ -484,10 +485,10 @@ msgid "Ejecting DVD..."
 msgstr "正在弹出DVD..."
 
 msgid "English"
-msgstr ""
+msgstr "英语"
 
 msgid "English Title"
-msgstr ""
+msgstr "英语标题"
 
 msgid "Enter Code: "
 msgstr "输入代码："
@@ -594,10 +595,10 @@ msgid "FILL %d"
 msgstr "填充%d"
 
 msgid "FLAT cover"
-msgstr ""
+msgstr "平面封面"
 
 msgid "FULL cover"
-msgstr ""
+msgstr "完整封面"
 
 msgid "Favorite Games"
 msgstr "最喜欢的游戏"
@@ -628,29 +629,29 @@ msgid "Fixing EXTEND partition..."
 msgstr "正在修复扩展分区..."
 
 msgid "Force NTSC"
-msgstr ""
+msgstr "强制NTSC"
 
 msgid "Force PAL50"
-msgstr ""
+msgstr "强制PAL50"
 
 msgid "Force PAL60"
-msgstr ""
+msgstr "强制PAL60"
 
 msgid "Formatting"
 msgstr "正在格式化中"
 
 #, c-format
 msgid "Found %s"
-msgstr ""
+msgstr "找到 %s"
 
 msgid "French"
-msgstr ""
+msgstr "法语"
 
 msgid "GB"
 msgstr "GB"
 
 msgid "Game Default"
-msgstr ""
+msgstr "游戏缺省"
 
 msgid "Game Options"
 msgstr "游戏选项"
@@ -667,7 +668,7 @@ msgid "Gamercard #%d reported: %.*s"
 msgstr "游戏卡 #%d 宣布： %.*s "
 
 msgid "German"
-msgstr ""
+msgstr "德语"
 
 msgid "Global Options"
 msgstr "全局选项"
@@ -746,22 +747,22 @@ msgid "Invalid partition: '%s'"
 msgstr "无效分区：'%s'"
 
 msgid "Italian"
-msgstr ""
+msgstr "意大利语"
 
 msgid "Japanese"
-msgstr ""
+msgstr "日语"
 
 msgid "Japanese Title"
-msgstr ""
+msgstr "日语标题"
 
 msgid "Keyboard"
 msgstr "对应键盘"
 
 msgid "Korean"
-msgstr ""
+msgstr "韩语"
 
 msgid "LEFT"
-msgstr ""
+msgstr "向左"
 
 msgid "LOCKED!"
 msgstr "已锁定！"
@@ -933,6 +934,9 @@ msgstr "否"
 msgid "No domain part in URL '%s'"
 msgstr "URL'%s'中没有域名部分"
 
+msgid "No games found!"
+msgstr "没有发现游戏!"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr "没有足够的内存来复制来自HTTP响应的文件"
 
@@ -1010,7 +1014,7 @@ msgstr "正在打开DVD光盘..."
 
 #, c-format
 msgid "Opening partition: %s"
-msgstr ""
+msgstr "正在打开分区: %s"
 
 msgid "Options discarded for this game."
 msgstr "已放弃保存此游戏设置"
@@ -1167,6 +1171,21 @@ msgstr "按%s键下载更新(不更新meta.xml)"
 msgid "Press %s/%s to select device."
 msgstr "按%s/%s键选择设备"
 
+msgid "Press 2 to reload IOS"
+msgstr "按2键重新读取IOS"
+
+msgid "Press A to select device"
+msgstr "按A键选择设备"
+
+msgid "Press B to exit to HBC"
+msgstr "按B键退出到HBC"
+
+msgid "Press HOME to reset"
+msgstr "按Home键复位"
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr "按左右键选择IOS"
+
 msgid "Press any button to continue..."
 msgstr "按任意键继续..."
 
@@ -1204,7 +1223,7 @@ msgid "RAW"
 msgstr "原始数据"
 
 msgid "RIGHT"
-msgstr ""
+msgstr "向右"
 
 msgid "RPG"
 msgstr "角色扮演游戏"
@@ -1251,7 +1270,7 @@ msgid "Running benchmark, please wait"
 msgstr "正在运行基准测试，请稍候"
 
 msgid "S. Chinese"
-msgstr ""
+msgstr "简体中文"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHC卡"
@@ -1261,6 +1280,9 @@ msgstr "成功！"
 
 msgid "Save .gct"
 msgstr "保存.gct"
+
+msgid "Save debug.log"
+msgstr "保存debug.log文件"
 
 msgid "Saving Settings... "
 msgstr "正在保存设置..."
@@ -1273,6 +1295,9 @@ msgstr "正在保存gamelist.txt..."
 
 msgid "Saving settings..."
 msgstr "正在保存设置..."
+
+msgid "Saving:"
+msgstr "正在保存："
 
 #, c-format
 msgid "Saving: %s"
@@ -1306,7 +1331,7 @@ msgid "Simulation"
 msgstr "模拟游戏"
 
 msgid "Size(GB) Type  Mount Used"
-msgstr ""
+msgstr "已使用类型分区大小（GB）"
 
 #, c-format
 msgid "Size: %d bytes"
@@ -1320,7 +1345,7 @@ msgid "Sort: %s-%s"
 msgstr "排序：%s-%s"
 
 msgid "Spanish"
-msgstr ""
+msgstr "西班牙语"
 
 msgid "Sports"
 msgstr "运动游戏"
@@ -1335,10 +1360,10 @@ msgid "Strategy"
 msgstr "战略游戏"
 
 msgid "System Def."
-msgstr ""
+msgstr "系统定义"
 
 msgid "T. Chinese"
-msgstr ""
+msgstr "繁体中文"
 
 msgid "Theme"
 msgstr "主题"
@@ -1386,10 +1411,10 @@ msgid "Trying (url#%d) ..."
 msgstr "尝试(url#%d)..."
 
 msgid "UNUSED"
-msgstr ""
+msgstr "未使用"
 
 msgid "UP"
-msgstr ""
+msgstr "向上"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1479,6 +1504,14 @@ msgstr "错误大小：%d (%d)"
 msgid "Yes"
 msgstr "是"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+"你可以拔一下设备然后再插回去,\n"
+"或者稍微等一会。"
+
 msgid "Zapper"
 msgstr "对应Wii枪托"
 
@@ -1490,12 +1523,6 @@ msgstr "[ 已找到 ]"
 
 msgid "[ SAVED ]"
 msgstr "[ 已保存 ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ SD/SDHC卡 ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ USB大容量存储设备 ]"
 
 msgid "[USED]"
 msgstr "[已使用]"
@@ -1574,6 +1601,9 @@ msgstr "保存"
 #, c-format
 msgid "split error: %s"
 msgstr "分割错误：%s"
+
+msgid "uDraw GameTablet"
+msgstr "uDraw 游戏牌"
 
 msgid "unable to open wii disc"
 msgstr "无法打开Wii光盘"
@@ -1658,6 +1688,12 @@ msgstr "已使用：%p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "切换到IOS222以支持FAT分区"
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ SD/SDHC卡 ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ USB大容量存储设备 ]"
 
 #~ msgid "cover"
 #~ msgstr "封面"

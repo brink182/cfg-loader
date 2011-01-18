@@ -16,6 +16,8 @@ char* split_token(char *dest, char *src, char delim, int size);
 char* split_tokens(char *dest, char *src, char *delim, int size);
 bool trimsplit(char *line, char *part1, char *part2, char delim, int size);
 void unquote(char *dest, char *str, int size);
+void str_insert(char *str, char c, int n, int size);
+void str_insert_at(char *str, char *pos, char c, int n, int size);
 
 #define ISALNUM(c)  (isalnum((int)(unsigned char)(c)))
 #define ISALPHA(c)  (isalpha((int)(unsigned char)(c)))

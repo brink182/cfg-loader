@@ -30,6 +30,8 @@ s32 default_sort_index = 0;
 bool default_sort_desc = 0;
 s32 default_filter_type = -1;
 
+time_t *install_time = NULL;
+
 s32 __sort_play_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_install_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_title(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
@@ -58,54 +60,39 @@ s32 __sort_play_date_asc(const void *a, const void *b);
 s32 __sort_play_date_desc(const void *a, const void *b);
 
 
-char *featureTypes[featureCnt][2];
-char *accessoryTypes[accessoryCnt][2];
+char *featureTypes[featureCnt][2] =
+{
+	{ "online",     gts("Online Content") },
+	{ "download",   gts("Downloadable Content") },
+	{ "score",      gts("Online Score List") },
+	{ "nintendods", gts("Nintendo DS Connectivity") },
+};
+
+char *accessoryTypes[accessoryCnt][2] =
+{
+	{ "wiimote",           gts("Wiimote") },
+	{ "nunchuk",           gts("Nunchuk") },
+	{ "motionplus",        gts("Motion+") },
+	{ "gamecube",          gts("Gamecube") },
+	{ "nintendods",        gts("Nintendo DS") },
+	{ "classiccontroller", gts("Classic Controller") },
+	{ "wheel",             gts("Wheel") },
+	{ "zapper",            gts("Zapper") },
+	{ "balanceboard",      gts("Balance Board") },
+	{ "wiispeak",          gts("Wii Speak") },
+	{ "microphone",        gts("Microphone") },
+	{ "guitar",            gts("Guitar") },
+	{ "drums",             gts("Drums") },
+	{ "dancepad",          gts("Dance Pad") },
+	{ "keyboard",          gts("Keyboard") },
+	{ "vitalitysensor",    gts("Vitality Sensor") },
+	{ "udraw",             gts("uDraw GameTablet") },
+};
+
 char *genreTypes[genreCnt][2];
 struct Sorts sortTypes[sortCnt];
 
 void build_arrays() {
-	featureTypes[0][0] = "online";
-	featureTypes[0][1] = (char *)gt("Online Content");
-	featureTypes[1][0] = "download";
-	featureTypes[1][1] = (char *)gt("Downloadable Content");
-	featureTypes[2][0] = "score";
-	featureTypes[2][1] = (char *)gt("Online Score List");
-	featureTypes[3][0] = "nintendods";
-	featureTypes[3][1] = (char *)gt("Nintendo DS Connectivity");
-
-	accessoryTypes[0][0] = "wiimote";
-	accessoryTypes[0][1] = (char *)gt("Wiimote");
-	accessoryTypes[1][0] = "nunchuk";
-	accessoryTypes[1][1] = (char *)gt("Nunchuk");
-	accessoryTypes[2][0] = "motionplus";
-	accessoryTypes[2][1] = (char *)gt("Motion+");
-	accessoryTypes[3][0] = "gamecube";
-	accessoryTypes[3][1] = (char *)gt("Gamecube");
-	accessoryTypes[4][0] = "nintendods";
-	accessoryTypes[4][1] = (char *)gt("Nintendo DS");
-	accessoryTypes[5][0] = "classiccontroller";
-	accessoryTypes[5][1] = (char *)gt("Classic Controller");
-	accessoryTypes[6][0] = "wheel";
-	accessoryTypes[6][1] = (char *)gt("Wheel");
-	accessoryTypes[7][0] = "zapper";
-	accessoryTypes[7][1] = (char *)gt("Zapper");
-	accessoryTypes[8][0] = "balanceboard";
-	accessoryTypes[8][1] = (char *)gt("Balance Board");
-	accessoryTypes[9][0] = "wiispeak";
-	accessoryTypes[9][1] = (char *)gt("Wii Speak");
-	accessoryTypes[10][0] = "microphone";
-	accessoryTypes[10][1] = (char *)gt("Microphone");
-	accessoryTypes[11][0] = "guitar";
-	accessoryTypes[11][1] = (char *)gt("Guitar");
-	accessoryTypes[12][0] = "drums";
-	accessoryTypes[12][1] = (char *)gt("Drums");
-	accessoryTypes[13][0] = "dancepad";
-	accessoryTypes[13][1] = (char *)gt("Dance Pad");
-	accessoryTypes[14][0] = "keyboard";
-	accessoryTypes[14][1] = (char *)gt("Keyboard");
-	accessoryTypes[15][0] = "vitalitysensor";
-	accessoryTypes[15][1] = (char *)gt("Vitality Sensor");
-
 	genreTypes[0][0] = "action";
 	genreTypes[0][1] = (char *)gt("Action");
 	genreTypes[1][0] = "adventure";
@@ -174,6 +161,24 @@ void build_arrays() {
 
 }
 
+int get_accesory_id(char *accessory)
+{
+	int i;
+	for (i=0; i<accessoryCnt; i++) {
+		if (strcmp(accessory, accessoryTypes[i][0]) == 0) return i;
+	}
+	return -1;
+}
+
+int get_feature_id(char *feature)
+{
+	int i;
+	for (i=0; i<featureCnt; i++) {
+		if (strcmp(feature, featureTypes[i][0]) == 0) return i;
+	}
+	return -1;
+}
+
 void reset_sort_default() {
 	sort_index = default_sort_index;
 	sort_desc = default_sort_desc;
@@ -227,8 +232,8 @@ int filter_online(struct discHdr *list, int cnt, char * name, bool notused)
 {
 	int i;
 	for (i=0; i<cnt;) {
-		int id = getIndexFromId(list[i].id);
-		if (id < 0 || game_info[id].wifiplayers < 1) {
+		gameXMLinfo *g = get_game_info_id(list[i].id);
+		if (!g || g->wifiplayers < 1) {
 			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
 			cnt--;
 		} else {
@@ -302,7 +307,8 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 		Con_Clear();
 		FgColor(CFG.color_header);
 		printf("\n");
-		printf(gt("%s No games found!!"), CFG.cursor);
+		printf(" %s ", CFG.cursor);
+		printf("%s", gt("No games found!"));
 		printf("\n");
 		printf(gt("Loading previous game list..."));
 		printf("\n");
@@ -359,7 +365,8 @@ s32 __sort_play_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 
 s32 __sort_install_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
-	int ret;
+	int ret = 0;
+	/*
 	char fname1[1024];
 	char fname2[1024];
 	struct stat fileStat1;
@@ -374,6 +381,19 @@ s32 __sort_install_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 		ret = (fileStat2.st_ctime - fileStat1.st_ctime);
 	else
 		ret = (fileStat1.st_ctime - fileStat2.st_ctime);
+	*/
+	int i1 = hdr1 - gameList;
+	int i2 = hdr2 - gameList;
+	time_t t1 = 0;
+	time_t t2 = 0;
+	if (install_time) {
+		if (i1 >= 0 && i1 < gameCnt) t1 = install_time[i1];
+		if (i2 >= 0 && i2 < gameCnt) t2 = install_time[i2];
+		if (t1 && t2) {
+			ret = t1 - t2;
+			if (desc) ret = -ret;
+		}
+	}
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
 }
@@ -392,18 +412,14 @@ s32 __sort_title(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 
 s32 __sort_releasedate(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
-	int ret;
-	int id1 = getIndexFromId(hdr1->id);
-	int id2 = getIndexFromId(hdr2->id);
-	if (id1 < 0 || id2 < 0) {
-		ret = 0;
-	} else {
-		int date1 = (game_info[id1].year * 10000) + (game_info[id1].month * 100) + (game_info[id1].day);
-		int date2 = (game_info[id2].year * 10000) + (game_info[id2].month * 100) + (game_info[id2].day);
-		if (desc)
-			ret = (date2 - date1);
-		else
-			ret = (date1 - date2);
+	int ret = 0;
+	gameXMLinfo *g1 = get_game_info_id(hdr1->id);
+	gameXMLinfo *g2 = get_game_info_id(hdr2->id);
+	if (g1 && g2) {
+		int date1 = (g1->year * 10000) + (g1->month * 100) + (g1->day);
+		int date2 = (g2->year * 10000) + (g2->month * 100) + (g2->day);
+		ret = (date1 - date2);
+		if (desc) ret = -ret;
 	}
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
@@ -411,60 +427,52 @@ s32 __sort_releasedate(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 
 s32 __sort_players(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
-	int ret;
-	int id1 = getIndexFromId(hdr1->id);
-	int id2 = getIndexFromId(hdr2->id);
-	if (id1 < 0 || id2 < 0)
-		ret = 0;
-	else if (desc)
-		ret = (game_info[id2].players - game_info[id1].players);
-	else
-		ret = (game_info[id1].players - game_info[id2].players);
+	int ret = 0;
+	gameXMLinfo *g1 = get_game_info_id(hdr1->id);
+	gameXMLinfo *g2 = get_game_info_id(hdr2->id);
+	if (g1 && g2) {
+		ret = (g1->players - g2->players);
+		if (desc) ret = -ret;
+	}
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
 }
 
 s32 __sort_wifiplayers(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
-	int ret;
-	int id1 = getIndexFromId(hdr1->id);
-	int id2 = getIndexFromId(hdr2->id);
-	if (id1 < 0 || id2 < 0)
-		ret = 0;
-	else if (desc)
-		ret = (game_info[id2].wifiplayers - game_info[id1].wifiplayers);
-	else
-		ret = (game_info[id1].wifiplayers - game_info[id2].wifiplayers);
+	int ret = 0;
+	gameXMLinfo *g1 = get_game_info_id(hdr1->id);
+	gameXMLinfo *g2 = get_game_info_id(hdr2->id);
+	if (g1 && g2) {
+		ret = (g1->wifiplayers - g2->wifiplayers);
+		if (desc) ret = -ret;
+	}
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
 }
 
 s32 __sort_pub(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
-	int ret;
-	int id1 = getIndexFromId(hdr1->id);
-	int id2 = getIndexFromId(hdr2->id);
-	if (id1 < 0 || id2 < 0)
-		ret = 0;
-	else if (desc)
-		ret = mbs_coll(game_info[id2].publisher, game_info[id1].publisher);
-	else
-		ret = mbs_coll(game_info[id1].publisher, game_info[id2].publisher);
+	int ret = 0;
+	gameXMLinfo *g1 = get_game_info_id(hdr1->id);
+	gameXMLinfo *g2 = get_game_info_id(hdr2->id);
+	if (g1 && g2) {
+		ret = mbs_coll(g1->publisher, g2->publisher);
+		if (desc) ret = -ret;
+	}
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
 }
 
 s32 __sort_dev(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
-	int ret;
-	int id1 = getIndexFromId(hdr1->id);
-	int id2 = getIndexFromId(hdr2->id);
-	if (id1 < 0 || id2 < 0)
-		ret = 0;
-	else if (desc)
-		ret = mbs_coll(game_info[id2].developer, game_info[id1].developer);
-	else
-		ret = mbs_coll(game_info[id1].developer, game_info[id2].developer);
+	int ret = 0;
+	gameXMLinfo *g1 = get_game_info_id(hdr1->id);
+	gameXMLinfo *g2 = get_game_info_id(hdr2->id);
+	if (g1 && g2) {
+		ret = mbs_coll(g1->developer, g2->developer);
+		if (desc) ret = -ret;
+	}
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
 }
@@ -572,7 +580,26 @@ s32 __sort_play_date_desc(const void *a, const void *b)
 
 void sortList(int (*sortFunc) (const void *, const void *))
 {
+	if (sortFunc == __sort_install_date_asc	|| sortFunc == __sort_install_date_desc) {
+		// prepare install times
+		char fname[1024];
+		struct stat st;
+		int i;
+		//dbg_time1();
+		printf("\n\n");
+		install_time = calloc(gameCnt, sizeof(time_t));
+		for (i=0; i<gameCnt; i++) {
+			printf_("... %3d%%\r", 100*(i+1)/gameCnt);
+			__console_flush(1);
+			WBFS_FAT_find_fname(gameList[i].id, fname, sizeof(fname));
+			if (stat(fname, &st) == 0) {
+				install_time[i] = st.st_ctime;
+			}
+		}
+		//dbg_time2("stat"); Menu_PrintWait();
+	}
 	qsort(gameList, gameCnt, sizeof(struct discHdr), sortFunc);
+	SAFE_FREE(install_time);
 	// scroll start list
 	__Menu_ScrollStartList();
 }
@@ -711,7 +738,8 @@ int Menu_Filter2()
 		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
 			if (menu_window_mark(&menu))
-				printf("%s %s\n", ((filter_index == n && filter_type == 4) ? "*": " "), accessoryTypes[n][1]);
+				printf("%s ", (filter_index == n && filter_type == 4) ? "*" : " ");
+				printf("%s\n", gt(accessoryTypes[n][1]));
 		}
 		DefaultColor();
 		menu_window_end(&menu, cols);
@@ -745,14 +773,12 @@ int Menu_Filter2()
 				filter_type = -1;
 				redraw_cover = 1;
 			}
-			for (n=0;n<accessoryCnt;n++) {
-				if (n+3 == menu.current) {
-					redraw_cover = 1;
-					if (filter_games(filter_controller, accessoryTypes[n][0], 0) > -1) {
-						filter_type = 4;
-						filter_index = n;
-					}
-					break;
+			n = menu.current - 3;
+			if (n >= 0 && n < accessoryCnt) {
+				redraw_cover = 1;
+				if (filter_games(filter_controller, accessoryTypes[n][0], 0) > -1) {
+					filter_type = 4;
+					filter_index = n;
 				}
 			}
 		}
@@ -799,7 +825,8 @@ int Menu_Filter3()
 		menu_window_begin(&menu, size, featureCnt);
 		for (n=0;n<featureCnt;n++) {
 			if (menu_window_mark(&menu))
-			printf("%s %s\n", ((filter_index == n && filter_type == 3) ? "*": " "), featureTypes[n][1]);
+			printf("%s ", (filter_index == n && filter_type == 3) ? "*": " ");
+			printf("%s\n", gt(featureTypes[n][1]));
 		}
 		DefaultColor();
 		menu_window_end(&menu, cols);
@@ -833,14 +860,12 @@ int Menu_Filter3()
 				filter_type = -1;
 				redraw_cover = 1;
 			}
-			for (n=0;n<featureCnt;n++) {
-				if (3+n == menu.current) {
-					redraw_cover = 1;
-					if (filter_games(filter_features, featureTypes[n][0], 0) > -1) {
-						filter_type = 3;
-						filter_index = n;
-					}
-					break;
+			n = menu.current - 3;
+			if (n >= 0 && n < featureCnt) {
+				redraw_cover = 1;
+				if (filter_games(filter_features, featureTypes[n][0], 0) > -1) {
+					filter_type = 3;
+					filter_index = n;
 				}
 			}
 		}
@@ -908,21 +933,19 @@ int Menu_Sort()
 		if (buttons & CFG.button_confirm.mask || buttons & CFG.button_save.mask) change = +1;
 
 		if (change) {
-			for (n=0; n<sortCnt; n++) {
-				if (menu.current == n) {
-					if (change == -1) descend[n] = !descend[n];
-					else {
-						if (descend[n]) {
-							sort_desc = 1;
-							sortList(sortTypes[n].sortDsc);
-						} else {
-							sort_desc = 0;
-							sortList(sortTypes[n].sortAsc);
-						}
-						redraw_cover = 1;
-						sort_index = n;
-						break;
+			n = menu.current;
+			if (n >= 0 && n < sortCnt) {
+				if (change == -1) descend[n] = !descend[n];
+				else {
+					if (descend[n]) {
+						sort_desc = 1;
+						sortList(sortTypes[n].sortDsc);
+					} else {
+						sort_desc = 0;
+						sortList(sortTypes[n].sortAsc);
 					}
+					redraw_cover = 1;
+					sort_index = n;
 				}
 			}
 		}

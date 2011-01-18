@@ -6,38 +6,50 @@ extern "C"
 {
 #endif
 
-struct gameXMLinfo
+#define XML_NUM_ACCESSORY 12
+// all: 16 actual max: 7 controllers for SC7E52
+
+#define XML_NUM_FEATURES 4
+
+#define XML_MAX_SYNOPSIS 2000
+
+typedef struct gameXMLinfo
 {	
-	char id[7];
-	char region[7];
+	char id[8];
+	char region[8];
 	char title[100];
-	char synopsis[500];
+	char *synopsis;
 	char developer[40];
 	char publisher[40];
 	int year;
 	int month;
 	int day;
-	char genre[75];
-	char ratingtype[5];
-	char ratingvalue[5];
+	char genre[64];
+	char ratingtype[6];
+	char ratingvalue[6];
 	//char ratingdescriptors[16][40];
 	int wifiplayers;
-	char wififeatures[8][15];
+	char wififeatures[XML_NUM_FEATURES];
 	int players;
-	char accessories[16][20];
-	char accessoriesReq[16][20];
+	// accessoryID: 0=unused 1+id=supported 100+id=required
+	char accessoryID[XML_NUM_ACCESSORY];
 	u32 caseColor;
-};
+	int hnext;
+} gameXMLinfo;
 
-struct gameXMLinfo *game_info;
-char * getLang(int lang);
+struct gameXMLinfo *get_game_info(int i);
+struct gameXMLinfo *get_game_info_id(u8 *gameid);
+
+char* getLang(int lang);
 bool ReloadXMLDatabase(char* xmlfilepath, char* argdblang, bool argJPtoEN);
 void CloseXMLDatabase();
 bool LoadGameInfoFromXML(u8 * gameid);
 char *ConvertLangTextToCode(char *langtext);
 char *VerifyLangCode(char *langtext);
 void ConvertRating(char *ratingvalue, char *fromrating, char *torating, char *destvalue, int destsize);
-void PrintGameInfo(bool showfullinfo);
+void FmtGameInfo(char *linebuf, int size);
+void PrintGameInfo();
+void PrintGameSynopsis();
 int getIndexFromId(u8 * gameid);
 
 bool DatabaseLoaded(void);

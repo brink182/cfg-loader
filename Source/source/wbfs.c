@@ -260,12 +260,73 @@ s32 __WBFS_WriteSDHC(void *fp, u32 lba, u32 count, void *iobuf)
 }
 
 
+s32 WBFS_Init_Dev(u32 device)
+{
+	s32 ret = -1;
+
+	/* Try to mount device */
+	switch (device) {
+		case WBFS_DEVICE_USB:
+			{
+				long long t1 = TIME_D(usb_init);
+				long long t2;
+				get_time(&TIME.usb_retry1);
+				/* Initialize USB storage */
+				ret = USBStorage_Init();
+
+				if (ret >= 0) {
+					/* Setup callbacks */
+					readCallback  = __WBFS_ReadUSB;
+					writeCallback = __WBFS_WriteUSB;
+
+					/* Device info */
+					nb_sectors = USBStorage_GetCapacity(&sector_size);
+
+					get_time(&TIME.usb_retry2);
+					t2 = TIME_D(usb_init);
+					TIME.usb_retry2 -= (t2 - t1);
+					goto out;
+				}
+			}
+			break;
+
+		case WBFS_DEVICE_SDHC:
+			{
+				/* Initialize SDHC */
+				ret = SDHC_Init();
+				// returns true=ok false=error 
+				if (!ret && !sdhc_mode_sd) {
+					// try normal SD
+					sdhc_mode_sd = 1;
+					ret = SDHC_Init();
+				}
+				if (ret) {
+					/* Setup callbacks */
+					readCallback  = __WBFS_ReadSDHC;
+					writeCallback = __WBFS_WriteSDHC;
+
+					/* Device info */
+					nb_sectors  = 0;
+					sector_size = SDHC_SECTOR_SIZE;
+
+					goto out;
+				}
+
+				ret = -1;
+			}
+			break;
+
+		default:
+			return -1;
+	}
+out:
+	return ret;
+}
+
 s32 WBFS_Init(u32 device, u32 timeout)
 {
 	u32 cnt;
 	s32 ret = -1;
-	long long t1 = TIME_D(usb_init);
-	long long t2;
 
 	/* Wrong timeout */
 	if (!timeout)
@@ -273,56 +334,9 @@ s32 WBFS_Init(u32 device, u32 timeout)
 
 	/* Try to mount device */
 	for (cnt = 0; cnt < timeout; cnt++) {
-		switch (device) {
-		case WBFS_DEVICE_USB: {
-			get_time(&TIME.usb_retry1);
-			/* Initialize USB storage */
-			ret = USBStorage_Init();
 
-			if (ret >= 0) {
-				/* Setup callbacks */
-				readCallback  = __WBFS_ReadUSB;
-				writeCallback = __WBFS_WriteUSB;
-
-				/* Device info */
-				nb_sectors = USBStorage_GetCapacity(&sector_size);
-
-				get_time(&TIME.usb_retry2);
-				t2 = TIME_D(usb_init);
-				TIME.usb_retry2 -= (t2 - t1);
-				goto out;
-			}
-			break;
-		}
-
-		case WBFS_DEVICE_SDHC: {
-			/* Initialize SDHC */
-			ret = SDHC_Init();
-			// returns true=ok false=error 
-			if (!ret && !sdhc_mode_sd) {
-				// try normal SD
-				sdhc_mode_sd = 1;
-				ret = SDHC_Init();
-			}
-			if (ret) {
-				/* Setup callbacks */
-				readCallback  = __WBFS_ReadSDHC;
-				writeCallback = __WBFS_WriteSDHC;
-
-				/* Device info */
-				nb_sectors  = 0;
-				sector_size = SDHC_SECTOR_SIZE;
-
-				goto out;
-			}
-
-			ret = -1;
-			break;
-		}
-
-		default:
-			return -1;
-		}
+		ret = WBFS_Init_Dev(device);
+		if (ret >= 0) break;
 
 		Gui_Console_Enable();
 		printf("%d ", cnt + 1);
@@ -331,7 +345,6 @@ s32 WBFS_Init(u32 device, u32 timeout)
 		sleep(1);
 	}
 
-out:
 	printf_("%s\n", ret < 0 ? gt("ERROR!") : gt("OK!"));
 	return ret;
 }

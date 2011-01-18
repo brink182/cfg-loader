@@ -20,8 +20,6 @@
 #include "mload.h"
 #include "usbstorage.h"
 
-#define OGC_VER (_V_MAJOR_ * 100 + _V_MINOR_ * 10 + _V_PATCH_)
-
 // libogc < 1.8.5 can hang if wiimote is initialized multiple times
 // (in case ios is reload 2x) so we delay wpad to later
 // libogc = 1.8.5 can crash if started with 2+ wiimotes
@@ -76,6 +74,8 @@ int main(int argc, char **argv)
 
 	devoptab_list[STD_OUT] = &dotab_nopout;
 	devoptab_list[STD_ERR] = &dotab_nopout;
+	__console_disable = 1;
+	dbg_printf("main(%d)\n", argc);
 
 	get_time(&TIME.boot1);
 
@@ -94,6 +94,7 @@ int main(int argc, char **argv)
 	/* Set video mode */
 	Video_SetMode();
 
+	__console_disable = 0;
 	Gui_DrawIntro();
 
 	if (CFG.debug) __console_scroll = 1;

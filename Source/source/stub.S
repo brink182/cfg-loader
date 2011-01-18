@@ -129,6 +129,6 @@ introImg41:
 	.globl dip_plugin_249
 	.balign 32
 dip_plugin_249:
-	.incbin "../data/dip_plugin_249"
+	.incbin "../data/dip_frag_249_r21"
 
 

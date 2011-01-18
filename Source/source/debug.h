@@ -66,20 +66,23 @@ struct timestats
 };
 
 extern struct timestats TIME;
+extern char dbg_log_buf[];
 
 void InitDebug();
-int dbg_printf(const char *fmt, ... );
 int gecko_printf(const char *fmt, ... );
+int dbg_printf(const char *fmt, ... );
 int dbg_print(int level, const char *fmt, ...);
 
+long long dbg_time_usec();
 void dbg_time1();
 unsigned dbg_time2(char *msg);
 void get_time2(long long *t, char *s);
 #define get_time(T) get_time2(T, #T)
 void time_stats();
 void time_stats2();
-#define TIME_D(X) (TIME.X##2 - TIME.X##1)
-#define TIME_MS(X) diff_msec(TIME.X##1,TIME.X##2)
+void time_statsf(FILE *f);
+#define TIME_D(X) (TIME.X##2 ? TIME.X##2 - TIME.X##1 : 0)
+#define TIME_MS(X) (TIME.X##2 ? diff_msec(TIME.X##1,TIME.X##2) : 0)
 
 #endif
 

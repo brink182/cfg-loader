@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -34,10 +34,6 @@ msgstr "%d disponibili"
 #, c-format
 msgid "%d more notes"
 msgstr "%d ulteriori note"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s Nessun gioco trovato!!"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -259,6 +255,9 @@ msgstr "Sto eliminando"
 
 msgid "Developer"
 msgstr "Sviluppatore"
+
+msgid "Device is not responding!"
+msgstr "La periferica non risponde!"
 
 msgid "Device:"
 msgstr "Periferica:"
@@ -805,8 +804,8 @@ msgid ""
 "Make sure USB port 0 is used!\n"
 "(The one nearest to the edge)"
 msgstr ""
-"Assicurarsi di utilizzare la porta USB0!\n"
-"(quella più vicina all'angolo della Wii)"
+"Controlla di utilizzare la porta USB0!\n"
+"(la più vicina all'angolo della Wii)"
 
 msgid "Manage"
 msgstr "Gestisci"
@@ -818,7 +817,9 @@ msgid "Motion+"
 msgstr "Motion Plus"
 
 msgid "Mounting device, please wait..."
-msgstr "Sto caricando la periferica, attendere prego..."
+msgstr ""
+"Sto caricando la periferica,\n"
+"attendere prego..."
 
 msgid "Music"
 msgstr "Musica"
@@ -947,6 +948,9 @@ msgstr "No"
 #, c-format
 msgid "No domain part in URL '%s'"
 msgstr "Nessun dominio nel URL '%s'"
+
+msgid "No games found!"
+msgstr "Nessun gioco trovato!"
 
 msgid "No more memory to copy file from HTTP response"
 msgstr "Memoria insufficiente per copiare il file da HTTP"
@@ -1182,6 +1186,21 @@ msgstr "Premere %s per aggiornare senza meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Premere DESTRA/SINISTRA per periferica"
 
+msgid "Press 2 to reload IOS"
+msgstr "Premi 2 per ricaricare l'IOS"
+
+msgid "Press A to select device"
+msgstr "Premi A per scegliere la periferica"
+
+msgid "Press B to exit to HBC"
+msgstr "Premi B per uscire verso l'HBC"
+
+msgid "Press HOME to reset"
+msgstr "Premi HOME per riavviare la Wii"
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr "Premere SINISTRA/DESTRA per scelta IOS"
+
 msgid "Press any button to continue..."
 msgstr "Premere un pulsante per continuare..."
 
@@ -1277,6 +1296,9 @@ msgstr "SUCCESSO!"
 msgid "Save .gct"
 msgstr "Salva .gct"
 
+msgid "Save debug.log"
+msgstr "Salva debug.log"
+
 msgid "Saving Settings... "
 msgstr "Salvataggio Impostazioni..."
 
@@ -1288,6 +1310,9 @@ msgstr "Sto salvando gamelist.txt ..."
 
 msgid "Saving settings..."
 msgstr "Sto salvando le impostazioni..."
+
+msgid "Saving:"
+msgstr "Sto salvando:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1496,6 +1521,15 @@ msgstr "Dimensione Errata: %d (%d)"
 msgid "Yes"
 msgstr "Si"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+"Puoi provare anche a sconnettere\n"
+"e riconnettere la periferica,\n"
+"oppure puoi aspettare ancora"
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1507,12 +1541,6 @@ msgstr "[ TROVATA ]"
 
 msgid "[ SAVED ]"
 msgstr "[ SALVATA ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ Scheda SD/SDHC ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ Memoria di Massa USB ]"
 
 msgid "[USED]"
 msgstr "[USATO]"
@@ -1591,6 +1619,9 @@ msgstr "salva"
 #, c-format
 msgid "split error: %s"
 msgstr "errore suddivisione: %s"
+
+msgid "uDraw GameTablet"
+msgstr "Tavoletta uDraw"
 
 msgid "unable to open wii disc"
 msgstr "impossibile aprire disco Wii"
@@ -1682,6 +1713,12 @@ msgstr "usati: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "Sto passando al IOS222 per il supporto FAT"
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ Scheda SD/SDHC ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ Memoria di Massa USB ]"
 
 #~ msgid "cover"
 #~ msgstr "copertina"

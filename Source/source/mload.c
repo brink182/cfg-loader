@@ -16,6 +16,8 @@
 */
 
 #include "mload.h"
+#include "debug.h"
+#include "mem.h"
 
 static const char mload_fs[] ATTRIBUTE_ALIGN(32) = "/dev/mload";
 
@@ -50,6 +52,7 @@ int n;
 	for(n=0;n<20;n++) // try 5 seconds
 	{
 		mload_fd=IOS_Open(mload_fs, 0);
+		dbg_printf("open(%s)=%d\n", mload_fs, mload_fd);
 		
 		if(mload_fd>=0) break;
 
@@ -137,6 +140,7 @@ void *buf=NULL;
 
 	if(mload_init()<0) return -1;
 
+	/*
     if(hid>=0)
 		{
 		iosDestroyHeap(hid);
@@ -148,6 +152,8 @@ void *buf=NULL;
 	if(hid<0) return hid;
 
 	buf= iosAlloc(hid, len);
+	*/
+	buf = mem2_alloc(len);
 
 	if(!buf) {ret= -1;goto out;}
 
@@ -163,11 +169,14 @@ void *buf=NULL;
 	if(ret<0) {ret= -666;goto out;}
 	
 out:
+	/*
 	if(hid>=0)
 		{
 		iosDestroyHeap(hid);
 		hid=-1;
 		}
+	*/
+	mem_free(buf);
 	
 return ret;
 

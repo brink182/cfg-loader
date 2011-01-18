@@ -320,13 +320,8 @@ void format_URL(char *game_id, char *url, int size)
 {
 	// widescreen
 	int width, height;
-	/*if (CFG.widescreen && CFG.download_wide) {
-		width = CFG.W_COVER_WIDTH;
-		height = CFG.W_COVER_HEIGHT;
-	} else {*/
-		width = CFG.N_COVER_WIDTH;
-		height = CFG.N_COVER_HEIGHT;
-	//}
+	width = CFG.N_COVER_WIDTH;
+	height = CFG.N_COVER_HEIGHT;
 	// region
 	char region[10];
 	switch(game_id[3]){
@@ -511,28 +506,33 @@ bool Download_Cover_Style(char *id, int style)
 	char *url = "";
 	char *wide = "";
 	bool success = false;
+	struct stat st;
 
 	switch (style) {
 		default:
 		case CFG_COVER_STYLE_2D:
-			url = CFG.cover_url_2d_norm;
-			path = CFG.covers_path_2d;
+			url = CFG.cover_url_2d;
 			break;
 
 		case CFG_COVER_STYLE_3D:
-			url = CFG.cover_url_3d_norm;
-			path = CFG.covers_path_3d;
+			url = CFG.cover_url_3d;
 			break;
 
 		case CFG_COVER_STYLE_DISC:
-			url = CFG.cover_url_disc_norm;
-			path = CFG.covers_path_disc;
+			url = CFG.cover_url_disc;
 			break;
 
 		case CFG_COVER_STYLE_FULL:
-			url = CFG.cover_url_full_norm;
-			path = CFG.covers_path_full;
+			url = CFG.cover_url_full;
 			break;
+	}
+	path = cfg_get_covers_path(style);
+	if (style == CFG_COVER_STYLE_2D && path == CFG.covers_path) {
+		if (stat(CFG.covers_path_2d, &st) == 0) {
+			if (S_ISDIR(st.st_mode)) {
+				path = CFG.covers_path_2d;
+			}
+		}
 	}
 
 	if (CFG.download_id_len == 6) {
@@ -564,7 +564,6 @@ bool Download_Cover_Style(char *id, int style)
 	}
 
 	// check path access
-	struct stat st;
 	char drive_root[8];
 	snprintf(drive_root, sizeof(drive_root), "%s/", FAT_DRIVE);
 	if (stat(drive_root, &st)) {

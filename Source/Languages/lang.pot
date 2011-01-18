@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,10 +35,6 @@ msgstr ""
 
 #, c-format
 msgid "%d more notes"
-msgstr ""
-
-#, c-format
-msgid "%s No games found!!"
 msgstr ""
 
 #, c-format
@@ -250,6 +246,9 @@ msgid "Deleting"
 msgstr ""
 
 msgid "Developer"
+msgstr ""
+
+msgid "Device is not responding!"
 msgstr ""
 
 msgid "Device:"
@@ -904,6 +903,9 @@ msgstr ""
 msgid "No domain part in URL '%s'"
 msgstr ""
 
+msgid "No games found!"
+msgstr ""
+
 msgid "No more memory to copy file from HTTP response"
 msgstr ""
 
@@ -1138,6 +1140,21 @@ msgstr ""
 msgid "Press %s/%s to select device."
 msgstr ""
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr ""
 
@@ -1233,6 +1250,9 @@ msgstr ""
 msgid "Save .gct"
 msgstr ""
 
+msgid "Save debug.log"
+msgstr ""
+
 msgid "Saving Settings... "
 msgstr ""
 
@@ -1243,6 +1263,9 @@ msgid "Saving gamelist.txt ... "
 msgstr ""
 
 msgid "Saving settings..."
+msgstr ""
+
+msgid "Saving:"
 msgstr ""
 
 #, c-format
@@ -1450,6 +1473,12 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr ""
 
@@ -1460,12 +1489,6 @@ msgid "[ FOUND ]"
 msgstr ""
 
 msgid "[ SAVED ]"
-msgstr ""
-
-msgid "[ SD/SDHC Card ]"
-msgstr ""
-
-msgid "[ USB Mass Storage Device ]"
 msgstr ""
 
 msgid "[USED]"
@@ -1544,6 +1567,9 @@ msgstr ""
 
 #, c-format
 msgid "split error: %s"
+msgstr ""
+
+msgid "uDraw GameTablet"
 msgstr ""
 
 msgid "unable to open wii disc"

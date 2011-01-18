@@ -329,7 +329,7 @@ void _Music_Start()
 		ret = MP3Player_PlayFile(music_f, mp3_reader, NULL);
 		dbg_printf("mp3 play: %s (%d)\n", ret? gt("ERROR"):gt("OK"), ret);
 		if (ret) goto err_play;
-		usleep(150000); // wait 150ms and verify if playing
+		usleep(10000); // wait 10ms and verify if playing
 		if (!MP3Player_IsPlaying()) {
 			err_play:
 			printf(gt("Error playing %s"), music_fname);

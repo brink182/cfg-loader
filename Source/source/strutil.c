@@ -3,14 +3,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "strutil.h"
+#include "util.h"
 #include "debug.h"
 
 char* strcopy(char *dest, const char *src, int size)
 {
-	strncpy(dest,src,size);
-	dest[size-1] = 0;
+	if (size > 0) {
+		strncpy(dest,src,size);
+		dest[size-1] = 0;
+	}
 	return dest;
 }
 
@@ -164,4 +168,55 @@ void unquote(char *dest, char *str, int size)
 		strcopy(dest, str, size);
 	}
 }
+
+// replace all whitespace (space, cr, lf, tab) with a single space
+// size not needed since the resulting length will be equal or smaller
+void str_flatten(char *str)
+{
+	char *p = str;
+	char *n = str;
+	// is previous char space?
+	// start with true so that leading space is skipped
+	bool prev_space = true;
+	while (*n) {
+		if (ISSPACE(*n)) {
+			if (!prev_space) {
+				*p = ' ';
+				p++;
+			}
+			prev_space = true;
+		} else {
+			*p = *n;
+			p++;
+			prev_space = false;
+		}
+		n++;
+	}
+	if (prev_space && p > str) {
+		// remove trailing space
+		p--;
+	}
+	*p = 0;
+}
+
+void str_insert(char *str, char c, int n, int size)
+{
+	int len = strlen(str);
+	if (size < 2) return;
+	if (n < 1) return;
+	if (n >= size) n = size - 1;
+	if (len + n >= size) {
+		len = size - 1 - n;
+	}
+	memmove(str + n, str, len);
+	str[len + n] = 0;
+	// fill with c
+	memset(str, c, n);
+}
+
+void str_insert_at(char *str, char *pos, char c, int n, int size)
+{
+	str_insert(pos, c, n, size - (pos - str));
+}
+
 

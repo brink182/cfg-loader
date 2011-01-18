@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PT-BR translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-21 14:59+0100\n"
+"POT-Creation-Date: 2011-01-04 19:19+0100\n"
 "PO-Revision-Date: 2010-09-23 21:40-0300\n"
 "Last-Translator: LeonLeao <leon.leao92@gmail.com>\n"
 "Language-Team: Brazilian Portuguese\n"
@@ -36,10 +36,6 @@ msgstr "%d disponível"
 #, c-format
 msgid "%d more notes"
 msgstr "%d mais notas"
-
-#, c-format
-msgid "%s No games found!!"
-msgstr "%s Jogos não encontrados!!"
 
 #, c-format
 msgid "%s Split: %d %s"
@@ -263,6 +259,9 @@ msgstr "Apagando"
 
 msgid "Developer"
 msgstr "Desenvolvedor"
+
+msgid "Device is not responding!"
+msgstr ""
 
 msgid "Device:"
 msgstr "Dispositivo"
@@ -956,6 +955,9 @@ msgstr "Não"
 msgid "No domain part in URL '%s'"
 msgstr "Nenhuma parte de domínio na URL '%s'"
 
+msgid "No games found!"
+msgstr "Jogos não encontrados!"
+
 msgid "No more memory to copy file from HTTP response"
 msgstr ""
 "Não há mais memória para copiar o arquivo de\n"
@@ -1212,6 +1214,21 @@ msgstr ""
 "Pressione ESQUERDA/DIREITA para\n"
 "selecionar dispositivo."
 
+msgid "Press 2 to reload IOS"
+msgstr ""
+
+msgid "Press A to select device"
+msgstr ""
+
+msgid "Press B to exit to HBC"
+msgstr ""
+
+msgid "Press HOME to reset"
+msgstr ""
+
+msgid "Press LEFT/RIGHT to select IOS"
+msgstr ""
+
 msgid "Press any button to continue..."
 msgstr ""
 "Pressione qualquer botão para\n"
@@ -1313,6 +1330,9 @@ msgstr "SUCESSO!"
 msgid "Save .gct"
 msgstr "Salvar .gct"
 
+msgid "Save debug.log"
+msgstr ""
+
 msgid "Saving Settings... "
 msgstr "Salvando configurações..."
 
@@ -1324,6 +1344,9 @@ msgstr "Salvando gamelist.txt... "
 
 msgid "Saving settings..."
 msgstr "Salvando configurações..."
+
+msgid "Saving:"
+msgstr ""
 
 #, c-format
 msgid "Saving: %s"
@@ -1534,6 +1557,12 @@ msgstr "Tamanho Errado %d (%d)"
 msgid "Yes"
 msgstr "Sim"
 
+msgid ""
+"You can also try unplugging\n"
+"and plugging back the device,\n"
+"or just wait some more"
+msgstr ""
+
 msgid "Zapper"
 msgstr "Zapper"
 
@@ -1545,12 +1574,6 @@ msgstr "[ ENCONTRADO ]"
 
 msgid "[ SAVED ]"
 msgstr "[ SALVO ]"
-
-msgid "[ SD/SDHC Card ]"
-msgstr "[ CARTÃO SD/SDHC ]"
-
-msgid "[ USB Mass Storage Device ]"
-msgstr "[ Dispositivo de Armazenamento USB ]"
 
 msgid "[USED]"
 msgstr "[USADO]"
@@ -1630,6 +1653,9 @@ msgstr "salvar"
 msgid "split error: %s"
 msgstr "erro de divisão: %s"
 
+msgid "uDraw GameTablet"
+msgstr ""
+
 msgid "unable to open wii disc"
 msgstr "não é possível abrir o disco de wii"
 
@@ -1651,6 +1677,12 @@ msgstr "usado: %p - %p"
 
 #~ msgid "Press %s to select"
 #~ msgstr "Pressione %s para selecionar"
+
+#~ msgid "[ SD/SDHC Card ]"
+#~ msgstr "[ CARTÃO SD/SDHC ]"
+
+#~ msgid "[ USB Mass Storage Device ]"
+#~ msgstr "[ Dispositivo de Armazenamento USB ]"
 
 #~ msgid "cover"
 #~ msgstr "capa"

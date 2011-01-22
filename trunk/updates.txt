@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 65b (beta)
+size = 1474592
+date = 2011-01-22
+url = http://cfg-loader.googlecode.com/files/cfg65b.dol
+detection for modmii ciosx rev21
+Print cios base and rev for 245-250
+in global options with button +
+Word wrap game title
+Minor cleanups
+
+release = 65b-222 (beta)
+size = 1474592
+date = 2011-01-22
+url = http://cfg-loader.googlecode.com/files/cfg65b-222.dol
+Same as 65b but with different
+default options:
+  ios=222-mload
+
 release = 65a (alpha)
 size = 1473888
 date = 2011-01-19

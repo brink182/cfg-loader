@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 65b2 (beta)
+size = 1475680
+date = 2011-01-23
+url = http://cfg-loader.googlecode.com/files/cfg65b2.dol
+Detection for modmii ciosx rev19, 20,
+21+19 and hermes v4,5,5.1 (tnx FIX94)
+"Show cIOS info" in global options
+
+release = 65b2-222 (beta)
+size = 1475680
+date = 2011-01-23
+url = http://cfg-loader.googlecode.com/files/cfg65b2-222.dol
+Same as 65b2 but with different
+default options:
+  ios=222-mload
+
 release = 65b (beta)
 size = 1474592
 date = 2011-01-22

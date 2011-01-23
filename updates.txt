@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 65b5 (beta)
+size = 1475584
+date = 2011-01-23
+url = http://cfg-loader.googlecode.com/files/cfg65b5.dol
+ * Fix modmii cios detection (again)
+
+release = 65b5-222 (beta)
+size = 1475584
+date = 2011-01-23
+url = http://cfg-loader.googlecode.com/files/cfg65b5-222.dol
+Same as 65b5 but with different
+default options:
+  ios=222-mload
+
 release = 65b4 (beta)
 size = 1475584
 date = 2011-01-23

@@ -36,7 +36,7 @@ inline size_t xalign_up(int a, size_t s)
 
 inline size_t xalign_down(int a, size_t s)
 {
-	s &= ~(ALIGN_VAL - 1);
+	s &= ~(a - 1);
 	return s;
 }
 

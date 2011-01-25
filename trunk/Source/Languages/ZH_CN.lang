@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -676,10 +676,6 @@ msgstr "全局选项"
 msgid "Guitar"
 msgstr "对应吉他"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP错误：%s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP响应没有文件"
 
@@ -936,9 +932,6 @@ msgstr "URL'%s'中没有域名部分"
 
 msgid "No games found!"
 msgstr "没有发现游戏!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "没有足够的内存来复制来自HTTP响应的文件"
 
 msgid "No partition selected!"
 msgstr "未选择分区！"
@@ -1611,89 +1604,3 @@ msgstr "无法打开Wii光盘"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用：%p - %p"
-
-#~ msgid "Alt dol"
-#~ msgstr "替换dol"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "正在下载%s封面给%.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "正在下载%s封面... (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "正在下载所有%s封面"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "错误：SD卡加载NTFS分区！(%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "错误：SD/FAT 加载WBFS！ (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "错误：USB加载NTFS分区！(%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "错误：USB/FAT加载WBFS分区! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "错误：WBFS FAT加载扇区%x不是%x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "错误：已不再包含ehcmodule2\n"
-#~ "必须使用扩展文件ehcmodule.elf"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "错误：已不再包含ehcmodule3\n"
-#~ "必须使用扩展文件ehcmodule3.elf"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "仅cIOS222 REV4支持FAT模式"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32加载点："
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT：退回使用旧方法"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "找到%s的封面"
-
-#~ msgid "Missing"
-#~ msgstr "缺失的"
-
-#~ msgid "Missing "
-#~ msgstr "缺失的 "
-
-#~ msgid "Ocarina HookType:"
-#~ msgstr "Ocarina钩子类型："
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "正在读取FAT分区..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "正在读取NTFS分区..."
-
-#~ msgid "Press %s to select"
-#~ msgstr "按%s键选择"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "大小：%d字节"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "切换到IOS222以支持FAT分区"
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHC卡 ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB大容量存储设备 ]"
-
-#~ msgid "cover"
-#~ msgstr "封面"

@@ -15,9 +15,25 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	63
-RELEASE		:=	devel
+VERSION		:=	64
+RELEASE		:=	release
 # to override RELEASE use: make announce RELEASE=beta
+ifeq ($(findstring compat,$(VERSION)),compat)
+	RELEASE := release
+else ifeq ($(findstring debug,$(VERSION)),debug)
+	RELEASE := debug
+else ifeq ($(findstring c,$(VERSION)),c)
+	RELEASE := bugfix
+else ifeq ($(findstring b,$(VERSION)),b)
+	RELEASE := beta
+else ifeq ($(findstring a,$(VERSION)),a)
+	RELEASE := alpha
+else ifeq ($(findstring t,$(VERSION)),t)
+	RELEASE := test
+else ifeq ($(findstring x,$(VERSION)),x)
+	RELEASE := experimental
+endif
+
 BINBASE		:=	cfg$(VERSION)
 TARGET		:=	$(BINBASE)
 BUILD		:=	build

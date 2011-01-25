@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2011-01-06 01:00+0100\n"
 "Last-Translator: cherries4u <cherries4u@hanmail.net>\n"
 "Language-Team: Korean Translation Team<cherries4u@hanmail.net>\n"
@@ -687,10 +687,6 @@ msgstr "전체 옵션"
 msgid "Guitar"
 msgstr "기타"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP 오류: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP 파일없는 응답"
 
@@ -951,9 +947,6 @@ msgstr "'%s' 주소에 도메인이 없습니다."
 
 msgid "No games found!"
 msgstr "게임이 없습니다."
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "HTTP로부터 파일을 복사할 수 있는 메모리가 부족합니다."
 
 msgid "No partition selected!"
 msgstr "파티션이 선택되지 않았습니다."
@@ -1628,59 +1621,3 @@ msgstr "Wii 디스크를 불러올 수 없습니다."
 #, c-format
 msgid "used: %p - %p"
 msgstr "사용중: %p - %p"
-
-#~ msgid "Alt dol"
-#~ msgstr "대체 dol"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "오류: SD 에서 NTFS 연결 실패 (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "오류: SD/FAT 에서 wbfs 연결 실패 (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "오류: USB 에서 NTFS 연결 실패 (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "오류: USB/FAT 에서 wbfs 연결 실패 (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "오류: WBFS FAT 섹터연결을 %x로 함. 정상: %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "오류: ehcmodule2 가 없습니다.\n"
-#~ "ehcmodule.elf 파일이 필요합니다."
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "오류: ehcmodule3 가 없습니다.\n"
-#~ "ehcmodule3.elf 파일이 필요합니다."
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "FAT 모드 지원에는 IOS222 rev4 가 필요합니다."
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32 연결: "
-
-#~ msgid "Found %s Cover"
-#~ msgstr "%s 이미지를 찾았습니다."
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "FAT 파티션을 여는중"
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "NTFS 파티션을 여는중"
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHC 카드 ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB 대용량 저장장치 ]"
-
-#~ msgid "cover"
-#~ msgstr "커버"

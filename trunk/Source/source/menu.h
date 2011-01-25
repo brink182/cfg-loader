@@ -30,6 +30,7 @@ extern s32 gameCnt, gameSelected, gameStart;
 extern s32 all_gameCnt;
 
 void __Menu_ScrollStartList();
+int Retry_Init_Dev(int device, int a_select);
 
 extern struct discHdr *filter_gameList;
 

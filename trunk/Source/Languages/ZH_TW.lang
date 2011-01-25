@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -681,10 +681,6 @@ msgstr "全域選項"
 msgid "Guitar"
 msgstr "吉他"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP 錯誤: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP 回應沒有檔案"
 
@@ -943,9 +939,6 @@ msgstr "沒有域名部分在 URL '%s'"
 
 msgid "No games found!"
 msgstr ""
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "沒有更多的記憶體複製從 HTTP 回應的檔案"
 
 msgid "No partition selected!"
 msgstr "沒有選取的分割區!"
@@ -1618,78 +1611,3 @@ msgstr "無法開啟 Wii 光碟"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
-
-#~ msgid "%s No games found!!"
-#~ msgstr "%s 沒有找到遊戲!!"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "錯誤: 從 FAT 分割區啟動遊戲\n"
-#~ "需要 cIOS222 或 cIOS223"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "錯誤: SD 掛載 NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "錯誤: SD/FAT 掛載 wbfs! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "錯誤: USB 掛載 NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "錯誤: USB/FAT 掛載 wbfs! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "錯誤: WBFS FAT 掛載磁區 %x 不是 %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "錯誤: ehcmodule2 不再被包含!\n"
-#~ "必須使用外部檔案 ehcmodule.elf"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "錯誤: ehcmodule3 不再被包含!\n"
-#~ "必須使用外部檔案 ehcmodule3.elf"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "僅 IOS 222 rev4 支援 FAT 模式"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32 掛載: "
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT: 使用回舊的方法"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "找到 %s 的封面"
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "正在開啟 FAT 分割區..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "正在開啟 NTFS 分割區..."
-
-#~ msgid "Press %s button to select"
-#~ msgstr "請按 %s 鈕選取"
-
-#~ msgid "Press %s to select"
-#~ msgstr "請按 %s 選取"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "切換到 IOS222 的 FAT 支援."
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHC 卡 ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB 大型存放裝置 ]"
-
-#~ msgid "cover"
-#~ msgstr "封面"

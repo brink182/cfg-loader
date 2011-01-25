@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: xxdimixx\n"
 "Language-Team: GREEK <xxdimixx>\n"
@@ -676,10 +676,6 @@ msgstr "Γενικές ρυθμίσεις"
 msgid "Guitar"
 msgstr "Κιθάρα"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP λάθος: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP απάντηση χωρίς αρχείο"
 
@@ -938,9 +934,6 @@ msgstr "No domain part in URL '%s'"
 
 msgid "No games found!"
 msgstr "Δεν βρεθήκαν παιχνίδια!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "Δεν υπάρχει ελεύθερος χώρος γαι να αντιγραφτεί το αρχείο απο HTTP"
 
 msgid "No partition selected!"
 msgstr "Δεν επιλέξατε partition!"
@@ -1611,99 +1604,3 @@ msgstr "Το άνοιγμα της Wii Disk δεν είναι δυνατόν"
 #, c-format
 msgid "used: %p - %p"
 msgstr "Χρησιμοποιείται: %p - %p"
-
-#~ msgid "Alt dol"
-#~ msgstr "Alt dol"
-
-#~ msgid "Download Game Database"
-#~ msgstr "Κατεβάζω τράπεζα πληροφωριών παιχνιδιών"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "Κατεβάζω %s Cover για %.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "Κατεβάζω %s Cover... (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "Κατεβάζω όλα %sCover"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "ΛΑΘΟΣ: Το CIOS222 ή CIOS223 είναι απαρέτητο για\n"
-#~ "έναρξη παιχνιδιών από FAT-Partition!"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "ΛΑΘΟΣ: SD mount NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "ΛΑΘΟΣ: SD/FAT mount WBFS! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "ΛΑΘΟΣ: USB mount NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "ΛΑΘΟΣ: USB/FAT mount WBFS! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "ΛΑΘΟΣ: WBFS FAT Mount Sector %x όχι %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "ΛΑΘΟΣ: Το ehcmodule2 συμπεριλαμβάνεται πλέον!\n"
-#~ "Το εξωτερικό αρχείο ehcmodule.elf είναι απαρέτιτο!"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "ΛΑΘΟΣ : Το ehcmodule3 δεν συμπεριλαμβάνεται πλέον!\n"
-#~ " Το Εξωτερικό αρχείο ehcmodule3.elf είναι απαρέτιτο!"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "Το FAT mode υποστηρίζετε μόνο από το CIOS 222 rev4"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32 mount: "
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT: χρησιμοποιείται παλιά μέθοδο"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "Βρέθηκαν %s Cover"
-
-#~ msgid "Missing"
-#~ msgstr "Απόν"
-
-#~ msgid "Missing "
-#~ msgstr "Απόν "
-
-#~ msgid "Ocarina: Βρεθήκαν πολλοί κωδικοί"
-#~ msgstr "Ocarina: Πολλοί κωδικοί"
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "Ανοίγω FAT Partition..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "Ανοίγω NTFS Partition..."
-
-#~ msgid "Press %s to select"
-#~ msgstr "Πατήστε %s: επιλογή"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "Μέγεθος: %d byte"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "Αλαγή σε IOS222 για υποστήριξη FAT."
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHC κάρτα ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB ΜΟΝΑΔΑ ]"
-
-#~ msgid "cover"
-#~ msgstr "Cover"

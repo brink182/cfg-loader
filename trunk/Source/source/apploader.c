@@ -834,11 +834,13 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	printf("\n");
 	
 	// giantpune's return-to patch added by Dr. Clipper
-	if( PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to && !CFG.game.clean) )
-    {
-            // gprintf("return-to patched\n" );
-            DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
-    }
+	if (CFG.return_to && !CFG.game.clean) {
+		if (PatchReturnTo( (u32*)dolStart, dolEnd - dolStart, CFG.return_to) )
+		{
+			// gprintf("return-to patched\n" );
+			DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
+		}
+	}
 	free(dol_header);
 
 	return entrypoint;
@@ -1150,11 +1152,13 @@ u32 Load_Dol_from_sd()
 	printf("\n");
 	
 	// giantpune's return-to patch added by Dr. Clipper
-	if( PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to  && !CFG.game.clean) )
-    {
-            // gprintf("return-to patched\n" );
-            DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
-    }
+	if (CFG.return_to && !CFG.game.clean) {
+		if (PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to) )
+		{
+			// gprintf("return-to patched\n" );
+			DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
+		}
+	}
 
 	free(dol_header);
 	fclose(file);

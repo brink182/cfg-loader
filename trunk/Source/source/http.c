@@ -1,5 +1,6 @@
 #include "http.h"
 #include "gettext.h"
+#include "mem.h"
 
 int http_progress = 0;
 
@@ -78,8 +79,8 @@ struct block read_message(s32 connection, const char *fname)
 	bool found = false;
 	unsigned char *buffer_found;
 
-	buffer_found = malloc(HTTP_BUFFER_SIZE);
-	buffer.data = malloc(HTTP_BUFFER_SIZE);
+	buffer_found = mem_alloc(HTTP_BUFFER_SIZE);
+	buffer.data = mem_alloc(HTTP_BUFFER_SIZE);
 	buffer.filesize = 0;
 	buffer.size = HTTP_BUFFER_SIZE;
 	int progress_count = 0;
@@ -125,24 +126,21 @@ struct block read_message(s32 connection, const char *fname)
 		if (fname != NULL) {
 			if (!found) {
 				int i;
-				for (i=0; !found && i < bytes_read; i++, offset++) {
-					if (offset >= 3 &&
-					buffer.data[offset] == '\n' &&
-					buffer.data[offset-1] == '\r' &&
-					buffer.data[offset-2] == '\n' &&
-					buffer.data[offset-3] == '\r') {
-						found = true;
+				for (i=0; i < bytes_read; i++) {
+					int off = offset + i - 3;
+					if (off >= 0) {
+						if (memcmp(buffer.data+off, "\r\n\r\n", 4) == 0) {
+							found = true;
+							offset = off + 4;
+							break;
+						}
 					}
 				}
 				if (found) {
-					fwrite(buffer.data + offset, 1, bytes_read - i, f);
+					fwrite(buffer.data + offset, 1, bytes_read - offset, f);
 					buffer.filesize += bytes_read-i;
-					//buffer.size += HTTP_BUFFER_GROWTH;
-					//buffer.data = realloc(buffer.data, buffer.size);
-					//if(buffer.data == NULL)
-					//{
-					//	return emptyblock;
-					//}
+				} else {
+					offset += bytes_read;
 				}
 			} else {
 				fwrite(buffer_found, 1, bytes_read, f);
@@ -157,7 +155,7 @@ struct block read_message(s32 connection, const char *fname)
 		if(offset >= buffer.size)
 		{
 			buffer.size += HTTP_BUFFER_GROWTH;
-			buffer.data = realloc(buffer.data, buffer.size);
+			buffer.data = mem_realloc(buffer.data, buffer.size);
 			
 			if(buffer.data == NULL)
 			{
@@ -183,12 +181,12 @@ struct block read_message(s32 connection, const char *fname)
 
 	//At the end of above loop offset should be precisely the amount of bytes that were read from the connection
 	buffer.size = offset;
-	free(buffer_found);
+	SAFE_FREE(buffer_found);
 	if (fname != NULL)
 		fclose(f);
 		
 	//Shrink the size of the buffer so the data fits exactly in it
-	buffer.data = realloc(buffer.data, buffer.size);
+	buffer.data = mem_realloc(buffer.data, buffer.size);
 	if(buffer.data == NULL)
 	{	
 		return emptyblock;
@@ -286,9 +284,9 @@ struct block downloadfile_fname(const char *url, const char *fname)
 						//printf("HTTP response code: %d\n", code);
 						//if (code != 200) {
 						if (code >= 400) {
-							printf(gt("HTTP ERROR: %s"), htstat);
-							printf("\n");
-							free(response.data);
+							printf("%s: %s", gt("ERROR"), htstat);
+							if (!http_progress) printf("\n");
+							SAFE_FREE(response.data);
 							return emptyblock;
 						}
 					}
@@ -301,19 +299,16 @@ struct block downloadfile_fname(const char *url, const char *fname)
 	if (fname != NULL) {
 		return response;
 	}
-	//Search for the 4-character sequence \r\n\r\n in the response which signals the start of the http payload (file)
+	// Search for the 4-character sequence \r\n\r\n in the response
+	// which signals the start of the http payload (file)
 	unsigned char *filestart = NULL;
 	u32 filesize = 0;
 	int i;
-	for(i = 3; i < response.size; i++)
+	for(i = 0; i < response.size-3; i++)
 	{
-		if(response.data[i] == '\n' &&
-			response.data[i-1] == '\r' &&
-			response.data[i-2] == '\n' &&
-			response.data[i-3] == '\r')
-		{
-			filestart = response.data + i + 1;
-			filesize = response.size - i - 1;
+		if (memcmp(response.data+i, "\r\n\r\n", 4) == 0) {
+			filestart = response.data + i + 4;
+			filesize = response.size - i - 4;
 			break;
 		}
 	}
@@ -322,30 +317,17 @@ struct block downloadfile_fname(const char *url, const char *fname)
 	{
 		printf(gt("HTTP Response was without a file"));
 		printf("\n");
-		free(response.data);
+		SAFE_FREE(response.data);
 		return emptyblock;
 	}
 	
-	//Copy the file part of the response into a new memoryblock to return
-	struct block file;
-	file.data = malloc(filesize);
-	file.size = filesize;
-	file.filesize = filesize;
+	// move file part of the response into the start of the block
+	memmove(response.data, filestart, filesize);
+	// free extra memory
+	response.data = mem_realloc(response.data, filesize);
+	response.size = filesize;
 	
-	if(file.data == NULL)
-	{
-		printf(gt("No more memory to copy file from HTTP response"));
-		printf("\n");
-		free(response.data);
-		return emptyblock;
-	}
-	
-	memcpy(file.data, filestart, filesize);
-
-	//Dispose of the original response
-	free(response.data);
-	
-	return file;
+	return response;
 }
 
 struct block downloadfile_progress(const char *url, int size)

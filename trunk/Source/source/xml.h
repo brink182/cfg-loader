@@ -54,6 +54,7 @@ int getIndexFromId(u8 * gameid);
 
 bool DatabaseLoaded(void);
 int getControllerTypes(char *controller, u8 * gameid);
+const char *getControllerName(gameXMLinfo *g, int i, int *req);
 bool hasGenre(char *genre, u8 * gameid);
 bool hasFeature(char *feature, u8 *gameid);
 bool xml_getCaseColor(u32 *color, u8 *gameid);

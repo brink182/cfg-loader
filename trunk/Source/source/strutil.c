@@ -18,7 +18,7 @@ char* strcopy(char *dest, const char *src, int size)
 	return dest;
 }
 
-char *strappend(char *dest, char *src, int size)
+char *strappend(char *dest, const char *src, int size)
 {
 	int len = strlen(dest);
 	strcopy(dest+len, src, size-len);

@@ -219,6 +219,21 @@ int getControllerTypes(char *controller, u8 * gameid)
 	return -1;
 }
 
+const char *getControllerName(gameXMLinfo *g, int i, int *req)
+{
+	if (i >= XML_NUM_ACCESSORY) return NULL;
+	int x = g->accessoryID[i];
+	if (x == 0) return NULL;
+	if (x >= 100) {
+		x -= 100;
+		*req = 1;
+	} else {
+		x -= 1;
+		*req = 0;
+	}
+	return get_accesory_name(x);
+}
+
 bool hasFeature(char *feature, u8 *gameid)
 {
 	gameXMLinfo *g = get_game_info_id(gameid);
@@ -748,14 +763,17 @@ void readTitles(xmlIndex *x, struct gameXMLinfo *g)
 	}
 }
 
-extern u32 hash_id4(void *id);
-extern u32 hash_id6(void *id);
-
-bool xml_compare_key(void *key, int handle)
+bool xml_compare_key(void *cb, void *key, int handle)
 {
-	return (strcmp(get_game_info(handle)->id, (char *)key) == 0);
+	char *id = (char*)get_game_info(handle)->id;
+	// Some entries in wiitdb have ID4 instead of ID6 (wiiware)
+	// but the image has ID6 (ID4+"00")
+	// so we cut the key to ID4 if it is ID4 in wiitdb
+	int len = (id[4] == 0) ? 4 : 6;
+	return (strncmp(id, (char *)key, len) == 0);
 }
-int* xml_next_handle(int handle)
+
+int* xml_next_handle(void *cb, int handle)
 {
 	return &get_game_info(handle)->hnext;
 }
@@ -768,7 +786,7 @@ void LoadTitlesFromXML(char *langtxt, bool forcejptoen)
 	
 	xmlgameCnt = 0;
 	obs_init(&obs_game_info, 10240, mem1_realloc, mem_resize);
-	hash_init(&hash_game_info, 0, hash_id6, xml_compare_key, xml_next_handle);
+	hash_init(&hash_game_info, 0, NULL, &hash_id4, &xml_compare_key, &xml_next_handle);
 
 	if (strcmp(langtxt,""))
 		forcelang = true;

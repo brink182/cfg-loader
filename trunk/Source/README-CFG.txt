@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v63
+Configurable SD/USB Loader v64
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -1013,6 +1013,40 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
+17-01-2011 cfg v64 (release)
+ * Minor cosmetic fix in http error reporting
+
+16-01-2011 cfg v64b6 (beta)
+ * Fixed sort by install date
+
+15-01-2011 cfg v64b5 (beta)
+ * Improved USB timeout handling also when searching for config.txt on USB
+
+15-01-2011 cfg v64b4 (beta)
+ * Fixed BCA with hermes cios v5.1
+ * Cleanups
+
+14-01-2011 cfg v64b3 (beta)
+ * Fixed theme download
+ * Fixed wiitdb game info
+ * Split (required) and [optional] controllers
+
+13-01-2011 cfg v64b2 (beta)
+ * Fixed hang in v64b when checking for updates
+
+13-01-2011 cfg v64b (beta)
+ * Fixed crash when downloading large cheat codes (Issue 100)
+   Possibly fixes also the occasionally corrupted downloaded cover images
+ * Added USBStorage_Deinit() to shutdown
+ * Turn off wiimotes after they are idle for 5 minutes
+ * Display supported controllers in wiitdb game info
+ * Cleanups
+
+12-01-2011 cfg v64a (alpha)
+ * Support for ID4 wiitdb entries (wiiware)
+ * Fixed unnecessary re-downloading of HQ full covers when they already exist
+ * Better HTTP error reporting when downloading cover fails
+
 10-01-2011 cfg v63 (release)
  * Minor cleanups
  * Full package changes: covers/2d, Languages -> languages
@@ -1558,7 +1592,7 @@ cfg v61t1 (test)
 
 23-02-2010 cfg v54a (alpha)
 
- * Gecko OS 1.9 cheat engine aka Ocarina 2 aka Bralw+ support (by WiiPower)
+ * Gecko OS 1.9 cheat engine aka Ocarina 2 aka Brawl+ support (by WiiPower)
  * Changed write_playlog to be a per-game option (Clipper)
  * fixed db_language AUTO setting and lang_to_cc function for Chinese languages. (Clipper)
 

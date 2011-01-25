@@ -1161,7 +1161,7 @@ GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[],
 	ret = PNGU_GetImageProperties(ctx, &imgProp);
 	if (ret != PNGU_OK) goto out;
    
-   	buf1 = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
+   	buf1 = mem_alloc(imgProp.imgWidth * imgProp.imgHeight * 4);
 	if (buf1 == NULL) goto out;
 
 	ret = PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
@@ -1171,20 +1171,24 @@ GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[],
 	}
 	
 	if (imgProp.imgWidth != width || imgProp.imgHeight != height) {
-	   	buf2 = memalign (32, width * height * 4);
+	   	buf2 = mem_alloc(width * height * 4);
 		if (buf2 == NULL) goto out;
 		ResizeRGBA(buf1, imgProp.imgWidth, imgProp.imgHeight, buf2, width, height);
-		free(buf1);
+		SAFE_FREE(buf1);
 		buf1 = buf2;
 		buf2 = NULL;
 	}
 
 	width4 = (width + 3) >> 2 << 2;
 	height4 = (height + 3) >> 2 << 2;
-	buf2 = memalign (32, width4 * height4 * 4);
-	if (buf2 == NULL) goto out;
-
-	PadRGBA(buf1, width, height, buf2, width4, height4);
+	if (width != width4 || height != height4) {
+		buf2 = mem_alloc(width4 * height4 * 4);
+		if (buf2 == NULL) goto out;
+		PadRGBA(buf1, width, height, buf2, width4, height4);
+		SAFE_FREE(buf1);
+		buf1 = buf2;
+		buf2 = NULL;
+	}
 
 	if (dest == NULL) {
 		dest = memalign (32, width4 * height4 * 4);
@@ -1192,7 +1196,7 @@ GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[],
 	}
 	memcheck();
 
-	RGBA_to_4x4((u8*)buf2, (u8*)dest, width4, height4);
+	RGBA_to_4x4((u8*)buf1, (u8*)dest, width4, height4);
 
 	my_texture.data = dest;
 	my_texture.w = width4;

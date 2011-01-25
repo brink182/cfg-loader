@@ -11,6 +11,8 @@
 #include "menu.h"
 #include "gettext.h"
 #include "sha1.h"
+#include "sdhc.h"
+#include "usbstorage.h"
 
 
 #define TITLE_ID(x,y)       (((u64)(x) << 32) | (y))
@@ -63,6 +65,8 @@ void Sys_Reboot(void)
 
 void Sys_Shutdown(void)
 {
+	SDHC_Close();
+	USBStorage_Deinit();
 	/* Poweroff console */
 	if(CONF_GetShutdownMode() == CONF_SHUTDOWN_IDLE) {
 		s32 ret;
@@ -782,20 +786,62 @@ void load_bca_data(u8 *discid)
 	SAFE_FREE(buf);
 }
 
-void insert_bca_data()
+void Menu_Confirm_Exit()
 {
-	if (!have_bca_data) return;
+	printf_h("Press HOME to exit\n");
+	printf_h("Press any other button to continue\n");
+	if (CFG.home == CFG_HOME_SCRSHOT) {
+		CFG.home = CFG_HOME_REBOOT;
+	}
+	Wpad_WaitButtonsCommon();
+}
+
+int insert_bca_data()
+{
+	if (!have_bca_data) return 0;
 	if (!CFG.ios_mload || IOS_GetRevision() < 4)
 	{
 		printf(gt("ERROR: CIOS222/223 v4 required for BCA"));
 		printf("\n");
 		sleep(2);
-		return;
+		return -1;
+	}
+	if(mload_init()<0) {
+		printf("%s: BCA\n", gt("ERROR"));
+		Menu_Confirm_Exit();
+		return -1;
 	}
 	// offset 15 (bca_data area)
 	mload_seek(*((u32 *) (dip_plugin+15*4)), SEEK_SET);
 	mload_write(BCA_Data, 64);
 	mload_close();
+	have_bca_data = 2;
+	return 0;
+}
+
+int verify_bca_data()
+{
+	u8 tmp_data[64] ATTRIBUTE_ALIGN(32);
+	int ret;
+	if (have_bca_data != 2) return 0;
+	printf("BCA:");
+	memset(tmp_data, 0xff, 64);
+	ret = WDVD_Read_Disc_BCA(tmp_data);
+	if (ret) {
+		printf("%s: %d\n", gt("ERROR"), ret);
+		goto fail;
+	}
+	printf("\n");
+	hex_dump3(BCA_Data, 64);
+	if (memcmp(BCA_Data, tmp_data, 64) != 0) {
+		printf("%s\n", gt("ERROR"));
+		goto fail;
+	}
+	printf("%s\n", gt("OK"));
+	return 0;
+fail:
+	Menu_Confirm_Exit();
+	return -1;
 }
 
 

@@ -95,30 +95,51 @@ typedef struct HashTable
 {
 	int size;
 	int *table; // table of handles to key+value pairs
-	u32 (*hash_fun)(void *key);
-	bool (*compare_key)(void *key, int handle);
-	int* (*next_handle)(int handle);
+	void *cb; // callback data
+	u32 (*hash_fun)(void *cb, void *key);
+	bool (*compare_key)(void *cb, void *key, int handle);
+	int* (*next_handle)(void *cb, int handle);
 } HashTable;
 
-int hash_init(HashTable *ht, int size,
-		u32 (*hash_fun)(void *key),
-		bool (*compare_key)(void *key, int handle),
-		int* (*next_handle)(int handle)
+int hash_init(HashTable *ht, int size, void *cb,
+		u32 (*hash_fun)(void *cb, void *key),
+		bool (*compare_key)(void *cb, void *key, int handle),
+		int* (*next_handle)(void *cb, int handle)
 		);
 
 void hash_close(HashTable *ht);
 void hash_add(HashTable *ht, void *key, int handle);
 int hash_get(HashTable *ht, void *key);
 
-static inline int hash_check_init(HashTable *ht, int size,
-		u32 (*hash_fun)(void *key),
-		bool (*compare_key)(void *key, int handle),
-		int* (*next_handle)(int handle)
+static inline int hash_check_init(HashTable *ht, int size, void *cb,
+		u32 (*hash_fun)(void *cb, void *key),
+		bool (*compare_key)(void *cb, void *key, int handle),
+		int* (*next_handle)(void *cb, int handle)
 		)
 {
 	if (ht->table) return 0;
-	return hash_init(ht, size, hash_fun, compare_key, next_handle);
+	return hash_init(ht, size, cb, hash_fun, compare_key, next_handle);
 }
+
+typedef struct HashMap
+{
+	HashTable ht;
+	void *data;
+	int num;
+	int key_size;
+	int val_size;
+	int item_size;
+} HashMap;
+
+int hmap_init(HashMap *hmap, int key_size, int val_size);
+void hmap_close(HashMap *hmap);
+int hmap_add(HashMap *hmap, void *key, void *val);
+void *hmap_get(HashMap *hmap, void *key);
+
+u32 hash_string(const char *str_param);
+u32 hash_string_n(const char *str_param, int n);
+u32 hash_id4(void *cb, void *id);
+u32 hash_id6(void *cb, void *id);
 
 #endif
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -255,7 +255,7 @@ msgid "Developer"
 msgstr "Ontwikkelaar"
 
 msgid "Device is not responding!"
-msgstr ""
+msgstr "Apparaat reageert niet!"
 
 msgid "Device:"
 msgstr "Apparaat"
@@ -682,10 +682,6 @@ msgstr "Globale opties"
 msgid "Guitar"
 msgstr "Gitaar"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP FOUT: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP antwoord zonder een bestand"
 
@@ -948,9 +944,6 @@ msgstr "Geen domein in URL '%s'"
 msgid "No games found!"
 msgstr "Geen spellen gevonden"
 
-msgid "No more memory to copy file from HTTP response"
-msgstr "Geen geheugen meer om het bestand van het web te kopiëren"
-
 msgid "No partition selected!"
 msgstr "Geen partitie gekozen!"
 
@@ -1183,19 +1176,19 @@ msgid "Press %s/%s to select device."
 msgstr "Druk LINKS/RECHTS om een apparaat te kiezen."
 
 msgid "Press 2 to reload IOS"
-msgstr ""
+msgstr "Druk op 2 om IOS te herladen"
 
 msgid "Press A to select device"
-msgstr ""
+msgstr "Druk op A om apparaat te selekteren"
 
 msgid "Press B to exit to HBC"
-msgstr ""
+msgstr "Druk op B om naar HBC terug te keren"
 
 msgid "Press HOME to reset"
-msgstr ""
+msgstr "Druk op home voor reset"
 
 msgid "Press LEFT/RIGHT to select IOS"
-msgstr ""
+msgstr "Druk op links/rechts om een IOS te kiezen"
 
 msgid "Press any button to continue..."
 msgstr "Druk om verder te gaan..."
@@ -1522,6 +1515,9 @@ msgid ""
 "and plugging back the device,\n"
 "or just wait some more"
 msgstr ""
+"Je kan proberen het apparaat af te koppelen\n"
+"en weer aan te sluiten,\n"
+"of iets langer te wachten"
 
 msgid "Zapper"
 msgstr "Zapper"
@@ -1614,7 +1610,7 @@ msgid "split error: %s"
 msgstr "splits fout: %s"
 
 msgid "uDraw GameTablet"
-msgstr ""
+msgstr "uDraw GameTablet"
 
 msgid "unable to open wii disc"
 msgstr "kan wii disc niet openen"
@@ -1622,99 +1618,3 @@ msgstr "kan wii disc niet openen"
 #, c-format
 msgid "used: %p - %p"
 msgstr "gebruikt: %p - %p"
-
-#~ msgid "%s No games found!!"
-#~ msgstr "%s Geen spellen gevonden!"
-
-#~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
-#~ msgstr "Disk IOS %u kan niet worden geladen! (ret = %d)"
-
-#~ msgid "Download Game Database"
-#~ msgstr "Spellendatabase downloaden"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "%s Hoesjes downloaden voor %.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "Hoesje van %s downloaden... (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "Alle %s Hoesjes downloaden"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "cIOS222 of cIOS223 benodigd om\n"
-#~ "spellen te laden van een FAT partitie!"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "FOUT: SD mount NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "FOUT: SD/FAT mount wbfs! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "FOUT: USB mount NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "FOUT: USB/FAT mount wbfs! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "FOUT: WBFS FAT mount sector %x niet %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "FOUT: ehcmodule2 niet langer inbegrepen!\n"
-#~ "externe ehcmodule2.elf moet worden gebruikt!"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "FOUT: ehcmodule3 niet langer inbegrepen!\n"
-#~ "externe ehcmodule3.elf moet worden gebruikt!"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "FAT modus enkel ondersteund door IOS222rev4"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32 mount: "
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT: terug naar oude methode"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "%s hoesje(s) gevonden"
-
-#~ msgid "Missing"
-#~ msgstr "Ontbreekt"
-
-#~ msgid "Missing "
-#~ msgstr "Ontbreekt "
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "FAT partitie openen..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "NTFS partitie openen..."
-
-#~ msgid "Press %s to select"
-#~ msgstr "Druk %s om te selecteren"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "Grootte: %d byte"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "Schakel over op IOS222 voor FAT ondersteuning."
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD(HC) Kaart ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB apparaat voor massa opslag ]"
-
-#~ msgid "cover"
-#~ msgstr "hoesje"

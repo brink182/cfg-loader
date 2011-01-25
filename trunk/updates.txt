@@ -13,6 +13,12 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 65b8 (beta)
+size = 1476160
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65b8.dol
+cios base detection for r17b
+
 release = 65b7 (beta)
 size = 1476096
 date = 2011-01-25

@@ -13,6 +13,36 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 65 (release)
+size = 1476160
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65.dol
+version
+
+release = 65-222 (release)
+size = 1476160
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65-222.dol
+Same as 65 but with different
+default options:
+  ios=222-mload
+  
+release = 65-compat (release)
+size = 1554112
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65-compat.dol
+Same as 65 but built with
+  devkit 17 and libogc 1.7.1
+  
+release = 65-dbg (debug)
+size = 1476160
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65-dbg.dol
+Same as 65 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 65b8 (beta)
 size = 1476160
 date = 2011-01-25
@@ -63,88 +93,6 @@ size = 1475584
 date = 2011-01-23
 url = http://cfg-loader.googlecode.com/files/cfg65b5-222.dol
 Same as 65b5 but with different
-default options:
-  ios=222-mload
-
-release = 65b4 (beta)
-size = 1475584
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b4.dol
-Fix modmii cios detection
-
-release = 65b4-222 (beta)
-size = 1475584
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b4-222.dol
-Same as 65b4 but with different
-default options:
-  ios=222-mload
-
-release = 65b3 (beta)
-size = 1475936
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b3.dol
-Detection for modmii hermes cios
-  v4, v5 (thanks FIX94)
-Fixes for ios base detection
-
-release = 65b3-222 (beta)
-size = 1475936
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b3-222.dol
-Same as 65b3 but with different
-default options:
-  ios=222-mload
-
-release = 65b2 (beta)
-size = 1475680
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b2.dol
-Detection for modmii ciosx rev19, 20,
-21+19 and hermes v4,5,5.1 (tnx FIX94)
-"Show cIOS info" in global options
-
-release = 65b2-222 (beta)
-size = 1475680
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b2-222.dol
-Same as 65b2 but with different
-default options:
-  ios=222-mload
-
-release = 65b (beta)
-size = 1474592
-date = 2011-01-22
-url = http://cfg-loader.googlecode.com/files/cfg65b.dol
-detection for modmii ciosx rev21
-Print cios base and rev for 245-250
-in global options with button +
-Word wrap game title
-Minor cleanups
-
-release = 65b-222 (beta)
-size = 1474592
-date = 2011-01-22
-url = http://cfg-loader.googlecode.com/files/cfg65b-222.dol
-Same as 65b but with different
-default options:
-  ios=222-mload
-
-release = 65a (alpha)
-size = 1473888
-date = 2011-01-19
-url = http://cfg-loader.googlecode.com/files/cfg65a.dol
-Updated libfat to svn-4520 whith
-  FSINFO (fast free space) (by Dimok)
-Manually sync FAT FSINFO by pressing
-  2 in partition selection screen
-Minor change to usbstorage mem alloc
-   
-release = 65a-222 (alpha)
-size = 1473888
-date = 2011-01-19
-url = http://cfg-loader.googlecode.com/files/cfg65a-222.dol
-Same as 65a but with different
 default options:
   ios=222-mload
 

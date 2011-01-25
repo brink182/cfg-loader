@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PT-BR translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-09-23 21:40-0300\n"
 "Last-Translator: LeonLeao <leon.leao92@gmail.com>\n"
 "Language-Team: Brazilian Portuguese\n"
@@ -690,10 +690,6 @@ msgstr "Opções Globais"
 msgid "Guitar"
 msgstr "Guitarra"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "ERRO HTTP: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "Resposta HTTP foi sem um arquivo"
 
@@ -957,11 +953,6 @@ msgstr "Nenhuma parte de domínio na URL '%s'"
 
 msgid "No games found!"
 msgstr "Jogos não encontrados!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr ""
-"Não há mais memória para copiar o arquivo de\n"
-"resposta HTTP"
 
 msgid "No partition selected!"
 msgstr "Não há partições selecionadas!"
@@ -1662,27 +1653,3 @@ msgstr "não é possível abrir o disco de wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "Foram encontradas %s Capas"
-
-#~ msgid "Network error.  Can't update gamercards."
-#~ msgstr "Erro na rede. Não é possível atualizar gamercards."
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "Abrindo partição FAT..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "Abrindo partição NTFS..."
-
-#~ msgid "Press %s to select"
-#~ msgstr "Pressione %s para selecionar"
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ CARTÃO SD/SDHC ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ Dispositivo de Armazenamento USB ]"
-
-#~ msgid "cover"
-#~ msgstr "capa"

@@ -6,7 +6,7 @@
 #include <gctypes.h>
 
 char* strcopy(char *dest, const char *src, int size);
-char *strappend(char *dest, char *src, int size);
+char *strappend(char *dest, const char *src, int size);
 bool str_replace(char *str, char *olds, char *news, int size);
 bool str_replace_all(char *str, char *olds, char *news, int size);
 bool str_replace_tag_val(char *str, char *tag, char *val);

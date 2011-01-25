@@ -435,10 +435,10 @@ int print_page(char *str, int lines, int page, int *num)
 	return 0;
 }
 
-int hash_init(HashTable *ht, int size,
-		u32 (*hash_fun)(void *key),
-		bool (*compare_key)(void *key, int handle),
-		int* (*next_handle)(int handle)
+int hash_init(HashTable *ht, int size, void *cb,
+		u32 (*hash_fun)(void *cb, void *key),
+		bool (*compare_key)(void *cb, void *key, int handle),
+		int* (*next_handle)(void *cb, int handle)
 		)
 {
 	int i;
@@ -450,6 +450,7 @@ int hash_init(HashTable *ht, int size,
 		ht->table[i] = -1;
 	}
 	ht->size = size;
+	ht->cb = cb;
 	ht->hash_fun = hash_fun;
 	ht->compare_key = compare_key;
 	ht->next_handle = next_handle;
@@ -464,23 +465,31 @@ void hash_close(HashTable *ht)
 
 void hash_add(HashTable *ht, void *key, int handle)
 {
+	//dbg_printf("hash_add(%.6s, %d)\n", key, handle);
 	if (!ht->table) return;
-	u32 hh = ht->hash_fun(key);
+	u32 hh = ht->hash_fun(ht->cb, key);
 	int hi = hh % ht->size;
-	int *next = ht->next_handle(handle);
+	int *next = ht->next_handle(ht->cb, handle);
 	*next = ht->table[hi];
 	ht->table[hi] = handle;
 }
 
 int hash_get(HashTable *ht, void *key)
 {
+	//dbg_printf("hash_get(%.6s)\n", key);
 	if (!ht->table) return -1;
-	u32 hh = ht->hash_fun(key);
+	u32 hh = ht->hash_fun(ht->cb, key);
 	int hi = hh % ht->size;
 	int handle = ht->table[hi];
+	int n = 0;
 	while (handle != -1) {
-		if (ht->compare_key(key, handle)) return handle;
-		handle = *ht->next_handle(handle);
+		if (ht->compare_key(ht->cb, key, handle)) return handle;
+		handle = *ht->next_handle(ht->cb, handle);
+		n++;
+		if (n > 10000) {
+			dbg_printf("hash loop! %.6s\n", key);
+			return -1;
+		}
 	}
 	return -1;
 }
@@ -488,24 +497,92 @@ int hash_get(HashTable *ht, void *key)
 int hash_getx(HashTable *ht, void *key)
 {
 	if (!ht->table) return -1;
-	u32 hh = ht->hash_fun(key);
+	u32 hh = ht->hash_fun(ht->cb, key);
 	int hi = hh % ht->size;
 	int *prev = NULL;
 	int handle = ht->table[hi];
 	while (handle != -1) {
-		if (ht->compare_key(key, handle)) {
+		if (ht->compare_key(ht->cb, key, handle)) {
 			if (prev) {
 				// push result to front so that next time it's faster
-				*prev = *ht->next_handle(handle);
-				*ht->next_handle(handle) = ht->table[hi];
+				int *next = ht->next_handle(ht->cb, handle);
+				*prev = *next;
+				*next = ht->table[hi];
 				ht->table[hi] = handle;
 			}
 			return handle;
 		}
-		prev = ht->next_handle(handle);
+		prev = ht->next_handle(ht->cb, handle);
 		handle = *prev;
 	}
 	return -1;
 }
 
+#define HMAP_ITEM(HM,N) (HM->data + HM->item_size * N)
+#define HMAP_NEXT(HM,N) HMAP_ITEM(HM,N)
+#define HMAP_KEY(HM,N) (HMAP_ITEM(HM,N) + sizeof(int))
+#define HMAP_VAL(HM,N) (HMAP_ITEM(HM,N) + sizeof(int) + HM->key_size)
+
+u32 hmap_hash(void *cb, void *key)
+{
+	HashMap *hmap = cb;
+	return hash_string_n(key, hmap->key_size);
+}
+
+bool hmap_cmp(void *cb, void *key, int handle)
+{
+	HashMap *hmap = cb;
+	return memcmp(key, HMAP_KEY(hmap, handle), hmap->key_size) == 0;
+}
+
+int* hmap_next(void *cb, int handle)
+{
+	int *p = HMAP_NEXT(((HashMap*)cb), handle);
+	//dbg_printf("next(%d) = %p\n", handle, p);
+	return p;
+}
+
+int hmap_init(HashMap *hmap, int key_size, int val_size)
+{
+	int ret;
+	memset(hmap, 0, sizeof(HashMap));
+	ret = hash_init(&hmap->ht, 0, hmap, &hmap_hash, &hmap_cmp, &hmap_next);
+	if (ret) return ret;
+	hmap->key_size = key_size;
+	hmap->val_size = val_size;
+	int item_size = sizeof(int) + hmap->key_size + hmap->val_size;
+	hmap->item_size = xalign_up(sizeof(int), item_size);
+	return 0;
+}
+
+void hmap_close(HashMap *hmap)
+{
+	SAFE_FREE(hmap->data);
+	hash_close(&hmap->ht);
+}
+
+int hmap_add(HashMap *hmap, void *key, void *val)
+{
+	//dbg_printf("hmap_add(%.6s, %d)\n", key, *(int*)val);
+	void *ptr;
+	int n = hmap->num;
+	int size = hmap->item_size * (n + 1);
+	ptr = realloc(hmap->data, size);
+	if (!ptr) return -1;
+	hmap->data = ptr;
+	hmap->num++;
+	hash_add(&hmap->ht, key, n);
+	//dbg_printf("%d data: %p key: %p val: %p\n", n, hmap->data, HMAP_KEY(hmap,n), HMAP_VAL(hmap,n));
+	memcpy(HMAP_KEY(hmap,n), key, hmap->key_size);
+	memcpy(HMAP_VAL(hmap,n), val, hmap->val_size);
+	return 0;
+}
+
+void *hmap_get(HashMap *hmap, void *key)
+{
+	//dbg_printf("hmap_get(%.6s)\n", key);
+	int n = hash_get(&hmap->ht, key);
+	if (n == -1) return NULL;
+	return HMAP_VAL(hmap,n);
+}
 

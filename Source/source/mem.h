@@ -83,6 +83,9 @@ void  util_clear();
 
 #define SAFE_FREE(P) if(P){mem_free(P);P=NULL;}
 
+size_t xalign_up(int a, size_t s);
+size_t xalign_down(int a, size_t s);
+
 typedef struct obj_block
 {
 	void *ptr;

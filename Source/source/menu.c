@@ -2398,121 +2398,13 @@ void Menu_Device(void)
 
 	mount_dev:;
 
-	static int ios_reloads = 0;
-	int max_ios_reloads = 1;
-	int timeout = 90;
-	int retry_menu = 4;
-	int ios_idx = CFG.game.ios_idx;
-	int i;
-
 	CFG.device = CFG_DEV_ASK; // next time ask
 
-	for (i=0; i<timeout; i++) {
-
-		if (i == 1) {
-			//Enable the console
-			Gui_Console_Enable();
-		}
-		repaint:
-		Con_Clear();
-		//MountPrint();
-		printf("\n");
-		FgColor(CFG.color_header);
-		printf_("[ %s ]\n", get_dev_name(wbfsDev));
-		DefaultColor();
-		printf("\n");
-		printf_x(gt("Mounting device, please wait..."));
-		printf("\n");
-		printf_(gt("(%d seconds timeout)"), timeout);
-		printf("\n\n");
-		if (i >= retry_menu) {
-			printf_("%s\n", gt("Device is not responding!"));
-			if (wbfsDev == WBFS_DEVICE_USB) {
-				printf_("%s\n", gt("Make sure USB port 0 is used!\n"
-							"(The one nearest to the edge)"));
-			}
-			printf_("%s\n", gt("You can also try unplugging\n"
-						"and plugging back the device,\n"
-						"or just wait some more"));
-			printf_h("%s\n", gt("Press A to select device"));
-			printf_h("%s\n", gt("Press B to exit to HBC"));
-			printf_h("%s\n", gt("Press HOME to reset"));
-			//if (first_time && ios_reloads < max_ios_reloads) {
-			if (ios_reloads < max_ios_reloads) {
-				printf_h(gt("Press 2 to reload IOS"));
-				printf(" < %s >\n", ios_str(ios_idx));
-				printf_h("%s\n", gt("Press LEFT/RIGHT to select IOS"));
-			} else {
-				Print_IOS_Info();
-				printf("\n");
-			}
-		}
-		if (i > 0) {
-			printf("\n");
-			printf_("Retry: %d ...\n", i);
-		}
-		fflush(stdout);
-		__console_flush(0);
-
-		/* Initialize WBFS */
-		ret = WBFS_Init_Dev(wbfsDev);
-		if (ret >= 0) {
-			printf("\n");
-			printf_(gt("OK!"));
-			goto mount_ok;
-		}
-		if (i < retry_menu) {
-			sleep(1);
-		} else {
-			if (i == retry_menu) {
-				Wpad_Init();
-			}
-			int button = Wpad_WaitButtonsTimeout(1000);
-			switch (button) {
-				case WPAD_BUTTON_A:
-					goto restart;
-				case WPAD_BUTTON_B:
-					Sys_HBC(0);
-					Sys_Exit();
-					break;
-				case WPAD_BUTTON_HOME:
-					Restart();
-					break;
-				case WPAD_BUTTON_2:
-					if (ios_reloads >= max_ios_reloads) {
-						goto repaint;
-					}
-					printf("\n");
-					Music_Pause();
-					cfg_ios_set_idx(ios_idx);
-					CURR_IOS_IDX = -1;
-					ReloadIOS(1,1);
-					printf("\n");
-					Music_UnPause();
-					ios_reloads++;
-					sleep(2);
-					i = retry_menu; // reset retry count
-					break;
-				case WPAD_BUTTON_LEFT:
-					ios_idx--;
-					if (ios_idx < 0) ios_idx = 0;
-					goto repaint;
-				case WPAD_BUTTON_RIGHT:
-					ios_idx++;
-					if (ios_idx > CFG_IOS_MAX) ios_idx = CFG_IOS_MAX;
-					goto repaint;
-			}
-		}
-	}
-	printf("\n");
-	printf_(gt("ERROR! (ret = %d)"), ret);
-	/* Restart wait */
-	Restart_Wait();
+	ret = Retry_Init_Dev(wbfsDev, 1);
+	if (ret == WPAD_BUTTON_A) goto restart;
 
 	//usleep(100000); // 100ms
 	
-	mount_ok:
-
 	// Mount usb fat partition if not already
 	// This is after device init, because of the timeout handling
 	MountUSB();
@@ -2579,6 +2471,132 @@ void Menu_Device(void)
 	}
 	first_time = 0;
 }
+
+
+int Retry_Init_Dev(int device, int a_select)
+{
+	static int ios_reloads = 0;
+	int max_ios_reloads = 1;
+	int timeout = 90;
+	int retry_menu = 4;
+	int ios_idx = CFG.game.ios_idx;
+	int ret;
+	int i;
+
+	for (i=0; i<timeout; i++) {
+
+		if (i == 1) {
+			//Enable the console
+			Gui_Console_Enable();
+		}
+		repaint:
+		if (a_select || i > 0) {
+			Con_Clear();
+			//MountPrint();
+			FgColor(CFG.color_header);
+			if (!a_select) {
+				printf("Searching for config.txt\n");
+			}
+			printf("\n");
+			printf_("[ %s ]\n", get_dev_name(device));
+			DefaultColor();
+			printf("\n");
+			printf_x(gt("Mounting device, please wait..."));
+			printf("\n");
+			printf_(gt("(%d seconds timeout)"), timeout);
+			printf("\n\n");
+			if (i >= retry_menu) {
+				printf_("%s\n", gt("Device is not responding!"));
+				if (device == WBFS_DEVICE_USB) {
+					printf_("%s\n", gt("Make sure USB port 0 is used!\n"
+								"(The one nearest to the edge)"));
+				}
+				printf_("%s\n", gt("You can also try unplugging\n"
+							"and plugging back the device,\n"
+							"or just wait some more"));
+				if (a_select) {
+					printf_h("%s\n", gt("Press A to select device"));
+				} else {
+					printf("\n\n");
+					printf_h("%s\n", "Press A to continue without config.txt");
+				}
+				printf_h("%s\n", gt("Press B to exit to HBC"));
+				printf_h("%s\n", gt("Press HOME to reset"));
+				//if (first_time && ios_reloads < max_ios_reloads) {
+				if (ios_reloads < max_ios_reloads) {
+					printf_h(gt("Press 2 to reload IOS"));
+					printf(" < %s >\n", ios_str(ios_idx));
+					printf_h("%s\n", gt("Press LEFT/RIGHT to select IOS"));
+				} else {
+					Print_IOS_Info();
+					printf("\n");
+				}
+			}
+		}
+		if (i > 0) {
+			printf("\n");
+			printf_("Retry: %d ...\n", i);
+		}
+		fflush(stdout);
+		__console_flush(0);
+
+		/* Initialize WBFS */
+		ret = WBFS_Init_Dev(device);
+		if (ret >= 0) {
+			printf("\n");
+			printf_(gt("OK!"));
+			return 0;
+		}
+		if (i < retry_menu) {
+			sleep(1);
+		} else {
+			if (i == retry_menu) {
+				Wpad_Init();
+			}
+			int button = Wpad_WaitButtonsTimeout(1000);
+			switch (button) {
+				case WPAD_BUTTON_A:
+					return WPAD_BUTTON_A;
+				case WPAD_BUTTON_B:
+					Sys_HBC(0);
+					Sys_Exit();
+					break;
+				case WPAD_BUTTON_HOME:
+					Restart();
+					break;
+				case WPAD_BUTTON_2:
+					if (ios_reloads >= max_ios_reloads) {
+						goto repaint;
+					}
+					printf("\n");
+					Music_Pause();
+					cfg_ios_set_idx(ios_idx);
+					CURR_IOS_IDX = -1;
+					ReloadIOS(1,1);
+					printf("\n");
+					Music_UnPause();
+					ios_reloads++;
+					sleep(2);
+					i = retry_menu; // reset retry count
+					break;
+				case WPAD_BUTTON_LEFT:
+					ios_idx--;
+					if (ios_idx < 0) ios_idx = 0;
+					goto repaint;
+				case WPAD_BUTTON_RIGHT:
+					ios_idx++;
+					if (ios_idx > CFG_IOS_MAX) ios_idx = CFG_IOS_MAX;
+					goto repaint;
+			}
+		}
+	}
+	printf("\n");
+	printf_(gt("ERROR! (ret = %d)"), ret);
+	/* Restart wait */
+	Restart_Wait();
+	return -1;
+}
+
 
 u8 BCA_Data[64] ATTRIBUTE_ALIGN(32);
 
@@ -2988,6 +3006,59 @@ out:
 	//exit(0);
 }
 
+void FmtGameInfoLong(u8 *id, char *game_desc, int size)
+{
+	*game_desc = 0;
+	struct gameXMLinfo *g = get_game_info_id(id);
+	if (!g) return;
+	if (!LoadGameInfoFromXML(id)) return;
+	FmtGameInfo(game_desc, size);
+	strappend(game_desc, "\n", size);
+	int i, n;
+	int req;
+	const char *s;
+	// required controllers
+	n = 0;
+	for (i=0; i<XML_NUM_ACCESSORY; i++) {
+		s = getControllerName(g, i, &req);
+		if (!s) break;
+		if (!req) continue;
+		if (n == 0) strappend(game_desc, "(", size);
+		if (n > 0) strappend(game_desc, ", ", size);
+		strappend(game_desc, s, size);
+		n++;
+	}
+	if (n) strappend(game_desc, ")", size);
+	// optional controllers
+	n = 0;
+	for (i=0; i<XML_NUM_ACCESSORY; i++) {
+		s = getControllerName(g, i, &req);
+		if (!s) break;
+		if (req) continue;
+		if (n == 0) strappend(game_desc, " [", size);
+		if (n > 0) strappend(game_desc, ", ", size);
+		strappend(game_desc, s, size);
+		n++;
+	}
+	if (n) strappend(game_desc, "]", size);
+	strappend(game_desc, "\n", size);
+	// synopsis
+	if (g->synopsis) {
+		strappend(game_desc, "\n", size);
+		strappend(game_desc, g->synopsis, size);
+		if (strlen(g->synopsis) == XML_MAX_SYNOPSIS - 1) {
+			// mark that the text was cut and there's more
+			strappend(game_desc, " ....", size);
+		}
+	}
+	extern char * unescape(char *input, int size);
+	unescape(game_desc, size);
+	char dots[4] = {0xE2, 0x80, 0xA6, 0};
+	str_replace_all(game_desc, dots, "...", size);
+	str_replace_all(game_desc, "\t", " ", size); // tabs
+	str_replace_all(game_desc, "  ", " ", size); // multiple spaces
+}
+
 void Menu_Boot(bool disc)
 {
 	/* Clear console */
@@ -3105,31 +3176,15 @@ restart_menu_boot:;
 		goto skip_confirm;
 	}
 
+	char game_desc[XML_MAX_SYNOPSIS * 2] = "";
 	int page = 0;
 	int num_pages = 0;
-	char game_desc[XML_MAX_SYNOPSIS * 2] = "";
-	if (LoadGameInfoFromXML(header->id)) {
-		FmtGameInfo(game_desc, sizeof(game_desc));
-		STRAPPEND(game_desc, "\n\n");
-	}
-	struct gameXMLinfo *g = get_game_info_id(header->id);
-	if (g && g->synopsis) {
-		STRAPPEND(game_desc, g->synopsis);
-		if (strlen(g->synopsis) == XML_MAX_SYNOPSIS - 1) {
-			// mark that the text was cut and there's more
-			STRAPPEND(game_desc, " ....");
-		}
-	}
 	int cols, rows;
 	CON_GetMetrics(&cols, &rows);
 	cols -= 1;
 	rows -= 11;
 	if (rows < 2) rows = 2;
-	extern char * unescape(char *input, int size);
-	unescape(game_desc, sizeof(game_desc));
-	char dots[4] = {0xE2, 0x80, 0xA6, 0};
-	str_replace_all(game_desc, dots, "...", sizeof(game_desc));
-	str_replace_all(game_desc, "  ", " ", sizeof(game_desc));
+	FmtGameInfoLong(header->id, game_desc, sizeof(game_desc));
 	con_wordwrap(game_desc, cols, sizeof(game_desc));
 
 	Gui_Console_Enable();
@@ -3441,9 +3496,6 @@ L_repaint:
 						case 9: configbytes[0] = 0x08; break; 
 						case 10: configbytes[0] = 0x09; break;
 				}
-
-		// hide cios devices
-		shadow_mload();
 
 		/* Boot Wii disc */
 		ret = Disc_WiiBoot(disc);

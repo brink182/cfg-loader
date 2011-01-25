@@ -26,6 +26,7 @@ distribution.
 
 -------------------------------------------------------------*/
 
+#include <unistd.h>
 #include <gccore.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -51,6 +52,7 @@ distribution.
 
 #define UMS_HEAPSIZE			0x8000
 #define USB_MEM2_SIZE           0x10000
+// 0x10000 = 64 KB = 128 x 512 sector = 16 x 4k sector
 
 /* Variables */
 static char fs[] ATTRIBUTE_ALIGN(32) = "/dev/usb2";
@@ -63,11 +65,15 @@ static void *usb_buf2;
 
 extern void* SYS_AllocArena2MemLo(u32 size,u32 align);
 
-inline s32 __USBStorage_isMEM2Buffer(const void *buffer)
+static inline s32 __USBStorage_isMEM2Buffer(const void *buffer)
 {
-	u32 high_addr = ((u32)buffer) >> 24;
+	// MEM1: 0x80000000 (cached) 0xC0000000 (uncached)
+	// MEM2: 0x90000000 (cached) 0xD0000000 (uncached)
+	//return ((u32)buffer & 0x10000000) != 0;
 
-	return (high_addr == 0x90) || (high_addr == 0xD0);
+	// Why is this important? MEM1 seems to work just fine
+	// so let's skip this check
+	return true;
 }
 
 
@@ -115,6 +121,11 @@ s32 USBStorage_OpenDev()
 	// allocate buf2
 	if (usb_buf2 == NULL) {
 		usb_buf2 = SYS_AllocArena2MemLo(USB_MEM2_SIZE, 32);
+		if (usb_buf2 == NULL) {
+			printf("ERR: usb mem2\n");
+			sleep(3);
+			return IPC_ENOMEM;  // = -22
+		}
 	}
 
 	/* Open USB device */
@@ -186,67 +197,75 @@ void USBStorage_Deinit(void)
 
 s32 USBStorage_ReadSectors(u32 sector, u32 numSectors, void *buffer)
 {
-	void *buf = (void *)buffer;
-	u32   len = (sector_size * numSectors);
-
-	s32 ret;
+	u32 size;
+	s32 ret = -1;
 
 	/* Device not opened */
 	if (fd < 0)
 		return fd;
 
-	/* MEM1 buffer */
-	if (!__USBStorage_isMEM2Buffer(buffer)) {
-		/* Allocate memory */
-		//buf = iosAlloc(hid, len);
-		buf = usb_buf2;
-		if (!buf)
-			return IPC_ENOMEM;
+	/* check align and MEM1 buffer */
+	if (((u32)buffer & 0x1F) || (!__USBStorage_isMEM2Buffer(buffer))) {
+		if (!usb_buf2) return IPC_ENOMEM;
+		int cnt;
+		int max_sec = USB_MEM2_SIZE / sector_size;
+		//dbg_printf("usb_read(%u,%u) unaligned(%p)\n", sector, numSectors, buffer);
+		while (numSectors) {
+			if (numSectors > max_sec) cnt = max_sec; else cnt = numSectors;
+			size = cnt * sector_size;
+			ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_READ_SECTORS,
+					"ii:d", sector, cnt, usb_buf2, size);
+			//dbg_printf("usb_read_chunk(%u,%u)=%d\n", sector, cnt, ret);
+			if (ret < 0) return ret;
+			memcpy(buffer, usb_buf2, size);
+			numSectors -= cnt;
+			sector += cnt;
+			buffer += size;
+		}
+	} else {
+		size = sector_size * numSectors;
+		/* Read data */
+		ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_READ_SECTORS,
+				"ii:d", sector, numSectors, buffer, size);
 	}
-
-	/* Read data */
-	ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_READ_SECTORS, "ii:d", sector, numSectors, buf, len);
-
 	//dbg_printf("read %u %u = %d\n", sector, numSectors, ret);
-
-	/* Copy data */
-	if (buf != buffer) {
-		memcpy(buffer, buf, len);
-		//iosFree(hid, buf);
-	}
 
 	return ret;
 }
 
 s32 USBStorage_WriteSectors(u32 sector, u32 numSectors, const void *buffer)
 {
-	void *buf = (void *)buffer;
-	u32   len = (sector_size * numSectors);
-
-	s32 ret;
+	u32 size;
+	s32 ret = -1;
 
 	/* Device not opened */
 	if (fd < 0)
 		return fd;
 
-	/* MEM1 buffer */
-	if (!__USBStorage_isMEM2Buffer(buffer)) {
-		/* Allocate memory */
-		//buf = iosAlloc(hid, len);
-		buf = usb_buf2;
-		if (!buf)
-			return IPC_ENOMEM;
-
-		/* Copy data */
-		memcpy(buf, buffer, len);
+	/* check align and MEM1 buffer */
+	if (((u32)buffer & 0x1F) || (!__USBStorage_isMEM2Buffer(buffer))) {
+		if (!usb_buf2) return IPC_ENOMEM;
+		int cnt;
+		int max_sec = USB_MEM2_SIZE / sector_size;
+		//dbg_printf("usb_write(%u,%u) unaligned(%p)\n", sector, numSectors, buffer);
+		while (numSectors) {
+			if (numSectors > max_sec) cnt = max_sec; else cnt = numSectors;
+			size = cnt * sector_size;
+			memcpy(usb_buf2, buffer, size);
+			ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_WRITE_SECTORS,
+					"ii:d", sector, cnt, usb_buf2, size);
+			//dbg_printf("usb_write_chunk(%u,%u)=%d\n", sector, cnt, ret);
+			if (ret < 0) return ret;
+			numSectors -= cnt;
+			sector += cnt;
+			buffer += size;
+		}
+	} else {
+		size = sector_size * numSectors;
+		/* Write data */
+		ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_WRITE_SECTORS,
+				"ii:d", sector, numSectors, buffer, size);
 	}
-
-	/* Write data */
-	ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_WRITE_SECTORS, "ii:d", sector, numSectors, buf, len);
-
-	/* Free memory */
-	//if (buf != buffer)
-	//	iosFree(hid, buf);
 
 	return ret;
 }

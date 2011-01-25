@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -685,10 +685,6 @@ msgstr "Opciones Globales"
 msgid "Guitar"
 msgstr "Guitarra"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP ERROR: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "Respuesta HTTP fué sin un archivo"
 
@@ -950,9 +946,6 @@ msgstr "Ninguna parte de dominio en la URL '%s'"
 
 msgid "No games found!"
 msgstr "No hay juegos!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "No hay más memoria para copiar el archivo de respuesta HTTP"
 
 msgid "No partition selected!"
 msgstr "No hay particiones seleccionadas!"
@@ -1628,96 +1621,3 @@ msgstr "no se puede abrir el disco de wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
-
-#~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
-#~ msgstr "IOS %u del disco no se cargó! (ret = %d)"
-
-#~ msgid "Download Game Database"
-#~ msgstr "Descargar la Base de Datos de Juegos"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "Descargando %s Portadas para %.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "Descargando portada %s.. (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "Descargando las Portadas %s"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "ERROR: CIOS222 o CIOS223 se requieren para\n"
-#~ "iniciar juegos desde una partición FAT!"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "ERROR: SD montada en NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "ERROR: SD/FAT montada en wbfs! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "ERROR: USB montando NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "ERROR: USB/FAT montando wbfs! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "ERROR: WBFS FAT montando sector %x no %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "ERROR: ehcmodule2 ya no se incluye!\n"
-#~ "el archivo externo ehcmodule.elf debe utilizarse!"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "ERROR: ehcmodule3 ya no se incluye!\n"
-#~ "el archivo externo ehcmodule3.elf debe utilizarse!"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "Modo FAT solo es soportado con el ios 222 rev4"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "Montar FAT32: "
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT: retroceso al método antiguo"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "Han sido encontradas %s Portadas"
-
-#~ msgid "Missing"
-#~ msgstr "Faltantes"
-
-#~ msgid "Missing "
-#~ msgstr "Faltantes "
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "Abriendo partición FAT..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "Abriendo partición NTFS..."
-
-#~ msgid "Press %s to select"
-#~ msgstr "Presiona %s para elegir"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "Tamaño: %d byte"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "Cambiar a IOS222 para soporte de FAT."
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ Tarjeta SD/SDHC ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ Dispositivo de Almacenamiento USB ]"
-
-#~ msgid "cover"
-#~ msgstr "portada"

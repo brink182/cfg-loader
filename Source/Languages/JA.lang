@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -253,7 +253,7 @@ msgid "Developer"
 msgstr "開発者"
 
 msgid "Device is not responding!"
-msgstr ""
+msgstr "デバイスが応答していません!"
 
 msgid "Device:"
 msgstr "使用デバイス:"
@@ -682,10 +682,6 @@ msgstr "基本設定"
 msgid "Guitar"
 msgstr "ギター"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTPエラー: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTPの応答はファイル無しでした"
 
@@ -945,9 +941,6 @@ msgstr "'%s'のURLにドメインがありません"
 msgid "No games found!"
 msgstr "ゲームが見つかりません"
 
-msgid "No more memory to copy file from HTTP response"
-msgstr "HTTPからコピーするためのメモリが不足しています"
-
 msgid "No partition selected!"
 msgstr "領域が選ばれていません"
 
@@ -1180,19 +1173,19 @@ msgid "Press %s/%s to select device."
 msgstr "%s/%sボタンでデバイスを選んでください"
 
 msgid "Press 2 to reload IOS"
-msgstr ""
+msgstr "2ボタンでIOSを再読み込みします"
 
 msgid "Press A to select device"
-msgstr ""
+msgstr "Aボタンでデバイスを選択します"
 
 msgid "Press B to exit to HBC"
-msgstr ""
+msgstr "BボタンでHBCに移動します"
 
 msgid "Press HOME to reset"
-msgstr ""
+msgstr "HOMEボタンでリセットします"
 
 msgid "Press LEFT/RIGHT to select IOS"
-msgstr ""
+msgstr "左/右ボタンでIOSを選択します。"
 
 msgid "Press any button to continue..."
 msgstr "何かボタンを押すと続行します"
@@ -1305,7 +1298,7 @@ msgid "Saving settings..."
 msgstr "設定を保存中…"
 
 msgid "Saving:"
-msgstr ""
+msgstr "保存中:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1519,6 +1512,9 @@ msgid ""
 "and plugging back the device,\n"
 "or just wait some more"
 msgstr ""
+"一度取り外してもういちど\n"
+"デバイスを取り付けるか、\n"
+"もう少し待ってください"
 
 msgid "Zapper"
 msgstr "Wiiザッパー"
@@ -1611,7 +1607,7 @@ msgid "split error: %s"
 msgstr "分割エラー: %s"
 
 msgid "uDraw GameTablet"
-msgstr ""
+msgstr "uDraw GameTablet"
 
 msgid "unable to open wii disc"
 msgstr "Wiiディスクを開けません"
@@ -1619,78 +1615,3 @@ msgstr "Wiiディスクを開けません"
 #, c-format
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "FAT領域からのゲーム起動には\n"
-#~ "cIOS222か223が必要です"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "エラー:SDがNTFSをマウント"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "エラー:SD/FATがwbfsをマウント"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "エラー:USBがNTFSをマウントしています(%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "エラー:USB/FATがwbfsをマウントしています(%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "エラー:WBFS FATマウントセクタ%x not %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "エラー:EHCモジュール2は含まれなくなりました!\n"
-#~ "ehcmodule.elfを使用する必要があります！"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "エラー:EHCモジュール3は含まれなくなりました!\n"
-#~ "ehcmodule3.elfを使用する必要があります！"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "FATモードはIOS222v4でのみサポートされます"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "設定を読み込むデバイス:"
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT:古いメソッドへの縮退運転"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "%sのカバーが見つかりました"
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "FAT領域を開いています…"
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "NTFS領域を開いています…"
-
-#~ msgid "Press %s button to select"
-#~ msgstr "%sボタンで選びます"
-
-#~ msgid "Press %s to select"
-#~ msgstr "%sボタンで選びます"
-
-#~ msgid "Press 1 for fullscreen preview"
-#~ msgstr "1ボタンで全画面プレビューをします"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "FATへの対応のためIOS222に変更しています"
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHCカード ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USBデバイス ]"
-
-#~ msgid "cover"
-#~ msgstr "カバー"

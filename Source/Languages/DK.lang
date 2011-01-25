@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -686,10 +686,6 @@ msgstr "Global indstilling"
 msgid "Guitar"
 msgstr "Guitar"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP FEJL: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP Svar var uden en fil"
 
@@ -951,9 +947,6 @@ msgstr "Ingen domæne del i URL '%s'"
 
 msgid "No games found!"
 msgstr "Ingen spil fundet!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "Ikke mere hukommelse til at kopier fra HTTP svar"
 
 msgid "No partition selected!"
 msgstr "Ingen partition valgt!"
@@ -1629,59 +1622,3 @@ msgstr "Kunne ikke åbne Wii disc"
 #, c-format
 msgid "used: %p - %p"
 msgstr "Brugt: %p - %p"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "FEJL: SD mount NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "FEJL: SD/FAT mount wbfs! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "FEJL: USB mount NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "FEJL: USB/FAT mount wbfs! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "FEJL: WBFS FAT mount sector %x Ikke %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "FEJL: ehcmodule2 er ikke længere includeret!\n"
-#~ "extern fil ehcmodule.elf skal bruges!"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "FEJL: ehcmodule3 er ikke længere includeret!\n"
-#~ "extern fil ehcmodule3.elf skal bruges!"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "FAT mode kun understøttet med ios 222 rev4"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32 mount: "
-
-#~ msgid "Found %s Cover"
-#~ msgstr "Fundet %s cover"
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "Åbner FAT partition..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "Åbner NTFS partition..."
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHC Kort ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB Lager enhed ]"
-
-#~ msgid "bad wbfs file:  %s"
-#~ msgstr "Dårlig wbfs fil: %s"
-
-#~ msgid "cover"
-#~ msgstr "Cover"

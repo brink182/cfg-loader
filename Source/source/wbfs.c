@@ -992,6 +992,7 @@ s32 dbg_WBFS_GetCount(u32 *count)
 	sprintf(fname, "%s/%s", USBLOADER_PATH, "gamelist2.txt");
 	printf("fake list: %s\n", fname); sleep(1);
 	cfg_parsefile(fname, add_fake);
+	//add_fake("RHAP01", "wii play");
 	*count = fake_num;
 	return 0;
 }

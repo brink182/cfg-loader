@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -684,10 +684,6 @@ msgstr "Opzioni Generali"
 msgid "Guitar"
 msgstr "Chitarra"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "ERRORE HTTP: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP Response senza file"
 
@@ -951,9 +947,6 @@ msgstr "Nessun dominio nel URL '%s'"
 
 msgid "No games found!"
 msgstr "Nessun gioco trovato!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "Memoria insufficiente per copiare il file da HTTP"
 
 msgid "No partition selected!"
 msgstr "Nessuna partizione selezionata!"
@@ -1629,96 +1622,3 @@ msgstr "impossibile aprire disco Wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usati: %p - %p"
-
-#~ msgid "Disc IOS %u could not be loaded! (ret = %d)"
-#~ msgstr "Impossibile caricare IOS %u del disco! (ret = %d)"
-
-#~ msgid "Download Game Database"
-#~ msgstr "Scarica Database Giochi"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "Sto scaricando le copertine %s per %.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "Sto scaricando la copertina %s... (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "Sto scaricando le copertine %s"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "ERRORE: CIOS222 o CIOS223 necessario per\n"
-#~ "caricare giochi da una partizione FAT!"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "ERRORE: SD mount NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "ERRORE: SD/FAT mount wbfs! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "ERRORE: USB mount NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "ERRORE: USB/FAT mount wbfs! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "ERRORE: WBFS FAT mount sector %x not %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "ERRORE: ehcmodule2 non è più incluso!\n"
-#~ "occorre utilizzare file ehcmodule.elf esterno!"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "ERRORE: ehcmodule3 non è più incluso!\n"
-#~ "occorre utilizzare file ehcmodule3.elf esterno!"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "Modalità FAT possibile solo con ios 222 rev4"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "Caric. FAT32: "
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT: ritorno al vecchio metodo"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "Trovata Copertina %s"
-
-#~ msgid "Missing"
-#~ msgstr "Mancanti"
-
-#~ msgid "Missing "
-#~ msgstr "Mancanti "
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "Sto aprendo la partizione FAT..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "Sto aprendo la partizione NTFS..."
-
-#~ msgid "Press %s to select"
-#~ msgstr "Premere %s per scegliere"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "Dimensione: %d byte"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "Sto passando al IOS222 per il supporto FAT"
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ Scheda SD/SDHC ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ Memoria di Massa USB ]"
-
-#~ msgid "cover"
-#~ msgstr "copertina"

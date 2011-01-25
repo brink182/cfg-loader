@@ -24,6 +24,8 @@
 #include "menu.h"
 #include "console.h"
 #include "sys.h"
+#include "menu.h"
+#include "wbfs.h"
 
 char FAT_DRIVE[8] = SDHC_DRIVE;
 char USBLOADER_PATH[200] = "sd:/usb-loader";
@@ -1188,33 +1190,30 @@ bool cfg_map_auto_token(char *name, struct TextMap *map, struct MenuButton *var)
 	return map_auto_token(name, cfg_name, cfg_val, map, var);
 }
 
-extern u32 hash_string (const char *str_param);
-extern u32 hash_string_n (const char *str_param, int n);
-
-u32 hash_id4(void *id)
+u32 hash_id4(void *cb, void *id)
 {
 	// id4 is usually unique, except for customs
 	return hash_string_n(id, 4);
 }
 
-u32 hash_id6(void *id)
+u32 hash_id6(void *cb, void *id)
 {
 	return hash_string_n(id, 6);
 }
 
-bool title_cmp_id6(void *key, int i)
+bool title_cmp_id6(void *cb, void *key, int i)
 {
 	if (i < 0 || i > num_title) return false;
 	return strncmp((char*)cfg_title[i].id, (char*)key, 6) == 0;
 }
 
-bool title_cmp_id4(void *key, int i)
+bool title_cmp_id4(void *cb, void *key, int i)
 {
 	if (i < 0 || i > num_title) return false;
 	return strncmp((char*)cfg_title[i].id, (char*)key, 4) == 0;
 }
 
-int* title_get_hnext(int i)
+int* title_get_hnext(void *cb, int i)
 {
 	if (i < 0 || i > num_title) return NULL;
 	return &cfg_title[i].hnext;
@@ -1275,11 +1274,11 @@ void title_set(char *id, char *title)
 		// update hash
 		if (id[3] == 0 || id[4] == 0) {
 			// id3 or id4
-			hash_check_init(&title_hash_id4, 0, hash_id4, title_cmp_id4, title_get_hnext);
+			hash_check_init(&title_hash_id4, 0, NULL, &hash_id4, &title_cmp_id4, &title_get_hnext);
 			hash_add(&title_hash_id4, id, num_title);
 		} else {
 			// id6
-			hash_check_init(&title_hash_id6, 0, hash_id6, title_cmp_id6, title_get_hnext);
+			hash_check_init(&title_hash_id6, 0, NULL, &hash_id6, &title_cmp_id6, &title_get_hnext);
 			hash_add(&title_hash_id6, id, num_title);
 		}
 		num_title++;
@@ -3311,6 +3310,18 @@ void cfg_direct_start(int argc, char **argv)
 	}
 }
 
+int CFG_MountUSB()
+{
+	static int first_time = 1;
+	int ret;
+	if (!first_time) return -1;
+	ret = MountUSB();
+	if (ret == 0) return 0; // OK
+	ret = Retry_Init_Dev(WBFS_DEVICE_USB, 0);
+	if (ret != 0) return -1;
+	return MountUSB();
+}
+
 // This has to be called BEFORE video & console init
 void CFG_Load(int argc, char **argv)
 {
@@ -3344,7 +3355,7 @@ void CFG_Load(int argc, char **argv)
 		// ignore : in case it's numbered
 		if (strncmp(arg0, USB_MOUNT, strlen(USB_MOUNT)) == 0)
 		{
-			if (MountUSB() == 0 && mount_find(USB_DRIVE)) {
+			if (CFG_MountUSB() == 0 && mount_find(USB_DRIVE)) {
 				strcpy(FAT_DRIVE, USB_DRIVE);
 				try_usb = true;
 				try_sd = false;
@@ -3353,7 +3364,7 @@ void CFG_Load(int argc, char **argv)
 		// same logic applies to ntfs:
 		else if (strncmp(arg0, NTFS_MOUNT, strlen(NTFS_MOUNT)) == 0)
 		{
-			if (MountUSB() == 0 && mount_find(NTFS_DRIVE)) {
+			if (CFG_MountUSB() == 0 && mount_find(NTFS_DRIVE)) {
 				strcpy(FAT_DRIVE, NTFS_DRIVE);
 				try_ntfs = true;
 				try_sd = false;
@@ -3406,14 +3417,14 @@ void CFG_Load(int argc, char **argv)
 	if (!ret) {
 		if (!try_usb) {
 			try_usb = true;
-			if (MountUSB() == 0) {
+			if (CFG_MountUSB() == 0) {
 				strcpy(FAT_DRIVE, USB_DRIVE);
 				goto retry;
 			}
 		}
 		if (!try_ntfs) {
 			try_ntfs = true;
-			if (MountUSB() == 0) {
+			if (CFG_MountUSB() == 0) {
 				strcpy(FAT_DRIVE, NTFS_DRIVE);
 				goto retry;
 			}

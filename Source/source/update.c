@@ -46,7 +46,7 @@
 //
 ////////////////////////////////////////
 
-#define MAX_UP_DESC 5
+#define MAX_UP_DESC 6
 
 struct UpdateInfo
 {
@@ -209,6 +209,8 @@ void download_all_theme_previews()
 	}
 	printf_(gt("Done."));
 	printf("\n");
+	__console_flush(0);
+	sleep(1);
 }
 
 // Loops through each local theme in the /themes dir to determine if an update is available.
@@ -553,7 +555,7 @@ void Menu_Updates()
 		printf_x(gt("Available Updates"));
 		printf(":\n");
 		DefaultColor();
-		max_desc = 0;
+		max_desc = MAX_UP_DESC;
 		menu_begin(&menu);
 		menu_window_begin(&menu, win_size, num_updates);
 		for (i=0; i<num_updates; i++) {
@@ -582,7 +584,6 @@ void Menu_Updates()
 			}
 		}
 
-		if (rows > 17) printf("\n");
 		if (rows > 18) {
 			printf_h(gt("Press %s to download and update"), (button_names[CFG.button_confirm.num]));
 			printf("\n");
@@ -753,8 +754,6 @@ int Download_Theme(int n)
 	printf("\n\n");
 	printf_(gt("Press any button..."));
 	printf("\n");
-	FgColor(CFG.color_footer);
-	printf_x(gt("Themes provided by wii.spiffy360.com"));
 
 	Wpad_WaitButtonsCommon();
 
@@ -948,7 +947,7 @@ void Theme_Update()
 
 	// null terminate
 	char *newbuf;
-	newbuf = realloc(file.data, file.size+4);
+	newbuf = mem_realloc(file.data, file.size+4);
 	if (newbuf) {
 		newbuf[file.size] = 0;
 		file.data = (void*)newbuf;
@@ -1019,7 +1018,7 @@ void Online_Update()
 
 	// null terminate
 	char *newbuf;
-	newbuf = realloc(file.data, file.size+4);
+	newbuf = mem_realloc(file.data, file.size+4);
 	if (newbuf) {
 		newbuf[file.size] = 0;
 		file.data = (void*)newbuf;

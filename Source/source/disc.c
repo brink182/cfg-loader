@@ -404,7 +404,12 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 		return ret;
 	}
 
+	// BCA
 	insert_bca_data();
+	verify_bca_data();
+
+	// hide cios devices
+	shadow_mload();
 
 	//if (CFG.ios_yal) {
 		printf(gt("Loading ..."));
@@ -510,7 +515,7 @@ s32 Disc_BootPartition(u64 offset, bool dvd)
 	//p_entry();
 
 	/* Epic failure */
-	while (1);
+	while (1) sleep(1);
 
 	return 0;
 }

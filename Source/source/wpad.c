@@ -367,6 +367,8 @@ s32 Wpad_Init(void)
 	//WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
 	WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
 
+	WPAD_SetIdleTimeout(60*5); // idle after 5 minutes
+
 	get_time(&TIME.wpad2);
 
 	return ret;

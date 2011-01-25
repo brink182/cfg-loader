@@ -30,7 +30,7 @@ s32 default_sort_index = 0;
 bool default_sort_desc = 0;
 s32 default_filter_type = -1;
 
-time_t *install_time = NULL;
+HashMap install_time;
 
 s32 __sort_play_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_install_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
@@ -168,6 +168,14 @@ int get_accesory_id(char *accessory)
 		if (strcmp(accessory, accessoryTypes[i][0]) == 0) return i;
 	}
 	return -1;
+}
+
+const char* get_accesory_name(int i)
+{
+	if (i<accessoryCnt) {
+		return gt(accessoryTypes[i][1]);
+	}
+	return NULL;
 }
 
 int get_feature_id(char *feature)
@@ -366,34 +374,15 @@ s32 __sort_play_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 s32 __sort_install_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 {
 	int ret = 0;
-	/*
-	char fname1[1024];
-	char fname2[1024];
-	struct stat fileStat1;
-	struct stat fileStat2; 
-	WBFS_FAT_find_fname(hdr1->id, fname1, sizeof(fname1));
-	WBFS_FAT_find_fname(hdr2->id, fname2, sizeof(fname2));
-	int err1 = stat(fname1, &fileStat1); 
-	int err2 = stat(fname2, &fileStat2);
-	if (err1 != 0 || err2 != 0)
-		ret = 0;
-	else if (desc)
-		ret = (fileStat2.st_ctime - fileStat1.st_ctime);
-	else
-		ret = (fileStat1.st_ctime - fileStat2.st_ctime);
-	*/
-	int i1 = hdr1 - gameList;
-	int i2 = hdr2 - gameList;
+	void *p1, *p2;
 	time_t t1 = 0;
 	time_t t2 = 0;
-	if (install_time) {
-		if (i1 >= 0 && i1 < gameCnt) t1 = install_time[i1];
-		if (i2 >= 0 && i2 < gameCnt) t2 = install_time[i2];
-		if (t1 && t2) {
-			ret = t1 - t2;
-			if (desc) ret = -ret;
-		}
-	}
+	p1 = hmap_get(&install_time, hdr1->id);
+	p2 = hmap_get(&install_time, hdr2->id);
+	if (p1) memcpy(&t1, p1, sizeof(time_t));
+	if (p2) memcpy(&t2, p2, sizeof(time_t));
+	ret = t1 - t2;
+	if (desc) ret = -ret;
 	if (ret == 0) ret = __sort_title(hdr1, hdr2, desc);
 	return ret;
 }
@@ -580,26 +569,35 @@ s32 __sort_play_date_desc(const void *a, const void *b)
 
 void sortList(int (*sortFunc) (const void *, const void *))
 {
+	int inst_time = 0;
 	if (sortFunc == __sort_install_date_asc	|| sortFunc == __sort_install_date_desc) {
+		inst_time = 1;
 		// prepare install times
 		char fname[1024];
 		struct stat st;
 		int i;
+		int ret;
+		time_t time;
 		//dbg_time1();
 		printf("\n\n");
-		install_time = calloc(gameCnt, sizeof(time_t));
+		hmap_init(&install_time, 6, sizeof(time_t));
 		for (i=0; i<gameCnt; i++) {
 			printf_("... %3d%%\r", 100*(i+1)/gameCnt);
 			__console_flush(1);
-			WBFS_FAT_find_fname(gameList[i].id, fname, sizeof(fname));
-			if (stat(fname, &st) == 0) {
-				install_time[i] = st.st_ctime;
+			*fname = 0;
+			time = 0;
+			ret = WBFS_FAT_find_fname(gameList[i].id, fname, sizeof(fname));
+			if (ret > 0 && stat(fname, &st) == 0) {
+				time = st.st_ctime;
 			}
+			hmap_add(&install_time, gameList[i].id, &time);
 		}
 		//dbg_time2("stat"); Menu_PrintWait();
 	}
 	qsort(gameList, gameCnt, sizeof(struct discHdr), sortFunc);
-	SAFE_FREE(install_time);
+	if (inst_time) {
+		hmap_close(&install_time);
+	}
 	// scroll start list
 	__Menu_ScrollStartList();
 }

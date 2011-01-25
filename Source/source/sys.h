@@ -14,7 +14,8 @@ s32  Sys_GetCerts(signed_blob **, u32 *);
 int ReloadIOS(int subsys, int verbose);
 void Block_IOS_Reload();
 void load_bca_data(u8 *discid);
-void insert_bca_data();
+int insert_bca_data();
+int verify_bca_data();
 void print_mload_version();
 void load_dip_249();
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <ogcsys.h>
 #include <sdcard/wiisd_io.h>
@@ -14,6 +15,7 @@
 
 #define SDHC_HEAPSIZE		0x8000
 #define SDHC_MEM2_SIZE		0x10000
+// 0x10000 = 64 KB = 128 x 512 sector
 
 int sdhc_mode_sd = 0;
 int sdhc_inited = 0;
@@ -52,6 +54,11 @@ bool SDHC_Init(void)
 	// allocate buf2
 	if (sdhc_buf2 == NULL) {
 		sdhc_buf2 = SYS_AllocArena2MemLo(SDHC_MEM2_SIZE, 32);
+		if (sdhc_buf2 == NULL) {
+			printf("ERR: sdhc mem2\n");
+			sleep(3);
+			goto err;
+		}
 	}
 
 	/* Open SDHC device */
@@ -119,10 +126,8 @@ bool SDHC_ReadSectors(u32 sector, u32 count, void *buffer)
 		return __io_wiisd.readSectors(sector, count, buffer);
 	}
 
-	void *buf = (void *)buffer;
-	u32   len = (sector_size * count);
-
-	s32 ret;
+	u32 size;
+	s32 ret = -1;
 
 	/* Device not opened */
 	if (fd < 0)
@@ -130,20 +135,27 @@ bool SDHC_ReadSectors(u32 sector, u32 count, void *buffer)
 
 	/* Buffer not aligned */
 	if ((u32)buffer & 0x1F) {
-		/* Allocate memory */
-		//buf = iosAlloc(hid, len);
-		buf = sdhc_buf2;
-		if (!buf)
-			return false;
-	}
-
-	/* Read data */
-	ret = IOS_IoctlvFormat(hid, fd, IOCTL_SDHC_READ, "ii:d", sector, count, buf, len);
-
-	/* Copy data */
-	if (buf != buffer) {
-		memcpy(buffer, buf, len);
-		//iosFree(hid, buf);
+		if (!sdhc_buf2) return false;
+		int cnt;
+		int max_sec = SDHC_MEM2_SIZE / sector_size;
+		//dbg_printf("sdhc_read(%u,%u) unaligned(%p)\n", sector, count, buffer);
+		while (count) {
+			if (count > max_sec) cnt = max_sec; else cnt = count;
+			size = cnt * sector_size;
+			ret = IOS_IoctlvFormat(hid, fd, IOCTL_SDHC_READ,
+					"ii:d", sector, cnt, sdhc_buf2, size);
+			//dbg_printf("sdhc_read_chunk(%u,%u)=%d\n", sector, cnt, ret);
+			if (ret) return false;
+			memcpy(buffer, sdhc_buf2, size);
+			count -= cnt;
+			sector += cnt;
+			buffer += size;
+		}
+	} else {
+		size = sector_size * count;
+		/* Read data */
+		ret = IOS_IoctlvFormat(hid, fd, IOCTL_SDHC_READ,
+				"ii:d", sector, count, buffer, size);
 	}
 
 	return (!ret) ? true : false;
@@ -155,10 +167,8 @@ bool SDHC_WriteSectors(u32 sector, u32 count, void *buffer)
 		return __io_wiisd.writeSectors(sector, count, buffer);
 	}
 
-	void *buf = (void *)buffer;
-	u32   len = (sector_size * count);
-
-	s32 ret;
+	u32 size;
+	s32 ret = -1;
 
 	/* Device not opened */
 	if (fd < 0)
@@ -166,22 +176,28 @@ bool SDHC_WriteSectors(u32 sector, u32 count, void *buffer)
 
 	/* Buffer not aligned */
 	if ((u32)buffer & 0x1F) {
-		/* Allocate memory */
-		//buf = iosAlloc(hid, len);
-		buf = sdhc_buf2;
-		if (!buf)
-			return false;
-
-		/* Copy data */
-		memcpy(buf, buffer, len);
+		if (!sdhc_buf2) return false;
+		int cnt;
+		int max_sec = SDHC_MEM2_SIZE / sector_size;
+		//dbg_printf("sdhc_write(%u,%u) unaligned(%p)\n", sector, count, buffer);
+		while (count) {
+			if (count > max_sec) cnt = max_sec; else cnt = count;
+			size = cnt * sector_size;
+			memcpy(sdhc_buf2, buffer, size);
+			ret = IOS_IoctlvFormat(hid, fd, IOCTL_SDHC_WRITE,
+					"ii:d", sector, cnt, sdhc_buf2, size);
+			//dbg_printf("sdhc_write_chunk(%u,%u)=%d\n", sector, cnt, ret);
+			if (ret) return false;
+			count -= cnt;
+			sector += cnt;
+			buffer += size;
+		}
+	} else {
+		size = sector_size * count;
+		/* Read data */
+		ret = IOS_IoctlvFormat(hid, fd, IOCTL_SDHC_WRITE,
+				"ii:d", sector, count, buffer, size);
 	}
-
-	/* Read data */
-	ret = IOS_IoctlvFormat(hid, fd, IOCTL_SDHC_WRITE, "ii:d", sector, count, buf, len);
-
-	/* Free memory */
-	//if (buf != buffer)
-	//	iosFree(hid, buf);
 
 	return (!ret) ? true : false;
 }

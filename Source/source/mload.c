@@ -49,14 +49,14 @@ int n;
 		return 0;
 		}
 
-	for(n=0;n<20;n++) // try 5 seconds
+	for(n=0;n<10;n++) // try 2 seconds
 	{
 		mload_fd=IOS_Open(mload_fs, 0);
 		dbg_printf("open(%s)=%d\n", mload_fs, mload_fd);
 		
 		if(mload_fd>=0) break;
 
-		usleep(250*1000);
+		usleep(200*1000);
 	}
 
 	if(mload_fd<0)

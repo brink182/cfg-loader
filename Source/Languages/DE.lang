@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 19:19+0100\n"
+"POT-Creation-Date: 2011-01-15 16:23+0100\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
-"Last-Translator: TheRealVisitor\n"
+"Last-Translator: TheRealVisitor, FIX94\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero, TheRealVisitor>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -121,8 +121,8 @@ msgid ""
 "Are you sure you want to remove this\n"
 "game?"
 msgstr ""
-"Bist du sicher, dass du dieses Spiel löschen\n"
-"willst?"
+"Bist du sicher, dass du dieses Spiel\n"
+"löschen willst?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -297,11 +297,11 @@ msgstr "Lade ALLE Cover herunter"
 
 #, c-format
 msgid "Downloading ALL covers for %.6s"
-msgstr "Lade ALLE Cover für %.6s"
+msgstr "Lade ALLE Cover für %.6s herunter"
 
 #, c-format
 msgid "Downloading MISSING covers for %.6s"
-msgstr "Lade FEHLENDE Cover für %.6s"
+msgstr "Lade FEHLENDE Cover für %.6s herunter"
 
 msgid "Downloading Theme previews..."
 msgstr "Lade Vorschaubilder herunter..."
@@ -380,7 +380,7 @@ msgid "ERROR: Could not open game! (ret = %d)"
 msgstr "FEHLER: Konnte Spiel nicht öffnen! (ret = %d)"
 
 msgid "ERROR: Game already installed!!"
-msgstr "FEHLER: Spiel ist bereits installiert!"
+msgstr "FEHLER: Spiel ist bereits installiert!!"
 
 #, c-format
 msgid "ERROR: GetCerts %d"
@@ -557,11 +557,11 @@ msgid "Error reading .dol"
 msgstr "FEHLER beim Lesen von .dol"
 
 msgid "Error reading dol header"
-msgstr "FEHLER beim dol header Lesen!"
+msgstr "FEHLER beim dol Header Lesen"
 
 #, c-format
 msgid "Error saving %s"
-msgstr "FEHLER beim Speichern %s"
+msgstr "FEHLER beim Speichern von %s"
 
 msgid "Error saving options!"
 msgstr "FEHLER beim Optionen speichern!"
@@ -598,7 +598,7 @@ msgstr "FAT: ALLOC ERROR %p %p %p"
 
 #, c-format
 msgid "FATAL: alloc grid(%d)"
-msgstr "KRITISCH: alloc grid(%d)"
+msgstr "KRITISCH: alloc grid (%d)"
 
 #, c-format
 msgid "FILL %d"
@@ -686,10 +686,6 @@ msgstr "Globale Einstellungen"
 msgid "Guitar"
 msgstr "Gitarre"
 
-#, c-format
-msgid "HTTP ERROR: %s"
-msgstr "HTTP FEHLER: %s"
-
 msgid "HTTP Response was without a file"
 msgstr "HTTP Antwort war ohne eine Datei"
 
@@ -711,7 +707,7 @@ msgstr "IOS Reload: Geblockt"
 
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
-msgstr "IOS-Open(%s) fehlgeschlagen Code %d"
+msgstr "IOS Öffnen (%s) fehlgeschlagen Code %d"
 
 msgid ""
 "If Cfg does not start properly\n"
@@ -819,7 +815,7 @@ msgid "Motion+"
 msgstr "Motion Plus"
 
 msgid "Mounting device, please wait..."
-msgstr "Mounte Laufwerk, bitte warten.."
+msgstr "Mounte Laufwerk, bitte warten..."
 
 msgid "Music"
 msgstr "Musik"
@@ -931,7 +927,7 @@ msgid "Network connection established."
 msgstr "Netzwerkverbindung besteht."
 
 msgid "Network error. Can't update gamercards."
-msgstr "Netzwerkfehler. Gamercard Update nicht möglich"
+msgstr "Netzwerkfehler. Gamercard Update nicht möglich."
 
 msgid "New Themes"
 msgstr "Neue Themes"
@@ -951,9 +947,6 @@ msgstr "Keine Domäne in der URL '%s'"
 
 msgid "No games found!"
 msgstr "Keine Spiele gefunden!"
-
-msgid "No more memory to copy file from HTTP response"
-msgstr "Nicht mehr genug Speicher um die Datei der HTTP Rückmeldung zu kopieren"
 
 msgid "No partition selected!"
 msgstr "Keine Partition ausgewählt!"
@@ -986,7 +979,7 @@ msgid "OK!"
 msgstr "OK!"
 
 msgid "Ocarina (cheats):"
-msgstr "Ocarina (cheats):"
+msgstr "Ocarina (Cheats):"
 
 msgid "Ocarina Cheat Manager"
 msgstr "Ocarina Cheat Manager"
@@ -1215,7 +1208,7 @@ msgstr "Beliebigen Knopf drücken..."
 
 #, c-format
 msgid "Press button %s to download covers."
-msgstr "Drücke %s: Cover herunterladen."
+msgstr "Drücke %s: Cover herunterladen"
 
 #, c-format
 msgid "Press button %s to eject DVD."
@@ -1334,7 +1327,7 @@ msgid "Select all"
 msgstr "Wähle alle"
 
 msgid "Select the game you want to boot"
-msgstr "Wähle das zu startende Spiel aus."
+msgstr "Wähle das zu startende Spiel aus"
 
 msgid "Selected Game"
 msgstr "Gewähltes Spiel"
@@ -1346,7 +1339,7 @@ msgid "Simulation"
 msgstr "Simulation"
 
 msgid "Size(GB) Type  Mount Used"
-msgstr "Größe(GB)  Typ  Mount  Benutzt"
+msgstr "Größe(GB) Typ  Mount Benutzt"
 
 #, c-format
 msgid "Size: %d bytes"
@@ -1457,7 +1450,7 @@ msgid "Unplayed Games"
 msgstr "Nichtgespielte Spiele"
 
 msgid "Update WiiTDB Game Database"
-msgstr "WiiTDB-SpieleDB aktualisieren"
+msgstr "WiiTDB Datenbank aktualisieren"
 
 msgid "Update themes"
 msgstr "Themes aktualisieren"
@@ -1528,7 +1521,7 @@ msgid ""
 msgstr ""
 "Du kannst auch versuchen das\n"
 "Laufwerk ab- und anzuklemmen,\n"
-"oder einfach noch warten"
+"oder warte noch etwas"
 
 msgid "Zapper"
 msgstr "Zapper"
@@ -1579,7 +1572,7 @@ msgstr "Formatiere"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
-msgstr "Lineare Lesegeschwindigkeit: %.2f mb/s"
+msgstr "Lineare Lesegeschwindigkeit: %.2f MB/s"
 
 msgid "linear..."
 msgstr "Linear..."
@@ -1629,96 +1622,3 @@ msgstr "Kann Wii Disk nicht laden"
 #, c-format
 msgid "used: %p - %p"
 msgstr "Benutzt: %p - %p"
-
-#~ msgid "Download Game Database"
-#~ msgstr "Lade Spieledatenbank"
-
-#~ msgid "Downloading %s Covers for %.4s"
-#~ msgstr "Lade %s Cover herunter für %.4s"
-
-#~ msgid "Downloading %s cover... (%s)"
-#~ msgstr "Lade %s Cover herunter... (%s)"
-
-#~ msgid "Downloading All %sCovers"
-#~ msgstr "Lade alle %sCover herunter"
-
-#~ msgid ""
-#~ "ERROR: CIOS222 or CIOS223 required for\n"
-#~ "starting games from a FAT partition!"
-#~ msgstr ""
-#~ "FEHLER: CIOS222 oder CIOS223 benötigt um\n"
-#~ "Spiele von FAT-Partition zu starten!"
-
-#~ msgid "ERROR: SD mount NTFS! (%d)"
-#~ msgstr "FEHLER: SD mounten von NTFS! (%d)"
-
-#~ msgid "ERROR: SD/FAT mount wbfs! (%d)"
-#~ msgstr "FEHLER: SD/FAT mounten von WBFS! (%d)"
-
-#~ msgid "ERROR: USB mount NTFS! (%d)"
-#~ msgstr "FEHLER: USB mounten von NTFS! (%d)"
-
-#~ msgid "ERROR: USB/FAT mount wbfs! (%d)"
-#~ msgstr "FEHLER: USB/FAT mounten von WBFS! (%d)"
-
-#~ msgid "ERROR: WBFS FAT mount sector %x not %x"
-#~ msgstr "FEHLER: WBFS FAT Mount Sector %x nicht %x"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule2 no longer included!\n"
-#~ "external file ehcmodule.elf must be used!"
-#~ msgstr ""
-#~ "FEHLER: ehcmodule2 nicht mehr enthalten!\n"
-#~ "Externe Datei ehcmodule.elf erforderlich!"
-
-#~ msgid ""
-#~ "ERROR: ehcmodule3 no longer included!\n"
-#~ "external file ehcmodule3.elf must be used!"
-#~ msgstr ""
-#~ "FEHLER: ehcmodule3 nicht mehr enthalten!\n"
-#~ "Externe Datei ehcmodule3.elf erforderlich!"
-
-#~ msgid "FAT mode only supported with ios 222 rev4"
-#~ msgstr "FAT Modus nur von CIOS 222 rev4 unterstützt"
-
-#~ msgid "FAT32 mount: "
-#~ msgstr "FAT32 mount: "
-
-#~ msgid "FAT: fallback to old method"
-#~ msgstr "FAT: Verwende alte Methode"
-
-#~ msgid "Found %s Cover"
-#~ msgstr "%s Cover gefunden"
-
-#~ msgid "Missing"
-#~ msgstr "Fehlende"
-
-#~ msgid "Missing "
-#~ msgstr "Fehlende "
-
-#~ msgid "Opening FAT partition..."
-#~ msgstr "Lade FAT Partition..."
-
-#~ msgid "Opening NTFS partition..."
-#~ msgstr "Lade NTFS Partition..."
-
-#~ msgid "Press %s button to select"
-#~ msgstr "Drücke %s: Auswählen"
-
-#~ msgid "Press %s to select"
-#~ msgstr "Drücke %s: Auswählen"
-
-#~ msgid "Size: %d byte"
-#~ msgstr "Größe: %d Byte"
-
-#~ msgid "Switching to IOS222 for FAT support."
-#~ msgstr "Wechsle auf IOS222 für FAT-Unterstützung."
-
-#~ msgid "[ SD/SDHC Card ]"
-#~ msgstr "[ SD/SDHC Karte ]"
-
-#~ msgid "[ USB Mass Storage Device ]"
-#~ msgstr "[ USB Massenspeicher ]"
-
-#~ msgid "cover"
-#~ msgstr "Cover"

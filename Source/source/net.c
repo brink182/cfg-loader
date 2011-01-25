@@ -590,7 +590,7 @@ bool Download_Cover_Style(char *id, int style)
 	}
 	int ret = fwrite(file.data,file.size,1,f);
 	fclose (f);
-	free(file.data);
+	SAFE_FREE(file.data);
 	if (ret != 1) {
 		printf(" ");
 		printf(gt("ERROR: writing %s (%d)."), imgPath, ret);
@@ -793,7 +793,7 @@ void Download_XML()
 	}
 	fwrite(file.data,1,file.size,f);
 	fclose (f);
-	free(file.data);
+	SAFE_FREE(file.data);
 	printf_(gt("Download complete."));
 	printf("\n");
 

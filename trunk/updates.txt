@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 65b7 (beta)
+size = 1476096
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65b7.dol
+Fixed gui theme font_clock.png
+cios base detection for r17
+
+release = 65b7-222 (beta)
+size = 1476096
+date = 2011-01-25
+url = http://cfg-loader.googlecode.com/files/cfg65b7-222.dol
+Same as 65b7 but with different
+default options:
+  ios=222-mload
+
 release = 65b6 (beta)
 size = 1476064
 date = 2011-01-24

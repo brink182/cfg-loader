@@ -43,59 +43,6 @@ default options:
   debug=3
   home=screenshot
 
-release = 65b8 (beta)
-size = 1476160
-date = 2011-01-25
-url = http://cfg-loader.googlecode.com/files/cfg65b8.dol
-cios base detection for r17b
-
-release = 65b7 (beta)
-size = 1476096
-date = 2011-01-25
-url = http://cfg-loader.googlecode.com/files/cfg65b7.dol
-Fixed gui theme font_clock.png
-cios base detection for r17
-
-release = 65b7-222 (beta)
-size = 1476096
-date = 2011-01-25
-url = http://cfg-loader.googlecode.com/files/cfg65b7-222.dol
-Same as 65b7 but with different
-default options:
-  ios=222-mload
-
-release = 65b6 (beta)
-size = 1476064
-date = 2011-01-24
-url = http://cfg-loader.googlecode.com/files/cfg65b6.dol
-Fixed: sort = install-desc
-  in config.txt
-detection for base 57 r21+r19 modmii
-Improved detection of hybrid modmii
-  cios for non-249 slot
-
-release = 65b6-222 (beta)
-size = 1476064
-date = 2011-01-24
-url = http://cfg-loader.googlecode.com/files/cfg65b6-222.dol
-Same as 65b6 but with different
-default options:
-  ios=222-mload
-
-release = 65b5 (beta)
-size = 1475584
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b5.dol
- * Fix modmii cios detection (again)
-
-release = 65b5-222 (beta)
-size = 1475584
-date = 2011-01-23
-url = http://cfg-loader.googlecode.com/files/cfg65b5-222.dol
-Same as 65b5 but with different
-default options:
-  ios=222-mload
-
 release = 64 (release)
 size = 1472128
 date = 2011-01-18

@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 66b (beta)
+size = 1547936
+date = 2011-03-11
+url = http://cfg-loader.googlecode.com/files/cfg66b.dol
+Added detection of cios d2x v2,v3
+
+release = 66b-222 (beta)
+size = 1547936
+date = 2011-03-11
+url = http://cfg-loader.googlecode.com/files/cfg66b-222.dol
+Same as 66b but with different
+default options:
+  ios=222-mload
+
 release = 66a (alpha)
 size = 1547552
 date = 2011-03-11

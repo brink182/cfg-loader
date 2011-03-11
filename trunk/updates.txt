@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 66a (alpha)
+size = 1547552
+date = 2011-03-11
+url = http://cfg-loader.googlecode.com/files/cfg66a.dol
+Added detection of cios r21-d2x-v1
+Updated libfat to 1.0.9
+ntfs-3g 2011.1.15 / libntfs-wii r7
+new option: gui_pointer_scroll
+cleanups
+
+release = 66a-222 (alpha)
+size = 1547552
+date = 2011-03-11
+url = http://cfg-loader.googlecode.com/files/cfg66a-222.dol
+Same as 66a but with different
+default options:
+  ios=222-mload
+
 release = 65 (release)
 size = 1476160
 date = 2011-01-25

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,6 +51,9 @@ msgstr ""
 
 #, c-format
 msgid "(%d seconds timeout)"
+msgstr ""
+
+msgid "(This can take a couple of minutes)"
 msgstr ""
 
 msgid ".dol too small"
@@ -1070,6 +1073,10 @@ msgid "Press %s button to skip codes."
 msgstr ""
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr ""
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr ""
 
@@ -1289,6 +1296,9 @@ msgstr ""
 msgid "Shooter"
 msgstr ""
 
+msgid "Show cIOS info"
+msgstr ""
+
 msgid "Simulation"
 msgstr ""
 
@@ -1319,6 +1329,12 @@ msgid "Start this game?"
 msgstr ""
 
 msgid "Strategy"
+msgstr ""
+
+msgid "Sync FAT free space info?"
+msgstr ""
+
+msgid "Synchronizing, please wait."
 msgstr ""
 
 msgid "System Def."
@@ -1517,6 +1533,9 @@ msgid "for 1 player"
 msgstr ""
 
 msgid "format"
+msgstr ""
+
+msgid "free"
 msgstr ""
 
 #, c-format

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-02-28 13:52+0100\n"
 "Last-Translator: xxdimixx\n"
 "Language-Team: GREEK <xxdimixx>\n"
@@ -52,6 +52,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d δευτ. timeout)"
+
+msgid "(This can take a couple of minutes)"
+msgstr ""
 
 msgid ".dol too small"
 msgstr ".dol πολύ μικρό"
@@ -1103,6 +1106,10 @@ msgid "Press %s button to skip codes."
 msgstr "Πατήστε %s:skip codes"
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr ""
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr ""
 
@@ -1322,6 +1329,9 @@ msgstr "Παιχνίδι επιλογής"
 msgid "Shooter"
 msgstr "Shooter"
 
+msgid "Show cIOS info"
+msgstr ""
+
 msgid "Simulation"
 msgstr "Προσομοίωση"
 
@@ -1353,6 +1363,12 @@ msgstr "Έναρξη παιχνιδιού;"
 
 msgid "Strategy"
 msgstr "Στρατηγική"
+
+msgid "Sync FAT free space info?"
+msgstr ""
+
+msgid "Synchronizing, please wait."
+msgstr ""
 
 msgid "System Def."
 msgstr ""
@@ -1551,6 +1567,9 @@ msgstr "für 1 Spieler"
 
 msgid "format"
 msgstr "Μορφοποίηση"
+
+msgid "free"
+msgstr ""
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

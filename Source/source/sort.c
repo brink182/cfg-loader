@@ -602,6 +602,11 @@ void sortList(int (*sortFunc) (const void *, const void *))
 	__Menu_ScrollStartList();
 }
 
+void sortList_default()
+{
+	sortList(default_sort_function);
+}
+
 int Menu_Filter()
 {
 	struct discHdr *header = NULL;

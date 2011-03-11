@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v64
+Configurable SD/USB Loader v65
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -1012,6 +1012,65 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+25-01-2011 cfg v65 (release)
+ * version
+
+25-01-2011 cfg v65b8 (beta)
+ * cios base detection for r17b
+
+25-01-2011 cfg v65b7 (beta)
+ * Fixed gui theme specified font_clock.png
+ * cios base detection for r17
+
+24-01-2011 cfg v65b6 (beta)
+ * Fixed: sort = install-desc in config.txt
+ * cios detection for base 57 r21+r19 modmii
+ * Improved detection of hybrid modmii cios for non-249 slot
+
+23-01-2011 cfg v65b5 (beta)
+ * Fix modmii cios detection (again)
+
+23-01-2011 cfg v65b4 (beta)
+ * Fix modmii cios detection
+
+23-01-2011 cfg v65b3 (beta)
+ * Detection for modmii hermes cios v4, v5 (thanks FIX94)
+ * Fixes for ios base detection
+
+23-01-2011 cfg v65b2 (beta)
+ * Detection for modmii ciosx rev19, 20, 21+19
+   and hermes v4, v5, v5.1 (thanks FIX94)
+ * Added "Show cIOS info" to global options menu
+
+22-01-2011 cfg v65b (beta)
+ * Added detection for modmii ciosx rev21 (thanks FIX94)
+ * Print cios base and rev for slots 245-250
+   in global options if button + is pressed
+   and to saved debug.log
+ * Word wrap game title in the game start confirmation screen
+ * Minor cleanups
+
+19-01-2011 cfg v65a (alpha)
+ * Updated libfat to svn-4520 which includes FSINFO (by Dimok)
+   FAT fsinfo stores the free space info to a designated sector
+   speeding up the time it takes to print the free space.
+   Previously the entire FAT table had to be scanned to get the
+   free space which could take up to a couple of minutes.
+   This was also the reason the option hide_hddinfo=1 is set
+   so that by default the free space is not displayed .
+ * Added a way to manually scan and sync the free space in fsinfo.
+   Go to global options / partition selection and press 2
+   Then all FAT filesystems will be shown and the free space for each
+   By confirming with A the free space will be scanned again. If the
+   scanned free space mathces fsinfo OK is displayed otherwise the
+   correct free space, which is then stored to fsinfo.
+   It is enough to do this once, after that the fsinfo should be kept
+   in sync. (but using some other homebrew to write/delete data from
+   FAT will make the info unsynced again, until all other apps are upgraded
+   with the new libfat as well)
+ * Minor change to usbstorage mem allocation (back to v63)
+   (in case it fixes problems with v64 that were not in v63)
 
 17-01-2011 cfg v64 (release)
  * Minor cosmetic fix in http error reporting

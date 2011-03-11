@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PT-BR translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-09-23 21:40-0300\n"
 "Last-Translator: LeonLeao <leon.leao92@gmail.com>\n"
 "Language-Team: Brazilian Portuguese\n"
@@ -52,6 +52,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d segundos de espera)"
+
+msgid "(This can take a couple of minutes)"
+msgstr ""
 
 msgid ".dol too small"
 msgstr ".dol muito pequeno"
@@ -1132,6 +1135,10 @@ msgid "Press %s button to skip codes."
 msgstr "Pressione o botão %s para pular códigos."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr ""
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Pressione %s para prévia em tela cheia"
 
@@ -1367,6 +1374,9 @@ msgstr "Jogo Selecionado"
 msgid "Shooter"
 msgstr "Tiro"
 
+msgid "Show cIOS info"
+msgstr ""
+
 msgid "Simulation"
 msgstr "Simulação"
 
@@ -1398,6 +1408,12 @@ msgstr "Iniciar este jogo?"
 
 msgid "Strategy"
 msgstr "Estratégia"
+
+msgid "Sync FAT free space info?"
+msgstr ""
+
+msgid "Synchronizing, please wait."
+msgstr ""
 
 msgid "System Def."
 msgstr ""
@@ -1600,6 +1616,9 @@ msgstr "para 1 jogador"
 
 msgid "format"
 msgstr "formato"
+
+msgid "free"
+msgstr ""
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

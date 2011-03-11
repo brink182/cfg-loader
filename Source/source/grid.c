@@ -356,7 +356,7 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 			GRRLIB_Rectangle(x-1,y-1, tx_font.tilew*4+2, tx_font.tileh+2, 0x00000040,1);
 			fc.outline = 0;
 		}
-		Gui_PrintfEx(x, y, tx_font, fc, "%.4s", gameList[GS->gi].id);
+		Gui_PrintfEx(x, y, &tx_font, fc, "%.4s", gameList[GS->gi].id);
 	}
 }
 
@@ -1070,7 +1070,7 @@ void grid_print_title(int selected)
 	STRCOPY(trunc_title, title);
 	con_trunc(trunc_title, len);
 	//Gui_Printf(x, title_y, "%s", trunc_title);
-	Gui_PrintfEx(x, title_y, tx_font, font_color, "%s", trunc_title);
+	Gui_PrintfEx(x, title_y, &tx_font, font_color, "%s", trunc_title);
 }
 
 

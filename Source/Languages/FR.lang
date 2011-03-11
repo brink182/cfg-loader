@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
-"PO-Revision-Date: 2011-01-05 10:54+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"PO-Revision-Date: 2011-01-24 00:20+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
 "Language: \n"
@@ -50,6 +50,9 @@ msgstr "(%d en ligne)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d secondes de temps écoulé)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Cela peut prendre quelques minutes)"
 
 msgid ".dol too small"
 msgstr ".dol est trop petit"
@@ -1118,6 +1121,10 @@ msgid "Press %s button to skip codes."
 msgstr "Appuyez sur %s pour passer les codes."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Appuyez sur %s pour synchroniser le FAT."
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Faire %s pour un aperçu en plein écran"
 
@@ -1339,6 +1346,9 @@ msgstr "Jeu sélectionné"
 msgid "Shooter"
 msgstr "Tir"
 
+msgid "Show cIOS info"
+msgstr "Montrer les infos des cIOS"
+
 msgid "Simulation"
 msgstr "Simulation"
 
@@ -1370,6 +1380,12 @@ msgstr "Démarrer ce jeu ?"
 
 msgid "Strategy"
 msgstr "Stratégie"
+
+msgid "Sync FAT free space info?"
+msgstr "Synchroniser FAT information d'espace libre ?"
+
+msgid "Synchronizing, please wait."
+msgstr "Synchronisation, veuillez patienter."
 
 msgid "System Def."
 msgstr "Système / défaut"
@@ -1573,6 +1589,9 @@ msgstr "pour 1 joueur"
 
 msgid "format"
 msgstr "formater"
+
+msgid "free"
+msgstr "libre"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

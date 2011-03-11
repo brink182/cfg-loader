@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-07-26 11:24+0800\n"
 "Last-Translator: Clamis <clamis@gmail.com>\n"
 "Language-Team: Simplified Chinese(ZH_CN) <clamis@gmail.com>\n"
@@ -50,6 +50,9 @@ msgstr "(%d在线)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d秒超时)"
+
+msgid "(This can take a couple of minutes)"
+msgstr ""
 
 msgid ".dol too small"
 msgstr ".dol文件太小"
@@ -1089,6 +1092,10 @@ msgstr "按%s键选择"
 msgid "Press %s button to skip codes."
 msgstr "按%s键跳过作弊码"
 
+#, c-format
+msgid "Press %s button to sync FAT."
+msgstr ""
+
 #, fuzzy, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "按1键进行全屏预览"
@@ -1309,6 +1316,9 @@ msgstr "已选游戏"
 msgid "Shooter"
 msgstr "射击游戏"
 
+msgid "Show cIOS info"
+msgstr ""
+
 msgid "Simulation"
 msgstr "模拟游戏"
 
@@ -1340,6 +1350,12 @@ msgstr "开始这个游戏？"
 
 msgid "Strategy"
 msgstr "战略游戏"
+
+msgid "Sync FAT free space info?"
+msgstr ""
+
+msgid "Synchronizing, please wait."
+msgstr ""
 
 msgid "System Def."
 msgstr ""
@@ -1538,6 +1554,9 @@ msgstr "单人游戏"
 
 msgid "format"
 msgstr "格式化"
+
+msgid "free"
+msgstr ""
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

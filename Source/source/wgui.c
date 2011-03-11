@@ -3,17 +3,22 @@
 
 // useless experimental code for gui
 
-#if 0
 #include <stdlib.h>
 #include <unistd.h>
 #include <malloc.h>
 #include <string.h>
 
 #include "wpad.h"
-#include "GRRLIB.h"
+#include "my_GRRLIB.h"
 #include "gui.h"
 #include "cfg.h"
 #include "wgui.h"
+
+#if 0
+
+#include "button_png.h"
+#include "window_png.h"
+
 
 #define WGUI_BUTTON_NORMAL 0
 #define WGUI_BUTTON_HOVER 1
@@ -23,17 +28,12 @@
 #define WGUI_TYPE_BUTTON 1
 #define WGUI_TYPE_CHECKBOX 2
 
-extern unsigned char button_img[];
-extern unsigned char window_img[];
-extern unsigned char cb_img[];
-extern unsigned char cb_val_img[];
+GRRLIB_texImg *tx_button;
+GRRLIB_texImg *tx_window;
+GRRLIB_texImg *tx_cb;
+GRRLIB_texImg *tx_cb_val;
 
-GRRLIB_texImg tx_button;
-GRRLIB_texImg tx_window;
-GRRLIB_texImg tx_cb;
-GRRLIB_texImg tx_cb_val;
-
-FontColor wgui_fc = { 0xFFFFFFFF, 0x80 };
+FontColor wgui_fc = { 0x8888FFFF, 0x80 };
 
 /*
 
@@ -54,80 +54,82 @@ cb_img-favorite
 
 static int wgui_inited = 0;
 
-void wgui_init_button(GRRLIB_texImg *tx, u8 *img)
+void wgui_init_button(GRRLIB_texImg **ptx, const u8 *img)
 {
-    *tx = GRRLIB_LoadTexture(img);
-    GRRLIB_InitTileSet(tx, tx->w/3, tx->w/3*2, 0);
+	GRRLIB_texImg *tx;
+	tx = *ptx = GRRLIB_LoadTexture(img);
+	GRRLIB_InitTileSet(tx, tx->w/4, tx->h, 0);
 }
 
-void wgui_init_cb(GRRLIB_texImg *tx, u8 *img)
+void wgui_init_cb(GRRLIB_texImg **ptx, const u8 *img)
 {
-    *tx = GRRLIB_LoadTexture(img);
-    GRRLIB_InitTileSet(tx, tx->w/6, tx->h/2, 0);
+	GRRLIB_texImg *tx;
+	tx = *ptx = GRRLIB_LoadTexture(img);
+	GRRLIB_InitTileSet(tx, tx->w/4, tx->h, 0);
 }
 
 void wgui_init()
 {
 	if (wgui_inited) return;
 
-	wgui_init_button(&tx_button, button_img);
-	wgui_init_cb(&tx_cb, cb_img);
-	wgui_init_button(&tx_cb_val, cb_val_img);
+	wgui_init_button(&tx_button, button_png);
+	wgui_init_cb(&tx_cb, button_png);
+	wgui_init_button(&tx_cb_val, button_png);
 
-    tx_window = GRRLIB_LoadTexture(window_img);
-    GRRLIB_InitTileSet(&tx_window, tx_window.w/3, tx_window.h/3, 0);
+	tx_window = GRRLIB_LoadTexture(window_png);
+	GRRLIB_InitTileSet(tx_window, tx_window->w/3, tx_window->h/3, 0);
 
 	wgui_inited = 1;
 }
 
 void wgui_DrawWindowBase(int x, int y, int w, int h, u32 color)
 {
-	int tw = tx_window.tilew;
-	int th = tx_window.tileh;
+	int tw = tx_window->tilew;
+	int th = tx_window->tileh;
 	int ww = w - tw*2;
 	int hh = h - th*2;
 
-    Vector v1[] = {
+	guVector v1[] = {
 		{x+tw,    y},
 		{x+tw+ww, y},
 		{x+tw+ww, y+th},
 		{x+tw,    y+th}
 	};
-    Vector v3[] = {
+	guVector v3[] = {
 		{x,    y+th},
 		{x+tw, y+th},
 		{x+tw, y+th+hh},
 		{x,    y+th+hh}
 	};
-    Vector v4[] = {
+	guVector v4[] = {
 		{x+tw,    y+th},
 		{x+tw+ww, y+th},
 		{x+tw+ww, y+th+hh},
 		{x+tw,    y+th+hh}
 	};
-    Vector v5[] = {
+	guVector v5[] = {
 		{x+tw+ww, y+th},
 		{x+w,     y+th},
 		{x+w,     y+th+hh},
 		{x+tw+ww, y+th+hh}
 	};
-    Vector v7[] = {
+	guVector v7[] = {
 		{x+tw,    y+th+hh},
 		{x+tw+ww, y+th+hh},
 		{x+tw+ww, y+h},
 		{x+tw,    y+h}
 	};
 
-    GRRLIB_DrawTile(x, y, tx_window, 0,1,1, color, 0);
-    GRRLIB_DrawTileQuad(v1, &tx_window, color, 1);
-    GRRLIB_DrawTile(x+w-tw, y, tx_window, 0,1,1, color, 2);
+	GRRLIB_DrawTile(x, y, tx_window, 0,1,1, color, 0);
+	GRRLIB_DrawTileQuad(v1, tx_window, color, 1);
+	GRRLIB_DrawTile(x+w-tw, y, tx_window, 0,1,1, color, 2);
 
-	GRRLIB_DrawTileQuad(v3, &tx_window, color, 3);
-	GRRLIB_DrawTileQuad(v4, &tx_window, color, 4);
-	GRRLIB_DrawTileQuad(v5, &tx_window, color, 5);
+	GRRLIB_DrawTileQuad(v3, tx_window, color, 3);
+	GRRLIB_DrawTileQuad(v4, tx_window, color, 4);
+	GRRLIB_DrawTileQuad(v5, tx_window, color, 5);
 
 	GRRLIB_DrawTile(x, y+th+hh, tx_window, 0,1,1, color, 6);
-	GRRLIB_DrawTileQuad(v7, &tx_window, color, 7);
+	GRRLIB_DrawTileQuad(v7, tx_window, color, 7);
 	GRRLIB_DrawTile(x+tw+ww, y+th+hh, tx_window, 0,1,1, color, 8);
 
 }
@@ -136,46 +138,65 @@ void wgui_DrawWindow(int x, int y, int w, int h, char *title)
 {
 	int cx = x + w / 2;
 	wgui_DrawWindowBase(x, y, w, h, 0xFFFFFFFF);
-	Gui_PrintAlign(cx, y+32, 0, -1, tx_font, wgui_fc, title);
+	Gui_PrintAlign(cx, y+32, 0, -1, &tx_font, wgui_fc, title);
 }
 
 void wgui_DrawButtonBase(GRRLIB_texImg *tx,
-		int x, int y, int w, int h, u32 color, int state)
+		float x, float y, float w, float h, float zoom, u32 color, int state)
 {
-	int h2 = h / 2;
-    Vector v1[] = {
+	float w2 = w / 2.0;
+	float h2 = h / 2.0;
+	x = (x + w2) - w2 * zoom;
+	y = (y + h2) - h2 * zoom;
+	w *= zoom;
+	h *= zoom;
+	h2 = h / 2.0;
+	if (h > w) {
+		h2 = w / 2.0;
+	}
+	guVector v1[] = {
 		{x,    y},
 		{x+h2, y},
 		{x+h2, y+h},
 		{x,    y+h}
 	};
-    Vector v2[] = {
+	guVector v2[] = {
 		{x+h2,   y},
 		{x+w-h2, y},
 		{x+w-h2, y+h},
 		{x+h2,   y+h}
 	};
-    Vector v3[] = {
+	guVector v3[] = {
 		{x+w-h2, y},
 		{x+w,    y},
 		{x+w,    y+h},
 		{x+w-h2, y+h}
 	};
 
-    GRRLIB_DrawTileQuad(v1, tx, color, state*3+0);
-    GRRLIB_DrawTileQuad(v2, tx, color, state*3+1);
-    GRRLIB_DrawTileQuad(v3, tx, color, state*3+2);
+	state = 0;
+	GRRLIB_DrawTileQuad(v1, tx, color, 0);
+	if (w > h) {
+		f32 px, py, pw, ph;
+		px = tx->tilew;
+		py = 0;
+		pw = tx->tilew * 2;
+		ph = tx->tileh;
+		GRRLIB_DrawPartQuad(v2, tx, px, py, pw, ph, color);
+	}
+	GRRLIB_DrawTileQuad(v3, tx, color, 3);
 }
 
 void wgui_DrawButton(GRRLIB_texImg *tx,
 		int x, int y, int w, int h, int state, char *txt)
 {
-	int cx = x + w / 2;
-	int cy = y + h / 2;
+	float cx = (float)x + (float)w / 2.0;
+	float cy = (float)y + (float)h / 2.0;
+	float zoom;
+	if (state == 0) zoom = 1.0; else zoom = 1.1;
 
-	wgui_DrawButtonBase(tx, x, y, w, h, 0xFFFFFFFF, state);
+	wgui_DrawButtonBase(tx, x, y, w, h, zoom, 0xFFFFFFFF, state);
 
-	Gui_PrintAlign(cx, cy, 0, 0, tx_font, wgui_fc, txt);
+	Gui_PrintAlignZ(cx, cy, 0, 0, &tx_font, wgui_fc, 1.2 * zoom, txt);
 }
 
 int wgui_HandleButton(int x, int y, int w, int h, char *txt,
@@ -190,7 +211,7 @@ int wgui_HandleButton(int x, int y, int w, int h, char *txt,
 		if (wpad_button & CFG.button_confirm.mask)
 			state = WGUI_BUTTON_PRESS;
 	}
-	wgui_DrawButton(&tx_button, x, y, w, h, state, txt);
+	wgui_DrawButton(tx_button, x, y, w, h, state, txt);
 	return state;
 }
 
@@ -212,7 +233,19 @@ typedef struct wgui_Dialog
 	int x, y, w, h;
 	int num;
 	wgui_Widget widget[MAX_WIDGET];
+	// callback
 } wgui_Dialog;
+
+// dialog stack
+struct wgui_desk
+{
+	int num;
+	wgui_Dialog *dialogs[MAX_WIDGET];
+};
+
+//desk_focus(ir)
+//desk_handle(ir);
+
 
 enum
 {
@@ -247,9 +280,17 @@ wgui_Widget* wgui_dialog_add(wgui_Dialog *dialog, int id, int x, int y, int w, i
 	return ww;
 }
 
+void wgui_dialog_add_button2(wgui_Dialog *dialog, int id, int x, int y, int w, int h, char *text)
+{
+	wgui_Widget *ww = wgui_dialog_add(dialog, id, x, y, w, h);
+	if (ww == NULL) return;
+	ww->type = WGUI_TYPE_BUTTON;
+	ww->text = text;
+}
+
 void wgui_dialog_add_button(wgui_Dialog *dialog, int id, int x, int y, char *text)
 {
-	wgui_Widget *ww = wgui_dialog_add(dialog, id, x, y, 150, 64);
+	wgui_Widget *ww = wgui_dialog_add(dialog, id, x, y, 180, 64);
 	if (ww == NULL) return;
 	ww->type = WGUI_TYPE_BUTTON;
 	ww->text = text;
@@ -292,8 +333,8 @@ int wgui_handle_checkbox(wgui_Widget *ww, ir_t *ir, int buttons)
 	char *val_text = *ww->state ? "On" : "Off";
 	//wgui_DrawButton(&tx_cb_name, ww->x, ww->y, w, ww->h, state, ww->text);
 	//wgui_DrawButton(&tx_cb_val, val_x, ww->y, val_w, ww->h, state, val_text);
-	wgui_DrawButton(&tx_cb, ww->x, ww->y, w, ww->h, hoover*2, ww->text);
-	wgui_DrawButton(&tx_cb, val_x, ww->y, val_w, ww->h, hoover*2+1, val_text);
+	wgui_DrawButton(tx_cb, ww->x, ww->y, w, ww->h, hoover*2, ww->text);
+	wgui_DrawButton(tx_cb, val_x, ww->y, val_w, ww->h, hoover*2+1, val_text);
 	return state;
 }
 
@@ -330,13 +371,13 @@ void wgui_dialog_close(wgui_Dialog *dialog)
 
    Title
 
- ####  Favorite: [X]
- ####
- ####  ( Options )
- ####
- ####  
+####  Favorite: [X]
+####
+####  ( Options )
+####
+####  
 
- ( Back )  ( Start )
+( Back )  ( Start )
 
 */
 
@@ -352,14 +393,17 @@ void wgui_GameDialog()
 	//wgui_dialog_add_checkbox(&dialog, ID_FAV, 400, 100, "Favorite:Yes/No", &fav);
 	wgui_dialog_add_checkbox(&dialog, ID_FAV, 400, 100, "Favorite", &fav);
 	wgui_dialog_add_button(&dialog, ID_OPT,   400, 180, "Options");
-	wgui_dialog_add_button(&dialog, ID_DEL,   400, 260, "Delete");
-	wgui_dialog_add_button(&dialog, ID_BACK,  150, 350, "Back");
+	wgui_dialog_add_button(&dialog, ID_DEL,   400, 260, "Ab日本語cd");
+	wgui_dialog_add_button(&dialog, ID_BACK,  100, 350, "Back");
 	wgui_dialog_add_button(&dialog, ID_START, 300, 350, "Start");
+	wgui_dialog_add_button2(&dialog, ID_START, 50, 100, 64, 64, "+");
+	wgui_dialog_add_button2(&dialog, ID_START, 50, 200, 40, 64, "-");
 	wgui_dialog_prepare(&dialog);
-	
+
 	do {
 		buttons = Wpad_GetButtons();
-		Wpad_getIR(WPAD_CHAN_0, &ir);
+		Wpad_getIR(&ir);
+		GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
 		id = wgui_handle(&dialog, &ir, buttons);
 		Gui_draw_pointer(&ir);
 		Gui_Render();
@@ -372,13 +416,42 @@ void wgui_GameDialog()
 
 void wgui_test(struct ir_t *ir, int button)
 {
-	wgui_init();
-
 	if (button & WPAD_BUTTON_PLUS) {
 		wgui_GameDialog();
 	}
-	
-	wgui_DrawWindowBase( 20, 20, 600, 440, 0xFFFFFFFF);
+
+	//wgui_DrawWindowBase( 20, 20, 600, 440, 0xFFFFFFFF);
 }
+
+void wgui_desk_init()
+{
+	wgui_init();
+}
+
+int save_button = 0;
+
+void wgui_desk_focus(struct ir_t *ir, int *button)
+{
+	save_button = 0;
+	if (*button & WPAD_BUTTON_PLUS) {
+		save_button = *button;
+		*button = 0;
+	}
+}
+
+// handle? process? loop?
+
+void wgui_desk_handle(struct ir_t *ir, int *button)
+{
+	wgui_test(ir, save_button);
+}
+
+
+#else 
+
+// STUB
+void wgui_desk_init() { }
+void wgui_desk_focus(struct ir_t *ir, int *button) { }
+void wgui_desk_handle(struct ir_t *ir, int *button) { }
 
 #endif

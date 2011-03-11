@@ -654,16 +654,17 @@ ssize_t _FAT_write_r (struct _reent *r, int fd, const char *ptr, size_t len) {
 	_FAT_lock(&partition->lock);
 
 	// Only write up to the maximum file size, taking into account wrap-around of ints
-	if (remain + file->filesize > FILE_MAX_SIZE || len + file->filesize < file->filesize) {
+	if (len + file->filesize > FILE_MAX_SIZE || len + file->filesize < file->filesize) {
 		len = FILE_MAX_SIZE - file->filesize;
 	}
-	remain = len;
 
 	// Short circuit cases where len is 0 (or less)
 	if (len <= 0) {
 		_FAT_unlock(&partition->lock);
 		return 0;
 	}
+
+	remain = len;
 
 	// Get a new cluster for the start of the file if required
 	if (file->startCluster == CLUSTER_FREE) {
@@ -1129,57 +1130,3 @@ int _FAT_fsync_r (struct _reent *r, int fd) {
 
 	return ret;
 }
-
-typedef int (*_frag_append_t)(void *ff, u32 offset, u32 sector, u32 count);
-
-int _FAT_get_fragments (const char *path, _frag_append_t append_fragment, void *callback_data)
-{
-	struct _reent r;
-	FILE_STRUCT file;
-	PARTITION* partition;
-	u32 cluster;
-	u32 sector;
-	u32 offset; // in sectors
-	u32 size;   // in sectors
-	int ret = -1;
-	int fd;
-
-	fd = _FAT_open_r (&r, &file, path, O_RDONLY, 0);
-	if (fd == -1) return -1;
-	if (fd != (int)&file) return -1;
-
-	partition = file.partition;
-	_FAT_lock(&partition->lock);
-
-	size = file.filesize / BYTES_PER_READ;
-	cluster = file.startCluster;
-	offset = 0;
-
-	do {
-		if (!_FAT_fat_isValidCluster(partition, cluster)) {
-			// invalid cluster
-			goto out;
-		}
-		// add cluster to fileinfo
-		sector = _FAT_fat_clusterToSector(partition, cluster);
-		if (append_fragment(callback_data, offset, sector, partition->sectorsPerCluster)) {
-			// too many fragments
-			goto out;
-		}
-		offset += partition->sectorsPerCluster;
-		cluster = _FAT_fat_nextCluster (partition, cluster);
-	} while (offset < size);
-
-	// set size
-	append_fragment(callback_data, size, 0, 0);
-	// success
-	ret = 0;
-
-	out:
-	_FAT_unlock(&partition->lock);
-	_FAT_close_r(&r, fd);
-	return ret;
-}
-
-
-

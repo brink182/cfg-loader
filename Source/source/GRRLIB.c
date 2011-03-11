@@ -1523,18 +1523,37 @@ void GRRLIB_FreeTexture(struct GRRLIB_texImg *tex) {
 
 #endif
 
-void GRRLIB_DrawTile_begin(GRRLIB_texImg tex)
+void GRRLIB_DrawTile_begin0(GRRLIB_texImg *tex)
 {
-    GXTexObj texObj;
+	GXTexObj texObj;
 
-    GX_InitTexObj(&texObj, tex.data, tex.tilew*tex.nbtilew, tex.tileh*tex.nbtileh, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
-    GX_InitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
-    GX_LoadTexObj(&texObj, GX_TEXMAP0);
+	GX_InitTexObj(&texObj, tex->data, tex->tilew*tex->nbtilew, tex->tileh*tex->nbtileh, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+	const int antialias = 1;
+	if (antialias == 0) {
+		GX_InitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+		GX_SetCopyFilter(GX_FALSE, rmode->sample_pattern, GX_FALSE, rmode->vfilter);
+	} else {
+		GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);
+	}
+	GX_LoadTexObj(&texObj, GX_TEXMAP0);
 
-    GX_SetTevOp (GX_TEVSTAGE0, GX_MODULATE);
-    GX_SetVtxDesc (GX_VA_TEX0, GX_DIRECT);
+	GX_SetTevOp (GX_TEVSTAGE0, GX_MODULATE);
+	GX_SetVtxDesc (GX_VA_TEX0, GX_DIRECT);
+}
 
-    GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
+void GRRLIB_DrawTile_begin(GRRLIB_texImg *tex, f32 x, f32 y, f32 scale)
+{
+	GRRLIB_DrawTile_begin0(tex);
+
+	Mtx m, m1, m2, mv;
+	guMtxIdentity (m1);
+	guMtxScaleApply(m1, m1, scale, scale, 1.0f);
+	guVector axis = (guVector) {0, 0, 1 };
+	guMtxRotAxisDeg (m2, &axis, 0); // 0 degrees rotate
+	guMtxConcat(m2, m1, m);
+	guMtxTransApply(m, m, x, y, 0);
+	guMtxConcat (GXmodelView2D, m, mv);
+	GX_LoadPosMtxImm (m, GX_PNMTX0);
 }
 
 
@@ -1580,42 +1599,49 @@ inline void GRRLIB_DrawTile_draw(f32 xpos, f32 ypos, GRRLIB_texImg tex, float de
     GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
 }
 
-inline void GRRLIB_DrawTile_draw1(f32 xpos, f32 ypos, GRRLIB_texImg tex, u32 color, int frame)
+inline void GRRLIB_DrawTile_draw1(f32 xpos, f32 ypos, GRRLIB_texImg *tex, u32 color, int frame)
 {
     f32 width, height;
 
     // Frame Correction by spiffen
-    f32 FRAME_CORR = 0.001f;
-    f32 s1 = (((frame%tex.nbtilew))/(f32)tex.nbtilew)+(FRAME_CORR/tex.w);
-    f32 s2 = (((frame%tex.nbtilew)+1)/(f32)tex.nbtilew)-(FRAME_CORR/tex.w);
-    f32 t1 = (((int)(frame/tex.nbtilew))/(f32)tex.nbtileh)+(FRAME_CORR/tex.h);
-    f32 t2 = (((int)(frame/tex.nbtilew)+1)/(f32)tex.nbtileh)-(FRAME_CORR/tex.h);
+    const f32 FRAME_CORR = 0.001f;
+    f32 s1, s2, t1, t2;
+    s1 = (frame % tex->nbtilew) * tex->ofnormaltexx;
+    s2 = s1 + tex->ofnormaltexx - FRAME_CORR;
+    t1 = (int)(frame/tex->nbtilew) * tex->ofnormaltexy;
+    t2 = t1 + tex->ofnormaltexy - FRAME_CORR;
 
-    width = tex.tilew * 0.5f;
-    height = tex.tileh * 0.5f;
+    width = tex->tilew * 0.5f;
+    height = tex->tileh * 0.5f;
     GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
     GX_Position3f32(xpos, ypos, 0);
     GX_Color1u32(color);
     GX_TexCoord2f32(s1, t1);
 
-    GX_Position3f32(xpos+tex.tilew, ypos,  0);
+    GX_Position3f32(xpos+tex->tilew, ypos,  0);
     GX_Color1u32(color);
     GX_TexCoord2f32(s2, t1);
 
-    GX_Position3f32(xpos+tex.tilew, ypos+tex.tileh,  0);
+    GX_Position3f32(xpos+tex->tilew, ypos+tex->tileh,  0);
     GX_Color1u32(color);
     GX_TexCoord2f32(s2, t2);
 
-    GX_Position3f32(xpos, ypos+tex.tileh,  0);
+    GX_Position3f32(xpos, ypos+tex->tileh,  0);
     GX_Color1u32(color);
     GX_TexCoord2f32(s1, t2);
     GX_End();
 }
 
-inline void GRRLIB_DrawTile_end(GRRLIB_texImg tex)
+inline void GRRLIB_DrawTile_end0(GRRLIB_texImg *tex)
 {
-    GX_SetTevOp (GX_TEVSTAGE0, GX_PASSCLR);
-    GX_SetVtxDesc (GX_VA_TEX0, GX_NONE);
+	GX_SetTevOp (GX_TEVSTAGE0, GX_PASSCLR);
+	GX_SetVtxDesc (GX_VA_TEX0, GX_NONE);
+}
+
+inline void GRRLIB_DrawTile_end(GRRLIB_texImg *tex)
+{
+	GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
+	GRRLIB_DrawTile_end0(tex);
 }
 
 /**
@@ -1784,7 +1810,7 @@ struct GRRLIB_texImg* get_unifont_cache(int c)
 	return tx;
 }
 
-int draw_unifont(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
+float draw_unifont(f32 xpos, f32 ypos, float w, float h, u32 color, int c)
 {
 	struct GRRLIB_texImg *tx;
 	int len;
@@ -1794,8 +1820,11 @@ int draw_unifont(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
 	tx = get_unifont_cache(c);
 	len = unifont->index[c] & 0x0F;
 	if (len > 2) len = 2;
-	float s = (float)h / 16;
-	GRRLIB_DrawTile(xpos+2, ypos, tx, 0, s, s, color, 0);
+	float s = h / 16.0;
+	//GRRLIB_DrawTile(xpos+2, ypos, tx, 0, s, s, color, 0);
+	GRRLIB_DrawTile_begin0(tx);
+	GRRLIB_DrawTile_draw1(xpos+2, ypos, tx, color, 0);
+	GRRLIB_DrawTile_end0(tx);
 	// heh, why xpos+2?
 	// the 512 font chars are right aligned while unifont is left aligned
 	// and if the two are together they will touch
@@ -1803,7 +1832,7 @@ int draw_unifont(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
 	// dbg:
 	//extern GRRLIB_texImg tx_font;
 	//GRRLIB_Printf(50, xpos, tx_font, color, 1, "%d", c);
-	return (int)ceil(s * len * 8.0);
+	return s * (float)len * 8.0;
 }
 /*
 int draw_unifont0(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
@@ -1854,14 +1883,14 @@ int draw_unifont0(f32 xpos, f32 ypos, int w, int h, u32 color, int c)
 	return (int)ceil(s * len * 8.0);
 }
 */
-void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg tex,
+void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex,
 		u32 color, const wchar_t *wtext)
 {
-	unsigned nc = tex.nbtilew * tex.nbtileh;
+	unsigned nc = tex->nbtilew * tex->nbtileh;
 	wchar_t c;
-    int i;
+	int i;
 	unsigned cc;
-	//f32 x;
+	f32 w = tex->tilew;
 
 	for (i = 0; wtext[i]; i++) {
 		cc = c = wtext[i];
@@ -1870,23 +1899,21 @@ void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg tex,
 			if (cc == 0  && (unsigned)c <= 0xFFFF) {
 				if (unifont && unifont->index[(unsigned)c]) {
 					// unifont contains almost all unicode chars
-    				GRRLIB_DrawTile_end(tex);
-					int n = draw_unifont(xpos, ypos, tex.tilew, tex.tileh, color, c);
-					xpos += n;
-    				GRRLIB_DrawTile_begin(tex);
+					GRRLIB_DrawTile_end0(tex);
+					xpos += draw_unifont(xpos, ypos, tex->tilew, tex->tileh, color, c);
+					GRRLIB_DrawTile_begin0(tex);
 					continue;
 				}
 			}
 			c = cc;
 		}
-		c -= tex.tilestart;
-		//x = xpos + i * tex.tilew;
+		c -= tex->tilestart;
 		GRRLIB_DrawTile_draw1(xpos, ypos, tex, color, c);
-		xpos += tex.tilew;
+		xpos += w;
 	}
 }
 
-void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, u32 outline, u32 shadow, const char *text)
+void GRRLIB_Print3(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 zoom, const char *text)
 {
 	int len = strlen(text);
 	wchar_t wtext[len+1];
@@ -1894,21 +1921,15 @@ void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, u32 
 	wlen = mbstowcs(wtext, text, len);
 	wtext[wlen] = 0;
 
-    GRRLIB_DrawTile_begin(tex);
+	GRRLIB_DrawTile_begin(tex, xpos, ypos, zoom);
+	xpos = ypos = 0; // position is set above
 	if (shadow) {
 		__GRRLIB_Print1w(xpos+1, ypos+0, tex, shadow, wtext);
+		__GRRLIB_Print1w(xpos+0, ypos+1, tex, shadow, wtext);
 		__GRRLIB_Print1w(xpos+1, ypos+1, tex, shadow, wtext);
-		__GRRLIB_Print1w(xpos+0, ypos+0, tex, shadow, wtext);
 		__GRRLIB_Print1w(xpos+2, ypos+2, tex, shadow, wtext);
 	}
 	if (outline) {
-		/*
-		// x spread
-		__GRRLIB_Print1w(xpos-1, ypos-1, tex, outline, wtext);
-		__GRRLIB_Print1w(xpos+1, ypos-1, tex, outline, wtext);
-		__GRRLIB_Print1w(xpos-1, ypos+1, tex, outline, wtext);
-		__GRRLIB_Print1w(xpos+1, ypos+1, tex, outline, wtext);
-		*/
 		// + spread
 		__GRRLIB_Print1w(xpos-1, ypos-0, tex, outline, wtext);
 		__GRRLIB_Print1w(xpos+1, ypos-0, tex, outline, wtext);
@@ -1916,11 +1937,15 @@ void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, u32 
 		__GRRLIB_Print1w(xpos-0, ypos+1, tex, outline, wtext);
 	}
 	__GRRLIB_Print1w(xpos, ypos, tex, color, wtext);
-    GRRLIB_DrawTile_end(tex);
+	GRRLIB_DrawTile_end(tex);
 }
 
+void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, const char *text)
+{
+	GRRLIB_Print3(xpos, ypos, tex, color, outline, shadow, 1.0, text);
+}
 
-void GRRLIB_Print(f32 xpos, f32 ypos, struct GRRLIB_texImg tex, u32 color, const char *text)
+void GRRLIB_Print(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, const char *text)
 {
 	GRRLIB_Print2(xpos, ypos, tex, color, 0, 0, text);
 }
@@ -2308,4 +2333,73 @@ void tx_store(struct GRRLIB_texImg *dest, struct GRRLIB_texImg *src)
 	}
 }
 
+/**
+ * Draw a part of a texture.
+ * @param pos Vector array of the 4 points.
+ * @param partx Specifies the x-coordinate of the upper-left corner in the texture.
+ * @param party Specifies the y-coordinate of the upper-left corner in the texture.
+ * @param partw Specifies the width in the texture.
+ * @param parth Specifies the height in the texture.
+ * @param tex The texture containing the tile to draw.
+ * @param color Color in RGBA format.
+ */
+void  GRRLIB_DrawPartQuad (const guVector pos[4], const GRRLIB_texImg *tex,
+		const f32 partx, const f32 party, const f32 partw, const f32 parth,
+		const u32 color)
+{
+	GXTexObj  texObj;
+	Mtx       m1, mv;
+	f32       s1, s2, t1, t2;
+
+	if (tex == NULL || tex->data == NULL)  return;
+
+	// The 0.001f/x is the frame correction formula by spiffen
+	s1 = (partx /tex->w) +(0.001f /tex->w);
+	s2 = ((partx + partw)/tex->w) -(0.001f /tex->w);
+	t1 = (party /tex->h) +(0.001f /tex->h);
+	t2 = ((party + parth)/tex->h) -(0.001f /tex->h);
+
+	GX_InitTexObj(&texObj, tex->data,
+			tex->w, tex->h,
+			GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+
+	if (GRRLIB_Settings.antialias == false) {
+		GX_InitTexObjLOD(&texObj, GX_NEAR, GX_NEAR,
+				0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+		GX_SetCopyFilter(GX_FALSE, rmode->sample_pattern, GX_FALSE, rmode->vfilter);
+	}
+	else {
+		GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);
+	}
+
+	GX_LoadTexObj(&texObj,      GX_TEXMAP0);
+	GX_SetTevOp  (GX_TEVSTAGE0, GX_MODULATE);
+	GX_SetVtxDesc(GX_VA_TEX0,   GX_DIRECT);
+
+	guMtxIdentity  (m1);
+	guMtxConcat(GXmodelView2D, m1, mv);
+
+	GX_LoadPosMtxImm(mv, GX_PNMTX0);
+	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
+	GX_Position3f32(pos[0].x, pos[0].y, 0);
+	GX_Color1u32   (color);
+	GX_TexCoord2f32(s1, t1);
+
+	GX_Position3f32(pos[1].x, pos[1].y, 0);
+	GX_Color1u32   (color);
+	GX_TexCoord2f32(s2, t1);
+
+	GX_Position3f32(pos[2].x, pos[2].y, 0);
+	GX_Color1u32   (color);
+	GX_TexCoord2f32(s2, t2);
+
+	GX_Position3f32(pos[3].x, pos[3].y, 0);
+	GX_Color1u32   (color);
+	GX_TexCoord2f32(s1, t2);
+	GX_End();
+	GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
+
+	GX_SetTevOp  (GX_TEVSTAGE0, GX_PASSCLR);
+	GX_SetVtxDesc(GX_VA_TEX0,   GX_NONE);
+}
 

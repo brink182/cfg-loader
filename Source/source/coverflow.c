@@ -1988,7 +1988,7 @@ void Coverflow_draw_title(int selectedCover, int xpos, ir_t *ir) {
 		int y = title_y + tx_font.tileh/2;
 		Gui_Print_Clock(x, y, CFG.gui_text2, 0);
 	} else {
-		Gui_PrintEx(title_x, title_y, tx_font, font_color, gameTitle);
+		Gui_PrintEx(title_x, title_y, &tx_font, font_color, gameTitle);
 	}
 }
 

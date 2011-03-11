@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	64
+VERSION		:=	65
 RELEASE		:=	release
 # to override RELEASE use: make announce RELEASE=beta
 ifeq ($(findstring compat,$(VERSION)),compat)
@@ -293,9 +293,12 @@ $(OUTPUT).elf: $(OFILES)
 # This rule links in binary data with the .jpg extension
 #---------------------------------------------------------------------------------
 %.jpg.o	:	%.jpg
-#---------------------------------------------------------------------------------
 	@echo $(notdir $<)
-	$(bin2o)
+	@$(bin2o)
+
+%.png.o	:	%.png
+	@echo $(notdir $<)
+	@$(bin2o)
 
 %.ttf.o : %.ttf
 	@echo $(notdir $<)

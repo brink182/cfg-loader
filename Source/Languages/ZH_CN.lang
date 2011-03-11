@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
-"Language: \n"
+"Language: Simplified Chinese\n"
 "MIME-Version: 2.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,6 +52,9 @@ msgstr "(%d在线)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d秒超时)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(可能会花一些时间)"
 
 msgid ".dol too small"
 msgstr ".dol文件太小"
@@ -1101,6 +1104,10 @@ msgid "Press %s button to skip codes."
 msgstr "按%s键跳过代码"
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "按 %s 键同步FAT分区。"
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "按 %s 切换到全屏预览模式"
 
@@ -1320,6 +1327,9 @@ msgstr "已选游戏"
 msgid "Shooter"
 msgstr "射击游戏"
 
+msgid "Show cIOS info"
+msgstr "显示cIOS信息"
+
 msgid "Simulation"
 msgstr "模拟游戏"
 
@@ -1351,6 +1361,12 @@ msgstr "开始这款游戏？"
 
 msgid "Strategy"
 msgstr "战略游戏"
+
+msgid "Sync FAT free space info?"
+msgstr "是否同步FAT分区剩余空间信息？"
+
+msgid "Synchronizing, please wait."
+msgstr "正在同步信息中，请等待。"
 
 msgid "System Def."
 msgstr "系统定义"
@@ -1551,6 +1567,9 @@ msgstr "单人游戏"
 
 msgid "format"
 msgstr "格式化"
+
+msgid "free"
+msgstr "剩余"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

@@ -28,6 +28,7 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 void showAllGames(void);
 void sortList(int (*sortFunc) (const void *, const void *));
 void __set_default_sort(void);
+void sortList_default();
 int Menu_Filter(void);
 int Menu_Filter2(void);
 int Menu_Filter3(void);

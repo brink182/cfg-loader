@@ -17,8 +17,8 @@
 #include "cfg.h"
 #include "grid.h"
 #include "coverflow.h"
-//#include "wgui.h"
 #include "menu.h"
+#include "wgui.h"
 
 #include "png.h"
 #include "gettext.h"
@@ -1784,17 +1784,18 @@ void GRRLIB_TrimTile(GRRLIB_texImg *tx, int maxn)
 	if (!tx || !tx->data) return;
 	int n = tx->nbtilew * tx->nbtileh;
 	if (n <= maxn) return;
-	// roundup to a full row
-	tx->nbtileh = (maxn + tx->nbtilew - 1) / tx->nbtilew;
-	tx->h = tx->tileh * tx->nbtileh;
+	// roundup maxn to a full row
+	int nh = (maxn + tx->nbtilew - 1) / tx->nbtilew;
+	tx->h = tx->tileh * nh;
 	int size = tx->w * tx->h * 4;
-	//tx->data = realloc(tx->data, size + 64 - (size%32));
-	tx->data = mem_realloc(tx->data, size + 64 - (size%32));
+	// downsize
+	tx->data = mem_realloc(tx->data, size);
+	// re-init tile
+	GRRLIB_InitTileSet(tx, tx->tilew, tx->tileh, 0);
 }
 
-void Gui_TestUnicode()
+void Gui_DumpUnicode(int xx, int yy)
 {
-	if (CFG.debug != 2) return;
 	wchar_t wc;
 	char mb[32*6+1];
 	char line[10+32*6+1];
@@ -1813,7 +1814,7 @@ void Gui_TestUnicode()
 		if (count >= 32) {
 			sprintf(line, "%03x: %s |", (unsigned)i-31, mb);
 			y = 10+(i/32*fh);
-			Gui_Print2(5, y, line);
+			Gui_Print2(xx+5, yy+y, line);
 			len = 0;
 			count = 0;
 		}
@@ -1831,18 +1832,72 @@ void Gui_TestUnicode()
 		if (count >= 32 || !ufont_map[i+2]) {
 			sprintf(line, "map: %s |", mb);
 			y += fh;
-			Gui_Print2(5, y, line);
+			Gui_Print2(xx+5, yy+y, line);
 			len = 0;
 			count = 0;
 		}
 	}
-	y += fh;
-	Gui_Print2(5, y, gt("Press any button..."));
+}
+
+void Gui_TestUnicode()
+{
+	if (CFG.debug != 2) return;
+	GRRLIB_FillScreen(0x000000FF);
+	Gui_DumpUnicode(0, 0);
+	Gui_Print2(5, 440, gt("Press any button..."));
 	Gui_Render();
 	Wpad_WaitButtons();
 }
 
-void Gui_PrintEx2(int x, int y, GRRLIB_texImg font,
+void Gui_FillAscii(int xx, int yy, u32 color, int method)
+{
+	char line[1000];
+	int y=0;
+	int cols = 640 / tx_font.tilew - 1;
+	int rows = 480 / tx_font.tileh - 2;
+	int r, i;
+	int c = 33;
+	for (r=0; r<rows; r++) {
+		for (i=0; i<cols; i++) {
+			line[i] = c;
+			c++;
+			if (c >= 128) c = 33;
+		}
+		line[i] = 0;
+		y = 10 + r * tx_font.tileh;
+		if (method == 0)
+			GRRLIB_Printf(xx+5, yy+y, &tx_font, color, 1.0, "%s", line);
+		else
+			Gui_PrintEx2(xx+5, yy+y, &tx_font, color, 0, 0, line);
+	}
+}
+
+void Gui_BenchText()
+{
+	int i, m;
+	int n = 10;
+	for (m=0; m<2; m++) {
+		GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
+		GRRLIB_FillScreen(0x000000FF);
+		dbg_time_usec();
+		for (i=0; i<n; i++) {
+			u32 r = 0xff - (i%10+1) * 0xff / 10;
+			u32 g = (i%20+1) * 0xff / 20;
+			u32 b = 0xff - (i%30+1) * 0xff / 30;
+			u32 c = RGBA(r,g,b,0xff);
+			if (i==n-1) c = 0xFFFFFFFF;
+			Gui_FillAscii(i%10, i%10+(i/10)%10, c, m);
+		}
+		long long us = dbg_time_usec();
+		Gui_Printf(5, 440, "ms: %5.2f", (float)us/1000.0);
+		Gui_Print2(5, 460, gt("Press any button..."));
+		Gui_Render();
+		Wpad_WaitButtons();
+	}
+	// m=1 seems to be 5x faster
+}
+
+void Gui_PrintEx2(int x, int y, GRRLIB_texImg *font,
 		int color, int color_outline, int color_shadow, const char *str)
 {
 	GRRLIB_Print2(x, y, font, color, color_outline, color_shadow, str);
@@ -1875,7 +1930,8 @@ int get_outline_color(int text_color, int outline_color, int outline_auto)
 	return color;
 }
 
-void Gui_PrintEx(int x, int y, GRRLIB_texImg font, FontColor font_color, const char *str)
+void Gui_PrintExx(float x, float y, GRRLIB_texImg *font, FontColor font_color,
+		float zoom, const char *str)
 {
 	unsigned outline_color = get_outline_color(
 			font_color.color,
@@ -1885,10 +1941,15 @@ void Gui_PrintEx(int x, int y, GRRLIB_texImg font, FontColor font_color, const c
 			font_color.color,
 			font_color.shadow,
 			font_color.shadow_auto); 
-	Gui_PrintEx2(x, y, font, font_color.color, outline_color, shadow_color, str);
+	GRRLIB_Print3(x, y, font, font_color.color, outline_color, shadow_color, zoom, str);
 }
 
-void Gui_PrintfEx(int x, int y, GRRLIB_texImg font, FontColor font_color, char *fmt, ...)
+void Gui_PrintEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, const char *str)
+{
+	Gui_PrintExx(x, y, font, font_color, 1.0, str);
+}
+
+void Gui_PrintfEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, char *fmt, ...)
 {
 	char str[200];
 	va_list argp;
@@ -1900,29 +1961,41 @@ void Gui_PrintfEx(int x, int y, GRRLIB_texImg font, FontColor font_color, char *
 
 // alignx: -1=left 0=centre 1=right
 // aligny: -1=top  0=centre 1=bottom
-void Gui_PrintAlign(int x, int y, int alignx, int aligny,
-		GRRLIB_texImg font, FontColor font_color, char *str)
+void Gui_PrintAlignZ(float x, float y, int alignx, int aligny,
+		GRRLIB_texImg *font, FontColor font_color, float zoom, char *str)
 {
-	int xx = x, yy = y;
-	int len, w, h;
-	len = strlen(str);
-	w = len * font.tilew;
-	h = font.tileh;
-	if (alignx == 0) xx = x - w/2;
+	float xx = x, yy = y;
+	int len;
+	float w, h;
+	len = con_len(str);
+	w = len * font->tilew;
+	h = font->tileh;
+	w *= zoom;
+	h *= zoom;
+	if (alignx == 0) xx = x - w/2.0;
 	else if (alignx > 0) xx = x - w;
-	if (aligny == 0) yy = y - h/2;
+	if (aligny == 0) yy = y - h/2.0;
 	else if (aligny > 0) yy = y - h;
-	Gui_PrintEx(xx, yy, font, font_color, str);
+	// align to pixel for sharper text
+	xx = (int)xx;
+	yy = (int)yy;
+	Gui_PrintExx(xx, yy, font, font_color, zoom, str);
+}
+
+void Gui_PrintAlign(int x, int y, int alignx, int aligny,
+		GRRLIB_texImg *font, FontColor font_color, char *str)
+{
+	Gui_PrintAlignZ(x, y, alignx, aligny, font, font_color, 1.0, str);
 }
 
 void Gui_Print2(int x, int y, const char *str)
 {
-	Gui_PrintEx(x, y, tx_font, CFG.gui_text2, str);
+	Gui_PrintEx(x, y, &tx_font, CFG.gui_text2, str);
 }
 
 void Gui_Print(int x, int y, char *str)
 {
-	Gui_PrintEx(x, y, tx_font, CFG.gui_text, str);
+	Gui_PrintEx(x, y, &tx_font, CFG.gui_text, str);
 }
 
 void Gui_Printf(int x, int y, char *fmt, ...)
@@ -1940,7 +2013,7 @@ void Gui_Print_Clock(int x, int y, FontColor font_color, int align)
 	if (CFG.clock_style == 0) return;
 	GRRLIB_texImg *tx = &tx_font_clock;
 	if (!tx->data) tx = &tx_font;
-	Gui_PrintAlign(x, y, align, align, *tx, font_color, get_clock_str(time(NULL)));
+	Gui_PrintAlign(x, y, align, align, tx, font_color, get_clock_str(time(NULL)));
 }
 
 void Grx_Load_BG_Gui()
@@ -2227,6 +2300,7 @@ void Gui_draw_pointer(ir_t *ir)
 {
 	// reset camera
 	Gui_set_camera(NULL, 0);
+	GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
 	// draw pointer
 	GRRLIB_DrawImg(ir->sx - tx_pointer.w / 2, ir->sy - tx_pointer.h / 2,
 			&tx_pointer, ir->angle, 1, 1, 0xFFFFFFFF);
@@ -2537,7 +2611,10 @@ int Gui_Mode()
 	if (first_time) {
 		first_time = 0;
 		Gui_TestUnicode();
+		//Gui_BenchText();
 	}
+
+	wgui_desk_init();
 
 	while (1) {
 
@@ -2548,6 +2625,7 @@ int Gui_Mode()
 		buttons = Wpad_GetButtons();
 		Wpad_getIR(&ir);
 
+		wgui_desk_focus(&ir, &buttons);
 
 		//----------------------
 		//  HOME Button
@@ -2897,7 +2975,7 @@ int Gui_Mode()
 			grid_print_title(game_select);
 		}
 
-		//wgui_test(&ir, buttons);
+		wgui_desk_handle(&ir, &buttons);
 
 		int us = dbg_time_usec();
 		if (CFG.debug == 3)
@@ -2905,6 +2983,7 @@ int Gui_Mode()
 					"%4d ms:'%5.2f'", fr_cnt, (float)us/1000.0);
 		//draw_Cache();
 		//GRRLIB_DrawImg(0, 50, tx_font, 0, 1, 1, 0xFFFFFFFF); // entire font
+		//Gui_FillAscii(10, 10, 0xffffffff, 1);
 		Gui_draw_pointer(&ir);
 		//GRRLIB_Rectangle(fr_cnt % 640, 0, 5, 15, 0x000000FF, 1);
 

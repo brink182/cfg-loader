@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -52,6 +52,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d segundos de tiempo de espera)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Esto puede tomar un par de minutos)"
 
 msgid ".dol too small"
 msgstr ".dol es muy pequeño"
@@ -1115,6 +1118,10 @@ msgid "Press %s button to skip codes."
 msgstr "Presiona el botón %s para saltar códigos."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Presiona el botón %s para sincronizar FAT."
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Presiona %s para ver en pantalla completa"
 
@@ -1334,6 +1341,9 @@ msgstr "Juego Seleccionado"
 msgid "Shooter"
 msgstr "Disparos"
 
+msgid "Show cIOS info"
+msgstr "Mostrar la información del cIOS"
+
 msgid "Simulation"
 msgstr "Simulación"
 
@@ -1365,6 +1375,12 @@ msgstr "¿Iniciar este juego?"
 
 msgid "Strategy"
 msgstr "Estrategia"
+
+msgid "Sync FAT free space info?"
+msgstr "Sincronizar la información de espacio libre FAT?"
+
+msgid "Synchronizing, please wait."
+msgstr "Sincronizando, por favor espera."
 
 msgid "System Def."
 msgstr "Def. Sistema"
@@ -1487,7 +1503,7 @@ msgid "WBFS: %.1fGB free of %.1fGB"
 msgstr "WBFS: %.1fGB libre de %.1fGB"
 
 msgid "Wheel"
-msgstr "Manubrio Wii"
+msgstr "Volante Wii"
 
 msgid "Wii Speak"
 msgstr "Wii Speak"
@@ -1568,6 +1584,9 @@ msgstr "para 1 jugador"
 
 msgid "format"
 msgstr "formato"
+
+msgid "free"
+msgstr "libre"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

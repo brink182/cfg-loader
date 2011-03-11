@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: DUTCH <EMAIL@ADDRESS>\n"
@@ -50,6 +50,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d seconden timeout)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Dit kan een paar minuten duren)"
 
 msgid ".dol too small"
 msgstr ".dol te klein"
@@ -1112,6 +1115,10 @@ msgid "Press %s button to skip codes."
 msgstr "Druk %s om codes over te slaan"
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Druk %s knop voor synchronisatie FAT"
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Druk op %s voor  fullscreen preview"
 
@@ -1331,6 +1338,9 @@ msgstr "Gekozen spel"
 msgid "Shooter"
 msgstr "Schietspel"
 
+msgid "Show cIOS info"
+msgstr ""
+
 msgid "Simulation"
 msgstr "Simulatie"
 
@@ -1362,6 +1372,12 @@ msgstr "Spel starten?"
 
 msgid "Strategy"
 msgstr "Strategie"
+
+msgid "Sync FAT free space info?"
+msgstr "Sync FAT info vrije schijfruimte?"
+
+msgid "Synchronizing, please wait."
+msgstr "Synchroniseren, even geduld..."
 
 msgid "System Def."
 msgstr "Systeem def."
@@ -1565,6 +1581,9 @@ msgstr "voor 1 speler"
 
 msgid "format"
 msgstr "formaat"
+
+msgid "free"
+msgstr "vrij"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

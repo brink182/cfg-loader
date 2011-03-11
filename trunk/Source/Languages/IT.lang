@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -50,6 +50,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d secondi timeout)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Questo può richiedere un paio di minuti)"
 
 msgid ".dol too small"
 msgstr ".dol troppo piccolo"
@@ -1116,6 +1119,10 @@ msgid "Press %s button to skip codes."
 msgstr "Premere %s per saltare i codici"
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Premere %s per sincronizzare il disco FAT."
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Premere %s per l'anteprima a tutto schermo"
 
@@ -1335,6 +1342,9 @@ msgstr "Gioco Selezionato"
 msgid "Shooter"
 msgstr "Spara Spara"
 
+msgid "Show cIOS info"
+msgstr "Mostra informazioni sui cIOS"
+
 msgid "Simulation"
 msgstr "Simulazione"
 
@@ -1366,6 +1376,12 @@ msgstr "Vuoi avviare questo gioco?"
 
 msgid "Strategy"
 msgstr "Strategia"
+
+msgid "Sync FAT free space info?"
+msgstr "Sincronizzare lo spazio libero nel disco FAT?"
+
+msgid "Synchronizing, please wait."
+msgstr "Sto sincronizzando, attendere prego."
 
 msgid "System Def."
 msgstr "Predef. Sistema"
@@ -1569,6 +1585,9 @@ msgstr "per 1 giocatore"
 
 msgid "format"
 msgstr "formattare"
+
+msgid "free"
+msgstr "libero"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

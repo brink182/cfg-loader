@@ -8,6 +8,7 @@
 #include <ogcsys.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <stdarg.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -183,15 +184,6 @@ s32 __Menu_GetEntries(void)
 	if (ret < 0)
 		goto err;
 
-	/* Sort entries */
-	__set_default_sort();
-	qsort(buffer, cnt, sizeof(struct discHdr), default_sort_function);
-
-	// hide and re-sort preffered
-	if (!CFG.admin_lock || CFG.admin_mode_locked)
-		cnt = CFG_hide_games(buffer, cnt);
-	CFG_sort_pref(buffer, cnt);
-
 	/* Free memory */
 	if (gameList)
 		free(gameList);
@@ -202,6 +194,16 @@ s32 __Menu_GetEntries(void)
 
 	/* Reset variables */
 	gameSelected = gameStart = 0;
+
+	/* Sort entries */
+	__set_default_sort();
+	sortList_default();
+
+	// hide and re-sort preffered
+	if (!CFG.admin_lock || CFG.admin_mode_locked) {
+		gameCnt = CFG_hide_games(gameList, gameCnt);
+	}
+	CFG_sort_pref(gameList, gameCnt);
 
 	// init favorites
 	all_gameList = gameList;
@@ -223,8 +225,7 @@ s32 __Menu_GetEntries(void)
 
 err:
 	/* Free memory */
-	if (buffer)
-		free(buffer);
+	SAFE_FREE(buffer);
 
 	return ret;
 }
@@ -269,7 +270,7 @@ void Switch_Favorites(bool enable)
 char *__Menu_PrintTitle(char *name)
 {
 	//static char buffer[MAX_CHARACTERS + 4];
-	static char buffer[200];
+	static char buffer[400];
 	int len = con_len(name);
 
 	/* Clear buffer */
@@ -285,6 +286,25 @@ char *__Menu_PrintTitle(char *name)
 	}
 
 	return name;
+}
+
+char *__Menu_WrapTitle(char *title, int len)
+{
+	//static char buffer[MAX_CHARACTERS + 4];
+	static char buffer[400];
+	memset(buffer, 0, sizeof(buffer));
+	STRCOPY(buffer, title);
+	/* if (len == 0) {
+		int rows;
+		CON_GetMetrics(&len, &rows);
+		len--;
+	}*/
+	con_wordwrap(buffer, len, sizeof(buffer));
+	// limit to 2 lines
+	char *ln = strchr(buffer, '\n');
+	if (ln) ln = strchr(ln+1, '\n');
+	if (ln) *ln = 0;
+	return buffer;
 }
 
 bool is_dual_layer(u64 real_size)
@@ -414,9 +434,16 @@ void __Menu_PrintInfo2(struct discHdr *header, u64 comp_size, u64 real_size)
 {
 	float size = (float)comp_size / 1024 / 1024 / 1024;
 	char *dl_str = is_dual_layer(real_size) ? "(dual-layer)" : "";
-
-	/* Print game info */
-	printf_("%s\n", get_title(header));
+	char *title = get_title(header);
+	int len = con_len(title);
+	int pad = con_len(CFG.menu_plus_s);
+	int cols, rows;
+	CON_GetMetrics(&cols, &rows);
+	if (pad + len < cols) {
+		printf_("%s\n", title);
+	} else {
+		printf("%s\n", __Menu_WrapTitle(title, cols-1));
+	}
 	printf_("(%.6s) ", header->id);
 	printf("(%.2f%s) ", size, gt("GB"));
 	printf("%s\n\n", dl_str);
@@ -1476,6 +1503,8 @@ void Save_Debug()
 		return;
 	}
 	fprintf(f, "# CFG USB Loader %s\n", CFG_VERSION);
+	fprintf(f, "\nIOS:\n\n");
+	print_all_ios_info(f);
 	fprintf(f, "\nMEM STATS:\n");
 	mem_statf(f);
 	fprintf(f, "\nTIME STATS:\n\n");
@@ -1504,17 +1533,16 @@ void Save_IOS_Hash()
 	}
 	time_t t = time(NULL);
 	fprintf(f, "\n# CFG %s %s", CFG_VERSION, ctime(&t));
-	extern char* get_ios_tmd_hash_str(char *str);
-	extern char* get_ios_info_from_tmd();
 	char *info = get_ios_info_from_tmd();
 	if (!info) info = "??";
-	fprintf(f, "IOS%d r%d Base: %s\n", IOS_GetVersion(), IOS_GetRevision(), info);
+	fprintf(f, "IOS%d, ", IOS_GetVersion());
 	char str[100];
 	if (get_ios_tmd_hash_str(str)) {
-		fprintf(f, "%s\n\n", str);
+		fprintf(f, "%s", str);
 	} else {
-		fprintf(f, "TMD HASH ERROR\n\n");
+		fprintf(f, "TMD HASH ERROR");
 	}
+	fprintf(f, " r%d Base: %s\n\n", IOS_GetRevision(), info);
 	fclose(f);
 	printf_("OK");
 }
@@ -1535,7 +1563,7 @@ int Menu_Global_Options()
 	int redraw_cover = 0;
 
 	struct Menu menu;
-	const int num_opt = 12;
+	const int num_opt = 13;
 	char active[num_opt];
 	menu_init(&menu, num_opt);
 	menu_init_active(&menu, active, sizeof(active));
@@ -1590,6 +1618,8 @@ int Menu_Global_Options()
 			printf("<%s>\n", gt("Check For Updates"));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Save debug.log"));
+		if (menu_window_mark(&menu))
+			printf("<%s>\n", gt("Show cIOS info"));
 		DefaultColor();
 		menu_window_end(&menu, cols);
 		
@@ -1662,6 +1692,12 @@ int Menu_Global_Options()
 				Save_Debug();
 				Save_IOS_Hash();
 				sleep(2);
+				break;
+			case 12:
+				printf("\n\ncIOS Info:\n\n");
+				print_all_ios_info(stdout);
+				printf("\n");
+				Menu_PrintWait();
 				break;
 			}
 		}
@@ -2148,6 +2184,94 @@ void Menu_Format_Partition(partitionEntry *entry, bool delete_fs)
 	Menu_PrintWait();
 }
 
+void Menu_Sync_FAT()
+{
+	extern MountTable mtab;
+	MountPoint *m;
+	struct statvfs vfs;
+	struct statvfs vfs2;
+	float free;
+	int ret;
+	int i;
+	char drive[32];
+
+	printf("\n");
+	printf("\n");
+	printf_x(gt("Sync FAT free space info?"));
+	printf("\n");
+	printf_(gt("(This can take a couple of minutes)"));
+	printf("\n");
+	printf("\n");
+	for (i=0; i<mtab.num; i++)
+	{
+		m = &mtab.point[i];
+		if (m->fstype == PART_FS_FAT) {
+			free = 0;
+			mount_name2drive(m->name, drive);
+			memset(&vfs, 0, sizeof(vfs));
+			ret = statvfs(drive, &vfs);
+			if (ret == 0) {
+				free = (f32)vfs.f_frsize * (f32)vfs.f_bfree / GB_SIZE;
+			} else {
+				printf(gt("ERROR!"));
+				printf("\n");
+			}
+			printf_("[%s] %s %.3f %s %s\n",
+				m->device == WBFS_DEVICE_USB ? "USB" : "SD",
+				drive, free, gt("GB"), gt("free"));
+		}
+	}
+	printf("\n");
+	printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+	printf("\n");
+	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+	printf("\n");
+	int button;
+	while(1) {
+		button = Wpad_WaitButtonsCommon();
+		if (button & CFG.button_cancel.mask) return;
+		if (button & CFG.button_confirm.mask) break;
+	}
+	printf("\n");
+	printf_(gt("Synchronizing, please wait."));
+	printf("\n");
+	printf("\n");
+	for (i=0; i<mtab.num; i++)
+	{
+		m = &mtab.point[i];
+		if (m->fstype == PART_FS_FAT) {
+			free = 0;
+			mount_name2drive(m->name, drive);
+			memset(&vfs, 0, sizeof(vfs));
+			ret = statvfs(drive, &vfs);
+			if (ret == 0) {
+				free = (f32)vfs.f_frsize * (f32)vfs.f_bfree / GB_SIZE;
+			}
+			printf_("[%s] %s %.3f %s %s\n",
+					m->device == WBFS_DEVICE_USB ? "USB" : "SD",
+					drive, free, gt("GB"), gt("free"));
+			printf_("...");
+			memset(&vfs2, 0, sizeof(vfs2));
+			memcpy(&vfs2.f_flag, "SCAN", 4);
+			ret = statvfs(drive, &vfs2);
+			if (ret == 0) {
+				if (vfs.f_bfree == vfs2.f_bfree) {
+					printf(gt("OK!"));
+					printf("\n");
+				} else {
+					free = (f32)vfs2.f_frsize * (f32)vfs2.f_bfree / GB_SIZE;
+					printf("%.3f %s %s\n", free, gt("GB"), gt("free"));
+				}
+			} else {
+				printf(gt("ERROR!"));
+				printf("\n");
+			}
+			printf("\n");
+		}
+	}
+	Menu_PrintWait();
+}
+
 void Menu_Partition(bool must_select)
 {
 	PartList plist;
@@ -2212,6 +2336,8 @@ loop:
 	printf_h(gt("Press %s button to select."), (button_names[CFG.button_confirm.num]));
 	printf("\n");
 	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+	printf("\n");
+	printf_h(gt("Press %s button to sync FAT."), (button_names[CFG.button_save.num]));
 	printf("\n");
 	if (!CFG.disable_format) {
 		if (is_raw) {
@@ -2301,6 +2427,11 @@ loop:
 				goto rescan;
 			}
 		}
+	}
+	// 2 button
+	if (buttons & CFG.button_save.mask)
+	{
+		Menu_Sync_FAT();
 	}
 	// 1 button
 	if (buttons & CFG.button_other.mask
@@ -2731,8 +2862,8 @@ void Menu_Install(void)
 	__Menu_PrintInfo2(&header, comp_size, real_size);
 
 	// force fat freespace update when installing
-	extern int wbfs_fat_vfs_have;
-	wbfs_fat_vfs_have = 0;
+	//extern int wbfs_fat_vfs_have;
+	//wbfs_fat_vfs_have = 0;
 	// Disk free space
 	f32 free, used, total;
 	WBFS_DiskSpace(&used, &free);

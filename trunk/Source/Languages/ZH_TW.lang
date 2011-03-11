@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -50,6 +50,9 @@ msgstr "(支援 %d 名玩家連線)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d 秒逾時)"
+
+msgid "(This can take a couple of minutes)"
+msgstr ""
 
 msgid ".dol too small"
 msgstr ".dol 太小"
@@ -255,7 +258,7 @@ msgid "Developer"
 msgstr "開發成員"
 
 msgid "Device is not responding!"
-msgstr ""
+msgstr "裝置沒有回應!"
 
 msgid "Device:"
 msgstr "裝置:"
@@ -938,7 +941,7 @@ msgid "No domain part in URL '%s'"
 msgstr "沒有域名部分在 URL '%s'"
 
 msgid "No games found!"
-msgstr ""
+msgstr "沒有發現遊戲!"
 
 msgid "No partition selected!"
 msgstr "沒有選取的分割區!"
@@ -1108,6 +1111,10 @@ msgid "Press %s button to skip codes."
 msgstr "請按 %s 鈕略過密碼."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr ""
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "請按 %s 全螢幕預覽"
 
@@ -1172,19 +1179,19 @@ msgid "Press %s/%s to select device."
 msgstr "請按 %s/%s 選擇裝置."
 
 msgid "Press 2 to reload IOS"
-msgstr ""
+msgstr "請按 2 鈕重新載入 IOS"
 
 msgid "Press A to select device"
-msgstr ""
+msgstr "請按 A 鈕選擇裝置"
 
 msgid "Press B to exit to HBC"
-msgstr ""
+msgstr "請按 B 鈕離開到 HBC"
 
 msgid "Press HOME to reset"
-msgstr ""
+msgstr "請按 HOME 鈕重置"
 
 msgid "Press LEFT/RIGHT to select IOS"
-msgstr ""
+msgstr "請按 左/右 鈕選擇 IOS"
 
 msgid "Press any button to continue..."
 msgstr "請按任意按鈕繼續..."
@@ -1282,7 +1289,7 @@ msgid "Save .gct"
 msgstr "儲存 .gct"
 
 msgid "Save debug.log"
-msgstr ""
+msgstr "儲存 debug.log"
 
 msgid "Saving Settings... "
 msgstr "正在儲存設定..."
@@ -1297,7 +1304,7 @@ msgid "Saving settings..."
 msgstr "正在儲存設定..."
 
 msgid "Saving:"
-msgstr ""
+msgstr "正在儲存:"
 
 #, c-format
 msgid "Saving: %s"
@@ -1326,6 +1333,9 @@ msgstr "選取的遊戲"
 
 msgid "Shooter"
 msgstr "射擊"
+
+msgid "Show cIOS info"
+msgstr ""
 
 msgid "Simulation"
 msgstr "模擬"
@@ -1358,6 +1368,12 @@ msgstr "開始這個遊戲?"
 
 msgid "Strategy"
 msgstr "戰略"
+
+msgid "Sync FAT free space info?"
+msgstr ""
+
+msgid "Synchronizing, please wait."
+msgstr ""
 
 msgid "System Def."
 msgstr "系統預設."
@@ -1511,6 +1527,8 @@ msgid ""
 "and plugging back the device,\n"
 "or just wait some more"
 msgstr ""
+"您可以嘗試移除裝置後在插回\n"
+"或是等候一會"
 
 msgid "Zapper"
 msgstr "槍架"
@@ -1559,6 +1577,9 @@ msgstr "單人遊戲"
 msgid "format"
 msgstr "格式化"
 
+msgid "free"
+msgstr ""
+
 #, c-format
 msgid "linear read speed: %.2f mb/s"
 msgstr "線性讀取速度: %.2f mb/s"
@@ -1603,7 +1624,7 @@ msgid "split error: %s"
 msgstr "分割錯誤: %s"
 
 msgid "uDraw GameTablet"
-msgstr ""
+msgstr "uDraw GameTablet"
 
 msgid "unable to open wii disc"
 msgstr "無法開啟 Wii 光碟"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -52,6 +52,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d sekunders timeout)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Dette kan tage flere minutter)"
 
 msgid ".dol too small"
 msgstr ".dol for lille"
@@ -1116,6 +1119,10 @@ msgid "Press %s button to skip codes."
 msgstr "Tryk %s knap for at springe over koder."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Pres %s knap for at synkronisere FAT."
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Tryk %s for fuld skærm forhåndsvisning"
 
@@ -1335,6 +1342,9 @@ msgstr "Valgt spil"
 msgid "Shooter"
 msgstr "Shooter"
 
+msgid "Show cIOS info"
+msgstr "Vis cIOS info"
+
 msgid "Simulation"
 msgstr "Simulering"
 
@@ -1366,6 +1376,12 @@ msgstr "Start dette spil?"
 
 msgid "Strategy"
 msgstr "Strategi"
+
+msgid "Sync FAT free space info?"
+msgstr "Synkroniser FAT fri plads info?"
+
+msgid "Synchronizing, please wait."
+msgstr "Synkronisere, vent venligst."
 
 msgid "System Def."
 msgstr "System Std."
@@ -1569,6 +1585,9 @@ msgstr "For 1 spiller"
 
 msgid "format"
 msgstr "Format"
+
+msgid "free"
+msgstr "Fri"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

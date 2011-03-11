@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2011-01-06 01:00+0100\n"
 "Last-Translator: cherries4u <cherries4u@hanmail.net>\n"
 "Language-Team: Korean Translation Team<cherries4u@hanmail.net>\n"
@@ -52,6 +52,9 @@ msgstr "(%d 온라인)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d초 시간초과)"
+
+msgid "(This can take a couple of minutes)"
+msgstr ""
 
 msgid ".dol too small"
 msgstr ".dol 파일이 너무 작습니다."
@@ -1116,6 +1119,10 @@ msgid "Press %s button to skip codes."
 msgstr "코드를 건너뛰려면 %s를 누르세요."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr ""
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "전체화면 미리보기는 %s를 누르세요."
 
@@ -1335,6 +1342,9 @@ msgstr "선택된 게임"
 msgid "Shooter"
 msgstr "슈팅"
 
+msgid "Show cIOS info"
+msgstr ""
+
 msgid "Simulation"
 msgstr "시뮬레이션"
 
@@ -1366,6 +1376,12 @@ msgstr "이 게임을 시작할까요?"
 
 msgid "Strategy"
 msgstr "전략"
+
+msgid "Sync FAT free space info?"
+msgstr ""
+
+msgid "Synchronizing, please wait."
+msgstr ""
 
 msgid "System Def."
 msgstr "시스템 선명도"
@@ -1568,6 +1584,9 @@ msgstr "1 인용"
 
 msgid "format"
 msgstr "포맷"
+
+msgid "free"
+msgstr ""
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

@@ -69,11 +69,11 @@ static inline s32 __USBStorage_isMEM2Buffer(const void *buffer)
 {
 	// MEM1: 0x80000000 (cached) 0xC0000000 (uncached)
 	// MEM2: 0x90000000 (cached) 0xD0000000 (uncached)
-	//return ((u32)buffer & 0x10000000) != 0;
+	return ((u32)buffer & 0x10000000) != 0;
 
 	// Why is this important? MEM1 seems to work just fine
 	// so let's skip this check
-	return true;
+	//return true;
 }
 
 

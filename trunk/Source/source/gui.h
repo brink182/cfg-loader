@@ -67,12 +67,14 @@ void cache2_tex_alloc_fullscreen(struct M2_texImg *dest);
 void cache2_GRRLIB_tex_alloc(GRRLIB_texImg *dest, int w, int h);
 void cache2_GRRLIB_tex_alloc_fullscreen(GRRLIB_texImg *dest);
 
+void Gui_PrintAlignZ(float x, float y, int alignx, int aligny,
+		GRRLIB_texImg *font, FontColor font_color, float zoom, char *str);
 void Gui_PrintAlign(int x, int y, int alignx, int aligny,
-		GRRLIB_texImg font, FontColor font_color, char *str);
-void Gui_PrintEx2(int x, int y, GRRLIB_texImg font,
+		GRRLIB_texImg *font, FontColor font_color, char *str);
+void Gui_PrintEx2(int x, int y, GRRLIB_texImg *font,
 		int color, int color_outline, int color_shadow, const char *str);
-void Gui_PrintEx(int x, int y, GRRLIB_texImg font, FontColor font_color, const char *str);
-void Gui_PrintfEx(int x, int y, GRRLIB_texImg font, FontColor font_color, char *fmt, ...);
+void Gui_PrintEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, const char *str);
+void Gui_PrintfEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, char *fmt, ...);
 void Gui_Printf(int x, int y, char *fmt, ...);
 void Gui_Print2(int x, int y, const char *str);
 void Gui_Print(int x, int y, char *str);

@@ -330,12 +330,14 @@ out:
 }
 
 // replace spaces with \n so that text fits width
-// or insert \n in the middle of a word if longer than width
+// or insert \n in the middle of a word if word is longer than width/2
 void con_wordwrap(char *str, int width, int size)
 {
 	char *s = str;
 	char *e = NULL; // last white space
-	int w = 0;
+	int w = 0; // line len
+	int wordlen = 0; // word len
+	int clen; // char len (1 or 2)
 	int n;
 	while (*s) {
 		n = mblen(s, MB_LEN_MAX);
@@ -351,17 +353,23 @@ void con_wordwrap(char *str, int width, int size)
 			s++;
 			continue;
 		}
+		clen = con_len_mbchar(s);
 		if (ISSPACE(*s)) {
 			e = s;
+			wordlen = 0;
+		} else {
+			wordlen += clen;
 		}
-		w += con_len_mbchar(s);
+		w += clen;
 		if (w > width) {
-			if (e) {
-				// break line
+			// wrap if word len is shorter than half width
+			// otherwise break word
+			if (e && wordlen < width/2) {
+				// wrap line at last space
 				s = e;
 				*s = '\n';
 			} else {
-				// insert nl
+				// break word by inserting nl
 				str_insert_at(str, s, '\n', 1, size);
 			}
 			goto found_nl;

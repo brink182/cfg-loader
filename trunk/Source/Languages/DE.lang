@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
 "Last-Translator: TheRealVisitor, FIX94\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero, TheRealVisitor>\n"
@@ -52,6 +52,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d Sek. Timeout)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Dies kann einige Minuten dauern)"
 
 msgid ".dol too small"
 msgstr ".dol zu klein"
@@ -1113,7 +1116,11 @@ msgstr "Drücke %s: Auswählen"
 
 #, c-format
 msgid "Press %s button to skip codes."
-msgstr "Drücke %s: Codes überspringen."
+msgstr "Drücke %s: Codes überspringen"
+
+#, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Drücke %s: FAT synchonisieren"
 
 #, c-format
 msgid "Press %s for fullscreen preview"
@@ -1137,7 +1144,7 @@ msgstr "Drücke %s: Herunterladen und Updaten"
 
 #, c-format
 msgid "Press %s to download this theme"
-msgstr "Drücke %s: Theme herunterzuladen."
+msgstr "Drücke %s: Theme herunterladen"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1335,6 +1342,9 @@ msgstr "Gewähltes Spiel"
 msgid "Shooter"
 msgstr "Shooter"
 
+msgid "Show cIOS info"
+msgstr "Zeige CIOS Informationen"
+
 msgid "Simulation"
 msgstr "Simulation"
 
@@ -1366,6 +1376,12 @@ msgstr "Dieses Spiel starten?"
 
 msgid "Strategy"
 msgstr "Strategie"
+
+msgid "Sync FAT free space info?"
+msgstr "FAT freien Speicher synchronisieren?"
+
+msgid "Synchronizing, please wait."
+msgstr "Synchronisiere, bitte warten."
 
 msgid "System Def."
 msgstr "Systemstandard"
@@ -1569,6 +1585,9 @@ msgstr "Für 1 Spieler"
 
 msgid "format"
 msgstr "Formatiere"
+
+msgid "free"
+msgstr "frei"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

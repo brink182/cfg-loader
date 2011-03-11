@@ -1,14 +1,14 @@
-﻿# SOME DESCRIPTIVE TITLE.
+﻿# European PT translation for CFG USB loader 65b (beta)
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+# Plucky Duck <pplucky@gmail.com>, 2010.
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PT-PT translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "Last-Translator: pplucky <pplucky@gmail.com>\n"
 "Language-Team: European Portuguese\n"
 "Language: European Portuguese\n"
@@ -51,6 +51,9 @@ msgstr "(%d online)"
 #, c-format
 msgid "(%d seconds timeout)"
 msgstr "(%d segundos de espera)"
+
+msgid "(This can take a couple of minutes)"
+msgstr "(Isto pode levar uns minutos)"
 
 msgid ".dol too small"
 msgstr ".dol muito pequeno"
@@ -1127,6 +1130,10 @@ msgid "Press %s button to skip codes."
 msgstr "Prima o botão %s para saltar códigos."
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "Prima o botão %s para sincronizar FAT."
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "Prima %s para preview de ecrã completo"
 
@@ -1348,6 +1355,9 @@ msgstr "Jogo Seleccionado"
 msgid "Shooter"
 msgstr "Tiros"
 
+msgid "Show cIOS info"
+msgstr "Mostrar info cIOS"
+
 msgid "Simulation"
 msgstr "Simulação"
 
@@ -1379,6 +1389,12 @@ msgstr "Iniciar este jogo?"
 
 msgid "Strategy"
 msgstr "Estratégia"
+
+msgid "Sync FAT free space info?"
+msgstr "Sincronizar info de espaço livre FAT?"
+
+msgid "Synchronizing, please wait."
+msgstr "A sincronizar, por favor aguarde."
 
 msgid "System Def."
 msgstr "Def. Sistema"
@@ -1582,6 +1598,9 @@ msgstr "p/ 1 jog."
 
 msgid "format"
 msgstr "formato"
+
+msgid "free"
+msgstr "livre"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

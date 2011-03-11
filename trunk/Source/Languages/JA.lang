@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-15 16:23+0100\n"
+"POT-Creation-Date: 2011-01-23 16:22+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -53,6 +53,9 @@ msgstr "(%d人まで通信可能)"
 msgid "(%d seconds timeout)"
 msgstr "(%d秒でタイムアウト)"
 
+msgid "(This can take a couple of minutes)"
+msgstr "(これには数分かかります)"
+
 msgid ".dol too small"
 msgstr ".dolが小さすぎます"
 
@@ -72,7 +75,7 @@ msgid "Action"
 msgstr "アクション"
 
 msgid "Additional config:"
-msgstr "設定を保存する場所:"
+msgstr "設定の保存場所:"
 
 msgid "Adult"
 msgstr "成人向け"
@@ -120,7 +123,7 @@ msgstr "このゲームを削除しますか?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
-msgstr "ゲームの自動起動: %.6s見つかりません"
+msgstr "ゲームの自動起動: %.6sが見つかりません"
 
 msgid "Available Updates"
 msgstr "利用可能な更新"
@@ -629,7 +632,7 @@ msgid "Filter by Genre"
 msgstr "ジャンルで検索する"
 
 msgid "Filter by Online Features"
-msgstr "ネットワーク対応で検索する"
+msgstr "ネットワーク対応機能で検索する"
 
 msgid "Fixing EXTEND partition..."
 msgstr "拡張領域を修復中です…"
@@ -667,7 +670,7 @@ msgid "Game Options:  %s"
 msgstr "ゲーム設定:%s"
 
 msgid "Gamecube"
-msgstr "ゲームキューブ"
+msgstr "GCコントローラ"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
@@ -699,7 +702,7 @@ msgid "ID mismatch: [%.6s] [%.6s]"
 msgstr "IDが一致しません: [%.6s] [%.6s]"
 
 msgid "IOS Reload: Blocked"
-msgstr "IOSの再読込:禁止"
+msgstr "IOSの再読み込み:禁止"
 
 #, c-format
 msgid "IOS_Open(%s) failed with code %d"
@@ -809,14 +812,14 @@ msgid "Motion+"
 msgstr "Wiiモーションプラス"
 
 msgid "Mounting device, please wait..."
-msgstr "デバイスをマウント中、お待ちください…"
+msgstr "デバイスをマウント中です、お待ちください…"
 
 msgid "Music"
 msgstr "音楽"
 
 #, c-format
 msgid "Music file from dir: %s"
-msgstr "%sからの音楽ファイル"
+msgstr "音楽ファイルの場所:%s"
 
 #, c-format
 msgid "Music file size: %d"
@@ -834,18 +837,18 @@ msgstr "BGM:有効"
 
 #, c-format
 msgid "Music: Looking for %s files in: %s"
-msgstr "%sから%sのファイルを探しています"
+msgstr "%sを%sから探しています"
 
 #, c-format
 msgid "Music: Next file index to play: %i"
-msgstr "%i次の再生フォルダ"
+msgstr "BGM:再生する次のファイル目次:%i"
 
 #, c-format
 msgid "Music: Number of %s files found: %i"
-msgstr "%sのファイルが%iから見つかりました"
+msgstr "BGM:%sが%i個見つかりました"
 
 msgid "Music: musicArray contents: "
-msgstr "音楽:musicArrayコンテンツ: "
+msgstr "BGM:音楽コンテンツ: "
 
 msgid ""
 "NOTE: CIOS249 before rev10:\n"
@@ -1109,6 +1112,10 @@ msgid "Press %s button to skip codes."
 msgstr "%sボタンでコードをスキップします"
 
 #, c-format
+msgid "Press %s button to sync FAT."
+msgstr "%sボタンでFATを同期します"
+
+#, c-format
 msgid "Press %s for fullscreen preview"
 msgstr "%sボタンで全画面プレビューをします"
 
@@ -1283,7 +1290,7 @@ msgid "Save .gct"
 msgstr "gctを保存"
 
 msgid "Save debug.log"
-msgstr ""
+msgstr "デバッグ情報を保存"
 
 msgid "Saving Settings... "
 msgstr "設定を保存中…"
@@ -1328,6 +1335,9 @@ msgstr "選択されたゲーム"
 msgid "Shooter"
 msgstr "シューティング"
 
+msgid "Show cIOS info"
+msgstr "cIOS情報を表示"
+
 msgid "Simulation"
 msgstr "シミュレーション"
 
@@ -1359,6 +1369,12 @@ msgstr "このゲームを始めますか?"
 
 msgid "Strategy"
 msgstr "戦略ゲーム"
+
+msgid "Sync FAT free space info?"
+msgstr "FATの空き容量情報を同期しますか?"
+
+msgid "Synchronizing, please wait."
+msgstr "同期中です、お待ちください"
 
 msgid "System Def."
 msgstr "システムの標準"
@@ -1529,7 +1545,7 @@ msgid "[ SAVED ]"
 msgstr "[ 保存済み ]"
 
 msgid "[USED]"
-msgstr "[使用済み]"
+msgstr "[使用中]"
 
 #, c-format
 msgid "bad wbfs file: %s"
@@ -1562,6 +1578,9 @@ msgstr "1人用"
 
 msgid "format"
 msgstr "フォーマット"
+
+msgid "free"
+msgstr "空き"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"

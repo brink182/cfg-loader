@@ -30,5 +30,8 @@ int is_ios_type(int type);
 s32 GetTMD(u64 TicketID, signed_blob **Output,  u32 *Length);
 s32 checkIOS(u32 IOS);
 bool shadow_mload();
+void print_all_ios_info(FILE *f);
+char* get_ios_tmd_hash_str(char *str);
+char* get_ios_info_from_tmd();
 
 #endif

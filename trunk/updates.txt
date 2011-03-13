@@ -13,6 +13,36 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 66 (release)
+size = 1547776
+date = 2011-03-13
+url = http://cfg-loader.googlecode.com/files/cfg66.dol
+ * Version
+
+release = 66-222 (release)
+size = 1547776
+date = 2011-03-13
+url = http://cfg-loader.googlecode.com/files/cfg66-222.dol
+Same as 66 but with different
+default options:
+  ios=222-mload
+
+release = 66-compat (release)
+size = 1631296
+date = 2011-03-13
+url = http://cfg-loader.googlecode.com/files/cfg66-compat.dol
+Same as 66 but built with
+  devkit 17 and libogc 1.7.1
+  
+release = 66-dbg (debug)
+size = 1547776
+date = 2011-03-13
+url = http://cfg-loader.googlecode.com/files/cfg66-dbg.dol
+Same as 66 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 66b (beta)
 size = 1547936
 date = 2011-03-11

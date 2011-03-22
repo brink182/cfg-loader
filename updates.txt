@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 67a (alpha)
+size = 1550976
+date = 2011-03-22
+url = http://cfg-loader.googlecode.com/files/cfg67a.dol
+Improved cover cache
+Improved in coverflow cover render
+Minor adjustment of stick movement
+Fixed slow movement in console mode
+with games on NTFS and hdd space info
+
+release = 67a-222 (alpha)
+size = 1550976
+date = 2011-03-22
+url = http://cfg-loader.googlecode.com/files/cfg67a-222.dol
+Same as 67a but with different
+default options:
+  ios=222-mload
+
 release = 66c (bugfix)
 size = 1547936
 date = 2011-03-15

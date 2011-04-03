@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 67b (beta)
+size = 1571360
+date = 2011-04-03
+url = http://cfg-loader.googlecode.com/files/cfg67b.dol
+Support for HQ covers
+new option: cover_url_hq
+File cache of compressed Full and HQ
+  covers for faster loading
+
+release = 67b-222 (beta)
+size = 1571360
+date = 2011-04-03
+url = http://cfg-loader.googlecode.com/files/cfg67b-222.dol
+Same as 67b but with different
+default options:
+  ios=222-mload
+
 release = 67a (alpha)
 size = 1550976
 date = 2011-03-22

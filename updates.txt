@@ -13,6 +13,39 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 67 (release)
+size = 1571360
+date = 2011-04-04
+url = http://cfg-loader.googlecode.com/files/cfg67.dol
+Fixed crash with intro=1
+  Possibly also fixes problems
+  with game forwarder channels
+Other minor fixes and cleanups
+
+release = 67-222 (release)
+size = 1571360
+date = 2011-04-04
+url = http://cfg-loader.googlecode.com/files/cfg67-222.dol
+Same as 67 but with different
+default options:
+  ios=222-mload
+
+release = 67-compat (release)
+size = 1655712
+date = 2011-04-04
+url = http://cfg-loader.googlecode.com/files/cfg67-compat.dol
+Same as 67 but built with
+  devkit 17 and libogc 1.7.1
+
+release = 67-dbg (debug)
+size = 1571424
+date = 2011-04-04
+url = http://cfg-loader.googlecode.com/files/cfg67-dbg.dol
+Same as 67 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 67b (beta)
 size = 1571360
 date = 2011-04-03
@@ -93,38 +126,6 @@ Same as 66 but with different
 default options:
   debug=3
   home=screenshot
-
-release = 66b (beta)
-size = 1547936
-date = 2011-03-11
-url = http://cfg-loader.googlecode.com/files/cfg66b.dol
-Added detection of cios d2x v2,v3
-
-release = 66b-222 (beta)
-size = 1547936
-date = 2011-03-11
-url = http://cfg-loader.googlecode.com/files/cfg66b-222.dol
-Same as 66b but with different
-default options:
-  ios=222-mload
-
-release = 66a (alpha)
-size = 1547552
-date = 2011-03-11
-url = http://cfg-loader.googlecode.com/files/cfg66a.dol
-Added detection of cios r21-d2x-v1
-Updated libfat to 1.0.9
-ntfs-3g 2011.1.15 / libntfs-wii r7
-new option: gui_pointer_scroll
-cleanups
-
-release = 66a-222 (alpha)
-size = 1547552
-date = 2011-03-11
-url = http://cfg-loader.googlecode.com/files/cfg66a-222.dol
-Same as 66a but with different
-default options:
-  ios=222-mload
 
 release = 65 (release)
 size = 1476160

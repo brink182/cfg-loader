@@ -25,7 +25,6 @@
 #include <malloc.h>
 
 #ifdef _NTFS_SYS_MEM_ALLOC
-
 static inline void* ntfs_alloc (size_t size) {
     return malloc(size);
 }

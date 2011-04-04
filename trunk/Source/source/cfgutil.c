@@ -15,23 +15,33 @@
 
 char *cfg_name, *cfg_val;
 
-int map_get_id(struct TextMap *map, char *name, int *id_val)
-{
-	int i;
-	for (i=0; map[i].name != NULL; i++)	{
-		if (strcmp(name, map[i].name) == 0) {
-			*id_val = map[i].id;
-			return i;
-		}
-	}
-	return -1;
-}
 
 int map_get_num(struct TextMap *map)
 {
 	int i;
 	for (i=0; map[i].name != NULL; i++);
 	return i;
+}
+
+int map_to_list(struct TextMap *map, int n, char **list)
+{
+	int i;
+	for (i=0; i < n && map[i].name; i++) {
+		list[i] = map[i].name;
+	}
+	return i;
+}
+
+int map_get_id(struct TextMap *map, char *name, int *id_val)
+{
+	int i;
+	for (i=0; map[i].name != NULL; i++) {
+		if (strcmp(name, map[i].name) == 0) {
+			*id_val = map[i].id;
+			return i;
+		}
+	}
+	return -1;
 }
 
 char* map_get_name(struct TextMap *map, int id)

@@ -43,6 +43,7 @@
 #define COVERPOS_CENTER_THEME 1
 #define COVERPOS_CONSOLE_2D 2
 #define COVERPOS_CONSOLE_3D 3
+#define COVERPOS_GAME_LOAD 4
 
 //defines for fading the background (for flip to back)
 #define BACKGROUND_FADE_NONE 0
@@ -64,6 +65,7 @@ extern struct GRRLIB_texImg aa_texBuffer[4];
 struct settings_cf_global CFG_cf_global;
 struct settings_cf_theme CFG_cf_theme[CF_THEME_NUM];
 
+//struct for the cover coords and color levels
 typedef struct CoverPos {
 	float x,y,z;			// screen co-ordinates 
 	float xrot, yrot, zrot;	// rotation
@@ -111,7 +113,7 @@ WPADData wpad_data;
 static int background_fade_status = 0;
 static int grx_cover_init = 0;
 static int cover_init = 0;
-static bool showingFrontCover = true;
+bool showingFrontCover = true;
 static bool spinCover_dpad_used = false;
 u32 selectedColor;
 
@@ -138,20 +140,19 @@ Mtx GXview2D;
  *  @return void
  */
 void getWiiMoteInfo() {
-	u32 ext;//Extension type
-	u32 ret=0;//remote probe return
+	u32 ext;	//Extension type
+	u32 ret=0;	//remote probe return
 
 	WPAD_ScanPads();
-	ret=WPAD_Probe(WPAD_CHAN_0,&ext);//probe remote 1 with extension
-
-	WPADData *Data = WPAD_Data(WPAD_CHAN_0);//store data from remote 1
+	ret=WPAD_Probe(WPAD_CHAN_0,&ext);			//probe remote 1 with extension
+	WPADData *Data = WPAD_Data(WPAD_CHAN_0);	//store data from remote 1
 	wpad_data = *Data;
 	
-	WPAD_IR(WPAD_CHAN_0, &wpad_data.ir);//get IR data
-	WPAD_Orientation(WPAD_CHAN_0, &wpad_data.orient);//get rotation data
-	WPAD_GForce(WPAD_CHAN_0, &wpad_data.gforce);//get "speed" data
-	WPAD_Accel(WPAD_CHAN_0, &wpad_data.accel);//get accelerometer data
-	WPAD_Expansion(WPAD_CHAN_0, &wpad_data.exp);//get expansion data
+	WPAD_IR(WPAD_CHAN_0, &wpad_data.ir);				//get IR data
+	WPAD_Orientation(WPAD_CHAN_0, &wpad_data.orient);	//get rotation data
+	WPAD_GForce(WPAD_CHAN_0, &wpad_data.gforce);		//get "speed" data
+	WPAD_Accel(WPAD_CHAN_0, &wpad_data.accel);			//get accelerometer data
+	WPAD_Expansion(WPAD_CHAN_0, &wpad_data.exp);		//get expansion data
 }
 
 
@@ -409,24 +410,6 @@ u32 calculateNewColor(u32 startPos, u32 endPos, int index, int totalFrames, int 
 	
 	return color;
 }
-
-u32 color_add(u32 c1, u32 c2, int neg)
-{
-	int i, x1, x2, c;
-	u32 color = 0;
-	// each component
-	for (i=0; i<4; i++) {
-		x1 = (c1 >> (i*8)) & 0xFF;
-		x2 = (c2 >> (i*8)) & 0xFF;
-		c = x1 + neg * x2;
-		// range check, possible overflow 
-		if (c < 0) c = 0;
-		if (c > 0xFF) c = 0xFF;
-		color |= (c << (i*8));
-	}
-	return color;
-}
-
 
 /**
  * Initializes the cover image layout in the current CFG_cf_theme[CFG_cf_global.theme].
@@ -707,21 +690,10 @@ void draw_2dcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xr
 	GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
 	GX_SetCullMode (GX_CULL_BACK);
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-		GX_Position3f32(-width, height, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(0.0f, 0.0f);
-
-		GX_Position3f32(width, height, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(1.0f, 0.0f);
-
-		GX_Position3f32(width, -height, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(1.0f, 1.0f);
-
-		GX_Position3f32(-width, -height, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(0.0f, 1.0f);
+		drawPosColTex(-width, height, 0, color, 0.0f, 0.0f);
+		drawPosColTex(width, height, 0, color, 1.0f, 0.0f);
+		drawPosColTex(width, -height, 0, color, 1.0f, 1.0f);
+		drawPosColTex(-width, -height, 0, color, 0.0f, 1.0f);
 	GX_End();
 	
 	//front cover image
@@ -731,21 +703,10 @@ void draw_2dcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xr
 	GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
 	GX_SetCullMode (GX_CULL_BACK);
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-		GX_Position3f32(-width, height-0.5, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(0.0f, 0.0f);
-
-		GX_Position3f32(width-0.5, height-0.5, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(1.0f, 0.0f);
-
-		GX_Position3f32(width-0.5, -height+0.5, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(1.0f, 1.0f);
-
-		GX_Position3f32(-width, -height+0.5, 0);
-		GX_Color1u32(color);
-		GX_TexCoord2f32(0.0f, 1.0f);
+		drawPosColTex(-width, height-0.5, 0, color, 0.0f, 0.0f);
+		drawPosColTex(width-0.5, height-0.5, 0, color, 1.0f, 0.0f);
+		drawPosColTex(width-0.5, -height+0.5, 0, color, 1.0f, 1.0f);
+		drawPosColTex(-width, -height+0.5, 0, color, 0.0f, 1.0f);
 	GX_End();
 
 	//draw the favorites star
@@ -763,21 +724,10 @@ void draw_2dcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xr
 		GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
 		GX_SetCullMode (GX_CULL_BACK);
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-			GX_Position3f32(width-starw, height, 0);
-			GX_Color1u32(color);
-			GX_TexCoord2f32(0.0f, 0.0f);
-
-			GX_Position3f32(width, height, 0);
-			GX_Color1u32(color);
-			GX_TexCoord2f32(1.0f, 0.0f);
-
-			GX_Position3f32(width, height-starh, 0);
-			GX_Color1u32(color);
-			GX_TexCoord2f32(1.0f, 1.0f);
-
-			GX_Position3f32(width-starw, height-starh, 0);
-			GX_Color1u32(color);
-			GX_TexCoord2f32(0.0f, 1.0f);
+			drawPosColTex(width-starw, height, 0, color, 0.0f, 0.0f);
+			drawPosColTex(width, height, 0, color, 1.0f, 0.0f);
+			drawPosColTex(width, height-starh, 0, color, 1.0f, 1.0f);
+			drawPosColTex(width-starw, height-starh, 0, color, 0.0f, 1.0f);
 		GX_End();
 	}
 	
@@ -795,23 +745,10 @@ void draw_2dcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xr
 		GX_LoadPosMtxImm (GXmodelView2D, GX_PNMTX0);
 		GX_SetCullMode (GX_CULL_BACK);
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-
-			GX_Position3f32(-width, -height-1, 0);
-			GX_Color1u32(reflectionColorBottom);
-			GX_TexCoord2f32(0.0f, 1.0f);
-
-			GX_Position3f32(width, -height-1, 0);
-			GX_Color1u32(reflectionColorBottom);
-			GX_TexCoord2f32(1.0f, 1.0f);
-
-			GX_Position3f32(width, -height*2.5, 0);
-			GX_Color1u32(reflectionColorTop);
-			GX_TexCoord2f32(1.0f, 0.0f);
-
-			GX_Position3f32(-width, -height*2.5, 0);
-			GX_Color1u32(reflectionColorTop);
-			GX_TexCoord2f32(0.0f, 0.0f);
-
+			drawPosColTex(-width, -height-1, 0, reflectionColorBottom, 0.0f, 1.0f);
+			drawPosColTex(width, -height-1, 0, reflectionColorBottom, 1.0f, 1.0f);
+			drawPosColTex(width, -height*2.5, 0, reflectionColorTop, 1.0f, 0.0f);
+			drawPosColTex(-width, -height*2.5, 0, reflectionColorTop, 0.0f, 0.0f);
 		GX_End();		
 	}
 
@@ -935,7 +872,7 @@ void draw_fullcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 
 		drawPosCol(-width, height + COVER_EDGE_DEPTH, COVER_SIDE_NEAR_DEPTH, edgecolor);
 		drawPosCol(width, height + COVER_EDGE_DEPTH, COVER_SIDE_NEAR_DEPTH, edgecolor);
 		drawPosCol(width, height, COVER_BOX_DEPTH, edgecolor);
-		drawPosCol(-width, height, COVER_EDGE_DEPTH, edgecolor);
+		drawPosCol(-width, height, COVER_BOX_DEPTH, edgecolor);
 	GX_End();
 
 	//top front corner
@@ -962,7 +899,7 @@ void draw_fullcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 
 
 	//bottom front edge
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-		drawPosCol(-width, -height, COVER_EDGE_DEPTH, edgecolor);
+		drawPosCol(-width, -height, COVER_BOX_DEPTH, edgecolor);
 		drawPosCol(width, -height, COVER_BOX_DEPTH, edgecolor);
 		drawPosCol(width, -height - COVER_EDGE_DEPTH, COVER_SIDE_NEAR_DEPTH, edgecolor);
 		drawPosCol(-width, -height - COVER_EDGE_DEPTH, COVER_SIDE_NEAR_DEPTH, edgecolor);
@@ -1758,9 +1695,6 @@ void get_boxcover_edge_color(int gi, bool selected, u8 alpha, u32 color, u32 ref
 		*edgecolor = col;
 		*reflectionBottomEdge = addU32Value(col, reflectionColorBottom, 0x11111100, 1);
 		*reflectionTopEdge = addU32Value(col, reflectionColorTop, 0x11111100, 1);	
-		//*edgecolor = col;
-		//*reflectionBottomEdge = reflectionColorBottom + 0x11111100;
-		//*reflectionTopEdge = reflectionColorTop + 0x11111100;
 	} else {
 		if (dbColorFound)
 			*edgecolor = addU32Value(col, col, 0x22222200, -1);
@@ -1768,9 +1702,6 @@ void get_boxcover_edge_color(int gi, bool selected, u8 alpha, u32 color, u32 ref
 			*edgecolor = col;
 		*reflectionBottomEdge = addU32Value(col, reflectionColorBottom, 0x11111100, -1);
 		*reflectionTopEdge = addU32Value(col, reflectionColorTop, 0x11111100, -1);
-		//*edgecolor = col;
-		//*reflectionBottomEdge = reflectionColorBottom - 0x11111100;
-		//*reflectionTopEdge = reflectionColorTop - 0x11111100;
 	}
 }
 
@@ -2156,15 +2087,17 @@ void reset_rotation_startPosition() {
  * Method that repaints the static covers.  This gets called when nothing is really going on (no rotating)
  *
  *  @param *ir pointer to current wiimote data
- *  @param num_side_covers number of side covers to draw
  *  @param coverCount total number of games
  *  @param draw_title boolean to determine if the game title should be drawn
  *  @return int representing the index of the currently selected cover
  */
-int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool draw_title) {
+int Coverflow_drawCovers(ir_t *ir, int coverCount, bool draw_title) {
 	int i, j, alpha;
 	int ease;
 	int selectedCover = -1;
+
+	cache_release_all();
+	cache_request_before_and_after(coverCoords_center.gi, 5, 1);
 
 	//update the floating cover data
 	calculate_floating_cover();
@@ -2180,7 +2113,6 @@ int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool dra
 		set_selected_state(0);
 		selectedCover = coverCoords_center.gi;
 	}
-
 	//set easing based on rotation speed
 	if (CFG_cf_global.frameCount < CFG_cf_theme[CFG_cf_global.theme].rotation_frames)
 		ease = EASING_TYPE_LINEAR;  //linear
@@ -2300,6 +2232,9 @@ int Coverflow_drawCovers(ir_t *ir, int num_side_covers, int coverCount, bool dra
 		GRRLIB_Printf(200, 410, &tx_font, CFG.gui_text.color, 1.0, "cover(gi): %i  color: %X", selectedCover, selectedColor);
 		//mouse pointer position:
 		//GRRLIB_Printf(50, 430, &tx_font, CFG.gui_text.color, 1.0, "sx: %.2f  sy: %.2f  angle: %.2f v: %d %d %d", ir->sx, ir->sy, ir->angle,	ir->raw_valid, ir->smooth_valid, ir->valid);
+		orient_t o;
+		WPAD_Orientation(0, &o);
+		GRRLIB_Printf(50, 450, &tx_font, CFG.gui_text.color, 1.0, "yaw:%.2f pitch: %.2f  roll: %.2f ", o.yaw, o.pitch, o.roll);
 	}
 	
 	return selectedCover;
@@ -2372,7 +2307,86 @@ void build_coverPos_type(int type, CoverPos *coverPos) {
 			coverPos->reflection_top = 0x00000000;
 			coverPos->alpha = 255;
 			break;
+
+		//position of the game loading screen cover
+		case COVERPOS_GAME_LOAD:
+			coverPos->xrot = 0;
+			coverPos->yrot = 0; //33;
+			coverPos->zrot = 0;
+			coverPos->x = 0;
+			coverPos->y = 0;
+			coverPos->z = -50; //-73;
+			coverPos->alpha = 255;
+			coverPos->reflection_bottom = 0x00000000;
+			coverPos->reflection_top = 0x00000000;
+		break;
 	}
+}
+
+
+/**
+ * Method that draws the center cover for the game options screen
+ *
+ *  @param game_sel int representing the index of the selected game to draw
+ *  @param x int X position of the cover
+ *  @param y int Y position of the cover
+ *  @param z int Z position of the cover
+ *  @param xrot f32 the X-axis rotation of the cover
+ *  @param yrot f32 the Y-axis rotation of the cover
+ *  @param zrot f32 the Z-axis rotation of the cover
+ *  @return void
+ */
+void Coverflow_drawCoverForGameOptions(int game_sel, int x, int y, int z, f32 xrot, f32 yrot, f32 zrot)
+{
+	Cover cover;
+	bool favorite;
+	int aa, j;
+	GRRLIB_texImg bg_tx;
+	
+	// reset cover indexing to the selected cover
+	setCoverIndexing(gameCnt, game_sel);
+	cache_request_before_and_after(game_sel, 5, 1);
+	//update the cover images from the cache
+	Coverflow_update_state();
+
+	favorite = is_favorite(gameList[coverCoords_center.gi].id);
+	// init the positioning
+	build_coverPos_type(COVERPOS_GAME_LOAD, &cover.currentPos);
+	// scale the passed in x and y coords to 3d space
+	convert_2dCoords_into_3dCoords(x+80, y+112, -40, &cover.currentPos.x, &cover.currentPos.y);	
+
+	// capture the background for aa
+	bg_tx = GRRLIB_AAScreen2Texture();
+	GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+	GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
+	GX_InvVtxCache();
+	GX_InvalidateTexAll();
+	GRRLIB_AAScreen2Texture_buf(&bg_tx);
+	
+	aa = (CFG.gui_antialias < 1) ? 1 : CFG.gui_antialias;
+	for(j=0; j < aa; j++) {
+		
+		GRRLIB_prepareAAPass(aa, j);
+	
+		Gui_set_camera(NULL, 0);
+		GRRLIB_DrawImg(0, 0, &bg_tx, 0, 1, 1, 0xFFFFFFFF);
+		Gui_set_camera(NULL, 1);
+		
+		//draw the cover image
+		draw_cover_image(&coverCoords_center.tx,
+				cover.currentPos.x, cover.currentPos.y, cover.currentPos.z + z,
+				//cover.currentPos.xrot, yrot, cover.currentPos.zrot, 
+				xrot, yrot, zrot, 
+				cover.currentPos.alpha,
+				cover.currentPos.reflection_bottom,
+				cover.currentPos.reflection_top, 
+				true, favorite, true, false, coverCoords_center.gi);
+	
+		Gui_RenderAAPass(j);
+	}
+	GRRLIB_drawAAScene(aa, aa_texBuffer);
+	GRRLIB_ResetVideo();
+	SAFE_FREE(bg_tx.data)
 }
 
 
@@ -2564,7 +2578,7 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
 			//we have to loop the rendering here since we're leaving gui mode
 			for (i=0; i<CFG_cf_global.frameCount; i++) {
 				Wpad_getIR(&ir);
-				Coverflow_drawCovers(&ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, coverCount, false);
+				Coverflow_drawCovers(&ir, coverCount, false);
 				Gui_draw_pointer(&ir);
 				Gui_Render();
 			}
@@ -2599,7 +2613,7 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
 			//loop the transition rendering...
 			for (i=0; i<CFG_cf_global.frameCount; i++) {
 				Wpad_getIR(&ir);
-				Coverflow_drawCovers(&ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, coverCount, false);
+				Coverflow_drawCovers(&ir, coverCount, false);
 				Gui_draw_pointer(&ir);
 				Gui_Render();
 			}
@@ -2677,6 +2691,9 @@ int Coverflow_process_wiimote_events(ir_t *ir, int coverCount) {
 		} else {
 			selected = Coverflow_flip_cover_to_back(false, 1);
 		}
+
+		// jump out if pointer scroll disabled
+		if (!CFG.gui_pointer_scroll) goto out;
 		
 		//scroll left or right
 		if (ir->sx >= -80 && ir->sx < WIIMOTE_SIDE_SCROLL_WIDTH - 1) {

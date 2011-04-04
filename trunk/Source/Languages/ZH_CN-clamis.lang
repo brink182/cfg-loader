@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-07-26 11:24+0800\n"
 "Last-Translator: Clamis <clamis@gmail.com>\n"
 "Language-Team: Simplified Chinese(ZH_CN) <clamis@gmail.com>\n"
@@ -776,9 +776,6 @@ msgstr "程序版本号：%s"
 msgid "Loading ..."
 msgstr "读取中..."
 
-msgid "Loading previous game list..."
-msgstr "正在读取上次游戏列表..."
-
 msgid "Main Menu"
 msgstr "主菜单"
 
@@ -1348,6 +1345,9 @@ msgstr "开始游戏"
 msgid "Start this game?"
 msgstr "开始这个游戏？"
 
+msgid "Stopping DVD..."
+msgstr ""
+
 msgid "Strategy"
 msgstr "战略游戏"
 
@@ -1610,3 +1610,6 @@ msgstr "无法打开Wii光盘"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用：%p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "正在读取上次游戏列表..."

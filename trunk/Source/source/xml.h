@@ -47,7 +47,7 @@ bool LoadGameInfoFromXML(u8 * gameid);
 char *ConvertLangTextToCode(char *langtext);
 char *VerifyLangCode(char *langtext);
 void ConvertRating(char *ratingvalue, char *fromrating, char *torating, char *destvalue, int destsize);
-void FmtGameInfo(char *linebuf, int size);
+void FmtGameInfo(char *linebuf, int cols, int size);
 void PrintGameInfo();
 void PrintGameSynopsis();
 int getIndexFromId(u8 * gameid);

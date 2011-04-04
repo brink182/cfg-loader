@@ -80,9 +80,10 @@ void get_time2(long long *t, char *s);
 #define get_time(T) get_time2(T, #T)
 void time_stats();
 void time_stats2();
-void time_statsf(FILE *f);
+void time_statsf(FILE *f, char *str, int size);
 #define TIME_D(X) (TIME.X##2 ? TIME.X##2 - TIME.X##1 : 0)
 #define TIME_MS(X) (TIME.X##2 ? diff_msec(TIME.X##1,TIME.X##2) : 0)
+void check_dol(char *name);
 
 #endif
 

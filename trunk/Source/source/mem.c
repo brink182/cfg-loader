@@ -514,17 +514,17 @@ void print_mallinfo()
 	#undef PM
 }
 
-void mem_stat_str(char * buffer)
+void mem_stat_str(char *buffer, int size)
 {
 	heap_stats hs1, hs2;
 	heap_stat(&mem1, &hs1);
 	heap_stat(&mem2, &hs2);
 	#define fMB (1024.0 * 1024.0)
 	void *p;
-	int size;
+	int msize;
 	struct mallinfo m = mallinfo();
-	for (size = 10*1024*1024; size > 0; size -= 16*1024) {
-		p = memalign(32, size);
+	for (msize = 10*1024*1024; msize > 0; msize -= 16*1024) {
+		p = memalign(32, msize);
 		if (p) {
 			m = mallinfo();
 			free(p);
@@ -532,56 +532,61 @@ void mem_stat_str(char * buffer)
 		}
 	}
 	*buffer = 0;
-	sprintf(buffer, "%slibc: s:%5.2f u:%5.2f f:%5.2f mx:%.2f\n", buffer,
+	snprintf(buffer, size, "%slibc: s:%5.2f u:%5.2f f:%5.2f mx:%.2f\n", buffer,
 			m.arena / fMB,
-			(m.uordblks-size) / fMB,
-			(m.fordblks+size) / fMB,
-			size / fMB);
-	sprintf(buffer, "%smem1: s:%5.2f u:%5.2f f:%5.2f t:%d,%d\n", buffer,
+			(m.uordblks-msize) / fMB,
+			(m.fordblks+msize) / fMB,
+			msize / fMB);
+	snprintf(buffer, size, "%smem1: s:%5.2f u:%5.2f f:%5.2f t:%d,%d\n", buffer,
 			hs1.size / fMB,
 			hs1.used / fMB,
 			hs1.free / fMB,
 			mem1.used_list.num, mem1.free_list.num);
-	sprintf(buffer, "%smem2: s:%5.2f u:%5.2f f:%5.2f t:%d,%d\n", buffer,
+	snprintf(buffer, size, "%smem2: s:%5.2f u:%5.2f f:%5.2f t:%d,%d\n", buffer,
 			hs2.size / fMB,
 			hs2.used / fMB,
 			hs2.free / fMB,
 			mem2.used_list.num, mem2.free_list.num);
-	sprintf(buffer, "%sm1+2: s:%5.2f u:%5.2f f:%5.2f\n", buffer,
+	snprintf(buffer, size, "%sm1+2: s:%5.2f u:%5.2f f:%5.2f\n", buffer,
 			(hs1.size+hs2.size) / fMB,
 			(hs1.used+hs2.used) / fMB,
 			(hs1.free+hs2.free) / fMB);
-	sprintf(buffer, "%stotl: s:%5.2f u:%5.2f f:%5.2f\n", buffer,
+	snprintf(buffer, size, "%stotl: s:%5.2f u:%5.2f f:%5.2f\n", buffer,
 			(hs1.size+hs2.size + m.arena) / fMB,
-			(hs1.used+hs2.used + m.uordblks-size) / fMB,
-			(hs1.free+hs2.free + m.fordblks+size) / fMB);
+			(hs1.used+hs2.used + m.uordblks-msize) / fMB,
+			(hs1.free+hs2.free + m.fordblks+msize) / fMB);
+}
+
+void lib_info_str(char *str, int size)
+{
+#ifdef _V_OGC_SVN
+	snprintf(str, size, "libOGC %s ", "svn" _V_OGC_SVN);
+	str_seek_end(&str, &size);
+#else
+	snprintf(str, size, "libOGC %d.%d.%d ", _V_MAJOR_, _V_MINOR_, _V_PATCH_);
+	str_seek_end(&str, &size);
+#endif
+	snprintf(str, size, "devkitPPC %d ", DEVKITPPCVER);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "(gcc%d.%d.%d)", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	str_seek_end(&str, &size);
+	//__VERSION__
+	snprintf(str, size, " %s\n", CCOPT);
+	str_seek_end(&str, &size);
+}
+
+void lib_mem_stat_str(char *str, int size)
+{
+	lib_info_str(str, size);
+	str_seek_end(&str, &size);
+	mem_stat_str(str, size);
 }
 
 void mem_statf(FILE *f)
 {
 	char buffer[1000];
-	fprintf(f, "\n");
-#ifdef _V_OGC_SVN
-	fprintf(f, "libOGC %s ", "svn" _V_OGC_SVN);
-#else
-	fprintf(f, "libOGC %d.%d.%d ", _V_MAJOR_, _V_MINOR_, _V_PATCH_);
-#endif
-	fprintf(f, "devkitPPC %d ", DEVKITPPCVER);
-	fprintf(f, "(gcc%d.%d.%d)", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-	//__VERSION__
-	fprintf(f, " %s\n", CCOPT);
-	mem_stat_str(buffer);
-	fprintf(f, "%s", buffer);
-
-	/*
-	printf("\n");
-	printf("slot1: t:%d u:%d f:%d\n", MAX_MEM_BLK, mem1.used_list.num, mem1.free_list.num);
-	printf("slot2: t:%d u:%d f:%d\n", MAX_MEM_BLK, mem2.used_list.num, mem2.free_list.num);
-	printf("adr1: %p-%p h:%p\n", mem1.start, mem1.start+mem1.size, hs1.highptr);
-	printf("adr2: %p-%p h:%p\n", mem2.start, mem2.start+mem2.size, hs2.highptr);
-	memstat2();
-	*/
-	
+	lib_mem_stat_str(buffer, sizeof(buffer));
+	fprintf(f, "\n%s", buffer);
 }
 
 void mem_stat()

@@ -187,13 +187,15 @@ int get_feature_id(char *feature)
 	return -1;
 }
 
-void reset_sort_default() {
+void reset_sort_default()
+{
 	sort_index = default_sort_index;
 	sort_desc = default_sort_desc;
 	filter_type = default_filter_type;
 }
 
-void __set_default_sort() {
+void __set_default_sort()
+{
 
 	build_arrays();
 	char tmp[20];
@@ -304,14 +306,16 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 		memcpy(filter_gameList, all_gameList, len);
 		filter_gameCnt = filter(filter_gameList, all_gameCnt, name, num);
 	}
-	if (gameSelected < gameCnt) {
+	if (gameSelected >= 0 && gameSelected < gameCnt) {
 		id = gameList[gameSelected].id;
 	}
-	if (filter_gameCnt > 0) {
+	//if (filter_gameCnt > 0) {
 		gameList = filter_gameList;
 		gameCnt = filter_gameCnt;
 		ret = 1;
-	} else {
+	/*} else {
+		// this won't work because gameList might
+		// already point to filter_gameCnt
 		Con_Clear();
 		FgColor(CFG.color_header);
 		printf("\n");
@@ -325,9 +329,10 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 		sleep(1);
 		ret = -1;
 	}
+	*/
 	gameStart = 0;
 	gameSelected = 0;
-	for (i=0; i<gameCnt; i++) {
+	if (id) for (i=0; i<gameCnt; i++) {
 		if (strncmp((char*)gameList[i].id, (char*)id, 6) == 0) {
 			gameSelected = i;
 			break;
@@ -342,7 +347,7 @@ void showAllGames(void)
 {
 	int i;
 	u8 *id = NULL;
-	if (gameSelected < gameCnt) {
+	if (gameSelected >= 0 && gameSelected < gameCnt) {
 		id = gameList[gameSelected].id;
 	}
 	gameList = all_gameList;
@@ -350,7 +355,7 @@ void showAllGames(void)
 	// find game selected
 	gameStart = 0;
 	gameSelected = 0;
-	for (i=0; i<gameCnt; i++) {
+	if (id) for (i=0; i<gameCnt; i++) {
 		if (strncmp((char*)gameList[i].id, (char*)id, 6) == 0) {
 			gameSelected = i;
 			break;
@@ -358,6 +363,57 @@ void showAllGames(void)
 	}
 	// scroll start list
 	__Menu_ScrollStartList();
+}
+
+int filter_games_set(int type, int index)
+{
+	int ret = -1;
+	switch (type) {
+		case FILTER_ALL:
+			showAllGames();
+			ret = 0;
+			index = -1;
+			break;
+		case FILTER_ONLINE:
+			ret = filter_games(filter_online, "", 0);
+			index = -1;
+			break;
+		case FILTER_UNPLAYED:
+			ret = filter_games(filter_play_count, "", 0);
+			index = -1;
+			break;
+		case FILTER_GENRE:
+			ret = filter_games(filter_genre, genreTypes[index][0], 0);
+			break;
+		case FILTER_CONTROLLER:
+			ret = filter_games(filter_controller, accessoryTypes[index][0], 0);
+			break;
+		case FILTER_FEATURES:
+			ret = filter_games(filter_features, featureTypes[index][0], 0);
+			break;
+	}
+	if (ret > -1) {
+		filter_type = type;
+		filter_index = index;
+	}
+	return ret;
+}
+
+bool is_filter(int type, int index)
+{
+	if (type != filter_type) return false;
+	switch (type) {
+		case FILTER_GENRE:
+		case FILTER_CONTROLLER:
+		case FILTER_FEATURES:
+			return index == filter_index;
+	}
+	return true;
+}
+
+char* mark_filter(int type, int index)
+{
+	return is_filter(type, index) ? "*" : " ";
 }
 
 s32 __sort_play_date(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
@@ -607,6 +663,18 @@ void sortList_default()
 	sortList(default_sort_function);
 }
 
+void sortList_set(int index, bool desc)
+{
+	if (index < 0 || index > sortCnt) index = 0;
+	sort_index = index;
+	sort_desc = desc;
+	if (sort_desc) {
+		sortList(sortTypes[sort_index].sortDsc);
+	} else {
+		sortList(sortTypes[sort_index].sortAsc);
+	}
+}
+
 int Menu_Filter()
 {
 	struct discHdr *header = NULL;
@@ -635,15 +703,15 @@ int Menu_Filter()
 		MENU_MARK();
 		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
-		printf("%s %s\n", ((filter_type == -1) ? "*" : " "), gt("All Games"));
+		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
 		MENU_MARK();
-		printf("%s %s\n", ((filter_type == 0) ? "*": " "), gt("Online Play"));
+		printf("%s %s\n", mark_filter(FILTER_ONLINE,-1), gt("Online Play"));
 		MENU_MARK();
-		printf("%s %s\n", ((filter_type == 1) ? "*": " "), gt("Unplayed Games"));
+		printf("%s %s\n", mark_filter(FILTER_UNPLAYED,-1), gt("Unplayed Games"));
 		menu_window_begin(&menu, size, genreCnt);
 		for (n=0;n<genreCnt;n++) {
 			if (menu_window_mark(&menu))
-				printf("%s %s\n", ((filter_index == n && filter_type == 2) ? "*": " "), genreTypes[n][1]);
+				printf("%s %s\n", mark_filter(FILTER_GENRE,n), genreTypes[n][1]);
 		}
 		DefaultColor();
 		menu_window_end(&menu, cols);
@@ -674,29 +742,19 @@ int Menu_Filter()
 				redraw_cover = 1;
 				break;
 			} else if (2 == menu.current) {
-				showAllGames();
-				filter_type = -1;
+				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			} else if (3 == menu.current) {
 				redraw_cover = 1;
-				if (filter_games(filter_online, "", 0) > -1) {
-					filter_type = 0;
-				}
+				filter_games_set(FILTER_ONLINE, -1);
 			} else if (4 == menu.current) {
 				redraw_cover = 1;
-				if (filter_games(filter_play_count, "", 0) > -1) {
-					filter_type = 1;
-				}
+				filter_games_set(FILTER_UNPLAYED, -1);
 			}
-			for (n=0;n<genreCnt;n++) {
-				if (5+n == menu.current) {
-					redraw_cover = 1;
-					if (filter_games(filter_genre, genreTypes[n][0], 0) > -1) {
-						filter_type = 2;
-						filter_index = n;
-					}
-					break;
-				}
+			n = menu.current - 5;
+			if (n >= 0 && n < genreCnt) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_GENRE, n);
 			}
 		}
 		
@@ -737,11 +795,11 @@ int Menu_Filter2()
 		MENU_MARK();
 		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
-		printf("%s %s\n", ((filter_type == -1) ? "*" : " "), gt("All Games"));
+		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
 		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
 			if (menu_window_mark(&menu))
-				printf("%s ", (filter_index == n && filter_type == 4) ? "*" : " ");
+				printf("%s ", mark_filter(FILTER_CONTROLLER,n));
 				printf("%s\n", gt(accessoryTypes[n][1]));
 		}
 		DefaultColor();
@@ -772,17 +830,13 @@ int Menu_Filter2()
 				redraw_cover = 1;
 				goto end;
 			} else if (2 == menu.current) {
-				showAllGames();
-				filter_type = -1;
+				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			}
 			n = menu.current - 3;
 			if (n >= 0 && n < accessoryCnt) {
 				redraw_cover = 1;
-				if (filter_games(filter_controller, accessoryTypes[n][0], 0) > -1) {
-					filter_type = 4;
-					filter_index = n;
-				}
+				filter_games_set(FILTER_CONTROLLER, n);
 			}
 		}
 		
@@ -824,11 +878,11 @@ int Menu_Filter3()
 		MENU_MARK();
 		printf("<%s>\n", gt("Filter by Controller"));		
 		MENU_MARK();
-		printf("%s %s\n", ((filter_type == -1) ? "*" : " "), gt("All Games"));
+		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
 		menu_window_begin(&menu, size, featureCnt);
 		for (n=0;n<featureCnt;n++) {
 			if (menu_window_mark(&menu))
-			printf("%s ", (filter_index == n && filter_type == 3) ? "*": " ");
+			printf("%s ", mark_filter(FILTER_FEATURES,n));
 			printf("%s\n", gt(featureTypes[n][1]));
 		}
 		DefaultColor();
@@ -859,17 +913,13 @@ int Menu_Filter3()
 				redraw_cover = 1;
 				goto end;
 			} else if (2 == menu.current) {
-				showAllGames();
-				filter_type = -1;
+				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			}
 			n = menu.current - 3;
 			if (n >= 0 && n < featureCnt) {
 				redraw_cover = 1;
-				if (filter_games(filter_features, featureTypes[n][0], 0) > -1) {
-					filter_type = 3;
-					filter_index = n;
-				}
+				filter_games_set(FILTER_FEATURES, n);
 			}
 		}
 		

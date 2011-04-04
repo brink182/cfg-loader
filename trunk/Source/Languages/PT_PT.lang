@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Plucky Duck <pplucky@gmail.com>, 2010.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PT-PT translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "Last-Translator: pplucky <pplucky@gmail.com>\n"
 "Language-Team: European Portuguese\n"
 "Language: European Portuguese\n"
@@ -798,9 +798,6 @@ msgstr "Versão do Loader: %s"
 msgid "Loading ..."
 msgstr "A carregar..."
 
-msgid "Loading previous game list..."
-msgstr "A carregar lista anterior de jogos..."
-
 msgid "Main Menu"
 msgstr "Menu Principal"
 
@@ -1387,6 +1384,9 @@ msgstr "Iniciar Jogo"
 msgid "Start this game?"
 msgstr "Iniciar este jogo?"
 
+msgid "Stopping DVD..."
+msgstr "A parar DVD..."
+
 msgid "Strategy"
 msgstr "Estratégia"
 
@@ -1654,3 +1654,6 @@ msgstr "impossível abrir o disco da wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "A carregar lista anterior de jogos..."

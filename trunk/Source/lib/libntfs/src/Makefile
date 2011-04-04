@@ -21,7 +21,7 @@ wii-release:
 	$(MAKE) -C source  PLATFORM=wii BUILD=wii_release
 
 clean: 
-	$(MAKE) -C source clean
+	$(MAKE) -C source PLATFORM=wii clean
 
 #install: cube-release wii-release
 #	$(MAKE) -C source install

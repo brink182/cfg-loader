@@ -29,25 +29,20 @@ LIBDIR		:=	../lib
 # options for code generation
 #---------------------------------------------------------------------------------
 
-ifeq ($(PLATFORM),wii)
 #CFLAGS		=	-ffast-math -O3 -pipe -mrvl -mcpu=750 -meabi -mhard-float -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
-CFLAGS		=	-ffast-math -Os -pipe -mrvl -mcpu=750 -meabi -mhard-float -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
-CXXFLAGS	=	$(CFLAGS)
-#ASFLAGS		:=	-g
-endif
-
-ifeq ($(PLATFORM),cube)
-CFLAGS		=	-g -O2 -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H
+#CFLAGS		=	-ffast-math -Os -pipe -mrvl -mcpu=750 -meabi -mhard-float -Wall $(MACHDEP) $(INCLUDE) -DGEKKO -DHAVE_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+CFLAGS		=	-Os -Wall -ffast-math -pipe $(MACHDEP) $(INCLUDE) -DHAVE_CONFIG_H
 CXXFLAGS	=	$(CFLAGS)
 ASFLAGS		:=	-g
+export NTFSBIN	:= $(LIBDIR)/$(PLATFORM)/libntfs.a
+
+ifeq ($(BUILD),cube_debug)
+CFLAGS += -DDEBUG
+CXXFLAGS += -DDEBUG
 endif
-
-
-ifneq ($(BUILD),debug)
-export NTFSBIN	:=	$(LIBDIR)/$(PLATFORM)/libntfs.a
-else
-export NTFSBIN	:=	$(LIBDIR)/$(PLATFORM)/libntfsd.a
-CFLAGS		:=	-DDEBUG
+ifeq ($(BUILD),wii_debug)
+CFLAGS += -DDEBUG
+CXXFLAGS += -DDEBUG
 endif
 
 #---------------------------------------------------------------------------------
@@ -101,8 +96,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr wii_debug wii_release cube_debug cube_release
-#	@rm -fr wii_debug wii_release cube_debug cube_release $(LIBDIR)
+	@rm -fr wii_debug wii_release cube_debug cube_release $(LIBDIR)
 
 all: $(NTFSBIN)
 
@@ -110,6 +104,10 @@ install_ogc:
 	cp ../include/ntfs.h $(DEVKITPRO)/libogc/include
 	cp ../lib/wii/libntfs.a $(DEVKITPRO)/libogc/lib/wii
 	cp ../lib/cube/libntfs.a $(DEVKITPRO)/libogc/lib/cube
+
+wii-install:
+	cp ../include/ntfs.h $(DEVKITPRO)/libogc/include
+	cp ../lib/wii/libntfs.a $(DEVKITPRO)/libogc/lib/wii
 
 DKV			:= $(shell $(DEVKITPPC)/bin/$(CC) --version | sed 's/^.*(devkitPPC release \([0-9]*\)).*$$/\1/;q')
 DEST_INC	:=	../../include

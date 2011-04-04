@@ -95,6 +95,15 @@ struct TextMap map_video_patch[] =
 	{ NULL, -1 }
 };
 
+char *names_vpatch[CFG_VIDEO_PATCH_NUM] =
+{
+	gts("Off"),
+	gts("On"),
+	gts("All"),
+	"sneek",
+	"sneek+all",
+};
+
 struct TextMap map_language[] =
 {
 	{ "console",   CFG_LANG_CONSOLE },
@@ -246,7 +255,7 @@ bool playStatsRead = false;
 int playStatsSize = 0;
 struct playStat *playStats;
 
-int CFG_IOS_MAX = sizeof(map_ios) / sizeof(struct TextMap) - 2;
+int CFG_IOS_MAX = MAP_NUM(map_ios) - 1;
 int CURR_IOS_IDX = -1;
 
 
@@ -255,7 +264,7 @@ int CURR_IOS_IDX = -1;
 //#define MAX_THEME 100
 int num_theme = 0;
 int cur_theme = -1;
-char theme_list[MAX_THEME][31];
+char theme_list[MAX_THEME][MAX_THEME_NAME];
 char theme_path[200];
 
 void game_set(char *name, char *val);
@@ -1133,6 +1142,7 @@ void CFG_Default()
 	STRCOPY(CFG.unlock_password, CFG_UNLOCK_PASSWORD);
 	CFG.gui_antialias = 4;
 	CFG.gui_compress_covers = 1;
+	CFG.gui_pointer_scroll = 1;
 	// default game settings
 	CFG.game.video    = CFG_VIDEO_AUTO;
 	CFG.game.hooktype = 1; // VBI
@@ -1203,19 +1213,19 @@ u32 hash_id6(void *cb, void *id)
 
 bool title_cmp_id6(void *cb, void *key, int i)
 {
-	if (i < 0 || i > num_title) return false;
+	if (i < 0 || i >= num_title) return false;
 	return strncmp((char*)cfg_title[i].id, (char*)key, 6) == 0;
 }
 
 bool title_cmp_id4(void *cb, void *key, int i)
 {
-	if (i < 0 || i > num_title) return false;
+	if (i < 0 || i >= num_title) return false;
 	return strncmp((char*)cfg_title[i].id, (char*)key, 4) == 0;
 }
 
 int* title_get_hnext(void *cb, int i)
 {
-	if (i < 0 || i > num_title) return NULL;
+	if (i < 0 || i >= num_title) return NULL;
 	return &cfg_title[i].hnext;
 }
 
@@ -1223,7 +1233,7 @@ struct ID_Title* cfg_get_id_title(u8 *id)
 {
 	// check ID6 first
 	int i = hash_get(&title_hash_id6, id);
-	if (i == -1) {
+	if (i < 0) {
 		// if not found try ID4
 		i = hash_get(&title_hash_id4, id);
 	}
@@ -1271,17 +1281,17 @@ void title_set(char *id, char *title)
 		memset(&cfg_title[num_title], 0, sizeof(cfg_title[num_title]));
 		strcopy((char*)cfg_title[num_title].id, id, 7);
 		mbs_copy(cfg_title[num_title].title, title, TITLE_MAX);
+		num_title++;
 		// update hash
 		if (id[3] == 0 || id[4] == 0) {
 			// id3 or id4
 			hash_check_init(&title_hash_id4, 0, NULL, &hash_id4, &title_cmp_id4, &title_get_hnext);
-			hash_add(&title_hash_id4, id, num_title);
+			hash_add(&title_hash_id4, id, num_title - 1);
 		} else {
 			// id6
 			hash_check_init(&title_hash_id6, 0, NULL, &hash_id6, &title_cmp_id6, &title_get_hnext);
-			hash_add(&title_hash_id6, id, num_title);
+			hash_add(&title_hash_id6, id, num_title - 1);
 		}
-		num_title++;
 	}
 }
 
@@ -2098,6 +2108,7 @@ void cfg_set(char *name, char *val)
 	cfg_int_max("gui_antialias", &CFG.gui_antialias, 4);
 	if (CFG.gui_antialias==0 || !CFG.gui_compress_covers) CFG.gui_antialias = 1;
 	if (CFG.gui_antialias > 1) CFG.gui_compress_covers = 1;
+	cfg_bool("gui_pointer_scroll", &CFG.gui_pointer_scroll);
 
 	if (cfg_set_gbl(name, val)) {
 		return;
@@ -2155,6 +2166,10 @@ void cfg_set(char *name, char *val)
 	// gui
 	cfg_bool("gui", &CFG.gui);
 	cfg_map("gui", "start", &CFG.gui, CFG_GUI_START);
+	if (cfg_map("gui", "3", &CFG.gui, CFG_GUI_START)) {
+		extern int wgui_disabled;
+		wgui_disabled = 0;
+	}
 
 	cfg_map("gui_transition", "scroll", &CFG.gui_transit, 0);
 	cfg_map("gui_transition", "fade",   &CFG.gui_transit, 1);
@@ -2484,9 +2499,6 @@ void settings_set(char *name, char *val)
 // save current state
 bool CFG_Save_Global_Settings()
 {
-	extern s32 wbfsDev;
-	extern int grid_rows;
-	extern int gui_style;
 	CFG.saved_global = 1;
 	STRCOPY(CFG.saved_theme, CFG.theme);
 	CFG.saved_device = wbfsDev;
@@ -2966,7 +2978,8 @@ void CFG_switch_theme(int theme_i)
 	cur_theme = theme_i;
 	__console_flush(0);
 	cfg_setup2();
-	Gui_DrawBackground();
+	//Gui_DrawBackground();
+	Gui_LoadBackground();
 	Gui_InitConsole();
 	cfg_setup3();
 }

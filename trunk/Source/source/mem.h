@@ -62,7 +62,9 @@ int   mem_resize(void *ptr, int size);
 void* mem_realloc(void *ptr, int size);
 void  mem_free(void *ptr);
 void  mem_stat();
-void  mem_stat_str(char * buffer);
+void  mem_stat_str(char *buffer, int size);
+void  lib_info_str(char *str, int size);
+void  lib_mem_stat_str(char *str, int size);
 void  mem_statf(FILE *f);
 
 // ogc sys

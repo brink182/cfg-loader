@@ -27,7 +27,6 @@
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
 extern bool imageNotFound;
-extern int gui_style;
 
 static int net_top = -1;
 static int dl_abort = 0;
@@ -831,7 +830,11 @@ void Download_XML()
 	sleep(4);
 } /* end download zipped xml */
 
-int gamercard_update(char *ID) {
+int gamercard_skip = 0;
+
+int gamercard_update(char *ID)
+{
+	if (gamercard_skip) return 0;
 	char *next_key, *next_url;
 	bool net_initted = false;
 	int gcard_cnt = 0;

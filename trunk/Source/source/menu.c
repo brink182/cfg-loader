@@ -54,9 +54,6 @@ char CFG_VERSION[] = CFG_VERSION_STR;
 
 void Sys_Exit();
 
-extern int gui_style;
-extern int __console_disable;
-
 /* Gamelist buffer */
 struct discHdr *all_gameList = NULL;
 static struct discHdr *fav_gameList = NULL;
@@ -83,7 +80,7 @@ static int disable_options = 0;
 static int confirm_start = 1;
 static bool unlock_init = true;
 
-char *videos[CFG_VIDEO_MAX+1] = 
+char *videos[CFG_VIDEO_NUM] = 
 {
 	gts("System Def."),
 	gts("Game Default"),
@@ -92,7 +89,7 @@ char *videos[CFG_VIDEO_MAX+1] =
 	gts("Force NTSC")
 };
 
-char *languages[11] =
+char *languages[CFG_LANG_NUM] =
 {
 	gts("Console Def."),
 	gts("Japanese"),
@@ -115,6 +112,12 @@ char *playlog_name[4] =
 	gts("English Title")
 };
 
+char *str_wiird[3] =
+{
+	gts("Off"),
+	gts("On"),
+	gts("Paused Start")
+};
 
 int Menu_Global_Options();
 int Menu_Game_Options();
@@ -451,28 +454,45 @@ void __Menu_PrintInfo2(struct discHdr *header, u64 comp_size, u64 real_size)
 	//printf(" real: %lld (%.2fMB)\n", real_size, (f32)real_size/1024/1024);
 }
 
-void __Menu_PrintInfo(struct discHdr *header)
+void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 {
 	static u64 last_comp = 0, last_real = 0;
 	static u8 last_id[8] = "";
 	//f32 size = 0.0;
-	u64 comp_size, real_size = 0;
+	*comp_size = 0;
+	*real_size = 0;
 
 	/* Get game size */
 	if (strncmp((char*)last_id, (char*)header->id, 6) == 0 && last_comp && last_real) {
-		comp_size = last_comp;
-		real_size = last_real;
+		*comp_size = last_comp;
+		*real_size = last_real;
 	} else {
-		WBFS_GameSize2(header->id, &comp_size, &real_size);
-		last_comp = comp_size;
-		last_real = real_size;
+		WBFS_GameSize2(header->id, comp_size, real_size);
+		last_comp = *comp_size;
+		last_real = *real_size;
 		strncpy((char*)last_id, (char*)header->id, 6);
 	}
+}
 
-	/* Print game info */
-	//printf_("%s\n", get_title(header));
-	//printf_("(%.6s) (%.2fGB) %s\n\n", header->id, size, dl_str);
+void __Menu_PrintInfo(struct discHdr *header)
+{
+	u64 comp_size, real_size = 0;
+	__Menu_GameSize(header, &comp_size, &real_size);
 	__Menu_PrintInfo2(header, comp_size, real_size);
+}
+
+void Menu_GameInfoStr(struct discHdr *header, char *str)
+{
+	u64 comp_size, real_size = 0;
+	__Menu_GameSize(header, &comp_size, &real_size);
+	float size = (float)comp_size / 1024 / 1024 / 1024;
+	char *dl_str = is_dual_layer(real_size) ? "(dual-layer)" : "";
+	char *s = str;
+	sprintf(s, "(%.6s) ", header->id);
+	s += strlen(s);
+	sprintf(s, "(%.2f%s) ", size, gt("GB"));
+	s += strlen(s);
+	sprintf(s, "%s\n\n", dl_str);
 }
 
 void __Menu_MoveList(s8 delta)
@@ -738,35 +758,54 @@ void Handle_Home()
 	}
 }
 
-void Print_IOS_Info()
+void Print_IOS_Info_str(char *str, int size)
 {
+	*str = 0;
 	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
-	FgColor(CFG.color_inactive);
-	printf_("IOS%u (r%u) %s\n",
+	snprintf(str, size, "IOS%u (r%u) %s\n",
 			IOS_GetVersion(), IOS_GetRevision(),
 			CFG.ios_mload||new_wanin ? "[FRAG]" : "");
-	if (CFG.ios_mload || new_wanin) {
-		printf_("");
-		print_mload_version();
-	}
+	str_seek_end(&str, &size);
+	print_mload_version_str(str);
+}
+
+void Print_IOS_Info()
+{
+	char str[200];
+	FgColor(CFG.color_inactive);
+	Print_IOS_Info_str(str, sizeof(str));
+	printf_("%s", str);
 	DefaultColor();
+}
+
+void Print_SYS_Info_str(char *str, int size)
+{
+	snprintf(str, size, gt("Loader Version: %s"), CFG_VERSION);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "\n");
+	str_seek_end(&str, &size);
+	snprintf(str, size, gt("CFG base: %s"), USBLOADER_PATH);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "\n");
+	str_seek_end(&str, &size);
+	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) {
+		// if last cfg differs, print it out
+		snprintf(str, size, "%s\n", gt("Additional config:"));
+		str_seek_end(&str, &size);
+		snprintf(str, size, "  %s/config.txt\n", LAST_CFG_PATH);
+		str_seek_end(&str, &size);
+	}
+	MountPrint_str(str, size);
+	str_seek_end(&str, &size);
+	Print_IOS_Info_str(str, size);
 }
 
 void Print_SYS_Info()
 {
+	char str[400];
 	FgColor(CFG.color_inactive);
-	MountPrint();
-	printf_(gt("CFG base: %s"), USBLOADER_PATH);
-	printf("\n");
-	if (strcmp(LAST_CFG_PATH, USBLOADER_PATH)) {
-		// if last cfg differs, print it out
-		printf_(gt("Additional config:"));
-		printf("\n");
-		printf_("  %s/config.txt\n", LAST_CFG_PATH);
-	}
-	printf_(gt("Loader Version: %s"), CFG_VERSION);
-	printf("\n");
-	Print_IOS_Info();
+	Print_SYS_Info_str(str, sizeof(str));
+	printf_("%s", str);
 	DefaultColor();
 }
 
@@ -790,6 +829,39 @@ char get_unlock_buttons(buttons)
 	return 'x';
 }
 
+void Admin_Unlock(bool unlock)
+{
+	if (unlock_init) {
+		// save original settings
+		disable_format = CFG.disable_format;
+		disable_remove = CFG.disable_remove;
+		disable_install = CFG.disable_install;
+		disable_options = CFG.disable_options;
+		confirm_start = CFG.confirm_start;
+		unlock_init = false;
+	}
+	if (unlock) {
+		// unlock
+		//enable all "admin-type" screens
+		CFG.disable_format = 0;
+		CFG.disable_remove = 0;
+		CFG.disable_install = 0;
+		CFG.disable_options = 0;
+		CFG.confirm_start = 1;
+		CFG.admin_mode_locked = 0;
+	} else {
+		//set the lock back on
+		CFG.disable_format = disable_format;
+		CFG.disable_remove = disable_remove;
+		CFG.disable_install = disable_install;
+		CFG.disable_options = disable_options;
+		CFG.confirm_start = confirm_start;
+		CFG.admin_mode_locked = 1;
+	}
+	// reset the hidden games
+	__Menu_GetEntries();
+}
+
 void Menu_Unlock() {
 	u32 buttons;
 	static long long t_start;
@@ -800,16 +872,6 @@ void Menu_Unlock() {
 	bool unlocked = false;
 	memset(buf, 0, sizeof(buf));
 
-	//init the previous settings
-	if (unlock_init) {
-		disable_format = CFG.disable_format;
-		disable_remove = CFG.disable_remove;
-		disable_install = CFG.disable_install;
-		disable_options = CFG.disable_options;
-		confirm_start = CFG.confirm_start;
-		unlock_init = false;
-	}
-	
 	Con_Clear();
 	printf(gt("Configurable Loader %s"), CFG_VERSION);
 	printf("\n\n");
@@ -834,40 +896,15 @@ void Menu_Unlock() {
 			ms_diff = diff_msec(t_start, t_now);
 		}
 	}
+	Admin_Unlock(unlocked);
+	printf("\n\n");
 	if (unlocked) {
-		//save existing settings
-		disable_format = CFG.disable_format;
-		disable_remove = CFG.disable_remove;
-		disable_install = CFG.disable_install;
-		disable_options = CFG.disable_options;
-		confirm_start = CFG.confirm_start;
-
-		//enable all "admin-type" screens
-		CFG.disable_format = 0;
-		CFG.disable_remove = 0;
-		CFG.disable_install = 0;
-		CFG.disable_options = 0;
-		CFG.confirm_start = 1;
-		CFG.admin_mode_locked = 0;
-		printf("\n\n");
 		printf(gt("SUCCESS!"));
-		sleep(1);
-		//show the hidden games
-		__Menu_GetEntries();
 	} else {
 		//set the lock back on
-		CFG.disable_format = disable_format;
-		CFG.disable_remove = disable_remove;
-		CFG.disable_install = disable_install;
-		CFG.disable_options = disable_options;
-		CFG.confirm_start = confirm_start;
-		CFG.admin_mode_locked = 1;
-		printf("\n\n");
 		printf(gt("LOCKED!"));
-		sleep(1);
-		//reset the hidden games
-		__Menu_GetEntries();
 	}
+	sleep(1);
 }
 
 
@@ -890,16 +927,12 @@ int Menu_Views()
 		menu_begin(&menu);
 		menu_init_active(&menu, active, sizeof(active));
 
-		//if admin lock is off or they're not in admin 
-		// mode then they can't hide/unhide covers
-		if (!CFG.admin_lock || CFG.admin_mode_locked) {
-			if (CFG.disable_remove) active[3] = 0;
-			if (CFG.disable_install) active[4] = 0;
-		}
 		if (CFG.disable_options) {
 			active[1] = 0;
 			active[2] = 0;
 		}
+		if (CFG.disable_remove) active[3] = 0;
+		if (CFG.disable_install) active[4] = 0;
 		Con_Clear();
 		FgColor(CFG.color_header);
 		printf_x(gt("Main Menu"));
@@ -1263,14 +1296,6 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				str_alt_dol = dolmenubuffer[i+1].name;
 			}
 		}
-		const char *str_vpatch[CFG_VIDEO_PATCH_MAX+1];
-		str_vpatch[0] = gt("Off");
-		str_vpatch[1] = gt("On");
-		str_vpatch[2] = gt("All");
-		str_vpatch[CFG_VIDEO_PATCH_SNEEK] =
-			map_get_name(map_video_patch, CFG_VIDEO_PATCH_SNEEK);
-		str_vpatch[CFG_VIDEO_PATCH_SNEEK_ALL] =
-			map_get_name(map_video_patch, CFG_VIDEO_PATCH_SNEEK_ALL);
 
 		// start menu draw
 
@@ -1294,7 +1319,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Video Patch:"), str_vpatch[opt_video_patch]);
+			PRINT_OPT_S(gt("Video Patch:"), gt(names_vpatch[opt_video_patch]));
 		if (menu_window_mark(&menu))
 			PRINT_OPT_B("VIDTV:", opt_vidtv);
 		if (menu_window_mark(&menu))
@@ -1321,7 +1346,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Clear Patches:"), str_vpatch[game_cfg->clean]);
+			PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 		DefaultColor();
 		menu_window_end(&menu, cols);
 
@@ -1487,10 +1512,31 @@ void Save_Game_List()
 	printf(gt("ERROR"));
 }
 
+void print_debug_hdr(char *str, int size)
+{
+	snprintf(str, size, "# CFG USB Loader %s\n", CFG_VERSION);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "\nIOS:\n\n");
+	str_seek_end(&str, &size);
+	print_all_ios_info_str(str, size);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "\nMEM STATS:\n");
+	str_seek_end(&str, &size);
+	lib_mem_stat_str(str, size);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "\nTIME STATS:\n\n");
+	str_seek_end(&str, &size);
+	time_statsf(NULL, str, size);
+	str_seek_end(&str, &size);
+	snprintf(str, size, "\nDEBUG LOG:\n\n");
+	str_seek_end(&str, &size);
+}
+
 void Save_Debug()
 {
 	char *name = "debug.log";
 	char path[200];
+	char str[2000];
 	FILE *f;
 
 	printf("\n\n");
@@ -1502,14 +1548,8 @@ void Save_Debug()
 		printf_(gt("ERROR"));
 		return;
 	}
-	fprintf(f, "# CFG USB Loader %s\n", CFG_VERSION);
-	fprintf(f, "\nIOS:\n\n");
-	print_all_ios_info(f);
-	fprintf(f, "\nMEM STATS:\n");
-	mem_statf(f);
-	fprintf(f, "\nTIME STATS:\n\n");
-	time_statsf(f);
-	fprintf(f, "\nDEBUG LOG:\n\n");
+	print_debug_hdr(str, sizeof(str));
+	fprintf(f, "%s", str);
 	fprintf(f, "%s\n", dbg_log_buf);
 	fprintf(f, "\nEND\n");
 	fclose(f);
@@ -1547,6 +1587,36 @@ void Save_IOS_Hash()
 	printf_("OK");
 }
 
+void Menu_Save_Settings()
+{
+	int ret;
+	printf("\n");
+	printf_x(gt("Saving Settings... "));
+	printf("\n");
+	__console_flush(0);
+	FgColor(CFG.color_inactive);
+	ret = CFG_Save_Global_Settings();
+	DefaultColor();
+	if (ret) {
+		printf_(gt("OK"));
+		printf("\n");
+		Save_Game_List();
+	} else {
+		printf_(gt("ERROR"));
+	}
+	printf("\n");
+	//sleep(2);
+	Menu_PrintWait();
+}
+
+void Menu_All_IOS_Info()
+{
+	printf("\n\ncIOS Info:\n\n");
+	print_all_ios_info(stdout);
+	printf("\n");
+	Menu_PrintWait();
+}
+
 int Menu_Global_Options()
 {
 	int rows, cols, win_size, info_size;
@@ -1568,10 +1638,6 @@ int Menu_Global_Options()
 	menu_init(&menu, num_opt);
 	menu_init_active(&menu, active, sizeof(active));
 	active[5] = usb_isgeckoalive(EXI_CHANNEL_1);
-	const char *str_wiird[3];
-	str_wiird[0] = gt("Off");
-	str_wiird[1] = gt("On");
-	str_wiird[2] = gt("Paused Start");
 
 	for (;;) {
 
@@ -1605,7 +1671,7 @@ int Menu_Global_Options()
 		if (menu_window_mark(&menu))
 			printf("%s< %s >\n", con_align(gt("Partition:"),13), CFG.partition);
 		if (menu_window_mark(&menu))
-			printf("%s< %s >\n", con_align("WiiRD:",13), str_wiird[CFG.wiird]);
+			printf("%s< %s >\n", con_align("WiiRD:",13), gt(str_wiird[CFG.wiird]));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Download All Missing Covers"));
 		if (menu_window_mark(&menu))
@@ -1658,6 +1724,7 @@ int Menu_Global_Options()
 				break;
 			case 2:
 				CFG_switch_theme(cur_theme + change);
+				Video_DrawBg();
 				redraw_cover = 1;
 				Cache_Invalidate();
 				break;
@@ -1694,10 +1761,7 @@ int Menu_Global_Options()
 				sleep(2);
 				break;
 			case 12:
-				printf("\n\ncIOS Info:\n\n");
-				print_all_ios_info(stdout);
-				printf("\n");
-				Menu_PrintWait();
+				Menu_All_IOS_Info();
 				break;
 			}
 		}
@@ -1711,24 +1775,7 @@ int Menu_Global_Options()
 			Handle_Home();
 		}
 		if (buttons & CFG.button_save.mask) {
-			int ret;
-			printf("\n");
-			printf_x(gt("Saving Settings... "));
-			printf("\n");
-			__console_flush(0);
-			FgColor(CFG.color_inactive);
-			ret = CFG_Save_Global_Settings();
-			DefaultColor();
-			if (ret) {
-				printf_(gt("OK"));
-				printf("\n");
-				Save_Game_List();
-			} else {
-				printf_(gt("ERROR"));
-			}
-			printf("\n");
-			//sleep(2);
-			Menu_PrintWait();
+			Menu_Save_Settings();
 		}
 		if (buttons & WPAD_BUTTON_PLUS) {
 			printf("\n");
@@ -1840,6 +1887,7 @@ void DoAction(int action)
 			break;
 		case CFG_BTN_THEME:
 			CFG_switch_theme(cur_theme + 1);
+			Video_DrawBg();
 			if (gameCnt) Gui_DrawCover(gameList[gameSelected].id);//redraw_cover = 1;
 			Cache_Invalidate();
 			
@@ -1898,6 +1946,28 @@ void DoAction(int action)
 	}
 }
 
+int get_buttonmap_num(int buttons)
+{
+	int i;
+	for (i = 4; i < MAX_BUTTONS; i++) {
+			if (buttons & buttonmap[MASTER][i]) return i;
+	}
+	return -1;
+}
+
+int get_buttonmap_action(int button_num)
+{
+	int i = button_num;
+	if (i < 4 || i >= MAX_BUTTONS) return CFG_BTN_NOTHING;
+	return *(&CFG.button_M + (i - 4));
+}
+
+int get_button_action(int buttons)
+{
+	int i = get_buttonmap_num(buttons);
+	return get_buttonmap_action(i);
+}
+
 void __Menu_Controls(void)
 {
 	if (CFG.gui == CFG_GUI_START) {
@@ -1947,7 +2017,7 @@ void __Menu_Controls(void)
 
 			Con_Clear();
 			t_start = gettime();
-			while (!display_unlock && (Wpad_Held(0) & CFG.button_other.mask)) {
+			while (!display_unlock && (Wpad_Held() & CFG.button_other.mask)) {
 				buttons = Wpad_GetButtons();
 				VIDEO_WaitVSync();
 				t_now = gettime();
@@ -2990,7 +3060,10 @@ out:
 		goto out;
 	}
 out2:
+	printf("\n");
+	printf_(gt("Stopping DVD..."));
 	WDVD_StopMotor();
+	printf(gt("OK"));
 	header = gameList[gameSelected];
 	Gui_DrawCover(header.id);
 }
@@ -3137,13 +3210,13 @@ out:
 	//exit(0);
 }
 
-void FmtGameInfoLong(u8 *id, char *game_desc, int size)
+void FmtGameInfoLong(u8 *id, int cols, char *game_desc, int size)
 {
 	*game_desc = 0;
 	struct gameXMLinfo *g = get_game_info_id(id);
 	if (!g) return;
 	if (!LoadGameInfoFromXML(id)) return;
-	FmtGameInfo(game_desc, size);
+	FmtGameInfo(game_desc, cols, size);
 	strappend(game_desc, "\n", size);
 	int i, n;
 	int req;
@@ -3294,7 +3367,7 @@ restart_menu_boot:;
 	u8 banner_title[84];
 	bool banner_playing = false;
 	bool banner_parsed = false;
-	memset(banner_title, 0, 84);
+	memset(banner_title, 0, sizeof(banner_title));
 	memset(&snd, 0, sizeof(snd));
 
 	if (do_skip) {
@@ -3315,7 +3388,7 @@ restart_menu_boot:;
 	cols -= 1;
 	rows -= 11;
 	if (rows < 2) rows = 2;
-	FmtGameInfoLong(header->id, game_desc, sizeof(game_desc));
+	FmtGameInfoLong(header->id, cols, game_desc, sizeof(game_desc));
 	con_wordwrap(game_desc, cols, sizeof(game_desc));
 
 	Gui_Console_Enable();
@@ -3380,7 +3453,8 @@ L_repaint:
 
 	// play banner sound
 	if (snd.dsp_data && !banner_playing) {
-		SND_PauseVoice(0, 1); // pause mp3
+		// pause mp3
+		Music_PauseVoice(true);
 		int fmt = (snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
 		SND_SetVoice(1, fmt, snd.rate, 0,
 			snd.dsp_data, snd.size,
@@ -3419,12 +3493,14 @@ L_repaint:
 		SND_StopVoice(1);
 		SAFE_FREE(snd.dsp_data);
 		if (buttons & CFG.button_confirm.mask) {
-			SND_ChangeVolumeVoice(0, 0, 0);
+			// mute mp3
+			Music_Mute(true);
 		}
 		if ( (buttons & WPAD_BUTTON_LEFT) || (buttons & WPAD_BUTTON_RIGHT) ) {
 			// don't unpause mp3 when changing games
 		} else {
-			SND_PauseVoice(0, 0); // unpause mp3
+			// unpause mp3
+			Music_PauseVoice(false);
 		}
 		banner_playing = false;
 	}
@@ -3646,7 +3722,10 @@ out:
 	exit(0);
 close:
 	if (disc) {
+		printf("\n");
+		printf_(gt("Stopping DVD..."));
 		WDVD_StopMotor();
+		printf(gt("OK"));
 		header = &gameList[gameSelected];
 		Gui_DrawCover(header->id);
 	}

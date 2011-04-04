@@ -152,11 +152,6 @@ u32 readPad(int n, bool held) {
 	return buttons;
 }
 
-u32 Wpad_Held(int n)
-{
-	return readPad(n, 1);
-}
-
 void makeButtonMap(void) {
 
 	buttonmap[MASTER][0] = WPAD_BUTTON_UP;
@@ -386,33 +381,43 @@ void Wpad_Disconnect(void)
 	WPAD_Shutdown();
 }
 
-u32 Wpad_HeldButtons(void)
+u32 Wpad_Held_1(int n)
+{
+	return readPad(n, 1);
+}
+
+u32 Wpad_Held()
 {
 	int i;
 	u32 buttons = 0;
-    WPAD_ScanPads();
-    PAD_ScanPads();
-	// handle shutdown
-	if (shutdown) Do_Shutdown();
-    for(i=0; i < MAX_WIIMOTES; i++) {
+	for(i=0; i < MAX_WIIMOTES; i++) {
 		buttons |= readPad(i, 1);
 	}
 	return buttons;
 }
 
-u32 Wpad_GetButtons(void) {
-	
+u32 Wpad_HeldButtons()
+{
+	WPAD_ScanPads();
+	PAD_ScanPads();
+	// handle shutdown
+	if (shutdown) Do_Shutdown();
+	return Wpad_Held();
+}
+
+u32 Wpad_GetButtons(void)
+{
 	int i = 0;
 	u32 buttons = 0;
-    WPAD_ScanPads();
-    PAD_ScanPads();
-		
+	WPAD_ScanPads();
+	PAD_ScanPads();
+
 	// handle shutdown
 	if (shutdown)
 		Do_Shutdown();
-	
-    for(; i < MAX_WIIMOTES; i++)
-        buttons |= readPad(i, 0);
+
+	for(; i < MAX_WIIMOTES; i++)
+		buttons |= readPad(i, 0);
 	return buttons;
 }
 
@@ -473,7 +478,7 @@ u32 Wpad_WaitButtonsRpt(void)
 		} else if (held) {
 			buttons_held = 0;
 			for (cnt = 0; cnt < MAX_WIIMOTES; cnt++) {
-				buttons_held |= Wpad_Held(cnt);
+				buttons_held |= Wpad_Held_1(cnt);
 			}
 			if (buttons_held & (WPAD_BUTTON_UP | WPAD_BUTTON_DOWN | WPAD_BUTTON_LEFT | WPAD_BUTTON_RIGHT)) {
 				t_now = gettime();

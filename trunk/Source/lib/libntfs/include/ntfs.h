@@ -1,6 +1,7 @@
 /**
  * ntfs.h - Simple functionality for startup, mounting and unmounting of NTFS-based devices.
  *
+ * Copyright (c) 2010 Dimok
  * Copyright (c) 2009 Rhys "Shareese" Koedijk
  * Copyright (c) 2006 Michael "Chishm" Chisholm
  *
@@ -148,4 +149,3 @@ int _NTFS_get_fragments (const char *path, _ntfs_frag_append_t append_fragment, 
 #endif
 
 #endif /* _LIBNTFS_H */
-

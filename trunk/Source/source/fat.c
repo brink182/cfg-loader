@@ -694,16 +694,23 @@ void RemountNTFS()
 
 // print:
 // FS: [ sd: usb: ntfs: game: ]
-void MountPrint()
+void MountPrint_str(char *str, int size)
 {
 	int i;
-	printf_("");
-	printf("FS: ");
-	printf("[ ");
+	snprintf(str, size, "FS: [ ");
+	str_seek_end(&str, &size);
 	for (i=0; i<mtab.num; i++)
 	{
-		printf("%s: ", mtab.point[i].name);
+		snprintf(str, size, "%s: ", mtab.point[i].name);
+		str_seek_end(&str, &size);
 	}
-	printf("]\n");
+	snprintf(str, size, "]\n");
+}
+
+void MountPrint()
+{
+	char str[100];
+	MountPrint_str(str, sizeof(str));
+	printf_("%s", str);
 }
 

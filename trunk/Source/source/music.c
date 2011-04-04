@@ -407,8 +407,28 @@ void Music_OpenFile()
 }
 #endif
 
+void Music_Mute(bool mute)
+{
+	// when starting game
+	if (mute) {
+		SND_ChangeVolumeVoice(0, 0, 0);
+	} else {
+		SND_ChangeVolumeVoice(0, 0x80, 0x80);
+	}
+}
+
+void Music_PauseVoice(bool pause)
+{
+	// don't unpause mp3 when changing games
+	// pause = 1, unpause = 0
+	SND_PauseVoice(0, pause ? 1 : 0);
+}
+
 void _Music_Stop()
 {
+	Music_Mute(true);
+	Music_PauseVoice(false);
+	SND_Pause(0);
 	if (music_format == FORMAT_MP3) {
 		//the thread freezes when paused and you can't kill it!
 		Music_UnPause();

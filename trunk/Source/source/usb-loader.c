@@ -19,13 +19,12 @@
 #include "gettext.h"
 #include "mload.h"
 #include "usbstorage.h"
+#include "console.h"
 
 // libogc < 1.8.5 can hang if wiimote is initialized multiple times
 // (in case ios is reload 2x) so we delay wpad to later
 // libogc = 1.8.5 can crash if started with 2+ wiimotes
 // #define WPAD_EARLY
-
-extern int __console_disable;
 
 int __nop_write(struct _reent *r,int fd,const char *ptr,size_t len)
 {

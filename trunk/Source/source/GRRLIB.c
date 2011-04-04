@@ -1607,9 +1607,14 @@ inline void GRRLIB_DrawTile_draw1(f32 xpos, f32 ypos, GRRLIB_texImg *tex, u32 co
     const f32 FRAME_CORR = 0.001f;
     f32 s1, s2, t1, t2;
     s1 = (frame % tex->nbtilew) * tex->ofnormaltexx;
-    s2 = s1 + tex->ofnormaltexx - FRAME_CORR;
+    s2 = s1 + tex->ofnormaltexx;
     t1 = (int)(frame/tex->nbtilew) * tex->ofnormaltexy;
-    t2 = t1 + tex->ofnormaltexy - FRAME_CORR;
+    t2 = t1 + tex->ofnormaltexy;
+	s1 += FRAME_CORR;
+	s2 -= FRAME_CORR;
+	t1 += FRAME_CORR;
+	t2 -= FRAME_CORR;
+
 
     width = tex->tilew * 0.5f;
     height = tex->tileh * 0.5f;
@@ -1894,6 +1899,8 @@ void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex,
 
 	for (i = 0; wtext[i]; i++) {
 		cc = c = wtext[i];
+		// break on newline
+		if (cc == '\r' || cc == '\n') break;
 		if (cc >= nc) {
 			cc = map_ufont(c);
 			if (cc == 0  && (unsigned)c <= 0xFFFF) {
@@ -1913,15 +1920,15 @@ void __GRRLIB_Print1w(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex,
 	}
 }
 
-void GRRLIB_Print3(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 zoom, const char *text)
+void GRRLIB_Print4(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 scale, const char *text, int maxlen)
 {
-	int len = strlen(text);
-	wchar_t wtext[len+1];
+	if (maxlen < 0 ) maxlen = strlen(text);
+	wchar_t wtext[maxlen+1];
 	int wlen;
-	wlen = mbstowcs(wtext, text, len);
+	wlen = mbstowcs(wtext, text, maxlen);
 	wtext[wlen] = 0;
 
-	GRRLIB_DrawTile_begin(tex, xpos, ypos, zoom);
+	GRRLIB_DrawTile_begin(tex, xpos, ypos, scale);
 	xpos = ypos = 0; // position is set above
 	if (shadow) {
 		__GRRLIB_Print1w(xpos+1, ypos+0, tex, shadow, wtext);
@@ -1938,6 +1945,11 @@ void GRRLIB_Print3(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32
 	}
 	__GRRLIB_Print1w(xpos, ypos, tex, color, wtext);
 	GRRLIB_DrawTile_end(tex);
+}
+
+void GRRLIB_Print3(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 scale, const char *text)
+{
+	GRRLIB_Print4(xpos, ypos, tex, color, outline, shadow, scale, text, -1);
 }
 
 void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, const char *text)
@@ -2104,6 +2116,7 @@ void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx)
 	if (tx->w != rmode->fbWidth) return;
 	if (tx->h != rmode->efbHeight) return;
 
+	GRRLIB_FlushTex(tx);
 	GX_SetZMode(GX_DISABLE, GX_ALWAYS, GX_TRUE);
 	//GX_DrawDone();
 	GX_SetCopyFilter(GX_FALSE, NULL, GX_FALSE, NULL);
@@ -2122,9 +2135,11 @@ void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx)
 GRRLIB_texImg GRRLIB_AAScreen2Texture() {
 	GRRLIB_texImg my_texture;
 
+	memset(&my_texture, 0, sizeof(my_texture));
 	my_texture.w = 0;
 	my_texture.h = 0;
-	my_texture.data = memalign (32, rmode->fbWidth * rmode->efbHeight * 4);
+	//my_texture.data = memalign (32, rmode->fbWidth * rmode->efbHeight * 4);
+	my_texture.data = mem_alloc(rmode->fbWidth * rmode->efbHeight * 4);
 	if (my_texture.data == NULL) goto out;
 	my_texture.w = rmode->fbWidth;
 	my_texture.h = rmode->efbHeight;

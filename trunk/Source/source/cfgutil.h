@@ -10,8 +10,11 @@ struct TextMap
 	int id;
 };
 
-int map_get_id(struct TextMap *map, char *name, int *id_val);
+#define MAP_NUM(map) (sizeof(map) / sizeof(struct TextMap) - 1)
+
 int map_get_num(struct TextMap *map);
+int map_to_list(struct TextMap *map, int n, char **list);
+int map_get_id(struct TextMap *map, char *name, int *id_val);
 char* map_get_name(struct TextMap *map, int id);
 int map_auto_i(char *name, char *name2, char *val, struct TextMap *map, int *var);
 bool map_auto(char *name, char *name2, char *val, struct TextMap *map, int *var);

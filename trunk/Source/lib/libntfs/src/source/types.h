@@ -113,7 +113,7 @@ typedef enum {
 #endif
 } BOOL;
 #endif /* defined _WINDEF_H */
-#endif /* defined GEKKO */
+#endif /* defined GECKO */
 
 /**
  * enum IGNORE_CASE_BOOL -
@@ -128,6 +128,14 @@ typedef enum {
 #define STATUS_RESIDENT_ATTRIBUTE_FILLED_MFT	(-2)
 #define STATUS_KEEP_SEARCHING			(-3)
 #define STATUS_NOT_FOUND			(-4)
+
+/*
+ *	Force alignment in a struct if required by processor
+ */
+union ALIGNMENT {
+	u64 u64align;
+	void *ptralign;
+} ;
 
 #endif /* defined _NTFS_TYPES_H */
 

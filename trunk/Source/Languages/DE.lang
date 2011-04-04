@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-07-28 08:58+0100\n"
 "Last-Translator: TheRealVisitor, FIX94\n"
 "Language-Team: GERMAN <FIX94, Geridian, WiiNero, TheRealVisitor>\n"
@@ -795,9 +795,6 @@ msgstr "Loader Version: %s"
 msgid "Loading ..."
 msgstr "Lade ..."
 
-msgid "Loading previous game list..."
-msgstr "Lade vorherige Spieleliste..."
-
 msgid "Main Menu"
 msgstr "Hauptmenü"
 
@@ -1374,6 +1371,9 @@ msgstr "Starte Spiel"
 msgid "Start this game?"
 msgstr "Dieses Spiel starten?"
 
+msgid "Stopping DVD..."
+msgstr ""
+
 msgid "Strategy"
 msgstr "Strategie"
 
@@ -1641,3 +1641,6 @@ msgstr "Kann Wii Disk nicht laden"
 #, c-format
 msgid "used: %p - %p"
 msgstr "Benutzt: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "Lade vorherige Spieleliste..."

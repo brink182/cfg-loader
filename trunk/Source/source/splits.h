@@ -28,8 +28,14 @@ int   split_read_sector(void *_fp,u32 lba,u32 count,void*buf);
 int   split_write_sector(void *_fp,u32 lba,u32 count,void*buf);
 void  split_init(split_info_t *s, char *fname);
 void  split_set_size(split_info_t *s, u64 split_size, u64 total_size);
-void  split_close(split_info_t *s);
-int   split_open(split_info_t *s, char *fname);
-int   split_create(split_info_t *s, char *fname,
+
+void  split_close_1(split_info_t *s);
+int   split_open_1(split_info_t *s, char *fname);
+int   split_create_1(split_info_t *s, char *fname,
 		u64 split_size, u64 total_size, bool overwrite);
+
+split_info_t* split_new();
+split_info_t* split_create(char *fname, u64 split_size, u64 total_size, bool overwrite);
+split_info_t* split_open(char *fname);
+void split_close(split_info_t *s);
 

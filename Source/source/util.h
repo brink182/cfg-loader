@@ -87,6 +87,7 @@ void printf_h(const char *fmt, ...);
 int mkpath(const char *s, int mode);
 
 void con_wordwrap(char *str, int width, int size);
+char* skip_lines(char *str, int line);
 int print_lines(char *str, int line, int n);
 int count_lines(char *str);
 int print_page(char *str, int lines, int page, int *num);

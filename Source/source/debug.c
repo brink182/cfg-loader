@@ -11,6 +11,7 @@
 
 #include "cfg.h"
 #include "console.h"
+#include "fat.h"
 
 struct timestats TIME;
 
@@ -178,7 +179,8 @@ long tm_sum;
 #define TIME_S(X) ((float)TIME_MS(X)/1000.0)
 
 #define printx(...) do{ \
-	fprintf(f,__VA_ARGS__); \
+	if (f) fprintf(f,__VA_ARGS__); \
+	if (str) { snprintf(str,size,__VA_ARGS__); str_seek_end(&str, &size); } \
    	gecko_printf(__VA_ARGS__); \
     }while(0)
 
@@ -192,7 +194,7 @@ long tm_sum;
 #define print_tn(X) print_t3(#X,X,"\n")
 
 
-void time_statsf(FILE *f)
+void time_statsf(FILE *f, char *str, int size)
 {
 	long sum;
 	printx("times in seconds:\n");
@@ -226,12 +228,14 @@ void time_statsf(FILE *f)
 
 void time_stats()
 {
-	time_statsf(stdout);
+	time_statsf(stdout, NULL, 0);
 }
 
 void time_stats2()
 {
 	FILE *f = stdout;
+	char *str = NULL;
+	int size = 0;
 	long sum;
 	if (!CFG.time_launch) {
 		if (CFG.debug) goto out;
@@ -256,4 +260,82 @@ void time_stats2()
 	Menu_PrintWait();
 }
 
+#if 0
+
+// 7: text 11: data
+typedef struct dolheader1
+{
+	u32 pos[18];
+	u32 start[18];
+	u32 size[18];
+	u32 bss_start;
+	u32 bss_size;
+	u32 entry_point;
+} dolheader1;
+
+void compare_buf(int i, char *src, char *dest, int size)
+{
+	if (!size) return;
+	int x;
+	int e = 0; // error counter
+	int esum = 0;
+	char *estart = NULL;
+	char *efirst = NULL;
+	char *elast = NULL;
+	int ecnt = 0;
+	dbg_printf("[%d] %p %p %d\n", i, src, dest, size);
+	for (x=0; x<size; x++) {
+		if (src[x] != dest[x]) {
+			if (!e) estart = dest + x;
+			if (!efirst) efirst = dest + x;
+			elast = dest + x;
+			esum++;
+			e++;
+		} else {
+			if (e && i < 7 && ecnt < 10) {
+				dbg_printf("E: %p %d\n", estart, e);
+				ecnt++;
+			}
+			e = 0;
+		}
+	}
+	if (e && i < 7) dbg_printf("E: %p %d\n", estart, e);
+	if (esum) dbg_printf("E tot: %d %p - %p\n", esum, efirst, elast);
+}
+
+void check_dol_buf(char *buf, int bufsize)
+{
+	dolheader1 *hdr = (dolheader1*)buf;
+	int i;
+	char *src, *dest;
+	int size;
+	for (i=0; i<18; i++) {
+		size = hdr->size[i];
+		src = buf + hdr->pos[i];
+		dest = (char*)hdr->start[i];
+		compare_buf(i, src, dest, size);
+	}
+}
+
+void check_dol(char *name)
+{
+	void *buf = NULL;
+	int size = -1;
+	if (name) {
+		dbg_printf("loading: %s\n", name);
+		size = Fat_ReadFile(name, &buf);
+		dbg_printf("size: %d\n", size);
+	}
+	if (size<0) {
+		name = "sd:/apps/USBLoader/boot.dol";
+		dbg_printf("loading: %s\n", name);
+		size = Fat_ReadFile(name, &buf);
+		dbg_printf("size: %d\n", size);
+	}
+	if (size < 0) return;
+	check_dol_buf(buf, size);
+	SAFE_FREE(buf);
+}
+
+#endif
 

@@ -33,7 +33,8 @@ void  GRRLIB_DrawPartQuad (const guVector pos[4], const GRRLIB_texImg *tex,
 		const f32 partx, const f32 party, const f32 partw, const f32 parth,
 		const u32 color);
 
-void GRRLIB_Print3(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 zoom, const char *text);
+void GRRLIB_Print4(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 scale, const char *text, int maxlen);
+void GRRLIB_Print3(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, f32 scale, const char *text);
 void GRRLIB_Print2(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, u32 outline, u32 shadow, const char *text);
 void GRRLIB_Print(f32 xpos, f32 ypos, struct GRRLIB_texImg *tex, u32 color, const char *text);
 

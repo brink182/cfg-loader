@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PT-BR translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-09-23 21:40-0300\n"
 "Last-Translator: LeonLeao <leon.leao92@gmail.com>\n"
 "Language-Team: Brazilian Portuguese\n"
@@ -799,9 +799,6 @@ msgstr "Versão do Loader: %s"
 msgid "Loading ..."
 msgstr "Carregando..."
 
-msgid "Loading previous game list..."
-msgstr "Carregando lista anterior de jogos..."
-
 msgid "Main Menu"
 msgstr "Menu Principal"
 
@@ -1406,6 +1403,9 @@ msgstr "Iniciar Jogo"
 msgid "Start this game?"
 msgstr "Iniciar este jogo?"
 
+msgid "Stopping DVD..."
+msgstr ""
+
 msgid "Strategy"
 msgstr "Estratégia"
 
@@ -1672,3 +1672,6 @@ msgstr "não é possível abrir o disco de wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "Carregando lista anterior de jogos..."

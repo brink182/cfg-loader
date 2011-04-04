@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -52,7 +52,7 @@ msgid "(%d seconds timeout)"
 msgstr "(%d 秒逾時)"
 
 msgid "(This can take a couple of minutes)"
-msgstr ""
+msgstr "(這可能需要數分鐘)"
 
 msgid ".dol too small"
 msgstr ".dol 太小"
@@ -396,7 +396,7 @@ msgid ""
 "ERROR: NTFS write disabled!\n"
 "(set ntfs_write=1)"
 msgstr ""
-"錯誤: NTFS 寫入已經停用!\n"
+"錯誤: NTFS 分割區寫入已停用!\n"
 "(請設定 ntfs_write=1)"
 
 #, c-format
@@ -468,7 +468,7 @@ msgid "ERROR: not enough free space!!"
 msgstr "錯誤: 沒有足夠的可用空間!!"
 
 msgid "ERROR: ntfs was not cleanly unmounted"
-msgstr "錯誤: NTFS 沒有乾淨的解除掛載"
+msgstr "錯誤: NTFS 分割區沒有乾淨的解除掛載"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -790,9 +790,6 @@ msgstr "載入器版本: %s"
 msgid "Loading ..."
 msgstr "正在載入 ..."
 
-msgid "Loading previous game list..."
-msgstr "正在載入之前的遊戲清單..."
-
 msgid "Main Menu"
 msgstr "主選單"
 
@@ -1112,7 +1109,7 @@ msgstr "請按 %s 鈕略過密碼."
 
 #, c-format
 msgid "Press %s button to sync FAT."
-msgstr ""
+msgstr "請按 %s 鈕同步 FAT 分割區."
 
 #, c-format
 msgid "Press %s for fullscreen preview"
@@ -1335,7 +1332,7 @@ msgid "Shooter"
 msgstr "射擊"
 
 msgid "Show cIOS info"
-msgstr ""
+msgstr "顯示 cIOS 資訊"
 
 msgid "Simulation"
 msgstr "模擬"
@@ -1366,14 +1363,17 @@ msgstr "開始遊戲"
 msgid "Start this game?"
 msgstr "開始這個遊戲?"
 
+msgid "Stopping DVD..."
+msgstr ""
+
 msgid "Strategy"
 msgstr "戰略"
 
 msgid "Sync FAT free space info?"
-msgstr ""
+msgstr "同步 FAT 分割區剩餘空間資訊?"
 
 msgid "Synchronizing, please wait."
-msgstr ""
+msgstr "正在同步, 請等候."
 
 msgid "System Def."
 msgstr "系統預設."
@@ -1578,7 +1578,7 @@ msgid "format"
 msgstr "格式化"
 
 msgid "free"
-msgstr ""
+msgstr "剩餘"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
@@ -1632,3 +1632,6 @@ msgstr "無法開啟 Wii 光碟"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "正在載入之前的遊戲清單..."

@@ -219,4 +219,12 @@ void str_insert_at(char *str, char *pos, char c, int n, int size)
 	str_insert(pos, c, n, size - (pos - str));
 }
 
+char* str_seek_end(char **str, int *size)
+{
+	int len = strlen(*str);
+	*size -= len;
+	*str += len;
+	return *str;
+}
+
 

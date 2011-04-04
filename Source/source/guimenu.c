@@ -1,0 +1,2274 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <asndlib.h>
+
+#include "wgui.h"
+#include "gui.h"
+#include "guimenu.h"
+
+#include "menu.h"
+#include "sort.h"
+#include "coverflow.h"
+#include "wbfs.h"
+#include "cache.h"
+#include "console.h"
+#include "grid.h"
+#include "xml.h"
+#include "dolmenu.h"
+#include "gettext.h"
+#include "net.h"
+#include "sys.h"
+#include "util.h"
+#include "music.h"
+
+#if 1
+
+int wgui_disabled = 1;
+
+/*
+Q:
+
+having a 'name: value' which should be a button?
+   (name) _value_
+or  name: (value)
+or (name: value)
+
+use "Back" or "Close" button?
+
+when opening main menu and selecting an option,
+should back return to main menu?
+
+tabbed settings instead of separate windows?
+(view, style, system, online)
+
+separate info window with: about, loader info, ios info, debug ?
+
+*/
+
+/*
+
+Used buttons:
+
+by wgui.c:
+A : confirm, select, hold
+B : cancel, close, back
+UP/DOWN : page up / down (text or anywhere a page switcher is used)
+
+by guimenu.c:
+LEFT/RIGHT : prev / next game in game selection
+HOME : Home (Quit) Menu
+
+*/
+
+// desktop dialog stack
+// XXX use Widget*
+Widget wgui_desk;
+Widget *d_top;
+Widget *d_bottom;
+
+void pos_desk(Pos *p)
+{
+	if (p->x == POS_AUTO) p->x = POS_CENTER;
+	if (p->y == POS_AUTO) p->y = POS_CENTER;
+	if (p->w == SIZE_AUTO) p->w = -PAD3;
+	if (p->h == SIZE_AUTO) p->h = -PAD3;
+}
+
+Widget *desk_open_dialog(Pos p, char *name)
+{
+	pos_desk(&p);
+	pos_init(&wgui_desk);
+	Widget *dd = wgui_add_dialog(&wgui_desk, p, name);
+	dd->dialog_color = 0xFFFFFF80;
+	return dd;
+}
+
+Widget *desk_open_singular(Pos p, char *name, Widget **self_ptr)
+{
+	if (*self_ptr) return NULL;
+	Widget *dd = desk_open_dialog(p, name);
+	dd->self_ptr = self_ptr;
+	*self_ptr = dd;
+	return dd;
+}
+
+
+//////// 
+
+
+void wgui_test()
+{
+	Widget dialog;
+	int buttons;
+	ir_t ir;
+	Widget *btn_back;
+	Widget *ret;
+	Widget *ww;
+
+	wgui_dialog_init(&dialog, pos(20, 20, 600, 440), "Title");
+	pos_prefsize(&dialog, 0, 58);
+	ww = wgui_add_checkbox(&dialog, pos_xy(400, 100), "Favorite", true);
+	ww = wgui_add_button(&dialog, pos_xy(400, 180), "Options");
+	ww = wgui_add_button(&dialog, pos_xy(400, 260), "Ab日本語cd");
+	btn_back = wgui_add_button(&dialog, pos_xy(100, 350), "Back");
+	ww = wgui_add_button(&dialog, pos_xy(300, 350), "Start");
+	ww = wgui_add_button(&dialog, pos(50, 100, 64, 64), "+");
+	ww = wgui_add_button(&dialog, pos(50, 200, 40, 64), "-");
+
+	Widget *radio;
+	radio =
+	ww = wgui_add_radio(&dialog, NULL, pos(150, 100, 100, 64), "Radio1");
+	ww = wgui_add_radio(&dialog, ww, pos(150, 190, 100, 64), "Radio2");
+	ww = wgui_add_radio(&dialog, ww, pos(150, 280, 100, 64), "Radio3");
+
+	do {
+		buttons = Wpad_GetButtons();
+		Wpad_getIR(&ir);
+		wgui_input_set(&ir, &buttons);
+		ret = wgui_handle(&dialog);
+		GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
+		wgui_render(&dialog);
+		wgui_input_restore(&ir, &buttons);
+		Gui_draw_pointer(&ir);
+		Gui_Render();
+		if (buttons & WPAD_BUTTON_B) break;
+	} while (ret != btn_back);
+
+	wgui_close(&dialog);
+}
+
+void Switch_WGui_To_Console()
+{
+	Switch_Gui_To_Console(false);
+}
+
+void Switch_Console_To_WGui()
+{
+	Switch_Console_To_Gui();
+	wgui_input_get();
+	// clear buttons
+	wgui_input_steal_buttons();
+	wgui_input_save();
+}
+
+void banner_end(bool mute);
+
+void action_Reboot(Widget *_ww)
+{
+	banner_end(true);
+	Switch_Gui_To_Console(true);
+	prep_exit();
+	Sys_LoadMenu();
+}
+
+void action_HBC(Widget *_ww)
+{
+	banner_end(true);
+	Switch_Gui_To_Console(true);
+	dbg_printf("Sys_HBC\n");
+	Sys_HBC();
+}
+
+void action_Exit(Widget *_ww)
+{
+	banner_end(true);
+	Switch_Gui_To_Console(true);
+	Sys_Exit();
+}
+
+void action_Shutdown(Widget *_ww)
+{
+	banner_end(true);
+	Switch_Gui_To_Console(true);
+	Sys_Shutdown();
+}
+
+// home = [reboot], exit, hbc, screenshot, priiloader, wii_menu, 
+//        <magic word>, <channel ID>
+
+Widget *w_Quit = NULL;
+
+int handle_Quit(Widget *ww)
+{
+	if (winput.w_buttons & WPAD_BUTTON_HOME) {
+		//if (CFG.home == CFG_HOME_SCRSHOT) CFG.home = CFG_HOME_REBOOT;
+		banner_end(true);
+		Switch_Gui_To_Console(true);
+		Handle_Home();
+		exit(0);
+	}
+	handle_B_close(ww);
+	return 0;
+}
+
+void action_OpenQuit(Widget *parent)
+{
+	Widget *dd;
+	Widget *ww;
+
+	if (w_Quit) return;
+	parent = wgui_primary_parent(parent);
+	if (!parent) parent = &wgui_desk;
+	Pos p = pos(50, 50, 640-100, 480-100);
+	w_Quit = dd = wgui_add_dialog(parent, p, "Quit");
+	dd->self_ptr = &w_Quit;
+	dd->handle = handle_Quit;
+	dd->ax = 50;
+	dd->ay = 50;
+	dd->dialog_color = 0xFFFFFFB0;
+
+	pos_rows(dd, 6, SIZE_FULL);
+	p = pos_auto;
+	p.x = POS_CENTER;
+	//p.w = dd->w * 2 / 3;
+	p.w = dd->w / 2;
+
+	if (CFG.home == CFG_HOME_REBOOT) p.h = H_LARGE; else p.h = H_NORMAL;
+	ww = wgui_add_button(dd, p, "Reboot");
+	ww->action = action_Reboot;
+	ww->action2 = action_close_parent_dialog;
+	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), "[HOME]");
+	pos_newline(dd);
+
+	if (CFG.home == CFG_HOME_HBC) p.h = H_LARGE; else p.h = H_NORMAL;
+	ww = wgui_add_button(dd, p, "Homebrew Channel");
+	ww->action = action_HBC;
+	ww->action2 = action_close_parent_dialog;
+	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), "[HOME]");
+	pos_newline(dd);
+
+	if (CFG.home == CFG_HOME_EXIT) p.h = H_LARGE; else p.h = H_NORMAL;
+	ww = wgui_add_button(dd, p, "Exit");
+	ww->action = action_Exit;
+	ww->action2 = action_close_parent_dialog;
+	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), "[HOME]");
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, p, "Shutdown");
+	ww->action = action_Shutdown;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	// screenshot
+	// priiloader 
+	// priiloader wii sys menu
+
+	p.w = dd->w / 2;
+	p.y = POS_EDGE;
+	ww = wgui_add_button(dd, p, "Back");
+	ww->action = action_close_parent_dialog;
+}
+
+/*
+// text scale tests
+void test_text_scale()
+{
+	x = ww->ax + PAD1;
+	y = ww->ay + PAD1;
+	char *str = "aaabcdABCD1234";
+	float scale = 1.0;
+	int i;
+	for (i=0; i<10; i++) {
+		scale = 1.0 + (float)(i/2) / 10.0;
+		if (i%2==0) scale = text_round_scale_w(scale, -1);
+		GRRLIB_Printf(x, y, &tx_font, 0xFFFFFFFF, scale, "%.4f", scale);
+		GRRLIB_Print3(x+100, y, &tx_font, 0xFFFFFFFF, 0xFF, 0, scale, str);
+		y += 30;
+	}
+	x = ww->ax;
+	y = ww->ay;
+	char *str = "aaaaaAAAAA22222WWWWW";
+	static int f = 0;
+	int i;
+	f++;
+	float scale = 1.2;
+	if ((f/60)%3==0) scale = text_round_scale_w(scale, -1);
+	if ((f/60)%3==2) scale = text_round_scale_w(scale, 1);
+	GRRLIB_Rectangle(x-10, y-10, 400, 350, 0xFF, 1);
+	for (i=0; i<10; i++) {
+		GRRLIB_Printf(x, y, &tx_font, 0xFFFFFFFF, scale, "%.4f", scale);
+		GRRLIB_Print3(x+100, y, &tx_font, 0xFFFFFFFF, 0, 0, scale, str);
+		y += 30;
+	}
+}
+*/
+
+
+
+
+// ########################################################
+//
+// Game Options
+//
+// ########################################################
+
+
+
+
+static int cover_hold = 0;
+static int hold_x, hold_y, hold_dx, hold_dy;
+
+int handle_game_cover(Widget *ww)
+{
+	if (winput.w_buttons & WPAD_BUTTON_A) {
+		if (wgui_over(ww)) cover_hold = 1;
+		hold_x = winput.w_ir->sx;
+		hold_y = winput.w_ir->sy;
+	}
+	if (cover_hold) {
+		if (!(Wpad_HeldButtons() & WPAD_BUTTON_A)) cover_hold = 0;
+	}
+	if (cover_hold && winput.w_ir->smooth_valid) {
+		hold_dx = winput.w_ir->sx - hold_x;
+		hold_dy = winput.w_ir->sy - hold_y;
+	}
+	return 0;
+}
+
+void render_game_cover(Widget *ww)
+{
+	//wgui_render_page(ww);
+	int x = ww->ax + PAD3 * 3;
+	int y = ww->ay + PAD3 * 2;
+	if (gui_style != GUI_STYLE_COVERFLOW) {
+		draw_grid_cover_at(gameSelected, x, y);
+	} else {
+		static float yrot = 0;
+		int z = 0;
+		if (cover_hold) {
+			z = 10;
+			yrot = hold_dx;
+			Coverflow_drawCoverForGameOptions(gameSelected, x, y, z, hold_dy/2, hold_dx, 0);
+		} else {
+			Coverflow_drawCoverForGameOptions(gameSelected, x, y, z, 0, yrot, 0);
+			yrot++;
+			if (yrot > 360) yrot -= 360;
+		}
+	}
+}
+
+
+struct AltDolInfo
+{
+	int type;
+	char name[64];
+	char dol[64];
+};
+
+#define ALT_DOL_LIST_NUM 64
+
+struct AltDolInfoList
+{
+	int num;
+	struct AltDolInfo info[ALT_DOL_LIST_NUM];
+	char *name[ALT_DOL_LIST_NUM];
+};
+
+int get_alt_dol_list(struct discHdr *header, struct AltDolInfoList *list)
+{
+	struct AltDolInfo *info;
+	int i;
+	DOL_LIST dol_list;
+
+	WBFS_GetDolList(header->id, &dol_list);
+	load_dolmenu((char*)header->id);
+	int dm_num = dolmenubuffer ? dolmenubuffer[0].count : 0;
+	memset(list, 0, sizeof(*list));
+
+	info = &list->info[0];
+	info->type = ALT_DOL_OFF;
+	STRCOPY(info->name, gt("Off"));
+	list->num++;
+
+	info++;
+	info->type = ALT_DOL_SD;
+	STRCOPY(info->name, "SD");
+	list->num++;
+
+	info++;
+	info->type = ALT_DOL_DISC;
+	STRCOPY(info->name, gt("Disc (Ask)"));
+	list->num++;
+
+	for (i=0; i < dol_list.num; i++) {
+		if (list->num >= ALT_DOL_LIST_NUM) break;
+		info++;
+		info->type = ALT_DOL_DISC;
+		STRCOPY(info->name, dol_list.name[i]);
+		STRCOPY(info->dol, dol_list.name[i]);
+		list->num++;
+	}
+
+	for (i=0; i < dm_num; i++) {
+		if (list->num >= ALT_DOL_LIST_NUM) break;
+		info++;
+		info->type = ALT_DOL_PLUS + i;
+		STRCOPY(info->name, dolmenubuffer[i+1].name);
+		STRCOPY(info->dol, dolmenubuffer[i+1].dolname);
+		list->num++;
+	}
+
+	for (i=0; i < list->num; i++) {
+		list->name[i] = list->info[i].name;
+	}
+
+	return list->num;
+}
+
+int get_alt_dol_list_index(struct AltDolInfoList *list, struct Game_CFG *gcfg)
+{
+	int i = 0;
+	int alt_dol = gcfg->alt_dol;
+	char *dol_name = gcfg->dol_name;
+	if (alt_dol < ALT_DOL_DISC) return alt_dol;
+	if (alt_dol == ALT_DOL_DISC) {
+		if (!*dol_name) return alt_dol;
+		for (i=3; i<list->num; i++) {
+			if (list->info[i].type == ALT_DOL_DISC) {
+				if (strcmp(list->info[i].dol, dol_name) == 0) return i;
+			}
+		}
+	} else { // >= ALT_DOL_PLUS
+		for (i=2; i<list->num; i++) {
+			if (list->info[i].type == alt_dol) return i;
+		}
+	}
+	return 0; // not found;
+}
+
+struct W_GameCfg
+{
+	Widget *dialog;
+	Widget *info;
+	Widget *options;
+	Widget *discard;
+	Widget *save;
+	struct discHdr *header;
+	struct Game_CFG_2 *gcfg2;
+	struct Game_CFG *gcfg;
+	struct AltDolInfoList dol_info_list;
+	Widget *favorite;
+	Widget *hide;
+	Widget *language;
+	Widget *video;
+	Widget *video_patch;
+	Widget *vidtv;
+	Widget *country_patch;
+	Widget *ios_idx;
+	Widget *block_ios_reload;
+	Widget *fix_002;
+	Widget *alt_dol;
+	Widget *ocarina;
+	Widget *hooktype;
+	Widget *write_playlog;
+	Widget *clean;
+} wgame;
+
+void gameopt_inactive(int cond, Widget *ww, int val)
+{
+	traverse(ww, wgui_set_inactive, cond);
+	if (cond) wgui_set_value(ww, val);
+}
+
+void update_gameopt_state()
+{
+	// ios
+	int cond = (wgame.ios_idx->value < CFG_IOS_222_MLOAD
+			|| wgame.ios_idx->value > CFG_IOS_224_MLOAD);
+	gameopt_inactive(cond, wgame.block_ios_reload, 0);
+
+	// clear
+	cond = (wgame.clean->value == CFG_CLEAN_ALL);
+	gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
+	gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
+	gameopt_inactive(cond, wgame.video_patch, CFG_VIDEO_PATCH_OFF);
+	gameopt_inactive(cond, wgame.vidtv, 0);
+	gameopt_inactive(cond, wgame.country_patch, 0);
+	gameopt_inactive(cond, wgame.ocarina, 0);
+
+	// ocarina
+	cond = (cond || (!wgame.ocarina->value && !CFG.wiird));
+	gameopt_inactive(cond, wgame.hooktype, 0);
+
+	// game opt save state:
+	//
+	// [default] <-reset [changed] save-> [saved] <-revert [changed]
+	//           <------------------------discard
+	// [default] /save/
+	// (reset)   (save)
+	// (discard) [saved]
+	// (revert)  (save)
+
+	bool changed = CFG_is_changed(wgame.header->id);
+	int saved = wgame.gcfg2->is_saved;
+	wgame.save->name = "save";
+	wgame.save->render = wgui_render_button;
+	wgame.save->text_opt = WGUI_TEXT_SCALE_FIT_BUTTON;
+	wgame.discard->render = wgui_render_button;
+	wgame.discard->text_opt = WGUI_TEXT_SCALE_FIT_BUTTON;
+	if (!changed && !saved) {
+		wgame.discard->name = "[default]";
+		wgame.discard->render = wgui_render_text;
+		wgame.discard->text_opt = WGUI_TEXT_SCALE_FIT;
+		wgui_set_inactive(wgame.discard, true);
+		wgui_set_inactive(wgame.save, true);
+	} else if (changed && !saved) {
+		wgame.discard->name = "reset";
+		wgui_set_inactive(wgame.discard, false);
+		wgui_set_inactive(wgame.save, false);
+	} else if (!changed && saved) {
+		wgame.discard->name = "discard";
+		wgame.save->name = "[saved]";
+		wgame.save->render = wgui_render_text;
+		wgame.save->text_opt = WGUI_TEXT_SCALE_FIT;
+		wgui_set_inactive(wgame.discard, false);
+		wgui_set_inactive(wgame.save, true);
+	} else { // changed && saved
+		wgame.discard->name = "revert";
+		wgui_set_inactive(wgame.discard, false);
+		wgui_set_inactive(wgame.save, false);
+	}
+}
+
+
+void action_save_gamecfg(Widget *ww)
+{
+	int ret;
+	ret = CFG_save_game_opt(wgame.header->id);
+	// XXX on error open info dialog
+	// if (!ret) printf(gt("Error saving options!"));
+	update_gameopt_state();
+}
+
+void action_reset_gamecfg(Widget *ww)
+{
+	bool changed = CFG_is_changed(wgame.header->id);
+	int saved = wgame.gcfg2->is_saved;
+	int ret;
+	if (changed && saved) {
+		// copy saved over current
+		memcpy(&wgame.gcfg2->curr, &wgame.gcfg2->save, sizeof(wgame.gcfg2->curr));
+	} else {
+		ret = CFG_discard_game_opt(wgame.header->id);
+		// XXX on error open info dialog
+		//if (!ret) printf(gt("Error discarding options!")); 
+	}
+	if (wgame.alt_dol->update == NULL) {
+		// if update == NULL, alt_dol and dol_info_list was initialized
+		wgui_set_value(wgame.alt_dol, get_alt_dol_list_index(&wgame.dol_info_list, wgame.gcfg));
+	}
+	traverse1(ww->parent, wgui_update);
+	update_gameopt_state();
+}
+
+void action_game_opt_change(Widget *ww)
+{
+	action_write_val_ptr_int(ww);
+	update_gameopt_state();
+}
+
+void action_gameopt_set_alt_dol(Widget *ww)
+{
+	int i = ww->value;
+	if (i >= 0) {
+		wgame.gcfg->alt_dol = wgame.dol_info_list.info[i].type;
+		STRCOPY(wgame.gcfg->dol_name, wgame.dol_info_list.info[i].dol);
+	}
+	update_gameopt_state();
+}
+
+Widget* wgui_add_game_opt(Widget *parent, char *name, int num, char **values)
+{
+	Pos p = pos_auto;
+	p.w = SIZE_FULL;
+	wgui_Option opt = wgui_add_option(parent, p, 2, 0.45, name, num, values);
+	pos_newline(parent);
+	Widget *ww = opt.control;
+	ww->action = action_game_opt_change;
+	return ww;
+}
+
+void action_game_favorite(Widget *ww)
+{
+	if (!set_favorite(wgame.header->id, ww->value)) {
+		// XXX pop-up
+		//printf(gt("ERROR"));
+	}
+}
+
+void action_game_hide(Widget *ww)
+{
+	if (!set_hide_game(wgame.header->id, ww->value)) {
+		// XXX pop-up
+		//printf(gt("ERROR"));
+	}
+}
+
+#define BIND_OPT(NAME) ww->val_ptr = &wgame.gcfg->NAME; wgame.NAME = ww;
+
+void init_alt_dol_if_parent_enabled(Widget *ww)
+{
+	// init alt dol list on demand
+	// only when page 2 of game options is visible
+	// because it takes some time to scan for alt dols
+	if (ww->parent->state != WGUI_STATE_DISABLED) {
+		BIND_OPT(alt_dol);
+		ww->val_ptr = NULL;
+		ww->update = NULL; // remove call to this function
+		ww->action = action_gameopt_set_alt_dol;
+		get_alt_dol_list(wgame.header, &wgame.dol_info_list);
+		wgui_listbox_set_values(ww, wgame.dol_info_list.num, wgame.dol_info_list.name);
+		wgui_set_value(ww, get_alt_dol_list_index(&wgame.dol_info_list, wgame.gcfg));
+	}
+}
+
+void InitGameOptionsPage(Widget *pp, int bh)
+{
+	struct discHdr *header = wgame.header;
+	Widget *ww;
+	Widget *op, *w_opt_page = NULL;
+
+	pos_margin(pp, 0);
+	pos_move_to(pp, 0, 0);
+	
+	w_opt_page = op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
+	op->render = NULL;
+	if (!CFG.disable_options) {
+		pos_pad(op, PAD0);
+		pos_margin(op, PAD0);
+		pos_rows(op, 7, SIZE_FULL);
+
+		wgame.gcfg2 = CFG_get_game(header->id);
+		wgame.gcfg = NULL;
+		if (!wgame.gcfg2) {
+			wgui_add_text(op, pos_auto, gt("ERROR game opt"));
+		} else {
+			wgame.gcfg = &wgame.gcfg2->curr;
+
+			int num_ios = map_get_num(map_ios);
+			char *names_ios[num_ios];
+			num_ios = map_to_list(map_ios, num_ios, names_ios);
+
+			ww = wgui_add_game_opt(op, "Language:", CFG_LANG_NUM, languages);
+			BIND_OPT(language);
+
+			ww = wgui_add_game_opt(op, "Video:", CFG_VIDEO_NUM, videos);
+			BIND_OPT(video);
+
+			ww = wgui_add_game_opt(op, "Video Patch:", CFG_VIDEO_PATCH_NUM, names_vpatch);
+			BIND_OPT(video_patch);
+
+			ww = wgui_add_game_opt(op, "VIDTV:", 2, NULL);
+			BIND_OPT(vidtv);
+
+			ww = wgui_add_game_opt(op, "Country Fix:", 2, NULL);
+			BIND_OPT(country_patch);
+
+			ww = wgui_add_game_opt(op, "IOS:", num_ios, names_ios);
+			BIND_OPT(ios_idx);
+
+			ww = wgui_add_game_opt(op, "Block IOS Reload:", 2, NULL);
+			BIND_OPT(block_ios_reload);
+
+			/////////////////
+			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
+			op->render = NULL;
+
+			ww = wgui_add_game_opt(op, "Alt dol:", 0, NULL);
+			BIND_OPT(alt_dol);
+			ww->val_ptr = NULL;
+			ww->update = init_alt_dol_if_parent_enabled;
+
+			ww = wgui_add_game_opt(op, "Anti 002 Fix:", 2, NULL);
+			BIND_OPT(fix_002);
+
+			ww = wgui_add_game_opt(op, "Ocarina (cheats):", 2, NULL);
+			BIND_OPT(ocarina);
+
+			ww = wgui_add_game_opt(op, "Hook Type:", NUM_HOOK, hook_name);
+			BIND_OPT(hooktype);
+
+			ww = wgui_add_game_opt(op, "Write Playlog:", 4, playlog_name);
+			BIND_OPT(write_playlog);
+
+			ww = wgui_add_game_opt(op, "Clear Patches:", 3, names_vpatch);
+			BIND_OPT(clean);
+
+			pos_move_to(pp, PAD0, -bh);
+			pos_pad(pp, PAD0);
+			pos_columns(pp, 4, SIZE_FULL);
+			Pos p = pos_auto;
+			p.h = bh;
+			ww = wgui_add_button(pp, p, "reset");
+			ww->action = action_reset_gamecfg;
+			wgame.discard = ww;
+
+			ww = wgui_add_button(pp, p, "save");
+			ww->action = action_save_gamecfg;
+			wgame.save = ww;
+
+			pos_columns(pp, 0, SIZE_FULL);
+			p.w = -PAD0;
+			ww = wgui_add_pgswitchx(pp, w_opt_page, p, NULL, 0, "%d/%d", 2);
+
+			update_gameopt_state();
+		}
+	}
+}
+
+void action_game_missing_covers(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Download_Cover((char*)wgame.header->id, true, true);
+	Cache_Invalidate();
+	Menu_PrintWait();
+	Switch_Console_To_WGui();
+}
+
+void action_game_all_covers(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Download_Cover((char*)wgame.header->id, false, true);
+	Cache_Invalidate();
+	Menu_PrintWait();
+	Switch_Console_To_WGui();
+}
+
+void action_game_manage_cheats(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Menu_Cheats(wgame.header);
+	Switch_Console_To_WGui();
+}
+
+struct BannerInfo
+{
+	SoundInfo snd;
+	u8 title[84];
+	bool playing;
+	bool parsed;
+	lwp_t lwp;
+	mutex_t mutex;
+	cond_t cond;
+	struct discHdr *header;
+	volatile struct discHdr *request;
+	volatile bool waiting;
+	volatile bool stop;
+};
+struct BannerInfo banner;
+
+void banner_parse(struct discHdr *header)
+{
+	memset(&banner.snd, 0, sizeof(banner.snd));
+	memset(&banner.title, 0, sizeof(banner.title));
+	banner.parsed = false;
+	WBFS_Banner(header->id, &banner.snd, banner.title, true, true);
+	// CFG_read_active_game_setting(header->id).write_playlog);
+	banner.parsed = true;
+}
+
+void banner_play()
+{
+	// play banner sound
+	if (banner.snd.dsp_data && !banner.playing) {
+		int fmt = (banner.snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
+		SND_SetVoice(1, fmt, banner.snd.rate, 0,
+			banner.snd.dsp_data, banner.snd.size,
+			255,255, //volume,volume,
+			NULL); //DataTransferCallback
+		banner.playing = true;
+	}
+}
+
+void banner_stop()
+{
+	// stop banner sound, resume mp3
+	if (banner.snd.dsp_data && banner.playing) {
+		SND_StopVoice(1);
+		banner.playing = false;
+	}
+	SAFE_FREE(banner.snd.dsp_data);
+}
+
+void* banner_thread(void *arg)
+{
+	int state = 0;
+	while (1) {
+		// lock
+		//dbg_printf("bt. lock\n");
+		LWP_MutexLock(banner.mutex);
+		if (!banner.stop) {
+			if (banner.request) {
+				dbg_printf("banner req: %.6s\n", banner.request->id);
+				banner.header = (struct discHdr *)banner.request;
+				banner.request = NULL;
+				state = 1;
+				//dbg_printf("bt. state: %d\n", state);
+			}
+			if (state == 0) {
+				banner.waiting = true;
+				//dbg_printf("bt. sleep\n");
+				// LWP_CondWait unlocks mutex on enter
+				LWP_CondWait(banner.cond, banner.mutex);
+				// LWP_CondWait locks mutex on exit
+				//dbg_printf("bt. wake\n");
+				banner.waiting = false;
+			}
+		}
+		// unlock
+		LWP_MutexUnlock(banner.mutex);
+		//dbg_printf("bt. unlock\n");
+
+		if (banner.stop) {
+			// exit
+			//dbg_printf("bt. stop\n");
+			banner_stop();
+			break;
+		}
+
+		switch (state) {
+			case 1:
+				// parse
+				//dbg_printf("bt. stop\n");
+				banner_stop();
+				//dbg_printf("bt. parse\n");
+				if (banner.header) banner_parse(banner.header);
+				banner.header = NULL;
+				state = 2;
+				//dbg_printf("bt. state: %d\n", state);
+				break;
+			case 2:
+				// play
+				banner_play();
+				state = 0;
+				//dbg_printf("bt. state: %d\n", state);
+				break;
+		}
+	}
+	dbg_printf("bt. exiting\n");
+
+	return NULL;
+}
+
+void banner_thread_start()
+{
+	int ret;
+	memset(&banner, 0, sizeof(banner));
+	banner.lwp   = LWP_THREAD_NULL;
+	banner.mutex = LWP_MUTEX_NULL;
+	banner.cond  = LWP_COND_NULL;
+	LWP_MutexInit(&banner.mutex, FALSE);
+	LWP_CondInit(&banner.cond);
+	// start thread
+	ret = LWP_CreateThread(&banner.lwp, banner_thread, NULL, NULL, 32*1024, 40);
+}
+
+void banner_thread_play(struct discHdr *header)
+{
+	bool waiting;
+	// lock 
+	//dbg_printf("b. lock\n");
+	LWP_MutexLock(banner.mutex);
+	banner.request = header;
+	waiting = banner.waiting;
+	LWP_MutexUnlock(banner.mutex);
+	//dbg_printf("b. unlock\n");
+	// wake
+	if (waiting) {
+		//dbg_printf("b. signal\n");
+		LWP_CondSignal(banner.cond);
+	}
+}
+
+void banner_thread_stop()
+{
+	bool waiting;
+	if (banner.lwp == LWP_THREAD_NULL) return;
+	// mutex
+	LWP_MutexLock(banner.mutex);
+	banner.stop = true;
+	waiting = banner.waiting;
+	LWP_MutexUnlock(banner.mutex);
+	// wake
+	if (waiting) {
+		//dbg_printf("b. signal 2\n");
+		LWP_CondSignal(banner.cond);
+	}
+	// wait for exit and cleanup
+	LWP_JoinThread(banner.lwp, NULL);
+	LWP_MutexDestroy(banner.mutex);
+	LWP_CondDestroy(banner.cond);
+	memset(&banner, 0, sizeof(banner));
+	banner.lwp   = LWP_THREAD_NULL;
+	dbg_printf("bt. stopped\n");
+}
+
+void banner_start()
+{
+	Music_PauseVoice(true);
+	banner_thread_start();
+}
+
+void banner_end(bool mute)
+{
+	banner_thread_stop();
+	Music_Mute(mute);
+	Music_PauseVoice(false);
+}
+
+// bind selected game info and options to GameDialog
+void BindGameDialog()
+{
+	static char game_desc[XML_MAX_SYNOPSIS * 2] = "";
+	struct discHdr *header;
+	gameSelected = game_select;
+	header = &gameList[gameSelected];
+	wgame.header = header;
+	dbg_printf("game %.6s\n", header->id);
+	banner_thread_play(header);
+	// title
+	wgame.dialog->name = get_title(header);
+	text_scale_fit_dialog(wgame.dialog);
+	// info
+	int rows, cols;
+	wgui_textbox_coords(wgame.info, NULL, NULL, &rows, &cols);
+	Menu_GameInfoStr(header, game_desc);
+	int len = strlen(game_desc);
+	FmtGameInfoLong(header->id, cols, game_desc + len, sizeof(game_desc) - len);
+	wgui_textbox_wordwrap(wgame.info, game_desc, sizeof(game_desc));
+	// favorite, hide
+	wgui_set_value(wgame.favorite, is_favorite(header->id) ? 1 : 0);
+	wgui_set_value(wgame.hide, is_hide_game(header->id) ? 1 : 0);
+	// options
+	InitGameOptionsPage(wgame.options, H_NORMAL);
+}
+
+void ReleaseGameDialog()
+{
+	// unbind game options
+	if (wgame.gcfg2) {
+		CFG_release_game(wgame.gcfg2);
+		wgame.gcfg2 = NULL;
+	}
+	wgui_remove_children(wgame.options);
+	memset(&wgame.dol_info_list, 0, sizeof(wgame.dol_info_list));
+}
+
+void action_next_game(Widget *ww)
+{
+	ReleaseGameDialog();
+	game_select++;
+	if (game_select > gameCnt - 1) game_select = 0;
+	BindGameDialog();
+}
+
+void action_prev_game(Widget *ww)
+{
+	ReleaseGameDialog();
+	game_select--;
+	if (game_select < 0) game_select = gameCnt - 1;
+	BindGameDialog();
+}
+
+
+void OpenGameDialog()
+{
+	static int last_game_page = 0;
+	Widget *dd;
+	Widget *ww;
+	Pos p = pos_auto;
+	int bh = H_NORMAL;
+
+	memset(&wgame, 0, sizeof(wgame));
+	banner_start();
+
+	// XXX bind to desk
+	//dd = desk_open_dialog(pos_auto, title);
+	pos_desk(&p);
+	dd = wgui_add_dialog(NULL, p, "");
+	wgame.dialog = dd;
+	dd->dialog_color = 0xFFFFFF80;
+	//dd->handle = NULL;// default: handle_B_close
+	pos_margin(dd, PAD1);
+	pos_prefsize(dd, dd->w/4, bh);
+
+	Pos pb = pos_auto;
+	pb.x = POS_EDGE;
+
+	Widget *w_start = wgui_add_button(dd, pb, "Start");
+	pos_newlines(dd, 2);
+	
+	// page radio
+	pos_move_to(dd, pos_get(w_start).x, POS_AUTO);
+	Widget *w_info_radio = wgui_auto_radio_a(dd, 1, 4,
+			"Cover", "Info", "Manage", "Options");
+	if (CFG.disable_options) {
+		wgui_set_inactive(wgui_link_get(w_info_radio, 2), true);
+		wgui_set_inactive(wgui_link_get(w_info_radio, 3), true);
+		if (last_game_page > 1) last_game_page = 0;
+	}
+	// prev/next game
+	pos_newline(dd);
+	Pos pa = pos_auto;
+	pos_move_x(dd, -w_start->w);
+	pa.w = (w_start->w - PAD1) / 2;
+	ww = wgui_add_button(dd, pa, "<");
+	ww->action = action_prev_game;
+	ww->action_button = WPAD_BUTTON_LEFT;
+	ww = wgui_add_button(dd, pa, ">");
+	ww->action = action_next_game;
+	ww->action_button = WPAD_BUTTON_RIGHT;
+	pos_newline(dd);
+	// back
+	p = pb;
+	p.y = POS_EDGE;
+	Widget *w_back = wgui_add_button(dd, p, "Back");
+
+
+	// page cover
+	p = pos_auto;
+	p.x = 0;
+	p.y = pos_get(w_start).y;
+	p.w = pos_get(w_start).x - PAD1;
+	p.h = SIZE_FULL;
+	Widget *pp;
+	Widget *w_game_page = pp = wgui_add_page(dd, NULL, p, "cover");
+	wgui_link_page_ctrl(w_game_page, w_info_radio);
+	pp->render = render_game_cover;
+	pp->handle = handle_game_cover;
+
+	// page: game info
+	pp = wgui_add_page(dd, w_game_page, pos_auto, "info");
+	Widget *tt;
+	tt = wgui_add_textbox(pp, pos_wh(SIZE_FULL, -bh+PAD1), TXT_H_SMALL, NULL, 0);
+	wgame.info = tt;
+	p = pos_get(tt);
+	ww = wgui_add_pgswitch(pp, tt, pos(p.x, p.y+p.h, p.w, bh), NULL);
+	
+	// page manage
+	pp = wgui_add_page(dd, w_game_page, pos_auto, "manage");
+	pos_margin(pp, PAD3);
+	pos_prefsize(pp, pp->w - PAD3 * 2, H_NORMAL);
+
+	ww = wgui_add_checkbox(pp, pos_auto, "Favorite", true);
+	ww->action = action_game_favorite;
+	wgame.favorite = ww;
+	pos_newline(pp);
+
+	ww = wgui_add_button(pp, pos_auto, "Download Missing Covers");
+	ww->action = action_game_missing_covers;
+	pos_newline(pp);
+
+	ww = wgui_add_button(pp, pos_auto, "Download All Covers");
+	ww->action = action_game_all_covers;
+	pos_newline(pp);
+
+	ww = wgui_add_button(pp, pos_auto, "Manage Cheats");
+	ww->action = action_game_manage_cheats;
+	pos_newline(pp);
+
+	ww = wgui_add_button(pp, pos_auto, "Delete Game");
+	Widget *w_delete_game = ww;
+	wgui_set_inactive(ww, CFG.disable_remove);
+	pos_newline(pp);
+
+	ww = wgui_add_checkbox(pp, pos_auto, "Hide", true);
+	ww->action = action_game_hide;
+	wgame.hide = ww;
+	wgui_set_inactive(ww, CFG.admin_mode_locked);
+
+	// page options
+	pp = wgui_add_page(dd, w_game_page, pos_auto, "options");
+	wgame.options = pp;
+	
+	// select last used page
+	wgui_set_value(w_info_radio, last_game_page);
+	
+	BindGameDialog();
+
+	while (1) {
+		wgui_input_get();
+		
+		//ww = wgui_handle(&wgui_desk);
+		wgui_input_steal();
+		traverse1(&wgui_desk, wgui_update);
+		wgui_input_restore(winput.w_ir, winput.p_buttons);
+
+		ww = wgui_handle(dd);
+		wgui_input_restore(winput.w_ir, winput.p_buttons);
+
+		if (winput.w_buttons & WPAD_BUTTON_HOME) {
+			action_OpenQuit(dd);
+		}
+		
+		Gui_draw_background();
+		Gui_set_camera(NULL, 0);
+		GX_SetZMode(GX_FALSE, GX_NEVER, GX_TRUE);
+		wgui_render(&wgui_desk);
+		wgui_render(dd);
+
+		wgui_input_restore(winput.w_ir, winput.p_buttons);
+		Gui_draw_pointer(winput.w_ir);
+		Gui_Render();
+		
+		if (dd->closing) break;
+
+		if (ww) {
+
+			if (ww == w_back) break;
+
+			if (ww == w_start) {
+				banner_end(true);
+				Switch_WGui_To_Console();
+				//CFG.confirm_start = 0;
+				Menu_Boot(false);
+				Switch_Console_To_WGui();
+				Music_Mute(false);
+				break;
+			}
+
+			if (ww == w_delete_game) {
+				banner_end(false);
+				Switch_WGui_To_Console();
+				Menu_Remove();
+				Switch_Console_To_WGui();
+				Gui_Refresh_List();
+				break;
+			}
+		}
+	}
+	// remember page so we get the same for next time
+	last_game_page = w_game_page->value;
+	ReleaseGameDialog();
+	banner_end(false);
+	wgui_remove(dd);
+	wgui_input_get();
+}
+
+
+
+// ########################################################
+//
+// Global Options
+//
+// ########################################################
+
+
+
+void action_sort_type(Widget *ww)
+{
+	Gui_Sort_Set(ww->value, sort_desc);
+}
+
+void action_sort_order(Widget *ww)
+{
+	Gui_Sort_Set(sort_index, ww->value);
+}
+
+void action_OpenSort(Widget *a_ww)
+{
+	Widget *dd;
+	Widget *rr = NULL;
+	Widget *ww;
+	int i;
+	char *name[sortCnt];
+	
+	dd = desk_open_dialog(pos_auto, "Sort");
+
+	for (i=0; i<sortCnt; i++) {
+		name[i] = sortTypes[i].name;
+		if (i == 1) name[i] = "Players";
+		if (i == 2) name[i] = "Online Players";
+	}
+	pos_margin(dd, PAD1);
+	rr = wgui_arrange_radio(dd, pos_wh(SIZE_FULL, SIZE_AUTO), 3, sortCnt, name);
+	rr->val_ptr = &sort_index;
+	rr->action = action_sort_type;
+	// disable sort by install date on wbfs
+	wgui_set_inactive(wgui_link_get(rr, sortCnt-1), wbfs_part_fs == PART_FS_WBFS);
+	pos_margin(dd, PAD3);
+	pos_newlines(dd, 2);
+	
+	rr = wgui_arrange_radio_a(dd, pos_xy(POS_CENTER, POS_AUTO),
+			2, 2, "Ascending", "Descending");
+	rr->val_ptr = &sort_desc;
+	rr->update = update_val_from_ptr_bool;
+	rr->action = action_sort_order;
+	pos_newlines(dd, 2);
+
+	pos_columns(dd, 3, SIZE_FULL);
+	ww = wgui_add_button(dd, pos_xy(POS_EDGE, POS_EDGE), "Back");
+	ww->action = action_close_parent_dialog;
+	ww->action_button = WPAD_BUTTON_B;
+}
+
+Widget *r_filter_group;
+Widget *w_filter_page;
+Widget *r_filter[4];
+
+void action_filter(Widget *ww)
+{
+	Widget *rr;
+	int i, r = -1, t;
+	rr = ww->link_first;
+	for (i=0; i<4; i++) {
+		if (rr == r_filter[i]) {
+			r = i;
+		} else {
+			wgui_radio_set(r_filter[i], -1);
+		}
+	}
+	if (r < 0) return;
+	i = rr->value;
+	t = FILTER_ALL;
+	switch (r) {
+		case 0: t = FILTER_GENRE; break;
+		case 1: t = FILTER_CONTROLLER; break;
+		case 2:
+			i--;
+			if (i == -1) t = FILTER_ONLINE;
+			else t = FILTER_FEATURES;
+			break;
+		case 3:
+			if (i == 0) t = FILTER_ALL;
+			else t = FILTER_UNPLAYED;
+			break;
+	}
+	filter_games_set(t, i);
+	Gui_Refresh_List();
+}
+
+// filter_type filter_index
+char *get_filter_name(int type, int index)
+{
+	switch (type) {
+		case FILTER_ALL:
+			return "Show All";
+		case FILTER_ONLINE:
+			return "Online Play";
+		case FILTER_UNPLAYED:
+			return "Unplayed";
+		case FILTER_GENRE:
+			return genreTypes[index][1];
+		case FILTER_CONTROLLER:
+			return accessoryTypes[index][1];
+		case FILTER_FEATURES:
+			return featureTypes[index][1];
+	}
+	return "-";
+}
+
+void action_OpenFilter(Widget *a_ww)
+{
+	Widget *dd;
+	Widget *page = NULL;
+	Widget *pp;
+	Widget *rr;
+	Widget *ww;
+	int i;
+	char *names[genreCnt + accessoryCnt + featureCnt];
+
+	dd = desk_open_dialog(pos_auto, "Filter");
+
+	// groups (tabs)
+	r_filter_group = rr = wgui_arrange_radio_a(dd, pos_w(SIZE_FULL),
+			3, 3, "Genre", "Controller", "Online");
+
+	// Genre
+	pos_margin(dd, PAD1);
+	pp = wgui_add_page(dd, page, pos_wh(SIZE_FULL, -H_NORMAL-PAD1), NULL);
+	w_filter_page = page = pp;
+	wgui_link_page_ctrl(page, r_filter_group);
+	for (i=0; i<genreCnt; i++) {
+		names[i] = genreTypes[i][1];
+	}
+	r_filter[0] = rr = wgui_arrange_radio(pp, pos_full, 3, genreCnt, names);
+	wgui_radio_set(rr, -1);
+	rr->action = action_filter;
+	
+	// Controller 
+	pp = wgui_add_page(dd, page, pos_auto, NULL);
+	for (i=0; i<accessoryCnt; i++) {
+		names[i] = accessoryTypes[i][1];
+	}
+	names[5] = "Classic";
+	// -2 = omit last 2 (vitality, udraw)
+	r_filter[1] = rr = wgui_arrange_radio(pp, pos_full, 3, accessoryCnt-2, names);
+	wgui_radio_set(rr, -1);
+	rr->action = action_filter;
+
+	// Online
+	pp = wgui_add_page(dd, page, pos_auto, NULL);
+	names[0] = "Online Play";
+	for (i=0; i<featureCnt; i++) {
+		names[i+1] = featureTypes[i][1];
+	}
+	r_filter[2] = rr = wgui_arrange_radio(pp,
+			pos(POS_CENTER, POS_AUTO, SIZE_AUTO, SIZE_FULL),
+			1, featureCnt+1, names);
+	wgui_radio_set(rr, -1);
+	rr->action = action_filter;
+
+	pos_margin(dd, PAD3);
+	pos_newline(dd);
+
+	// all, unplayed
+	pos_columns(dd, 3, SIZE_FULL);
+	r_filter[3] = rr = wgui_auto_radio_a(dd, 2, 2, "Show All", "Unplayed");
+	wgui_radio_set(rr, -1);
+	rr->action = action_filter;
+
+	// close	
+	ww = wgui_add_button(dd, pos_auto, "Back");
+	ww->action = action_close_parent_dialog;
+	ww->action_button = WPAD_BUTTON_B;
+
+	// set current
+	int r = -1;
+	i = filter_index;
+	switch (filter_type) {
+		case FILTER_GENRE:      r = 0; break;
+		case FILTER_CONTROLLER: r = 1; break;
+		case FILTER_ONLINE:     r = 2; i = 0; break;
+		case FILTER_FEATURES:   r = 2; i = filter_index + 1; break;
+		case FILTER_ALL:        r = 3; i = 0; break;
+		case FILTER_UNPLAYED:   r = 3; i = 1; break;
+	}
+	if (r >= 0) {
+		if (r < 3) wgui_set_value(r_filter_group, r);
+		wgui_set_value(r_filter[r], i);
+	}
+}
+
+
+Widget *r_style;
+Widget *r_rows;
+Widget *r_side;
+
+void update_Style(Widget *_ww)
+{
+	int v;
+	// style
+	if (gui_style < GUI_STYLE_COVERFLOW) v = gui_style;
+	else v = GUI_STYLE_COVERFLOW + CFG_cf_global.theme;
+	wgui_radio_set(r_style, v);
+	// rows
+	wgui_radio_set(r_rows, grid_rows - 1);
+	traverse_linked_children(r_rows, wgui_set_inactive, gui_style == GUI_STYLE_COVERFLOW);
+	// side
+	v = 0;
+	if (gui_style == GUI_STYLE_COVERFLOW && !showingFrontCover) v = 1;
+	wgui_radio_set(r_side, v);
+	traverse_linked_children(r_side, wgui_set_inactive, gui_style != GUI_STYLE_COVERFLOW);
+}
+
+void action_Style(Widget *ww)
+{
+	int style = r_style->value;
+	int subs;
+
+	if (style < GUI_STYLE_COVERFLOW) {
+		subs = r_rows->value + 1;
+	} else {
+		subs = style - GUI_STYLE_COVERFLOW;
+		style = GUI_STYLE_COVERFLOW;
+	}
+	// style
+	if (Gui_Switch_Style(style, subs)) {
+		// re-fresh wpad
+		wgui_input_get();
+	}
+	// coverflow side
+	if (gui_style == GUI_STYLE_COVERFLOW) {
+		bool front = r_side->value == 0 ? true : false;
+		if (front != showingFrontCover) {
+			game_select = Coverflow_flip_cover_to_back(true, 2);
+		}
+	}
+	update_Style(NULL);
+}
+
+void action_Theme(Widget *ww)
+{
+	if (ww->value == cur_theme) return;
+	Cache_Invalidate();
+	Gui_reset_previous_cover_style();
+	CFG_switch_theme(ww->value);
+	Gui_save_cover_style();
+	Grx_Init();
+	Cache_Init();
+	if (gui_style != GUI_STYLE_COVERFLOW) {
+		// cover area can change
+		grid_init(gameSelected);
+	}
+}
+
+void action_OpenStyle(Widget *aa)
+{
+	Widget *dd;
+	Widget *rr;
+	Widget *ww;
+	int i, n = 8;
+	char *names[n];
+
+	dd = desk_open_dialog(pos_auto, "Style");
+	dd->update = update_Style;
+	pos_pad(dd, PAD0);
+	pos_rows(dd, 7, -PAD0*2);
+
+	// gui style
+	for (i=0; i<n; i++) names[i] = map_gui_style[i].name;
+	r_style = rr = wgui_arrange_radio(dd, pos_w(SIZE_FULL), 3, n, names);
+	rr->action = action_Style;
+	pos_newlines(dd, 2);
+
+	// grid rows
+	ww = wgui_add_text(dd, pos_auto, "Rows:");
+	r_rows = rr = wgui_arrange_radio_a(dd, pos_w(400), 4, 4, "1","2","3","4");
+	rr->action = action_Style;
+	pos_newlines(dd, 2);
+
+	// coverflow side
+	ww = wgui_add_text(dd, pos_auto, "Side:");
+	r_side = rr = wgui_arrange_radio_a(dd, pos_w(400), 2, 2, "Front", "Back");
+	rr->action = action_Style;
+	pos_newlines(dd, 2);
+	
+	// theme
+	ww = wgui_add_text(dd, pos_auto, "Theme:");
+	char *theme_names[num_theme];
+	for (i=0; i<num_theme; i++) theme_names[i] = theme_list[i];
+	ww = wgui_add_superbox(dd, pos_auto, "Theme:", num_theme, theme_names);
+	ww->action = action_Theme;
+	ww->val_ptr = &cur_theme;
+
+	// close
+	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), "Back");
+	ww->action = action_close_parent_dialog;
+	ww->action_button = WPAD_BUTTON_B;
+
+	// set initial radio values
+	dd->update(dd);
+}
+
+void action_Favorites(Widget *ww)
+{
+	Gui_Action_Favorites();
+}
+
+void action_Profile(Widget *ww)
+{
+	Gui_Action_Profile(ww->value);
+}
+
+void action_OpenView(Widget *aww)
+{
+	Widget *dd;
+	Widget *ww;
+
+	dd = desk_open_dialog(pos_auto, "View");
+
+	void Init_View_Dialog(Widget *dd);
+	Init_View_Dialog(dd);
+
+	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), "Back");
+	ww->action = action_close_parent_dialog;
+	ww->action_button = WPAD_BUTTON_B;
+}
+
+void action_MissingCovers(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Download_All_Covers(true);
+	Cache_Invalidate();
+	Menu_PrintWait();
+	Switch_Console_To_WGui();
+}
+
+void action_AllCovers(Widget *ww)
+{
+	// XXX ask for confirmation
+	Switch_WGui_To_Console();
+	Download_All_Covers(false);
+	Cache_Invalidate();
+	Menu_PrintWait();
+	Switch_Console_To_WGui();
+}
+
+void action_DownloadWIITDB(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Download_XML();
+	Menu_PrintWait();
+	Switch_Console_To_WGui();
+}
+
+void action_DownloadTitles(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Download_Titles();
+	Switch_Console_To_WGui();
+}
+
+void action_DownloadThemes(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Theme_Update();
+	Switch_Console_To_WGui();
+}
+
+void action_ProgramUpdate(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Online_Update();
+	Switch_Console_To_WGui();
+}
+
+void Init_Online_Dialog(Widget *dd, bool back)
+{
+	Widget *ww;
+	int rows = back ? 7 : 6;
+	pos_rows(dd, rows, SIZE_FULL);
+	Pos p = pos_auto;
+	p.x = POS_CENTER;
+	//p.w = dd->w * 2 / 3;
+	if (pos_avail_w(dd) > 400) p.w = 400;
+	else p.w = SIZE_FULL;
+
+	ww = wgui_add_button(dd, p, "Download Missing Covers");
+	ww->action = action_MissingCovers;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, p, "Download All Covers");
+	ww->action = action_AllCovers;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, p, "WiiTDB Game Database");
+	ww->action = action_DownloadWIITDB;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, p, "Download titles.txt");
+	ww->action = action_DownloadTitles;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, p, "Download Themes");
+	ww->action = action_DownloadThemes;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, p, "Program Updates");
+	ww->action = action_ProgramUpdate;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	if (back) {
+		ww = wgui_add_button(dd, p, "Back");
+		ww->action = action_close_parent_dialog;
+	}
+}
+
+void action_OpenOnline(Widget *_ww)
+{
+	Widget *dd;
+	dd = desk_open_dialog(pos_auto, "Online Updates");
+	Init_Online_Dialog(dd, true);
+}
+
+void action_Device(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Menu_Device();
+	Switch_Console_To_WGui();
+	Gui_Refresh_List();
+}
+
+void action_Partition(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Menu_Partition(true);
+	Switch_Console_To_WGui();
+	Gui_Refresh_List();
+}
+
+void action_SaveDebug(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Save_Debug();
+	Save_IOS_Hash();
+	Menu_PrintWait();
+	Switch_Console_To_WGui();
+}
+
+void action_IOS_Info(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Menu_All_IOS_Info();
+	Switch_Console_To_WGui();
+}
+
+void action_SaveSettings()
+{
+	Switch_WGui_To_Console();
+	Menu_Save_Settings();
+	Switch_Console_To_WGui();
+}
+
+void Init_Info_Dialog(Widget *dd)
+{
+	Widget *page, *pp, *rr, *tt, *ww;
+	static char basic[400];
+	static char iosinfo[500];
+	static char debugstr[10000];
+	int i;
+
+	page = wgui_add_pages(dd, pos_wh(SIZE_FULL, -H_NORMAL-PAD1), 3, NULL);
+	for (i=0; i<3; i++) {
+		pp = wgui_page_get(page, i);
+		if (i<2) pp->render = NULL;
+		pos_margin(pp, 0);
+		pos_pad(pp, 0);
+	}
+	rr = wgui_arrange_radio_a(dd, pos_fill, 3, 3, "Basic", "IOS", "Debug");
+	wgui_link_page_ctrl(page, rr);
+	// basic
+	Print_SYS_Info_str(basic, sizeof(basic));
+	pp = wgui_page_get(page, 0);
+	wgui_add_textbox(pp, pos_full, TXT_H_NORMAL, basic, sizeof(basic));
+	// ios
+	print_all_ios_info_str(iosinfo, sizeof(iosinfo));
+	pp = wgui_page_get(page, 1);
+	wgui_add_textbox(pp, pos_full, TXT_H_NORMAL, iosinfo, sizeof(iosinfo));
+	// debug
+	int size = sizeof(debugstr);
+	char *str = debugstr;
+	print_debug_hdr(str, size);
+	str_seek_end(&str, &size);
+	strcopy(str, dbg_log_buf, size);
+	pp = wgui_page_get(page, 2);
+	tt = wgui_add_textbox(pp, pos_wh(SIZE_FULL, -H_SMALL),
+			TXT_H_TINY, debugstr, sizeof(debugstr));
+	wgui_add_pgswitch(pp, tt, pos_h(H_SMALL), NULL);
+	ww = wgui_add_button(pp, pos(POS_EDGE, POS_AUTO, SIZE_AUTO, H_SMALL), "Save Debug");
+	ww->action = action_SaveDebug;
+}
+
+void Init_Style_Dialog(Widget *dd)
+{
+	Widget *ww;
+
+	dd->update = update_Style;
+
+	// gui style
+	r_style = ww = wgui_add_opt_map(dd, "Style:", map_gui_style);
+	ww->action = action_Style;
+
+	// grid rows
+	r_rows = ww = wgui_add_opt_a(dd, "Rows:", 4, "1","2","3","4");
+	ww->action = action_Style;
+
+	// coverflow side
+	r_side = ww = wgui_add_opt_a(dd, "Side:", 2, "Front", "Back");
+	ww->action = action_Style;
+	
+	update_Style(NULL);
+
+	// theme
+	ww = wgui_add_opt_array(dd, "Theme:", num_theme, sizeof(theme_list[0]), theme_list);
+	ww->action = action_Theme;
+	ww->val_ptr = &cur_theme;
+
+	// pointer scroll
+	ww = wgui_add_opt(dd, "Scroll:", 2, NULL);
+	ww->val_ptr = &CFG.gui_pointer_scroll;
+	ww->action = action_write_val_ptr_int;
+
+	// XXX pop-up Style
+	ww = wgui_add_button(dd, pos_auto, "Open Style");
+	ww->action = action_OpenStyle;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+}
+
+void update_FilterName(Widget *ww)
+{
+	ww->name = get_filter_name(filter_type, filter_index);
+}
+
+void Init_View_Dialog(Widget *dd)
+{
+	Widget *ww;
+
+	ww = wgui_add_opt(dd, "Favorites:", 2, NULL);
+	ww->val_ptr = &enable_favorite;
+	ww->action = action_Favorites;
+
+	ww = wgui_add_opt_array(dd, "Profile:", CFG.num_profiles,
+			sizeof(CFG.profile_names[0]), CFG.profile_names);
+	ww->val_ptr = &CFG.current_profile;
+	ww->action = action_Profile;
+
+	// sort
+	int i;
+	char *name[sortCnt];
+	for (i=0; i<sortCnt; i++) {
+		name[i] = sortTypes[i].name;
+		if (i == 1) name[i] = "Players";
+		if (i == 2) name[i] = "Online Players";
+	}
+	ww = wgui_add_opt(dd, "Sort Type:", sortCnt, name);
+	ww->val_ptr = &sort_index;
+	ww->action = action_sort_type;
+
+	ww = wgui_add_opt_a(dd, "Sort Order:", 2, "Ascending", "Descending");
+	ww->val_ptr = &sort_desc;
+	ww->update = update_val_from_ptr_bool;
+	ww->action = action_sort_order;
+
+	// filter
+	ww = wgui_add_opt_button(dd, "Filter:", "");
+	ww->update = update_FilterName;
+	ww->action = action_OpenFilter;
+	ww->action2 = action_close_parent_dialog;
+	update_FilterName(ww);
+
+	ww = wgui_add_button(dd, pos_auto, "Open Sort");
+	ww->action = action_OpenSort;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+}
+
+static char unlock_str[16];
+static char unlock_buf[16];
+
+int handle_AdminUnlock(Widget *ww)
+{
+	if (winput.w_buttons) {
+		int i = strlen(unlock_buf);
+		unlock_str[i] = '*';
+		unlock_buf[i] = get_unlock_buttons(winput.w_buttons);
+		i++;
+		if (stricmp(unlock_buf, CFG.unlock_password) == 0) {
+			Admin_Unlock(true);
+			ww->closing = true;
+		}
+		if (i >= 10) {
+			ww->closing = true;
+		}
+	}
+	wgui_input_steal_buttons();
+	return 0;
+}
+
+void Open_AdminUnlock()
+{
+	Widget *dd;
+	Widget *ww;
+	memset(unlock_str, 0, sizeof(unlock_str));
+	memset(unlock_buf, 0, sizeof(unlock_buf));
+	STRCOPY(unlock_str, "..........");
+	dd = desk_open_dialog(pos_wh(400, 300), "Admin Unlock");
+	dd->handle = handle_AdminUnlock;
+	dd->dialog_color = 0xFFFFFFB0;
+	pos_newlines(dd, 2);
+	pos_columns(dd, 2, SIZE_FULL);
+	wgui_add_text(dd, pos_auto, gt("Enter Code: "));
+	wgui_add_text(dd, pos_auto, unlock_str);
+	pos_newlines(dd, 2);
+	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), "Back");
+	ww->action = action_close_parent_dialog;
+}
+
+void action_AdminLock(Widget *dd)
+{
+	if (CFG.admin_mode_locked) {
+		Open_AdminUnlock();
+	} else {
+		Admin_Unlock(false);
+	}
+}
+
+void Init_System_Dialog(Widget *dd)
+{
+	Widget *ww;
+
+	char *dev_name = wbfsDev == WBFS_DEVICE_USB ? "USB" : "SD";
+	ww = wgui_add_opt_button(dd, "Device:", dev_name);
+	ww->action = action_Device;
+	ww->action2 = action_close_parent_dialog;
+
+	ww = wgui_add_opt_button(dd, "Partition:", CFG.partition);
+	ww->action = action_Partition;
+	ww->action2 = action_close_parent_dialog;
+
+	ww = wgui_add_opt(dd, "Wiird", 3, str_wiird);
+	ww->val_ptr = &CFG.wiird;
+	ww->action = action_write_val_ptr_int;
+
+	// skip game card update option
+	ww = wgui_add_opt(dd, "Gamer Card:", 2, NULL);
+	ww->val_ptr = &gamercard_skip;
+	ww->action = action_write_val_ptr_int;
+
+	// Admin Lock
+	ww = wgui_add_opt(dd, "Admin Lock:", 2, NULL);
+	ww->val_ptr = &CFG.admin_mode_locked;
+	ww->action = action_AdminLock;
+	
+
+	// Save Settings
+	pos_newline(dd);
+	pos_columns(dd, 2, SIZE_FULL);
+	ww = wgui_add_button(dd, pos_x(POS_CENTER), "Save Settings");
+	ww->action = action_SaveSettings;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+}
+
+static Widget *w_Settings = NULL;
+static Widget *w_settings_radio = NULL;
+
+static int settings_hold_button;
+static long long settings_hold_t1;
+
+int handle_Settings(Widget *ww)
+{
+	int buttons;
+	if (CFG.admin_mode_locked && settings_hold_button) {
+		buttons = Wpad_Held();
+		if (buttons == settings_hold_button) {
+			long long t2 = gettime();
+			int ms = diff_msec(settings_hold_t1, t2);
+			if (ms >= 5000) {
+				Open_AdminUnlock();
+				settings_hold_button = 0;
+			}
+		} else {
+			settings_hold_button = 0;
+		}
+	} else {
+		settings_hold_button = 0;
+	}
+	handle_B_close(ww);
+	return 0;
+}
+
+void update_Settings(Widget *ww)
+{
+	Widget *rr = w_settings_radio;
+	wgui_set_inactive(wgui_link_get(rr, 3), CFG.disable_options);
+	wgui_set_inactive(wgui_link_get(rr, 4), CFG.disable_options);
+}
+
+void action_OpenSettings(Widget *_ww)
+{
+	Widget *dd;
+	Widget *page;
+	Widget *rr;
+	Widget *ww;
+	int i;
+
+	settings_hold_button = Wpad_Held();
+	settings_hold_t1 = gettime();
+
+	dd = desk_open_singular(pos_auto, "Settings", &w_Settings);
+	if (!dd) return;
+	dd->handle = handle_Settings;
+	dd->update = update_Settings;
+	pos_margin(dd, PAD1);
+	//dd->dialog_color = 0xFFFFFF80;
+
+	// 70% page 30% tabs
+	Pos p = pos_wh(pos_avail_w(dd)*7/10, SIZE_FULL);
+	page = wgui_add_pages(dd, p, 5, "Settings");
+	for (i=0; i<5; i++) wgui_page_get(page, i)->dialog_color = 0x80808080;
+	// tabs container
+	Widget *cc = wgui_add(dd, pos_fill, NULL);
+	pos_pad(cc, PAD1);
+	pos_columns(cc, 1, SIZE_FULL); 
+	pos_rows(cc, 6, SIZE_FULL); 
+	rr = wgui_auto_radio_a(cc, 1, 5, "Info", "View", "Style", "System", "Updates");
+	wgui_link_page_ctrl(page, rr);
+	w_settings_radio = rr;
+	ww = wgui_add_button(cc, pos_auto, "Back");
+	ww->action = action_close_parent_dialog;
+
+	// Info
+	Init_Info_Dialog(wgui_page_get(page, 0));
+	// View
+	Init_View_Dialog(wgui_page_get(page, 1));
+	// Style
+	Init_Style_Dialog(wgui_page_get(page, 2));
+	// System
+	Init_System_Dialog(wgui_page_get(page, 3));
+	// Online
+	Init_Online_Dialog(wgui_page_get(page, 4), false);
+}
+
+void action_Install(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Menu_Install();
+	Switch_Console_To_WGui();
+	Gui_Refresh_List();
+}
+
+void action_BootDisc(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	//CFG.confirm_start = 0;
+	Menu_Boot(true);
+	Switch_Console_To_WGui();
+}
+
+void action_Console(Widget *ww)
+{
+	wgui_input_steal_buttons();
+	go_gui = false;
+	if (gui_style == GUI_STYLE_COVERFLOW) {
+		// force transition of central cover
+		// instead of the one under pointer
+		showingFrontCover = false;
+	}
+}
+
+char about_title[] = "Configurable SD/USB Loader";
+char about_str2[] =
+"by oggzee, usptactical, gannon & Dr. Clipper"
+"\n\n"
+"Based on Wanikoko SD/USB Loader 1.5, Kwiirk Yal & cios 222, "
+"Hermes uLoader 1.6 & cios 222/223+mload + many others (Sorg, nIxx, "
+"fishears, usptactical, 56Killer, WiiShizzza, hungyip84, Narolez, ...)"
+;
+char about_str[sizeof(about_title) + sizeof(about_str2) * 2];
+
+void action_OpenAbout(Widget *_ww)
+{
+	Widget *dd;
+	Widget *ww;
+
+	dd = desk_open_dialog(pos_auto, "About");
+	//dd->dialog_color = 0xFFFFFFC0;
+	pos_pad(dd, PAD3);
+
+	STRCOPY(about_str, about_title);
+	char *s = about_str;
+	s += strlen(s);
+	sprintf(s, " v%s \n\n", CFG_VERSION);
+	STRAPPEND(about_str, about_str2);
+
+	pos_newline(dd);
+	ww = wgui_add_page(dd, NULL, pos_wh(SIZE_FULL, -H_NORMAL-PAD3), NULL);
+	ww->dialog_color = 0x40404080;
+	ww = wgui_add_textbox(ww, pos_full, TXT_H_NORMAL, about_str, sizeof(about_str));
+	ww->text_color = about_fc;
+	//ww->opt = 1; // background
+
+	ww = wgui_add_button(dd, pos_xy(POS_CENTER, POS_AUTO), "Back");
+	ww->action = action_close_parent_dialog;
+}
+
+
+static Widget *w_MainMenu = NULL;
+
+void action_OpenMain(Widget *_ww)
+{
+	Widget *dd;
+	Widget *ww;
+
+	dd = desk_open_singular(pos_auto, "Main Menu", &w_MainMenu);
+	if (!dd) return; // already open
+	pos_margin(dd, PAD3*2);
+	pos_pad(dd, PAD3);
+	pos_columns(dd, 2, SIZE_FULL);
+	pos_rows(dd, 5, SIZE_FULL);
+
+	ww = wgui_add_button(dd, pos_auto, "View");
+	ww->action = action_OpenView;
+	ww->action2 = action_close_parent_dialog;
+
+	ww = wgui_add_button(dd, pos_auto, "Style");
+	ww->action = action_OpenStyle;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, pos_auto, "Updates");
+	ww->action = action_OpenOnline;
+	ww->action2 = action_close_parent_dialog;
+	wgui_set_inactive(ww, CFG.disable_options);
+
+	ww = wgui_add_button(dd, pos_auto, "Settings");
+	ww->action = action_OpenSettings;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, pos_auto, "Install");
+	ww->action = action_Install;
+	ww->action2 = action_close_parent_dialog;
+	wgui_set_inactive(ww, CFG.disable_install);
+
+	ww = wgui_add_button(dd, pos_auto, "Boot disc");
+	ww->action = action_BootDisc;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, pos_auto, "Console");
+	ww->action = action_Console;
+	ww->action2 = action_close_parent_dialog;
+
+	ww = wgui_add_button(dd, pos_auto, "About");
+	ww->action = action_OpenAbout;
+	ww->action2 = action_close_parent_dialog;
+	pos_newline(dd);
+
+	ww = wgui_add_button(dd, pos_auto, "Quit");
+	ww->action = action_OpenQuit;
+	ww->action2 = action_close_parent_dialog;
+
+	ww = wgui_add_button(dd, pos_auto, "Back");
+	ww->action = action_close_parent_dialog;
+}
+
+void desk_dialog_update(Widget *ww)
+{
+	int alpha = ww->color & 0xFF;
+	int pad_y = winput.w_ir->sy;
+	int dir = 1;
+	int speed = 3;
+	int speed2 = 5;
+	if (ww->y > 480/2) {
+		// bottom - reverse dir.
+		dir = -1;
+		speed *= dir;
+		speed2 *= dir;
+		pad_y = 480 - pad_y;
+	}
+	int delta = (ww->ay - ww->y) * dir;
+	if (winput.w_ir->smooth_valid) {
+		int y1 = 480/5;
+		int y2 = 480/3;
+		if (wgui_over(ww) || pad_y < 0) {
+			alpha += 8;
+			if (delta < 0) ww->ay += speed2;
+		} else if (pad_y < y1) {
+			if (alpha > 0x80) alpha -= 2; else alpha += 2;
+			if (delta  < -ww->h/2) ww->ay += speed;
+		} else if (pad_y < y2) {
+			if (delta  > -ww->h/2) ww->ay -= speed;
+			if (alpha > 0x80) alpha -= 2;
+		} else {
+			goto hide;
+		}
+	} else {
+		hide:
+		alpha -= 8;
+		if (delta > -ww->h) ww->ay -= speed;
+	}
+	delta = (ww->ay - ww->y) * dir;
+	if (delta > 0) ww->ay = ww->y;
+	if (delta < -ww->h) ww->ay = ww->y - dir * ww->h;
+	if (alpha < 0) alpha = 0;
+	if (alpha > 0xFF) alpha = 0xFF;
+	traverse(ww, wgui_set_color, 0xFFFFFF00 | alpha);
+	traverse_children1(ww, adjust_position);
+}
+
+void desk_dialog_init()
+{
+	Widget *dd;
+	Widget *ww;
+	int h = H_LARGE;
+	int dh = h + PAD1*2 + PAD2;
+
+	// top
+	dd = d_top = wgui_add_dialog(&wgui_desk, pos(POS_CENTER, 0, 600, dh), NULL);
+	dd->update = desk_dialog_update;
+	dd->handle = NULL; // disable handle_B_close;
+	dd->y -= PAD1;
+	dd->ay -= dh/2;
+	dd->color = 0xFFFFFF80;
+	dd->lock_focus = false;
+	pos_margin(dd, PAD1);
+	pos_prefsize(dd, 0, h);
+	pos_columns(dd, 4, SIZE_FULL);
+	pos_move_to(dd, 0, -h);
+
+	ww = wgui_add_button(dd, pos_auto, "View");
+	ww->action = action_OpenView;
+
+	ww = wgui_add_button(dd, pos_auto, "Sort");
+	ww->action = action_OpenSort;
+	
+	ww = wgui_add_button(dd, pos_auto, "Filter");
+	ww->action = action_OpenFilter;
+	
+	ww = wgui_add_checkbox(dd, pos_auto, "Fav", true);
+	ww->val_ptr = &enable_favorite;
+	ww->action = action_Favorites;
+
+	// bottom
+	dd = d_bottom = wgui_add_dialog(&wgui_desk, pos(POS_CENTER, -dh, 600, dh), NULL);
+	dd->update = desk_dialog_update;
+	dd->handle = NULL; // disable handle_B_close;
+	dd->y += PAD1;
+	dd->ay += dh/2;
+	dd->color = 0xFFFFFF80;
+	dd->lock_focus = false;
+	pos_margin(dd, PAD1);
+	pos_prefsize(dd, 0, h);
+	pos_columns(dd, 4, SIZE_FULL);
+
+	ww = wgui_add_button(dd, pos_auto, "Main");
+	ww->action = action_OpenMain;
+
+	ww = wgui_add_button(dd, pos_auto, "Style");
+	ww->action = action_OpenStyle;
+
+	ww = wgui_add_button(dd, pos_auto, "Settings");
+	ww->action = action_OpenSettings;
+
+	ww = wgui_add_button(dd, pos_auto, "Quit");
+	ww->action = action_OpenQuit;
+}
+
+void wgui_desk_close_dialogs(Widget *except)
+{
+	// close all except top, bottom and arg
+	Widget *cc;
+	int i;
+	// must be reverse
+	for (i = wgui_desk.num_child - 1; i >= 0; i--) {
+		cc = wgui_desk.child[i];
+		if (cc == d_top) continue;
+		if (cc == d_bottom) continue;
+		if (cc == except) continue;
+		wgui_remove(cc);
+	}
+}
+
+static int wgui_code = 0;
+static int wgui_konami[] = 
+{
+	WPAD_BUTTON_UP,
+	WPAD_BUTTON_UP,
+	WPAD_BUTTON_DOWN,
+	WPAD_BUTTON_DOWN,
+	WPAD_BUTTON_LEFT,
+	WPAD_BUTTON_RIGHT,
+	WPAD_BUTTON_LEFT,
+	WPAD_BUTTON_RIGHT,
+	WPAD_BUTTON_B,
+	WPAD_BUTTON_A
+};
+
+void wgui_konami_handle(int *buttons)
+{
+	int b = *buttons;
+	if (b) {
+		if (b & wgui_konami[wgui_code]) {
+			wgui_code++;
+		} else if (wgui_code == 2 && (b & wgui_konami[0])) {
+			wgui_code = 2; // keep same
+		} else {
+			wgui_code = 0;
+		}
+		if (wgui_code == 10) {
+			wgui_disabled = 0;
+			wgui_desk_init();
+		}
+		if (wgui_code > 8) {
+			*buttons = 0;
+		}
+	}
+}
+
+void wgui_desk_close()
+{
+	if (wgui_disabled) return;
+	wgui_close(&wgui_desk);
+}
+
+void wgui_desk_init()
+{
+	if (wgui_disabled) return;
+	wgui_init();
+	wgui_desk_close();
+	Widget_init(&wgui_desk, NULL, pos_full, NULL);
+	desk_dialog_init();
+}
+
+void wgui_desk_handle(struct ir_t *ir, int *buttons)
+{
+	if (wgui_disabled) {
+		wgui_konami_handle(buttons);
+		return;
+	}
+	// set and save input
+	wgui_input_set(ir, buttons);
+	// testing
+	/*
+	if (*buttons & WPAD_BUTTON_PLUS) {
+		*buttons = 0;
+		wgui_test();
+	}
+	*/
+	// handle dialogs
+	wgui_handle(&wgui_desk);
+
+	if (winput.w_buttons) {
+		if (winput.w_buttons & WPAD_BUTTON_A) {
+			if (game_select >= 0) {
+				// game selected
+				OpenGameDialog();
+			} else {
+				wgui_input_steal_buttons();
+			}
+		} else {
+			int btn_action = get_button_action(winput.w_buttons);
+			if ((winput.w_buttons & WPAD_BUTTON_HOME)
+					|| btn_action == CFG_BTN_EXIT
+					|| btn_action == CFG_BTN_REBOOT )
+			{
+				action_OpenQuit(NULL);
+				wgui_input_steal_buttons();
+			}
+			if (btn_action == CFG_BTN_MAIN_MENU) {
+				wgui_desk_close_dialogs(w_MainMenu);
+				action_OpenMain(NULL);
+				wgui_input_steal_buttons();
+			}
+			if (btn_action == CFG_BTN_GLOBAL_OPS || btn_action == CFG_BTN_OPTIONS) {
+				wgui_desk_close_dialogs(w_Settings);
+				action_OpenSettings(NULL);
+				wgui_input_steal_buttons();
+			}
+			// XXX admin unlock?
+		}
+	}
+}
+
+void wgui_desk_render(struct ir_t *ir, int *buttons)
+{
+	if (wgui_disabled) return;
+	// render
+	GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
+	wgui_render(&wgui_desk);
+	// restore wpad state for pointer
+	wgui_input_restore(ir, buttons);
+}
+
+
+#else 
+
+// STUB
+void wgui_desk_init() { }
+void wgui_desk_handle(struct ir_t *ir, int *buttons) { }
+void wgui_desk_render(struct ir_t *ir, int *buttons) { }
+void wgui_desk_close() { }
+
+#endif
+

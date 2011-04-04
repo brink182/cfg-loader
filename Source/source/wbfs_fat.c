@@ -581,18 +581,16 @@ void mk_title_txt(struct discHdr *header, char *path)
 wbfs_t* WBFS_FAT_OpenPart(char *fname)
 {
 	wbfs_t *part = NULL;
-	int ret;
-
 	dbg_printf("WBFS_FAT_OpenPart(%s)\n", fname);
 	// wbfs 'partition' file
-	ret = split_open(&split, fname);
-	if (ret) return NULL;
+	split_info_t *split = split_open(fname);
+	if (!split) return NULL;
 	part = wbfs_open_partition(
 			split_read_sector,
 			nop_write_sector, //readonly //split_write_sector,
-			&split, fat_sector_size, split.total_sec, 0, 0);
+			split, fat_sector_size, split->total_sec, 0, 0);
 	if (!part) {
-		split_close(&split);
+		split_close(split);
 	}
 	return part;
 }
@@ -602,7 +600,6 @@ wbfs_t* WBFS_FAT_CreatePart(u8 *id, char *fname)
 	wbfs_t *part = NULL;
 	u64 size = (u64)143432*2*0x8000ULL;
 	u32 n_sector = size / 512;
-	int ret;
 	u64 split_size;
 
 	switch (CFG.fat_split_size) {
@@ -627,26 +624,26 @@ wbfs_t* WBFS_FAT_CreatePart(u8 *id, char *fname)
 	//dbg_printf("CREATE PART %s %lld %d\n", id, size, n_sector);
 	printf(gt("Writing to %s"), fname);
 	printf("\n");
-	ret = split_create(&split, fname, split_size, size, true);
-	if (ret) return NULL;
+	split_info_t *split = split_create(fname, split_size, size, true);
+	if (!split) return NULL;
 
 	// force create first file
 	u32 scnt = 0;
-	int fd = split_get_file(&split, 0, &scnt, 0);
+	int fd = split_get_file(split, 0, &scnt, 0);
 	if (fd<0) {
 		printf(gt("ERROR creating file"));
 		printf("\n");
 		sleep(2);
-		split_close(&split);
+		split_close(split);
 		return NULL;
 	}
 
 	part = wbfs_open_partition(
 			split_read_sector,
 			split_write_sector,
-			&split, fat_sector_size, n_sector, 0, 1);
+			split, fat_sector_size, n_sector, 0, 1);
 	if (!part) {
-		split_close(&split);
+		split_close(split);
 	}
 	return part;
 }
@@ -666,8 +663,8 @@ s32 WBFS_FAT_RemoveGame(u8 *discid)
 	// wbfs 'partition' file
 	loc = WBFS_FAT_find_fname(discid, fname, sizeof(fname));
 	if ( !loc ) return -1;
-	split_create(&split, fname, 0, 0, true);
-	split_close(&split);
+	split_info_t *split = split_create(fname, 0, 0, true);
+	split_close(split);
 	if (loc == 1) return 0;
 
 	// game is in subdir

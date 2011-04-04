@@ -3,8 +3,8 @@
 
 #define _LIBFAT_MAJOR_	1
 #define _LIBFAT_MINOR_	0
-#define _LIBFAT_PATCH_	8
+#define _LIBFAT_PATCH_	9
 
-#define _LIBFAT_STRING "libFAT Release 1.0.8"
+#define _LIBFAT_STRING "libFAT Release 1.0.9"
 
 #endif // __LIBFATVERSION_H__

@@ -20,7 +20,6 @@
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
 extern int game_select;
-extern int gui_style;
 
 extern float cam_f;
 extern float cam_dir;
@@ -62,8 +61,6 @@ int page_gi = -1;			// first visible game index on page
 int page_visible;			// num visible covers
 int visible_add_rows = 0; 	// additional visible rows on each side of page
 int num_pages;
-
-int gui_style = GUI_STYLE_GRID;
 
 float max_w, max_h;
 float scroll_per_cover; // 1 cover w
@@ -774,22 +771,21 @@ void grid_change_style(int style, int r)
 	reset_grid();
 }
 
-void grid_change_rows(int r)
+void grid_transit_rows(int r)
 {
 	int new_style, new_rows;
+	r += grid_rows;
 	if (r > 4) {
 		new_style = (gui_style + 1) % 3;
 		new_rows = grid_rows;
 	} else if (r < 1) {
-		//new_style = gui_style - 1;
-		//if (new_style < 0) new_style = 2;
 		new_style = (gui_style + 1) % 3;
 		new_rows = grid_rows;
 	} else {
 		new_style = gui_style;
 		new_rows = r;
 	}
-	grid_change_style(new_style, new_rows);
+	grid_transit_style(new_style, new_rows);
 }
 
 void _align_grid(
@@ -1074,7 +1070,7 @@ void grid_print_title(int selected)
 }
 
 
-void grid_transit_style(int r)
+void grid_transit_style(int new_style, int new_rows)
 {
 	int tran_steps = 15;
 	float step;
@@ -1084,16 +1080,14 @@ void grid_transit_style(int r)
 	int gi, gj, max_n, old_covers;
 	int i;
 	struct Grid_State grid1[GRID_SIZE], grid2[GRID_SIZE];
-	
-	r += grid_rows;
-	
+
 	reset_grid();
 	grid_calc();
 	grid_update_nocache(NULL);
 	old_n = GRID_SIZE;
 	grid_copy_vis(grid1, &old_gi, &old_n);
 
-	grid_change_rows(r);
+	grid_change_style(new_style, new_rows);
 
 	new_gi = page_gi;
 	reset_grid();
@@ -1124,8 +1118,7 @@ void grid_transit_style(int r)
 
 		draw_grid(-1, 0, 0);
 		print_style(1);
-		Gui_draw_pointer(&ir);
-		Gui_Render();
+		Gui_Render_Out(&ir);
 	}
 	grid_covers = old_covers;
 	reset_grid();
@@ -1143,6 +1136,8 @@ void grid_get_scroll(ir_t *ir)
 	float dx; // distance from hold
 	float speed = 20;
 	
+	// is pointer scroll enabled?
+	if (!CFG.gui_pointer_scroll) return;
 	// if y out of screen, don't scroll
 	if (ir->sy < 0 || ir->sy > BACKGROUND_HEIGHT) return;
 	// allow x out of screen by pointer size
@@ -1193,8 +1188,7 @@ void transition_page_grid(int gi_1, int gi_2)
 		grid_update_nocache(NULL);
 		draw_grid(-1, (BACKGROUND_WIDTH - step) * dir, 0);
 		// done
-		Gui_draw_pointer(&ir);
-		Gui_Render();
+		Gui_Render_Out(&ir);
 	}
 }
 
@@ -1218,8 +1212,7 @@ void transition_page_flow(float new_scroll)
 		grid_update_nocache(&ir);
 		grid_draw(-1);
 		// done
-		Gui_draw_pointer(&ir);
-		Gui_Render();
+		Gui_Render_Out(&ir);
 	}
 }
 
@@ -1289,3 +1282,27 @@ void grid_init(int game_sel)
 	// update all params and cache current page covers
 	grid_update_all(NULL);
 }
+
+void draw_grid_cover_at(int game_sel, int x, int y)
+{
+	//draw_grid_sel
+	int i;
+	struct Grid_State *GS = NULL;
+	for (i=0; i<grid_covers; i++) {
+		if (grid_state[i].gi == game_sel) {
+			GS = &grid_state[i];
+			break;
+		}
+	}
+	if (!GS) return;
+	cache_release_all();
+	cache_request(game_sel, 1, 1);
+	update_grid_state(GS);
+	GS->img_x = x;
+	GS->img_y = y;
+	GS->sx = 1.2;
+	GS->sy = 1.2;
+	draw_grid_1(GS, 0, 0);
+}
+
+

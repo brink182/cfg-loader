@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-05-04 14:40+GMT1\n"
 "Last-Translator: Fox888 <>\n"
 "Language-Team: <>\n"
@@ -795,9 +795,6 @@ msgstr "Loader version: %s"
 msgid "Loading ..."
 msgstr "Indlæser..."
 
-msgid "Loading previous game list..."
-msgstr "Indlæser tidliger spil liste..."
-
 msgid "Main Menu"
 msgstr "Hoved Menu"
 
@@ -1374,6 +1371,9 @@ msgstr "Start spil"
 msgid "Start this game?"
 msgstr "Start dette spil?"
 
+msgid "Stopping DVD..."
+msgstr "Stopper DVD..."
+
 msgid "Strategy"
 msgstr "Strategi"
 
@@ -1641,3 +1641,6 @@ msgstr "Kunne ikke åbne Wii disc"
 #, c-format
 msgid "used: %p - %p"
 msgstr "Brugt: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "Indlæser tidliger spil liste..."

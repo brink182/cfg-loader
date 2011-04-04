@@ -18,21 +18,21 @@
 #include "grid.h"
 #include "coverflow.h"
 #include "menu.h"
-#include "wgui.h"
-
+#include "console.h"
 #include "png.h"
 #include "gettext.h"
 #include "sort.h"
+#include "guimenu.h"
 
 #include "intro4_jpg.h"
 
 extern void *bg_buf_rgba;
 extern void *bg_buf_ycbr;
 extern bool imageNotFound;
-extern int gui_style;
-extern int grid_rows;
 extern int page_gi;
-extern int __console_disable;
+
+int gui_mode = 0;
+int gui_style = GUI_STYLE_GRID;
 
 bool loadGame;
 bool suppressCoverDrawing;
@@ -1649,6 +1649,15 @@ void Gui_Render()
 	}
 }
 
+// outside of main gui loop
+// renders also wgui and pointer
+void Gui_Render_Out(ir_t *ir)
+{
+	wgui_desk_render(NULL, NULL);
+	Gui_draw_pointer(ir);
+	Gui_Render();
+}
+
 /**
  * Renders the current scene to a texture and stores it in the global aa_texBuffer array.
  *  @param aaStep int position in the array to store the created tex
@@ -1903,6 +1912,51 @@ void Gui_PrintEx2(int x, int y, GRRLIB_texImg *font,
 	GRRLIB_Print2(x, y, font, color, color_outline, color_shadow, str);
 }
 
+u32 color_add(u32 c1, u32 c2, int neg)
+{
+	int i, x1, x2, c;
+	u32 color = 0;
+	// each component
+	for (i=0; i<4; i++) {
+		x1 = (c1 >> (i*8)) & 0xFF;
+		x2 = (c2 >> (i*8)) & 0xFF;
+		c = x1 + neg * x2;
+		// range check, possible overflow 
+		if (c < 0) c = 0;
+		if (c > 0xFF) c = 0xFF;
+		color |= (c << (i*8));
+	}
+	return color;
+}
+
+u32 color_multiply(u32 c1, u32 c2)
+{
+	int i, x1, x2;
+	u32 color = 0;
+	u32 c;
+	// each component
+	for (i=0; i<4; i++) {
+		x1 = (c1 >> (i*8)) & 0xFF;
+		x2 = (c2 >> (i*8)) & 0xFF;
+		c = x1 * x2 / 0xFF;
+		// range check, just in case, but it shouldn't overflow 
+		if (c < 0) c = 0;
+		if (c > 0xFF) c = 0xFF;
+		color |= (c << (i*8));
+	}
+	return color;
+}
+
+void font_color_multiply(FontColor *src, FontColor *dest, u32 color)
+{
+#define FC_MUL(X) dest->X = color_multiply(src->X, color)
+	FC_MUL(color);
+	FC_MUL(outline);
+	FC_MUL(outline_auto);
+	FC_MUL(shadow);
+	FC_MUL(shadow_auto);
+#undef FC_MUL
+}
 
 int get_outline_color(int text_color, int outline_color, int outline_auto)
 {
@@ -1930,18 +1984,19 @@ int get_outline_color(int text_color, int outline_color, int outline_auto)
 	return color;
 }
 
+void expand_font_color(FontColor *fc, unsigned *outline, unsigned *shadow)
+{
+	*outline = get_outline_color( fc->color, fc->outline, fc->outline_auto); 
+	*shadow = get_outline_color( fc->color, fc->shadow, fc->shadow_auto); 
+}
+
 void Gui_PrintExx(float x, float y, GRRLIB_texImg *font, FontColor font_color,
 		float zoom, const char *str)
 {
-	unsigned outline_color = get_outline_color(
-			font_color.color,
-			font_color.outline,
-			font_color.outline_auto); 
-	unsigned shadow_color = get_outline_color(
-			font_color.color,
-			font_color.shadow,
-			font_color.shadow_auto); 
-	GRRLIB_Print3(x, y, font, font_color.color, outline_color, shadow_color, zoom, str);
+	unsigned outline;
+	unsigned shadow;
+	expand_font_color(&font_color, &outline, &shadow);
+	GRRLIB_Print3(x, y, font, font_color.color, outline, shadow, zoom, str);
 }
 
 void Gui_PrintEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, const char *str)
@@ -2249,18 +2304,38 @@ void Gui_set_camera(ir_t *ir, int enable)
 }
 
 
+void Gui_save_cover_style()
+{
+	prev_cover_style = CFG.cover_style;
+	prev_cover_height = COVER_HEIGHT;
+	prev_cover_width = COVER_WIDTH;
+	if (gui_style == GUI_STYLE_COVERFLOW) {
+		if (CFG_cf_global.covers_3d) {
+			if (CFG.cover_style != CFG_COVER_STYLE_FULL) {
+				cfg_set_cover_style(CFG_COVER_STYLE_FULL);
+			}
+		} else {
+			if (CFG.cover_style != CFG_COVER_STYLE_2D) {
+				cfg_set_cover_style(CFG_COVER_STYLE_2D);
+			}
+		}
+	}
+}
+
 /**
  * Resets the cover style to the previous one.  Primarily used when 
  *  switching from full covers.
  */
 void Gui_reset_previous_cover_style() {
-	//flip the cover style mode back to whatever it was
-	cache_release_all();
-	cache_wait_idle();
-	cfg_set_cover_style(prev_cover_style);
-	//set cover width and height back to original
-	COVER_HEIGHT = prev_cover_height;
-	COVER_WIDTH = prev_cover_width;
+	if (gui_style == GUI_STYLE_COVERFLOW) {
+		//flip the cover style mode back to whatever it was
+		cache_release_all();
+		cache_wait_idle();
+		cfg_set_cover_style(prev_cover_style);
+		//set cover width and height back to original
+		COVER_HEIGHT = prev_cover_height;
+		COVER_WIDTH = prev_cover_width;
+	}
 }
 
 
@@ -2353,8 +2428,64 @@ void Repaint_ConBg(bool exiting)
 	free(img_buf); 
 }
 
+void Gui_Refresh_List()
+{
+	cache_release_all();
+	ccache.num_game = gameCnt;
+	if (gui_style == GUI_STYLE_COVERFLOW) {
+		gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
+		//load the covers - alternate right and left
+		cache_request_before_and_after(gameSelected, 5, 1);
+	} else {
+		//grid_init(page_gi);
+		grid_init(0);
+	}
+}
+
+void Gui_Action_Favorites()
+{
+	reset_sort_default();
+	Switch_Favorites(!enable_favorite);
+	Gui_Refresh_List();
+}
+
 extern char action_string[40];
 extern int action_alpha;
+
+void Gui_Sort_Set(int index, bool desc)
+{
+	sortList_set(index, desc);
+	Gui_Refresh_List();
+	sprintf(action_string, gt("Sort: %s-%s"), sortTypes[sort_index].name, (sort_desc) ? "DESC":"ASC");
+	action_alpha = 0xFF;
+}
+
+void Gui_Action_Sort()
+{
+	if (sort_desc) {
+		sort_desc = 0;
+		if (sort_index == sortCnt - 1)
+			sort_index = 0;
+		else
+			sort_index = sort_index + 1;
+	} else {
+		sort_desc = 1;
+	}
+	Gui_Sort_Set(sort_index, sort_desc);
+}
+
+void Gui_Action_Profile(int n)
+{
+	if (CFG.current_profile == n) return;
+	CFG.current_profile = n;
+	if (CFG.current_profile >= CFG.num_profiles) CFG.current_profile = CFG.num_profiles - 1;
+	if (CFG.current_profile < 0 ) CFG.current_profile = 0;
+	reset_sort_default();
+	Switch_Favorites(enable_favorite);
+	Gui_Refresh_List();
+	sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
+	action_alpha = 0xFF;
+}
 
 int Gui_DoAction(int action, ir_t *ir)
 {
@@ -2390,71 +2521,19 @@ int Gui_DoAction(int action, ir_t *ir)
 			}
 			
 		case CFG_BTN_PROFILE: 
-			if (CFG.current_profile == CFG.num_profiles-1)
-				CFG.current_profile = 0;
-			else
-				CFG.current_profile++;
-			extern void Switch_Favorites(bool enable);
-			extern bool enable_favorite;
-			extern void reset_sort_default();
-			reset_sort_default();
-			cache_release_all();
-			Switch_Favorites(enable_favorite);
-			ccache.num_game = gameCnt;
-			if (gui_style == GUI_STYLE_COVERFLOW) {
-				gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
-				//load the covers - alternate right and left
-				cache_request_before_and_after(gameSelected, 5, 1);
-			} else {
-				//grid_init(page_gi);
-				grid_init(0);
+			{
+				int n = CFG.current_profile + 1;
+				if (n >= CFG.num_profiles) n = 0;
+				Gui_Action_Profile(n);
 			}
-			sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
-			action_alpha = 0xFF;
-			return(0);
+			return 0;
 			
 		case CFG_BTN_FAVORITES:
-			{
-				extern void Switch_Favorites(bool enable);
-				extern bool enable_favorite;
-				extern void reset_sort_default();
-				reset_sort_default();
-				cache_release_all();
-				Switch_Favorites(!enable_favorite);
-				ccache.num_game = gameCnt;
-				if (gui_style == GUI_STYLE_COVERFLOW) {
-					gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
-					//load the covers - alternate right and left
-					cache_request_before_and_after(gameSelected, 5, 1);
-				} else {
-					//grid_init(page_gi);
-					grid_init(0);
-				}
-			}
-			return(0);
+			Gui_Action_Favorites();
+			return 0;
 			
 		case CFG_BTN_SORT:
-			if (sort_desc) {
-				sort_desc = 0;
-				if (sort_index == sortCnt - 1)
-					sort_index = 0;
-				else
-					sort_index = sort_index + 1;
-				sortList(sortTypes[sort_index].sortAsc);
-			} else {
-				sort_desc = 1;
-				sortList(sortTypes[sort_index].sortDsc);
-			}
-			if (gui_style == GUI_STYLE_COVERFLOW) {
-				gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
-				//load the covers - alternate right and left
-				cache_request_before_and_after(gameSelected, 5, 1);
-			} else {
-				//grid_init(page_gi);
-				grid_init(0);
-			}
-			sprintf(action_string, gt("Sort: %s-%s"), sortTypes[sort_index].name, (sort_desc) ? "DESC":"ASC");
-			action_alpha = 0xFF;
+			Gui_Action_Sort();
 			return 0;
 			
 		case CFG_BTN_RANDOM:
@@ -2480,7 +2559,7 @@ int Gui_DoAction(int action, ir_t *ir)
 					if (ret > 0) gameSelected = ret;
 					cache_release_all();
 					cache_request_before_and_after(gameSelected, 5, 1);
-					Coverflow_drawCovers(ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, gameCnt, false);
+					Coverflow_drawCovers(ir, gameCnt, false);
 					if (CFG.debug == 3) {
 						GRRLIB_Printf(50, 360, &tx_font, CFG.gui_text.color, 1,
 								"looking for: %d  gameCnt: %d", newIdx, gameCnt);
@@ -2505,6 +2584,131 @@ int Gui_DoAction(int action, ir_t *ir)
 	}
 }
 
+
+int Gui_Switch_Style(int new_style, int sub_style)
+{
+	if (game_select >= 0) gameSelected = game_select;
+
+	if (gui_style < GUI_STYLE_COVERFLOW) {
+
+		if (new_style < GUI_STYLE_COVERFLOW) {
+
+			// 1. from grid/flow to grid/flow
+			if (new_style == gui_style && sub_style == grid_rows) {
+				// nothing to do
+				return 0;
+			}
+			grid_transit_style(new_style, sub_style);
+			return 1;
+
+		} else {
+
+			// 2. from grid/flow to coverflow
+			gui_style = new_style;
+			CFG_cf_global.theme = sub_style;
+
+			//Coverflow uses full covers ONLY
+			// invalidate the cache and reload
+			cache_release_all();
+			cache_wait_idle();
+			Gui_save_cover_style();
+			Cache_Invalidate();
+			Cache_Init();
+			Coverflow_Grx_Init();
+			gameSelected = Coverflow_initCoverObjects(gameCnt, gameSelected, false);
+			//load the covers - alternate right and left
+			cache_request_before_and_after(gameSelected, 5, 1);
+		}
+
+	} else {
+		
+		if (new_style == GUI_STYLE_COVERFLOW) {
+
+			// 3. from coverflow to coverflow
+			if (CFG_cf_global.theme == sub_style) {
+				// nothing to do
+				return 0;
+			}
+			CFG_cf_global.theme = sub_style;
+			//setup the new coverflow style
+			gameSelected = Coverflow_initCoverObjects(gameCnt, game_select, true);
+			if (gameSelected == -1) {
+				//fatal error - couldn't allocate memory
+				gui_style = GUI_STYLE_GRID;
+				grid_init(0);
+				return 1;
+			}
+			Coverflow_init_transition(CF_TRANS_MOVE_TO_POSITION, 100, gameCnt, false);
+
+		} else {
+
+			// 4. from coverflow to grid/flow 
+			Gui_reset_previous_cover_style();
+			gui_style = new_style;
+			grid_rows = sub_style;
+			Cache_Invalidate();
+			Cache_Init();
+			grid_init(gameSelected);
+			return 1;
+		}
+	}
+
+
+	return 0;
+}
+
+int Gui_Shift_Style(int change)
+{
+	int rows = grid_rows + change;
+	int new_style = gui_style;
+
+	if (game_select >= 0) gameSelected = game_select;
+
+	if (CFG.gui_lock) {
+		// if gui style locked, only allow to change number of rows
+		if (gui_style < GUI_STYLE_COVERFLOW) {
+			if (rows >= 1 && rows <= 4) {
+				Gui_Switch_Style(gui_style, rows);
+				return 1;
+			}
+		}
+	} else {
+
+		// transition gui style:
+		// grid -> flow -> flow-z -> coverflow modes -> grid -> ...
+
+		if (gui_style < GUI_STYLE_COVERFLOW) {
+			// grid mode
+			if (rows < 1 || rows > 4) {
+				rows = grid_rows;
+				new_style = gui_style + 1;
+			}
+			if (new_style < GUI_STYLE_COVERFLOW) {
+				// grid - grid
+				Gui_Switch_Style(new_style, rows);
+			} else {
+				// grid - coverflow
+				Gui_Switch_Style(new_style, coverflow3d);
+			}
+		} else {
+			// coverflow mode
+			int subs = CFG_cf_global.theme + 1;
+			if (subs >= 0 && subs <= carousel) {
+				// coverflow - coverflow
+				Gui_Switch_Style(gui_style, subs);
+			} else {
+				// coverflow - grid
+				if (subs < 0) new_style = gui_style--;
+				else new_style = GUI_STYLE_GRID;
+				Gui_Switch_Style(new_style, grid_rows);
+				return 1;
+			}
+		}
+
+	} // CFG.gui_lock
+
+	return 0;
+}
 
 /**
  * This is the main control loop for the 3D cover modes.
@@ -2541,34 +2745,19 @@ int Gui_Mode()
 		grid_rows = CFG.gui_rows;
 	}
 
-	prev_cover_style = CFG.cover_style;
-	prev_cover_height = COVER_HEIGHT;
-	prev_cover_width = COVER_WIDTH;
+	// start the cache thread
+	if (Switch_Console_To_Gui()) {
+		// cache error, return to console
+		go_gui = 0;
+		return 0;
+	}
+
+	//initilaize the GRRLIB video subsystem
+	Gui_Init();
 
 	if (gui_style == GUI_STYLE_COVERFLOW) {
 
-		if (CFG_cf_global.covers_3d) {
-			if (CFG.cover_style != CFG_COVER_STYLE_FULL) {
-				cfg_set_cover_style(CFG_COVER_STYLE_FULL);
-			}
-		} else {
-			if (CFG.cover_style != CFG_COVER_STYLE_2D) {
-				cfg_set_cover_style(CFG_COVER_STYLE_2D);
-			}
-		}
-		
-		//start the cache thread
-		if (Cache_Init()) return 0;
-		memcheck();
-
 		Coverflow_Grx_Init();
-
-		__console_flush(0);
-		VIDEO_Flush();
-		VIDEO_WaitVSync();
-
-		//initilaize the GRRLIB video subsystem
-		Gui_Init();
 
 		game_select = -1;
 		
@@ -2586,20 +2775,9 @@ int Gui_Mode()
 		
 	} else {
 	
-		//start the cache thread
-		if (Cache_Init()) return 0;
-		memcheck();
-
 		//allocate the grid and initialize the grid cover settings
 		grid_init(gameSelected);
 	
-		__console_flush(0);
-		VIDEO_Flush();
-		VIDEO_WaitVSync();
-
-		//initilaize the GRRLIB video subsystem
-		Gui_Init();
-
 		game_select = -1;
 	
 		if (!first_time) {
@@ -2625,7 +2803,8 @@ int Gui_Mode()
 		buttons = Wpad_GetButtons();
 		Wpad_getIR(&ir);
 
-		wgui_desk_focus(&ir, &buttons);
+		wgui_desk_handle(&ir, &buttons);
+		if (!go_gui) break;
 
 		//----------------------
 		//  HOME Button
@@ -2689,7 +2868,7 @@ int Gui_Mode()
 			} else {
 				if (grid_page_change(1)) goto restart;
 			}
-		} else if (Wpad_Held(0) & WPAD_BUTTON_RIGHT) {
+		} else if (Wpad_Held() & WPAD_BUTTON_RIGHT) {
 			if (gui_style == GUI_STYLE_COVERFLOW) {
 				ret = Coverflow_init_transition(CF_TRANS_ROTATE_RIGHT, 100, gameCnt, true);
 				if (ret > 0) {
@@ -2718,7 +2897,7 @@ int Gui_Mode()
 			} else {
 				if (grid_page_change(-1)) goto restart;
 			}
-		} else if (Wpad_Held(0) & WPAD_BUTTON_LEFT) {
+		} else if (Wpad_Held() & WPAD_BUTTON_LEFT) {
 			if (gui_style == GUI_STYLE_COVERFLOW) {
 				ret = Coverflow_init_transition(CF_TRANS_ROTATE_LEFT, 100, gameCnt, true);
 				if (ret > 0) {
@@ -2739,118 +2918,16 @@ int Gui_Mode()
 			if (gui_style == GUI_STYLE_COVERFLOW) {
 				game_select = Coverflow_flip_cover_to_back(true, 2);
 			} else {
-				//grid_change_rows(rows+1);
-				if (CFG.gui_lock) {
-					if (grid_rows < 4) {
-						grid_transit_style(1);
-						goto restart;
-					}
-				} else {
-					grid_transit_style(1);
-					goto restart;
-				}
+				if (Gui_Shift_Style(1)) goto restart;
 			}
 		}
-
 		
 		//----------------------
 		//  dpad DOWN
 		//----------------------
 
 		if (buttons & WPAD_BUTTON_DOWN) {
-		
-			if (game_select >= 0) gameSelected = game_select;
-
-			if (CFG.gui_lock) {
-				if (gui_style != GUI_STYLE_COVERFLOW && grid_rows > 1) {
-					grid_transit_style(-1);
-					goto restart;
-				}
-			} else {
-			//This will all be deprecated (sometime)...  ;)
-			
-			//transition gui style: grid 1 -> flow 1 -> flow-z 1 -> coverflow modes -> grid 1 -> etc
-			
-			if (gui_style == GUI_STYLE_FLOW_Z && grid_rows == 1) {
-				//flip to 3d coverflow
-				gui_style = GUI_STYLE_COVERFLOW;
-				CFG_cf_global.theme = coverflow3d;
-				
-				//Coverflow uses full covers ONLY
-				// invalidate the cache and reload
-				cache_release_all();
-				cache_wait_idle();
-				prev_cover_style = CFG.cover_style;
-				if (CFG_cf_global.covers_3d) {
-					if (CFG.cover_style != CFG_COVER_STYLE_FULL) {
-						cfg_set_cover_style(CFG_COVER_STYLE_FULL);
-					}
-				} else {
-					if (CFG.cover_style != CFG_COVER_STYLE_2D) {
-						cfg_set_cover_style(CFG_COVER_STYLE_2D);
-					}
-				}
-				Cache_Invalidate();
-				Cache_Init();
-				Coverflow_Grx_Init();
-				gameSelected = Coverflow_initCoverObjects(gameCnt, gameSelected, false);
-				//load the covers - alternate right and left
-				cache_request_before_and_after(gameSelected, 5, 1);
-
-			
-			} else if (gui_style == GUI_STYLE_COVERFLOW) {
-			
-				//Coverflow_moveAllCoversToCenter();
-				switch(CFG_cf_global.theme){
-					case(coverflow3d):
-						CFG_cf_global.theme = coverflow2d;
-						break;
-					case(coverflow2d):
-						CFG_cf_global.theme = frontrow;
-						break;
-					case(frontrow):
-						CFG_cf_global.theme = vertical;
-						break;
-					case(vertical):
-						CFG_cf_global.theme = carousel;
-						break;
-					case(carousel):
-						//flip to grid mode
-						gui_style = GUI_STYLE_FLOW_Z;
-						break;
-					default:
-						CFG_cf_global.theme = coverflow3d;
-						break;
-				}
-				if (gui_style == GUI_STYLE_COVERFLOW) {
-					//setup the new coverflow style
-					gameSelected = Coverflow_initCoverObjects(gameCnt, game_select, true);
-					if (gameSelected == -1) {
-						//fatal error - couldn't allocate memory
-						gui_style = GUI_STYLE_GRID;
-						grid_transit_style(-1);
-						goto restart;
-					}
-					Coverflow_init_transition(CF_TRANS_MOVE_TO_POSITION, 100, gameCnt, false);
-				} else {
-					//flip to grid mode
-					//gui_style = GUI_STYLE_FLOW_Z;
-					gui_style = GUI_STYLE_GRID;
-					Gui_reset_previous_cover_style();
-					Cache_Invalidate();
-					Cache_Init();
-					grid_init(gameSelected);
-					//grid_transit_style(-1);
-					goto restart;
-				}
-				
-			} else {
-				//grid mode
-				//grid_change_rows(rows-1);
-				grid_transit_style(-1);
-				goto restart;
-			}
-			} // CFG.gui_lock
+			if (Gui_Shift_Style(-1)) goto restart;
 		}
 
 		// need to return to menu for timeout
@@ -2861,8 +2938,11 @@ int Gui_Mode()
 			}
 		}
 
-		int i;
+		//----------------------
+		//  (CFG) button
+		//----------------------
 
+		int i;
 		for (i = 4; i < MAX_BUTTONS; i++) {
 			if ((buttons & buttonmap[MASTER][i]) && (ret = Gui_DoAction(*(&CFG.button_M + (i - 4)), &ir))) {
 				if (ret < 0) exiting = true;
@@ -2870,73 +2950,6 @@ int Gui_Mode()
 				goto return_to_console;
 			}
 		}
-		//----------------------
-		//  (-) button
-		//----------------------
-
-		//if ((buttons & WPAD_BUTTON_MINUS) && Gui_DoAction(CFG.button_M)) {
-		//	//remove game
-		//	if (game_select >= 0) {
-		//		gameSelected = game_select;
-		//		//break;
-		//	}
-		//	break;
-		//}
-
-		////----------------------
-		////  (+) button
-		////----------------------
-		//if ((buttons & WPAD_BUTTON_PLUS) && Gui_DoAction(CFG.button_P)) {
-		//	//add game
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		////----------------------
-		////  1 Button
-		////----------------------
-		//if ((buttons & CFG.button_other.mask) && Gui_DoAction(CFG.button_1)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		//----------------------
-		//  2 button
-		//----------------------
-		//if ((buttons & WPAD_BUTTON_2) && Gui_DoAction(CFG.button_2)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;			
-		//}
-
-		//if ((buttons & WPAD_BUTTON_C) && Gui_DoAction(CFG.button_C)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		//if ((buttons & WPAD_BUTTON_Z) && Gui_DoAction(CFG.button_Z)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		//if ((buttons & WPAD_BUTTON_X) && Gui_DoAction(CFG.button_X)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		//if ((buttons & WPAD_BUTTON_Y) && Gui_DoAction(CFG.button_Y)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		//if ((buttons & WPAD_BUTTON_L) && Gui_DoAction(CFG.button_L)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
-
-		//if ((buttons & WPAD_BUTTON_R) && Gui_DoAction(CFG.button_R)) {
-		//	if (game_select >= 0) gameSelected = game_select;
-		//	break;
-		//}
 
 		//----------------------
 		//  check for other wiimote events
@@ -2958,11 +2971,9 @@ int Gui_Mode()
 			suppressCoverDrawing = false;
 			goto restart;
 		}
-		//_CPU_ISR_Disable(level);
 		//draw the covers
 		if (gui_style == GUI_STYLE_COVERFLOW) {
-			//Wpad_getIR(&ir);
-			game_select = Coverflow_drawCovers(&ir, CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers, gameCnt, true);
+			game_select = Coverflow_drawCovers(&ir, gameCnt, true);
 		} else {
 			//draw the background
 			Gui_draw_background();
@@ -2975,20 +2986,24 @@ int Gui_Mode()
 			grid_print_title(game_select);
 		}
 
-		wgui_desk_handle(&ir, &buttons);
+		wgui_desk_render(&ir, &buttons);
 
 		int us = dbg_time_usec();
 		if (CFG.debug == 3)
 			GRRLIB_Printf(20, 20, &tx_font, 0xFF00FFFF, 1,
-					"%4d ms:'%5.2f'", fr_cnt, (float)us/1000.0);
+					"%4d ms:%6.2f", fr_cnt, (float)us/1000.0);
+		/*
+		Gui_Printf(50, 390, "r x:%6.1f y:%6.1f v: %d %d a:%6.1f",
+				ir.ax, ir.ay, ir.raw_valid, ir.state, ir.angle);
+		Gui_Printf(50, 410, "s x:%6.1f y:%6.1f v: %d", ir.sx, ir.sy, ir.smooth_valid);
+		Gui_Printf(50, 430, "b x:%6.1f y:%6.1f v: %d", ir.x, ir.y, ir.valid);
+		*/
 		//draw_Cache();
 		//GRRLIB_DrawImg(0, 50, tx_font, 0, 1, 1, 0xFFFFFFFF); // entire font
 		//Gui_FillAscii(10, 10, 0xffffffff, 1);
 		Gui_draw_pointer(&ir);
 		//GRRLIB_Rectangle(fr_cnt % 640, 0, 5, 15, 0x000000FF, 1);
 
-		//_CPU_ISR_Restore(level);
-		//GRRLIB_Render();
 		Gui_Render();
 
 		fr_cnt++;
@@ -3002,25 +3017,47 @@ return_to_console:
 			else
 				Coverflow_init_transition(CF_TRANS_MOVE_TO_CONSOLE, 100, gameCnt, false);
 		}
-		//reset to the previous style before leaving
-		Gui_reset_previous_cover_style();
 	} else {
 		// this is for when transitioning from Grid to Console...
 		//transition(-1, page_i*grid_covers);
 		if (!exiting)
 			grid_transition(-1, page_gi);
 	}
+	wgui_desk_close();
+	Switch_Gui_To_Console(exiting);
 	
-	Repaint_ConBg(exiting);
+	return buttons;
+}
 
+int Switch_Console_To_Gui()
+{
+	__console_flush(0);
+	VIDEO_Flush();
+	VIDEO_WaitVSync();
+	Gui_save_cover_style();
+	gui_mode = 1;
+	__console_disable = 1;
+	// reinit cache if it was invalidated
+	int ret = Cache_Init();
+	memcheck();
+	return ret;
+}
+
+void Switch_Gui_To_Console(bool exiting)
+{
+	cache_release_all();
+	//reset to the previous style before leaving
+	Gui_reset_previous_cover_style();
+	Con_Clear();
+	__console_flush(0);
+	Repaint_ConBg(exiting);
 	// restore original framebuffer
 	_Video_SyncFB();
 	_GRRLIB_SetFB(0);
-
-	cache_release_all();
-
-	return buttons;
+	gui_mode = 0;
+	if (!exiting) __console_disable = 0;
 }
+
 
 void Gui_Close()
 {
@@ -3041,3 +3078,4 @@ void Gui_Close()
 
 	grr_init = 0;
 }
+

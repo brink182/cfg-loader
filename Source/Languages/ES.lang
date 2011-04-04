@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -794,9 +794,6 @@ msgstr "Versión del Cargador: %s"
 msgid "Loading ..."
 msgstr "Cargando ..."
 
-msgid "Loading previous game list..."
-msgstr "Cargando lista de juegos anterior.."
-
 msgid "Main Menu"
 msgstr "Menú Principal"
 
@@ -1373,6 +1370,9 @@ msgstr "Iniciar Juego"
 msgid "Start this game?"
 msgstr "¿Iniciar este juego?"
 
+msgid "Stopping DVD..."
+msgstr ""
+
 msgid "Strategy"
 msgstr "Estrategia"
 
@@ -1640,3 +1640,6 @@ msgstr "no se puede abrir el disco de wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "Cargando lista de juegos anterior.."

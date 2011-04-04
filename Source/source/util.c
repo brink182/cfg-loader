@@ -169,6 +169,7 @@ int con_len_mbchar(char *mb)
 
 int con_len(const char *s)
 {
+	if (!s) return 0;
 	int i, len = 0;
 	int n = mbs_len(s);
 	wchar_t wbuf[n+1];
@@ -381,17 +382,24 @@ void con_wordwrap(char *str, int width, int size)
 	}
 }
 
-// line starts with 0
-// returns n - printed lines
-int print_lines(char *str, int line, int n)
+char* skip_lines(char *str, int line)
 {
 	char *s = str;
 	while (line) {
 		s = strchr(s, '\n');
-		if (!s) return n;
+		if (!s) return NULL;
 		s++;
 		line--;
 	}
+	return s;
+}
+
+// line starts with 0
+// returns n - printed lines
+int print_lines(char *str, int line, int n)
+{
+	char *s = skip_lines(str, line);
+	if (!s) return n;
 	char *e = s;
 	while (n) {
 		e = strchr(e, '\n');
@@ -478,7 +486,11 @@ void hash_add(HashTable *ht, void *key, int handle)
 	u32 hh = ht->hash_fun(ht->cb, key);
 	int hi = hh % ht->size;
 	int *next = ht->next_handle(ht->cb, handle);
-	*next = ht->table[hi];
+	if (next) {
+		*next = ht->table[hi];
+	} else {
+		dbg_printf("ERROR hnext\n");
+	}
 	ht->table[hi] = handle;
 }
 
@@ -490,9 +502,15 @@ int hash_get(HashTable *ht, void *key)
 	int hi = hh % ht->size;
 	int handle = ht->table[hi];
 	int n = 0;
-	while (handle != -1) {
+	while (handle >= 0) {
 		if (ht->compare_key(ht->cb, key, handle)) return handle;
-		handle = *ht->next_handle(ht->cb, handle);
+		int *next = ht->next_handle(ht->cb, handle);
+		if (next) {
+			handle = *next;
+		} else {
+			dbg_printf("ERROR hnext\n");
+			handle = -1;
+		}
 		n++;
 		if (n > 10000) {
 			dbg_printf("hash loop! %.6s\n", key);
@@ -509,14 +527,18 @@ int hash_getx(HashTable *ht, void *key)
 	int hi = hh % ht->size;
 	int *prev = NULL;
 	int handle = ht->table[hi];
-	while (handle != -1) {
+	while (handle >= 0) {
 		if (ht->compare_key(ht->cb, key, handle)) {
 			if (prev) {
 				// push result to front so that next time it's faster
 				int *next = ht->next_handle(ht->cb, handle);
-				*prev = *next;
-				*next = ht->table[hi];
-				ht->table[hi] = handle;
+				if (next) {
+					*prev = *next;
+					*next = ht->table[hi];
+					ht->table[hi] = handle;
+				} else {
+					dbg_printf("ERROR hnext\n");
+				}
 			}
 			return handle;
 		}

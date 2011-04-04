@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -123,7 +123,7 @@ msgstr "このゲームを削除しますか?"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
-msgstr "ゲームの自動起動: %.6sが見つかりません"
+msgstr "自動起動ゲーム: %.6sが見つかりません"
 
 msgid "Available Updates"
 msgstr "利用可能な更新"
@@ -132,7 +132,7 @@ msgid "Balance Board"
 msgstr "バランスボード"
 
 msgid "Block IOS Reload:"
-msgstr "IOSの再読込禁止"
+msgstr "IOSの再読込み禁止"
 
 msgid "Boot Disc"
 msgstr "ディスクを起動"
@@ -218,7 +218,7 @@ msgid ""
 "Custom IOS %d could not be found!\n"
 "Please install it."
 msgstr ""
-"cIOS %dが見つかりません\n"
+"cIOS%dが見つかりません\n"
 "インストールしてください"
 
 #, c-format
@@ -230,7 +230,7 @@ msgid ""
 "Custom IOS %d is a stub!\n"
 "Please reinstall it."
 msgstr ""
-"cIOS %dはスタブです!\n"
+"cIOS%dはスタブです!\n"
 "再インストールしてください"
 
 #, c-format
@@ -372,7 +372,7 @@ msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "エラー:BCAにはcIOS222/223v4が必要です"
 
 msgid "ERROR: Cache Close"
-msgstr "エラー:キャッシュ閉じ"
+msgstr "エラー:キャッシュが閉じられています"
 
 #, c-format
 msgid "ERROR: Could not open game! (ret = %d)"
@@ -420,18 +420,18 @@ msgstr "エラー:領域の展開(0x%llx)%d"
 
 #, c-format
 msgid "ERROR: SetFragList(0): %d"
-msgstr "エラー: SetFragList(0): %d"
+msgstr "エラー: フラグリストのセット(0): %d"
 
 #, c-format
 msgid "ERROR: SetWBFS: %d"
-msgstr "エラー: SetWBFS: %d"
+msgstr "エラー: WBFSのセット: %d"
 
 msgid "ERROR: Setting SD mode"
-msgstr "エラー:SDモードに設定されています"
+msgstr "エラー:SDモードへの設定"
 
 #, c-format
 msgid "ERROR: USB init! (%d)"
-msgstr "エラー:USBの初期化(%d)"
+msgstr "エラー:USBの初期化 (%d)"
 
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
@@ -440,8 +440,8 @@ msgid ""
 "Upgrade IOS249 or choose a different IOS."
 msgstr ""
 "エラー: cIOS249rev18､cIOS222v4､\n"
-"cIOS223v4､cIOS224v5以上がFAT領域からの\n"
-"ゲームの起動に必要です!\n"
+"cIOS223v4､cIOS224v5以上が\n"
+"FAT領域からのゲームの起動に必要です!\n"
 "IOS249を更新するか別のIOSを選択してください"
 
 msgid "ERROR: cache: out of memory"
@@ -462,7 +462,7 @@ msgid ""
 "ERROR: multiple wbfs partitions\n"
 "supported only with IOS222/223-mload"
 msgstr ""
-"マルチwbfs領域は\n"
+"マルチWBFS領域は\n"
 "IOS222/223-mloadだけでサポートされています"
 
 msgid "ERROR: not enough free space!!"
@@ -477,7 +477,7 @@ msgstr "エラー:%.6s開き中"
 
 #, c-format
 msgid "ERROR: set_frag_list: %d"
-msgstr "エラー: set_frag_list: %d"
+msgstr "エラー: フラグリストのセット: %d"
 
 #, c-format
 msgid "ERROR: setting up fragments %d %d"
@@ -546,11 +546,11 @@ msgstr "データベースを開けません、更新は完了していません
 
 #, c-format
 msgid "Error opening: %s"
-msgstr "展開中エラー%s"
+msgstr "展開中エラー: %s"
 
 #, c-format
 msgid "Error playing %s"
-msgstr "%s起動中エラー"
+msgstr "%s起動中のエラー"
 
 msgid "Error reading .dol"
 msgstr ".dolの読み込みに失敗しました"
@@ -560,7 +560,7 @@ msgstr "dolのヘッダの読み込みに失敗しました"
 
 #, c-format
 msgid "Error saving %s"
-msgstr "%s保存中エラー"
+msgstr "%s保存中のエラー"
 
 msgid "Error saving options!"
 msgstr "設定の保存に失敗しました"
@@ -623,16 +623,16 @@ msgid "File not found! %s"
 msgstr "ファイルが見つかりません%s"
 
 msgid "Filter Games"
-msgstr "ゲーム検索"
+msgstr "ゲームの絞り込み"
 
 msgid "Filter by Controller"
-msgstr "コントローラで検索する"
+msgstr "コントローラで絞り込む"
 
 msgid "Filter by Genre"
-msgstr "ジャンルで検索する"
+msgstr "ジャンルで絞り込む"
 
 msgid "Filter by Online Features"
-msgstr "ネットワーク対応機能で検索する"
+msgstr "ネットワーク対応機能で絞り込む"
 
 msgid "Fixing EXTEND partition..."
 msgstr "拡張領域を修復中です…"
@@ -713,8 +713,8 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
-"もしCFGが起動しなければ\n"
-"boot.dol.bakをboot.dolに上書きして\n"
+"もしCFGが起動しなければboot.dolを削除後\n"
+"boot.dol.bakをboot.dolに名前を変えて\n"
 "再試行してください"
 
 #, c-format
@@ -790,9 +790,6 @@ msgstr "ローダーのバージョン: %s"
 
 msgid "Loading ..."
 msgstr "読み込み中･･･"
-
-msgid "Loading previous game list..."
-msgstr "以前のゲームのリストを読み込み中"
 
 msgid "Main Menu"
 msgstr "メインメニュー"
@@ -909,9 +906,9 @@ msgid ""
 "partition type from EXTEND to data."
 msgstr ""
 "注意: 領域 P#%dは拡張形式ですが\n"
-"WBFS領域を含んでいます。これは不正な\n"
-"構成です。 %sボタンを押すと領域形式を\n"
-"拡張形式から変更します。"
+"WBFS領域を含んでいます\n"
+"これは不正な構成です\n"
+"%sボタンを押すと領域形式を拡張形式から変更します"
 
 msgid "NTFS compression not supported!"
 msgstr "NTFS圧縮には対応していません"
@@ -990,7 +987,7 @@ msgid "Ocarina: No codes found"
 msgstr "Ocarina:コードが見つかりませんでした"
 
 msgid "Ocarina: Out Of Memory Error"
-msgstr "Ocarina:メモリエラー"
+msgstr "Ocarina:メモリ不足です"
 
 msgid "Ocarina: Searching codes..."
 msgstr "Ocarina:コードを探しています…"
@@ -1027,7 +1024,7 @@ msgid "Options saved for this game."
 msgstr "このゲームのため設定を保存しました"
 
 msgid "Out of memory"
-msgstr "メモリ外"
+msgstr "メモリ不足"
 
 msgid "Partition:"
 msgstr "使用領域:"
@@ -1161,7 +1158,7 @@ msgstr "%sボタンで選択を保存します"
 
 #, c-format
 msgid "Press %s to select filter type"
-msgstr "%sボタンで検索条件を選びます"
+msgstr "%sボタンで絞り込む条件を選びます"
 
 #, c-format
 msgid "Press %s to select sorting method"
@@ -1192,7 +1189,7 @@ msgid "Press HOME to reset"
 msgstr "HOMEボタンでリセットします"
 
 msgid "Press LEFT/RIGHT to select IOS"
-msgstr "左/右ボタンでIOSを選択します。"
+msgstr "左/右ボタンでIOSを選択します"
 
 msgid "Press any button to continue..."
 msgstr "何かボタンを押すと続行します"
@@ -1342,7 +1339,7 @@ msgid "Simulation"
 msgstr "シミュレーション"
 
 msgid "Size(GB) Type  Mount Used"
-msgstr "サイズ(GB) 形式 マウント 使用中"
+msgstr "　サイズ(GB) 形式"
 
 #, c-format
 msgid "Size: %d bytes"
@@ -1366,6 +1363,9 @@ msgstr "ゲームを始める"
 
 msgid "Start this game?"
 msgstr "このゲームを始めますか?"
+
+msgid "Stopping DVD..."
+msgstr "DVDを停止中..."
 
 msgid "Strategy"
 msgstr "戦略ゲーム"
@@ -1393,7 +1393,7 @@ msgid ""
 "Reboot of Cfg suggested.\n"
 msgstr ""
 "テーマのサイズが大きすぎます\n"
-"Cfgを再起動してください\n"
+"CFGを再起動してください\n"
 
 msgid "Theme:"
 msgstr "テーマ:"
@@ -1427,7 +1427,7 @@ msgstr "フラグが多すぎます%d"
 
 #, c-format
 msgid "Trying (url#%d) ..."
-msgstr "試しています(url#%d)…"
+msgstr "試行中(URL#%d)…"
 
 msgid "UNUSED"
 msgstr "不使用"
@@ -1444,7 +1444,7 @@ msgid "URL '%s' has no PATH part"
 msgstr "'%s'のURLはパスの一部を持っていません"
 
 msgid "USB Gecko found. Debugging is enabled."
-msgstr "USB Geckoを見つけました。デバッグは有効です"
+msgstr "USB Geckoを見つけました。デバッグを有効にしました"
 
 msgid "USB Mass Storage Device"
 msgstr "USBデバイス"
@@ -1584,7 +1584,7 @@ msgstr "空き"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
-msgstr "リニア読み込み速度: %.2f mb/秒"
+msgstr "リニア読み込み速度: %.2f MB/秒"
 
 msgid "linear..."
 msgstr "リニア…"
@@ -1594,7 +1594,7 @@ msgid "music file too big (%d) %s"
 msgstr "音楽ファイルが大きすぎです(%d) %s"
 
 msgid "music.mp3 or music.mod not found!"
-msgstr "music.mp3もしくはmusic.modが見つかりません"
+msgstr ".mp3もしくは.modが見つかりません"
 
 msgid "no file"
 msgstr "ファイル無し"
@@ -1603,7 +1603,7 @@ msgid "none"
 msgstr "無し"
 
 msgid "or format a WBFS partition."
-msgstr "もしくはWBFS領域を初期化してください"
+msgstr "もしくはWBFS領域にしてください"
 
 msgid "page"
 msgstr "ページ"
@@ -1634,3 +1634,6 @@ msgstr "Wiiディスクを開けません"
 #, c-format
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "以前のゲームのリストを読み込み中"

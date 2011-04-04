@@ -1,4 +1,3 @@
-
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if debug should be enabled */
@@ -191,14 +190,17 @@
 /* Define to 1 if `st_atim' is member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_ATIM
 
+/* Define to 1 if `st_atimensec' is member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_ATIMENSEC
+
 /* Define to 1 if `st_atimespec' is member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_ATIMESPEC
 
 /* Define to 1 if `st_blocks' is member of `struct stat'. */
-#define HAVE_STRUCT_STAT_ST_BLOCKS 1
+#undef HAVE_STRUCT_STAT_ST_BLOCKS
 
 /* Define to 1 if `st_rdev' is member of `struct stat'. */
-#define HAVE_STRUCT_STAT_ST_RDEV 1
+#undef HAVE_STRUCT_STAT_ST_RDEV
 
 /* Define to 1 if your `struct stat' has `st_blocks'. Deprecated, use
    `HAVE_STRUCT_STAT_ST_BLOCKS' instead. */
@@ -279,9 +281,6 @@
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#define LT_OBJDIR ".libs/"
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
@@ -299,13 +298,13 @@
 #define PACKAGE_NAME "ntfs-3g"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "ntfs-3g 2010.8.8"
+#define PACKAGE_STRING "ntfs-3g 2011.1.15"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ntfs-3g"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2010.8.8"
+#define PACKAGE_VERSION "2011.1.15"
 
 /* POSIX ACL support */
 #undef POSIXACLS
@@ -347,6 +346,9 @@
 /* Define to 1 if your processor stores words with the least significant byte
    first (like Intel and VAX, unlike Motorola and SPARC). */
 #undef WORDS_LITTLEENDIAN
+
+/* system extended attributes mappings */
+#undef XATTR_MAPPINGS
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #define _FILE_OFFSET_BITS 64

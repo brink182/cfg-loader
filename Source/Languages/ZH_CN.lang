@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -785,9 +785,6 @@ msgstr "程序版本：%s"
 msgid "Loading ..."
 msgstr "读取中..."
 
-msgid "Loading previous game list..."
-msgstr "正在读取上次游戏列表..."
-
 msgid "Main Menu"
 msgstr "主菜单"
 
@@ -1359,6 +1356,9 @@ msgstr "开始游戏"
 msgid "Start this game?"
 msgstr "开始这款游戏？"
 
+msgid "Stopping DVD..."
+msgstr ""
+
 msgid "Strategy"
 msgstr "战略游戏"
 
@@ -1623,3 +1623,6 @@ msgstr "无法打开Wii光盘"
 #, c-format
 msgid "used: %p - %p"
 msgstr "已使用：%p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "正在读取上次游戏列表..."

@@ -74,6 +74,7 @@ int UnmountAll(MountTable *save_mtab);
 int MountSDHC();
 int MountUSB();
 void RemountNTFS();
+void MountPrint_str(char *str, int size);
 void MountPrint();
 
 

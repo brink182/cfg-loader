@@ -800,7 +800,6 @@ void Menu_Themes()
 	int lookup[menu_rows];
 	
 	//redraw the background without the current cover
-	//Gui_DrawBackground();
 	Video_DrawBg();
 	
 	menu_init(&menu, menu_rows);
@@ -909,7 +908,6 @@ void Menu_Themes()
 		}
 	}
 	//redraw the background and current cover image
-	//Gui_DrawBackground();
 	Video_DrawBg();
 	extern void __Menu_ShowCover();
 	__Menu_ShowCover();

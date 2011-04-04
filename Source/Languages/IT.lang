@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-23 16:22+0100\n"
+"POT-Creation-Date: 2011-03-11 18:44+0100\n"
 "PO-Revision-Date: 2010-02-21 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
@@ -793,9 +793,6 @@ msgstr "Versione Loader: %s"
 msgid "Loading ..."
 msgstr "Sto caricando ..."
 
-msgid "Loading previous game list..."
-msgstr "Sto caricando l'elenco precedente..."
-
 msgid "Main Menu"
 msgstr "Menu Principale"
 
@@ -1374,6 +1371,9 @@ msgstr "Avvia Gioco"
 msgid "Start this game?"
 msgstr "Vuoi avviare questo gioco?"
 
+msgid "Stopping DVD..."
+msgstr "Sto fermando il DVD..."
+
 msgid "Strategy"
 msgstr "Strategia"
 
@@ -1641,3 +1641,6 @@ msgstr "impossibile aprire disco Wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "usati: %p - %p"
+
+#~ msgid "Loading previous game list..."
+#~ msgstr "Sto caricando l'elenco precedente..."

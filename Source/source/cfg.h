@@ -38,7 +38,8 @@ extern int CURR_IOS_IDX;
 #include "version.h"
 
 #define MAX_THEME 300
-extern char theme_list[MAX_THEME][31];
+#define MAX_THEME_NAME 32
+extern char theme_list[MAX_THEME][MAX_THEME_NAME];
 
 extern int ENTRIES_PER_PAGE;
 extern int MAX_CHARACTERS;
@@ -74,7 +75,8 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_VIDEO_PAL60	3  // force PAL60
 #define CFG_VIDEO_NTSC	4  // force NTSC
 #define CFG_VIDEO_MAX   4
-#define CFG_VIDEO_PATCH 5  // patch mode - moved to separate option
+#define CFG_VIDEO_NUM   (CFG_VIDEO_MAX+1)
+//#define CFG_VIDEO_PATCH 5  // patch mode - moved to separate option
 
 #define CFG_VIDEO_PATCH_OFF 0
 #define CFG_VIDEO_PATCH_ON  1
@@ -82,6 +84,7 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_VIDEO_PATCH_SNEEK 3
 #define CFG_VIDEO_PATCH_SNEEK_ALL 4
 #define CFG_VIDEO_PATCH_MAX 4
+#define CFG_VIDEO_PATCH_NUM (CFG_VIDEO_PATCH_MAX+1)
 
 #define CFG_CLEAN_OFF 0
 #define CFG_CLEAN_ON  1
@@ -107,6 +110,7 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_LANG_T_CHINESE 9
 #define CFG_LANG_KOREAN   10
 #define CFG_LANG_MAX      10
+#define CFG_LANG_NUM      (CFG_LANG_MAX+1)
 
 /*#define CFG_BTN_ORIGINAL  0 // obsolete
 #define CFG_BTN_ULTIMATE  1 // obsolete
@@ -381,6 +385,7 @@ struct CFG
 	struct RectCoords gui_title_area;
 	struct PosCoords gui_clock_pos;
 	struct PosCoords gui_page_pos;
+	int gui_pointer_scroll;
 	// global saved state
 	int saved_global;
 	char saved_theme[32];
@@ -607,6 +612,9 @@ int setPlayStat(u8 *id);
 char *cfg_get_covers_path(int style);
 
 extern struct TextMap map_video_patch[];
+extern struct TextMap map_gui_style[];
+extern struct TextMap map_ios[];
+extern char *names_vpatch[CFG_VIDEO_PATCH_NUM];
 
 #define NUM_HOOK 8
 extern char *hook_name[NUM_HOOK];

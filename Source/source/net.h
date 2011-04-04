@@ -9,6 +9,7 @@ void Download_XML(); // Lustar
 char *get_cc();
 char *auto_cc();
 int gamercard_update(char *ID);
+extern int gamercard_skip;
 
 #endif
 

@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v65
+Configurable SD/USB Loader v66
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -82,7 +82,7 @@ Default File locations:
   settings file:   sd:/usb-loader/settings.cfg
   background image:sd:/usb-loader/background.png
   covers:
-    2d:            sd:/usb-loader/covers/*.png
+    2d:            sd:/usb-loader/covers/2d/*.png
     3d:            sd:/usb-loader/covers/3d/*.png
     disc:          sd:/usb-loader/covers/disc/*.png
     full:          sd:/usb-loader/covers/full/*.png
@@ -608,6 +608,9 @@ Config file:
 # gui_antialias = [4] {0-4}
 #   Tune coverflow mode antialias level
 #
+# gui_pointer_scroll = 0, [1]
+#   disable/enable pointer scrolling of the game list
+#
 # theme = Theme_Name
 #   Load a specified theme from sd:/usb-loader/themes/Theme_Name/theme.txt
 #   Note: a theme resets all theme related options, so if you want to override
@@ -1012,6 +1015,20 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+13-03-2011 cfg v66 (release)
+ * Version
+
+11-03-2011 cfg v66b (beta)
+ * Added detection of cios d2x v2,v3 (thanks kamiro04)
+
+11-03-2011 cfg v66a (alpha)
+ * Added detection of cios r21-d2x-v1 (thanks kamiro04)
+ * Updated libfat to 1.0.9
+ * ntfs-3g 2011.1.15 / libntfs-wii r7 (thanks Dimok)
+ * new option: gui_pointer_scroll = 0, [1]
+   disable/enable pointer scrolling of the game list
+ * cleanups
 
 25-01-2011 cfg v65 (release)
  * version

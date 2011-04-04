@@ -25,6 +25,7 @@ typedef struct _console_data_s {
 extern int __console_write(struct _reent *r,int fd,const char *ptr,size_t len);
 extern void __console_init(void *framebuffer,int xstart,int ystart,int xres,int yres,int stride);
 extern void __console_flush(int retrace_min);
+extern int __console_disable;
 
 typedef struct unifont_header
 {

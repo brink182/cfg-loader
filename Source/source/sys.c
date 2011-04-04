@@ -13,6 +13,7 @@
 #include "sha1.h"
 #include "sdhc.h"
 #include "usbstorage.h"
+#include "wpad.h"
 
 
 #define TITLE_ID(x,y)       (((u64)(x) << 32) | (y))
@@ -67,6 +68,7 @@ void Sys_Shutdown(void)
 {
 	SDHC_Close();
 	USBStorage_Deinit();
+	Wpad_Disconnect();
 	/* Poweroff console */
 	if(CONF_GetShutdownMode() == CONF_SHUTDOWN_IDLE) {
 		s32 ret;
@@ -119,8 +121,11 @@ s32 Sys_GetCerts(signed_blob **certs, u32 *len)
 
 void prep_exit()
 {
+	dbg_printf("Services_Close\n");
 	Services_Close();
+	dbg_printf("Subsystem_Close\n");
 	Subsystem_Close();
+	dbg_printf("Video_Close\n");
 	extern void Video_Close();
 	Video_Close();
 }
@@ -134,15 +139,20 @@ void Sys_Exit()
 void Sys_HBC()
 {
 	int ret = 0;
+	//dbg_printf("prep_exit\n");
 	prep_exit();
+	//dbg_printf("WII_Initialize\n");
 	WII_Initialize();
+	dbg_printf("HBC107\n");
 	//printf("%d\n1.07\n",ret); sleep(1);
-    ret = WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // 1.07
+	ret = WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // 1.07
 	//printf("%d\nJODI\n",ret); sleep(1);
-    ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x4A4F4449)); // JODI
+	//dbg_printf("jodi\n");
+	ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x4A4F4449)); // JODI
 	//printf("%d\nHAXX\n",ret);
-    ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x48415858)); // HAXX
+	ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x48415858)); // HAXX
 	//printf("%d\nexit\n",ret); sleep(1);
+	dbg_printf("exit\n");
 	exit(0);
 }
 
@@ -329,7 +339,7 @@ void load_ext_ehc_module(int verbose)
 }
 */
 
-static char mload_ver_str[40];
+static char mload_ver_str[100];
 
 static int mload_ver = 0;
 
@@ -366,12 +376,20 @@ void mk_mload_version()
 	}
 }
 
-void print_mload_version()
+void print_mload_version_str(char *str)
 {
 	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
+	*str = 0;
 	if (CFG.ios_mload || new_wanin) {
-		printf("%s", mload_ver_str);
+		strcpy(str, mload_ver_str);
 	}
+}
+
+void print_mload_version()
+{
+	char str[100];
+	print_mload_version_str(str);
+	printf("%s", str);
 }
 
 int load_ehc_module_ex(int verbose)
@@ -1103,6 +1121,21 @@ static struct ios_hash_info ios_info[] =
 	// modmii special
 	{ 249, {0x00dc1209, 0x944c39db, 0x59eec2ab, 0x0212b86c, 0x7076cd3b}, "56 r21+r19 modmii" },
 	{ 249, {0x00298dc2, 0x58fdae1a, 0x233b0958, 0x17269047, 0x8188633d}, "57 r21+r19 modmii" },
+	// d2x
+	{ 249, {0x00ed2993, 0x0bae0cb2, 0xc7e430a2, 0x2e6eaf18, 0x156a9a70}, "37 r21-d2x-v1" },
+	{ 249, {0x00d74607, 0x2d3fe23e, 0x47ecb019, 0x0f5d4380, 0x37ea6b50}, "38 r21-d2x-v1" },
+	{ 249, {0x003d11ce, 0x4eb3b8bb, 0xe2c02fda, 0x5f879e74, 0x44a257de}, "56 r21-d2x-v1" },
+	{ 249, {0x00ba4b4f, 0x27803366, 0x8d9121fa, 0x954eb5d5, 0x92242691}, "57 r21-d2x-v1" },
+	{ 249, {0x00475dce, 0x81a744dd, 0xf24157e4, 0x870fa3d8, 0xfc39fa8a}, "37 r21-d2x-v2" },
+	{ 249, {0x00711af6, 0x017c48d4, 0xea0267d3, 0x1666600b, 0x38a8fe16}, "38 r21-d2x-v2" },
+	{ 249, {0x00815782, 0x8604fe34, 0x474653b5, 0xbdbc5651, 0xf43b427a}, "56 r21-d2x-v2" },
+	{ 249, {0x00d8e857, 0x8c96eb52, 0x4d006568, 0x95cf5415, 0xdb7712e8}, "57 r21-d2x-v2" },
+	{ 249, {0x0054e91c, 0xe022e307, 0x26d72e03, 0x53b6e157, 0x42adbe49}, "37 r21-d2x-v3" },
+	{ 249, {0x000bd035, 0xe649cc22, 0x8bf647c5, 0xe0710e6a, 0xd79a5355}, "38 r21-d2x-v3" },
+	{ 249, {0x00b8ca9c, 0x9b4053a3, 0x8de94a72, 0x1192fce5, 0x098e7404}, "56 r21-d2x-v3" },
+	{ 249, {0x00e8e05f, 0x2aa4cd1e, 0x8c8f5529, 0x498f259b, 0xfa41258e}, "57 r21-d2x-v3" },
+	{ 249, {0x0028dbf1, 0x3827be46, 0x28c82eb2, 0x122325c3, 0xc72dbd46}, "58 r21-d2x-v3" },
+
 	/*
 	// modmii 249
 	{ 249, {0x005b6439, 0xf4a2e0b7, 0xfce05f75, 0xdb1a66ce, 0x7a0811c1}, "38 r17 modmii" },	
@@ -1297,25 +1330,45 @@ char* get_ios_info_from_tmd()
 	return get_iosx_info_from_tmd(IOS_GetVersion(), NULL);
 }
 
-void print_all_ios_info(FILE *f)
+void get_all_ios_info_str(char *str, int size)
 {
 	int i;
 	char *info;
 	int ret;
 	for (i=222; i<=250; i++) {
 		if (i > 224 && i < 245) continue;
-		fprintf(f, "IOS%d ", i);
+		snprintf(str, size, "IOS%d ", i);
+		str_seek_end(&str, &size);
 		ret = checkIOS(i);
 		if (ret == -2) {
-			fprintf(f, ": not installed\n");
+			snprintf(str, size, ": not installed\n");
 		} else if (ret == -1) {
-			fprintf(f, ": stub\n");
+			snprintf(str, size, ": stub\n");
 		} else {
 			u32 ver;
 			info = get_iosx_info_from_tmd(i, &ver);
-			fprintf(f, "Base: %s (r%u)\n", info ? info : "??", ver);
+			snprintf(str, size, "Base: %s (r%u)\n", info ? info : "??", ver);
 		}
+		str_seek_end(&str, &size);
 	}
+}
+
+void print_all_ios_info_str(char *str, int size)
+{
+	static int got_ios = 0;
+	static char ios_info_str[400];
+	if (!got_ios) {
+		get_all_ios_info_str(ios_info_str, sizeof(ios_info_str));
+		got_ios = 1;
+	}
+	strcopy(str, ios_info_str, size);
+}
+
+void print_all_ios_info(FILE *f)
+{
+	char str[400];
+	print_all_ios_info_str(str, sizeof(str));
+	fprintf(f, "%s", str);
 }
 
 char* get_ios_tmd_hash_str(char *str)

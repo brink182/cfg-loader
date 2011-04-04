@@ -982,7 +982,7 @@ char *utf8toconsole(char *string)
 	return string;
 }
 
-void FmtGameInfo(char *linebuf, int size)
+void FmtGameInfo(char *linebuf, int cols, int size)
 {
 	*linebuf = 0;
 	if (gameinfo.year != 0)
@@ -991,11 +991,9 @@ void FmtGameInfo(char *linebuf, int size)
 		snprintf(linebuf, size, "%s%s", linebuf, unescape(gameinfo.publisher, sizeof(gameinfo.publisher)));
 	if (strcmp(gameinfo.developer,"") != 0 && strcmp(gameinfo.developer,gameinfo.publisher) != 0)
 		snprintf(linebuf, size, "%s / %s", linebuf, unescape(gameinfo.developer, sizeof(gameinfo.developer)));
-	if (strlen(linebuf) >= 36) {
-		char buffer[45] = "";
-		strncpy(buffer, linebuf,  36);
-		strncat(buffer, "...", 3);
-		snprintf(linebuf, size, "%s", buffer);
+	if (strlen(linebuf) >= cols) {
+		linebuf[cols - 3] = 0;
+		strcat(linebuf, "...");
 	}
 	strappend(linebuf, "\n", size);
 	int len = strlen(linebuf);
@@ -1028,7 +1026,7 @@ void FmtGameInfo(char *linebuf, int size)
 void PrintGameInfo()
 {
 	char linebuf[1000] = "";
-	FmtGameInfo(linebuf, sizeof(linebuf));
+	FmtGameInfo(linebuf, 39, sizeof(linebuf));
 	printf("%s",linebuf);
 }
 

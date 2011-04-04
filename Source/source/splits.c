@@ -229,7 +229,7 @@ void split_set_size(split_info_t *s, u64 split_size, u64 total_size)
 	s->split_sec  = split_size / 512;
 }
 
-void split_close(split_info_t *s)
+void split_close_1(split_info_t *s)
 {
 	int i;
 	char fname[1024];
@@ -247,7 +247,7 @@ void split_close(split_info_t *s)
 	memset(s, 0, sizeof(*s));
 }
 
-int split_create(split_info_t *s, char *fname,
+int split_create_1(split_info_t *s, char *fname,
 		u64 split_size, u64 total_size, bool overwrite)
 {
 	int i;
@@ -278,7 +278,7 @@ int split_create(split_info_t *s, char *fname,
 	return 0;
 }
 
-int split_open(split_info_t *s, char *fname)
+int split_open_1(split_info_t *s, char *fname)
 {
 	int i;
 	u64 size = 0;
@@ -315,7 +315,43 @@ int split_open(split_info_t *s, char *fname)
 	split_set_size(s, split_size, total_size);
 	return 0;
 err:
-	split_close(s);
+	split_close_1(s);
 	return -1;
+}
+
+
+split_info_t* split_new()
+{
+	return calloc(1, sizeof(split_info_t));
+}
+
+void split_close(split_info_t *s)
+{
+	if (s) {
+		split_close_1(s);
+		free(s);
+	}
+}
+
+split_info_t* split_create(char *fname, u64 split_size, u64 total_size, bool overwrite)
+{
+	split_info_t *s = split_new();
+	int ret = split_create_1(s, fname, split_size, total_size, overwrite);
+	if (ret) {
+		split_close(s);
+		s = NULL;
+	}
+	return s;
+}
+
+split_info_t* split_open(char *fname)
+{
+	split_info_t *s = split_new();
+	int ret = split_open_1(s, fname);
+	if (ret) {
+		split_close(s);
+		s = NULL;
+	}
+	return s;
 }
 

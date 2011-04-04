@@ -2,6 +2,13 @@
 #define _MENU_H_
 
 #include "disc.h" // discHdr
+#include "cfg.h"
+
+extern char *videos[CFG_VIDEO_NUM];
+extern char *languages[CFG_LANG_NUM];
+extern char *playlog_name[4];
+extern char *str_wiird[3];
+extern bool go_gui;
 
 /* Prototypes */
 void Menu_Device(void);
@@ -21,7 +28,20 @@ void Download_Titles();
 void Menu_Cheats(struct discHdr *header);
 int  Menu_PrintWait();
 bool Menu_Confirm(const char *msg);
-
+void Switch_Favorites(bool enable);
+extern bool enable_favorite;
+void FmtGameInfoLong(u8 *id, int cols, char *game_desc, int size);
+void Menu_GameInfoStr(struct discHdr *header, char *str);
+void print_debug_hdr(char *str, int size);
+void Save_Debug();
+void Save_IOS_Hash();
+void Menu_Save_Settings();
+void Menu_All_IOS_Info();
+void Print_SYS_Info_str(char *str, int size);
+int get_button_action(int buttons);
+char get_unlock_buttons(int buttons);
+void Admin_Unlock(bool unlock);
+ 
 void __Menu_ShowGameInfo(bool showfullinfo, u8 *id); // Lustar
 char *skip_sort_ignore(char *s);
 

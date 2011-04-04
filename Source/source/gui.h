@@ -8,6 +8,10 @@
 #define BACKGROUND_WIDTH	640
 #define BACKGROUND_HEIGHT	480
 
+extern int gui_mode;
+extern int gui_style;
+extern int grid_rows;
+
 struct M2_texImg
 {
 	GRRLIB_texImg tx;
@@ -80,11 +84,29 @@ void Gui_Print2(int x, int y, const char *str);
 void Gui_Print(int x, int y, char *str);
 void Gui_Print_Clock(int x, int y, FontColor font_color, int align);
 
+u32 color_add(u32 c1, u32 c2, int neg);
+u32 color_multiply(u32 c1, u32 c2);
+void font_color_multiply(FontColor *src, FontColor *dest, u32 color);
+void expand_font_color(FontColor *fc, unsigned *outline, unsigned *shadow);
+
 void Grx_Init();
 void Gui_RenderAAPass(int aaStep);
 void Gui_Render();
+void Gui_Render_Out(ir_t *ir);
 void Gui_Init();
 int  Gui_Mode();
 void Gui_Close();
+
+void Gui_Refresh_List();
+void Gui_Action_Favorites();
+void Gui_Sort_Set(int index, bool desc);
+void Gui_Action_Sort();
+int Gui_Switch_Style(int new_style, int sub_style);
+int Gui_Shift_Style(int change);
+void Gui_Action_Profile(int n);
+int Switch_Console_To_Gui();
+void Switch_Gui_To_Console(bool exiting);
+void Gui_save_cover_style();
+void Gui_reset_previous_cover_style();
 
 #endif

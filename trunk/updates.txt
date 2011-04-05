@@ -13,12 +13,28 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68a (alpha)
+size = 1572320
+date = 2011-04-06
+url = http://cfg-loader.googlecode.com/files/cfg68a.dol
+ * GUI menu
+
+release = 68a-222 (alpha)
+size = 1572320
+date = 2011-04-06
+url = http://cfg-loader.googlecode.com/files/cfg68a-222.dol
+Same as 68a but with different
+default options:
+  ios=222-mload
+
 release = 67c (bugfix)
 size = 1572064
 date = 2011-04-05
 url = http://cfg-loader.googlecode.com/files/cfg67c.dol
- * Fixed blurred coverflow in 50 Hz video mode
- * Fixed detection of missing covers in game options screen
+Fixed blurred coverflow in
+  50 Hz video mode
+Fixed detection of missing covers
+  in game options screen
 
 release = 67c-222 (bugfix)
 size = 1572064

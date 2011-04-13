@@ -13,6 +13,24 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68a4 (alpha)
+size = 1575264
+date = 2011-04-13
+url = http://cfg-loader.googlecode.com/files/cfg68a4.dol
+Fixed Translation: Cover~~Back
+Fixed switch from gui to console
+New themed options: gui_text_color_*
+Bigger Start button
+Minor GUI menu updates
+
+release = 68a4-222 (alpha)
+size = 1575264
+date = 2011-04-13
+url = http://cfg-loader.googlecode.com/files/cfg68a4-222.dol
+Same as 68a4 but with different
+default options:
+  ios=222-mload
+
 release = 68a3 (alpha)
 size = 1574944
 date = 2011-04-11

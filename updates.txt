@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68b2 (beta)
+size = 1568608
+date = 2011-04-19
+url = http://cfg-loader.googlecode.com/files/cfg68b2.dol
+New theme options:
+  gui_button_*, gui_bar
+Minor fixes and cleanups
+
+release = 68b2-222 (beta)
+size = 1568608
+date = 2011-04-19
+url = http://cfg-loader.googlecode.com/files/cfg68b2-222.dol
+Same as 68b2 but with different
+default options:
+  ios=222-mload
+
 release = 68b (beta)
 size = 1566016
 date = 2011-04-17
@@ -146,41 +162,6 @@ Same as 67 but with different
 default options:
   debug=3
   home=screenshot
-
-release = 67b (beta)
-size = 1571360
-date = 2011-04-03
-url = http://cfg-loader.googlecode.com/files/cfg67b.dol
-Support for HQ covers
-new option: cover_url_hq
-File cache of compressed Full and HQ
-  covers for faster loading
-
-release = 67b-222 (beta)
-size = 1571360
-date = 2011-04-03
-url = http://cfg-loader.googlecode.com/files/cfg67b-222.dol
-Same as 67b but with different
-default options:
-  ios=222-mload
-
-release = 67a (alpha)
-size = 1550976
-date = 2011-03-22
-url = http://cfg-loader.googlecode.com/files/cfg67a.dol
-Improved cover cache
-Improved in coverflow cover render
-Minor adjustment of stick movement
-Fixed slow movement in console mode
-with games on NTFS and hdd space info
-
-release = 67a-222 (alpha)
-size = 1550976
-date = 2011-03-22
-url = http://cfg-loader.googlecode.com/files/cfg67a-222.dol
-Same as 67a but with different
-default options:
-  ios=222-mload
 
 release = 66c (bugfix)
 size = 1547936

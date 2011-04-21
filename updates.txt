@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68b3 (beta)
+size = 1569056
+date = 2011-04-21
+url = http://cfg-loader.googlecode.com/files/cfg68b3.dol
+Detection of cios d2x v4 beta 2
+No scroll outside gui_cover_area
+Fixed: wrong size of no cover image
+Fixed: admin unlock in gui mode
+Fixed: gui menu custom buttons
+Cleanups
+
+release = 68b3-222 (beta)
+size = 1569056
+date = 2011-04-21
+url = http://cfg-loader.googlecode.com/files/cfg68b3-222.dol
+Same as 68b3 but with different
+default options:
+  ios=222-mload
+
 release = 68b2 (beta)
 size = 1568608
 date = 2011-04-19

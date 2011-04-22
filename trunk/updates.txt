@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68b4 (beta)
+size = 1569664
+date = 2011-04-22
+url = http://cfg-loader.googlecode.com/files/cfg68b4.dol
+Set custom buttons inactive
+  when any window is opened
+New theme options:
+  gui_text_color_*
+
+release = 68b4-222 (beta)
+size = 1569664
+date = 2011-04-22
+url = http://cfg-loader.googlecode.com/files/cfg68b4-222.dol
+Same as 68b4 but with different
+default options:
+  ios=222-mload
+
 release = 68b3 (beta)
 size = 1569056
 date = 2011-04-21

@@ -13,6 +13,38 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68 (release)
+size = 1569728
+date = 2011-04-24
+url = http://cfg-loader.googlecode.com/files/cfg68.dol
+Fixed "press any button" after
+  cover download
+Fixed gamercard option in gui menu
+
+release = 68-222 (release)
+size = 1569728
+date = 2011-04-24
+url = http://cfg-loader.googlecode.com/files/cfg68-222.dol
+Same as 68 but with different
+default options:
+  ios=222-mload
+  
+release = 68-compat (release)
+size = 1653824
+date = 2011-04-24
+url = http://cfg-loader.googlecode.com/files/cfg68-compat.dol
+Same as 68 but built with
+  devkit 17 and libogc 1.7.1
+
+release = 68-dbg (debug)
+size = 1569728
+date = 2011-04-24
+url = http://cfg-loader.googlecode.com/files/cfg68-dbg.dol
+Same as 68 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 68b4 (beta)
 size = 1569664
 date = 2011-04-22

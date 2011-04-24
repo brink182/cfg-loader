@@ -4,8 +4,12 @@
 #include "grrlib.h"
 #include "util.h"
 
+#define tex_format nbtilew
+#define tex_lod    nbtileh
+
 #define GRRLIB_GetColor RGBA
 
+extern int aa_method;
 extern Mtx GXmodelView2D;
 
 GRRLIB_texImg my_GRRLIB_LoadTextureJPG(const unsigned char my_jpg[]);
@@ -18,11 +22,14 @@ inline void GRRLIB_DrawImg_format(f32 xpos, f32 ypos, GRRLIB_texImg tex, u8 texF
 
 //anti-alias routines
 GRRLIB_texImg GRRLIB_AAScreen2Texture();
-void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx);
+void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx, u8 gx_clear);
 void GRRLIB_prepareAAPass(int, int);
 void GRRLIB_drawAAScene(int, GRRLIB_texImg *texAABuffer);
 void GRRLIB_ResetVideo(void);
 
+void GRRLIB_DrawImgRect(float x, float y, float w, float h, GRRLIB_texImg *tex, const u32 color);
+void GRRLIB_DrawImgNoAA(const f32 xpos, const f32 ypos, const GRRLIB_texImg *tex,
+		const f32 degrees, const f32 scaleX, const f32 scaleY, const u32 color);
 extern void GRRLIB_DrawSlice2(f32 xpos, f32 ypos, GRRLIB_texImg tex,
 		float degrees, float scaleX, f32 scaleY, u32 color1, u32 color2,
 		float x, float y, float w, float h);

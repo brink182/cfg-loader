@@ -37,12 +37,10 @@ char wbfs_fs_drive[16];
 char wbfs_fat_dir[16] = "/wbfs";
 char invalid_path[] = "/\\:|<>?*\"'";
 
-/*
 int  wbfs_fat_vfs_have = 0;
 int  wbfs_fat_vfs_lba = 0;
 int  wbfs_fat_vfs_dev = 0;
 struct statvfs wbfs_fat_vfs;
-*/
 
 split_info_t split;
 
@@ -427,10 +425,11 @@ s32 WBFS_FAT_DiskSpace(f32 *used, f32 *free)
 {
 	f32 size;
 	int ret;
+	struct statvfs *vfs;
 
 	*used = 0;
 	*free = 0;
-#if 0
+#if 1
 	// statvfs is slow, so cache values
 	if (!wbfs_fat_vfs_have
 		|| wbfs_fat_vfs_lba != wbfs_part_lba
@@ -451,15 +450,18 @@ s32 WBFS_FAT_DiskSpace(f32 *used, f32 *free)
 		wbfs_fat_vfs_lba = wbfs_part_lba;
 		wbfs_fat_vfs_dev = wbfsDev;
 	}
-#endif
-	struct statvfs vfs;
-	memset(&vfs, 0, sizeof(vfs));
-	ret = statvfs(wbfs_fs_drive, &vfs);
+	vfs = &wbfs_fat_vfs;
+#else
+	struct statvfs vfs1;
+	memset(&vfs1, 0, sizeof(vfs1));
+	ret = statvfs(wbfs_fs_drive, &vfs1);
 	if (ret) return 0;
+	vfs = &vfs1;
+#endif
 
 	/* FS size in GB */
-	size = (f32)vfs.f_frsize * (f32)vfs.f_blocks / GB_SIZE;
-	*free = (f32)vfs.f_frsize * (f32)vfs.f_bfree / GB_SIZE;
+	size = (f32)vfs->f_frsize * (f32)vfs->f_blocks / GB_SIZE;
+	*free = (f32)vfs->f_frsize * (f32)vfs->f_bfree / GB_SIZE;
 	*used = size - *free;
 
 	return 0;
@@ -581,7 +583,7 @@ void mk_title_txt(struct discHdr *header, char *path)
 wbfs_t* WBFS_FAT_OpenPart(char *fname)
 {
 	wbfs_t *part = NULL;
-	dbg_printf("WBFS_FAT_OpenPart(%s)\n", fname);
+	//dbg_printf("WBFS_FAT_OpenPart(%s)\n", fname);
 	// wbfs 'partition' file
 	split_info_t *split = split_open(fname);
 	if (!split) return NULL;

@@ -946,12 +946,10 @@ void Theme_Update()
 	// null terminate
 	char *newbuf;
 	newbuf = mem_realloc(file.data, file.size+4);
-	if (newbuf) {
-		newbuf[file.size] = 0;
-		file.data = (void*)newbuf;
-	} else {
-		goto err;
-	}
+	if (!newbuf) goto err;
+	newbuf[file.size] = 0;
+	file.data = (void*)newbuf;
+
 	//check if any updates are available
 	parse_themes((char*)file.data);
 	SAFE_FREE(file.data);

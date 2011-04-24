@@ -4,6 +4,8 @@
 #ifndef _WBFS_FAT_H
 #define _WBFS_FAT_H
 
+extern int wbfs_fat_vfs_have;
+
 wbfs_t* WBFS_FAT_OpenPart(char *fname);
 void WBFS_FAT_ClosePart(wbfs_t* part);
 s32  WBFS_FAT_GetCount(u32 *count);

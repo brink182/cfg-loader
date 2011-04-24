@@ -14,6 +14,10 @@ More info : http://frontier-dev.net
 #include "pngu.h"
 #include "pngu_impl.h"
 
+#ifndef SAFE_FREE
+#define SAFE_FREE(p) if(p){free(p);p=NULL;}
+#endif
+
 #if 0
 // moved to pngu_impl.h
 // Constants
@@ -775,7 +779,7 @@ static PNGU_u32 colorIndices(const PNGU_u8 *color0, const PNGU_u8 *color1, const
 	return res;
 }
 
-int PNGU_DecodeToCMPR(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
+int PNGU_DecodeToCMPR_Trim(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
 {
 	int result;
 	PNGU_u8 srcBlock[16 * 4];
@@ -791,6 +795,7 @@ int PNGU_DecodeToCMPR(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
 	if (result != PNGU_OK)
 		return result;
 
+	// trim down
 	width = width & ~7u;
 	height = height & ~7u;
 
@@ -821,6 +826,73 @@ int PNGU_DecodeToCMPR(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
 	return PNGU_OK;
 }
 
+
+// if width or height is not divisible by 8
+// then the remaining will be padded with last row/column
+// buffer must be allocated with width and height rounded up
+
+int PNGU_DecodeToCMPR_Pad(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer)
+{
+	int result;
+	PNGU_u8 srcBlock[16 * 4];
+	PNGU_u8 color0[4];
+	PNGU_u8 color1[4];
+	PNGU_u8 *outBuf = (PNGU_u8 *)buffer;
+	int ii;
+	int jj;
+	int k;
+
+	//check for alpha channel
+	result = pngu_decode_add_alpha (ctx, width, height, 0, 1);
+	if (result != PNGU_OK)
+		return result;
+
+	// Alpha channel present, copy image to the output buffer
+	for (jj = 0; jj < height; jj += 8) {
+		for (ii = 0; ii < width; ii += 8) {
+			for (k = 0; k < 4; ++k)	{
+				// k(i,j)
+				// 0(0,0) 1(4,0)
+				// 2(4,0) 3(4,4)
+				int i = ii + ((k & 1) << 2);	// ii + 0, ii + 4, ii + 0, ii + 4
+				int j = jj + ((k >> 1) << 2);	// jj + 0, jj + 0, jj + 4, jj + 4
+				int ny; // 4 lines
+				int px = 4; // num columns to copy
+				if (i >= width) i = width - 1;
+				if (i + px > width) px = width - i;
+				for (ny=0; ny<4; ny++) {
+					if (j >= height) j = height - 1;
+					memcpy(srcBlock + ny * 4 * 4,
+							ctx->row_pointers[j] + i * 4, px * 4);
+					if (px < 4) {
+						// repeat last column (4-px) times
+						int x = width - 1;
+						int nx;
+						for (nx = px; nx < 4; nx++) {
+							memcpy(srcBlock + ny * 4 * 4 + nx * 4,
+									ctx->row_pointers[j] + x * 4, 4);
+						}
+					}
+					j++;
+				}
+				getBaseColors(color0, color1, srcBlock);
+				*(PNGU_u16 *)outBuf = rgb8ToRGB565(color0);
+				outBuf += 2;
+				*(PNGU_u16 *)outBuf = rgb8ToRGB565(color1);
+				outBuf += 2;
+				*(PNGU_u32 *)outBuf = colorIndices(color0, color1, srcBlock);
+				outBuf += 4;
+			}
+		}
+	}
+	// Free resources
+	free (ctx->img_data);
+	free (ctx->row_pointers);
+
+	// Success
+	return PNGU_OK;
+}
+
 void ExtractBlock( PNGU_u8 *inPtr, int y, int x, PNGU_u32 width, int i, PNGU_u8 colorBlock[] ) {
 	PNGU_u32 offset;
 	PNGU_u8 r, g, b, a;
@@ -843,7 +915,7 @@ void ExtractBlock( PNGU_u8 *inPtr, int y, int x, PNGU_u32 width, int i, PNGU_u8 
  * by usptactical
  * Converts a 4x4 RGBA8 image to CMPR.
  */ 
-int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr)
+int PNGU_4x4RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr)
 {
 	PNGU_u8 srcBlock[16 * 4];
 	PNGU_u8 color0[4];
@@ -916,10 +988,54 @@ int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf
 	return PNGU_OK;
 }
 
+// if width or height is not divisible by 8
+// then the remaining will be padded with last row/column
+// buffer must be allocated with width and height rounded up
+int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr)
+{
+	PNGU_u8 srcBlock[16 * 4];
+	PNGU_u8 color0[4];
+	PNGU_u8 color1[4];
+	PNGU_u8 *src, *block;
+	PNGU_u8 *cmpr = (PNGU_u8 *)buf_cmpr;
+	PNGU_u8 *rgba = (PNGU_u8 *)buf_rgb;
+	int jj, ii, i, j, k;
+	int x, y; // counter
+	int px, py; // pixel coord
 
-#ifndef SAFE_FREE
-#define SAFE_FREE(p) if(p){free(p);p=NULL;}
-#endif
+	for(jj = 0; jj < height; jj += 8) {
+		for(ii = 0; ii < width; ii += 8) {
+			for (k=0; k < 4; k++) {
+				i = ii + ((k & 1) << 2);	// ii + 0, ii + 4, ii + 0, ii + 4
+				j = jj + ((k >> 1) << 2);	// jj + 0, jj + 0, jj + 4, jj + 4
+
+				block = srcBlock;
+				for (y=0; y<4; y++) {
+					py = j + y;
+					if (py >= height) py = height - 1;
+					src = rgba + py * width * 4;
+					for (x=0; x<4; x++) {
+						px = i + x;
+						if (px >= width) px = width - 1;
+						memcpy(block, src + px * 4, 4);
+						block += 4;
+					}
+				}
+
+				getBaseColors(color0, color1, srcBlock);
+				*(PNGU_u16 *)cmpr = rgb8ToRGB565(color0);
+				cmpr += 2;
+				*(PNGU_u16 *)cmpr = rgb8ToRGB565(color1);
+				cmpr += 2;
+				*(PNGU_u32 *)cmpr = colorIndices(color0, color1, srcBlock);
+				cmpr += 4;
+			}
+		}
+	}
+	// Success
+	return PNGU_OK;
+}
+
 
 /**
  * added by usptactical

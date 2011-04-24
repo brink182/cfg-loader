@@ -146,7 +146,9 @@ int PNGU_DecodeToRGBA8 (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffe
 // and destination address.
 int PNGU_DecodeTo4x4RGB565 (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer);
 // Compressed version (DXT1/CMPR)
-int PNGU_DecodeToCMPR(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer);
+int PNGU_DecodeToCMPR_Trim(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer);
+int PNGU_DecodeToCMPR_Pad(IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, void *buffer);
+int PNGU_4x4RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr);
 int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf_cmpr);
 
 // Expands selected image into a 4x4 tiled RGB5A3 buffer. You need to specify context, image dimensions,

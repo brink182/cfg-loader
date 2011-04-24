@@ -2,6 +2,7 @@
 #define _COVERFLOW_H_
 
 extern bool showingFrontCover;
+extern bool coverflow_test_grid;
 
 /**
  * Initilaizes all the common cover images (top, side, front, back)
@@ -80,7 +81,8 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
  *  @param zrot f32 the Z-axis rotation of the cover
  *  @return void
  */
-void Coverflow_drawCoverForGameOptions(int game_sel, int x, int y, int z, f32 xrot, f32 yrot, f32 zrot);
+void Coverflow_drawCoverForGameOptions(int game_sel,
+		int x, int y, int z, f32 xrot, f32 yrot, f32 zrot, int cstyle);
 
 
 #endif

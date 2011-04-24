@@ -32,7 +32,8 @@
 
 #define POS_AUTO   -1
 #define POS_CENTER -2
-#define POS_EDGE   -3 // right or bottom
+#define POS_MIDDLE -3 // from current pos to edge
+#define POS_EDGE   -4 // right or bottom
 // #define POS_ABS 0x1000
 
 #define PAD00 8
@@ -126,6 +127,8 @@ struct Widget
 	float text_scale;
 	FontColor text_color;
 	int text_opt; // align, fit
+	float zoom;   // pointer-over zoom amount
+	float click;  // button press flash amount
 	
 	// update internal state/value from external source
 	void (*update)(Widget *ww);

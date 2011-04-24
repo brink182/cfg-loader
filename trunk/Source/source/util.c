@@ -548,6 +548,36 @@ int hash_getx(HashTable *ht, void *key)
 	return -1;
 }
 
+void hash_remove(HashTable *ht, void *key, int a_handle)
+{
+	//dbg_printf("hash_remove(%.6s, %d)\n", key, handle);
+	if (!ht->table) return;
+	u32 hh = ht->hash_fun(ht->cb, key);
+	int hi = hh % ht->size;
+	int *prev = &ht->table[hi];
+	int handle = *prev;
+	int n = 0;
+	while (handle >= 0) {
+		if (handle == a_handle) {
+			// remove handle from linked list
+			*prev = *ht->next_handle(ht->cb, handle);
+			return;
+		}
+		prev = ht->next_handle(ht->cb, handle);
+		if (!prev) {
+			// error: handle not found
+			return;
+		}
+		handle = *prev;
+		n++;
+		if (n > 10000) {
+			dbg_printf("hash loop! %.6s\n", key);
+			return;
+		}
+	}
+	return;
+}
+
 #define HMAP_ITEM(HM,N) (HM->data + HM->item_size * N)
 #define HMAP_NEXT(HM,N) HMAP_ITEM(HM,N)
 #define HMAP_KEY(HM,N) (HMAP_ITEM(HM,N) + sizeof(int))

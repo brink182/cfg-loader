@@ -452,6 +452,7 @@ void _Music_Stop()
 
 void Music_Stop()
 {
+	dbg_printf("Music_Stop\n");
 	_Music_Stop();
 	ASND_End();
 }

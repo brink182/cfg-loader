@@ -2109,7 +2109,7 @@ void GRRLIB_renderStencil_buf(GRRLIB_texImg *tx)
  * Make a snapshot of the screen to a pre-allocated texture.  Used for AA.
  * @return A pointer to a texture representing the screen or NULL if an error occurs.
  */
-void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx)
+void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx, u8 gx_clear)
 {
 	if (tx == NULL) return;
 	if (tx->data == NULL) return;
@@ -2122,7 +2122,7 @@ void GRRLIB_AAScreen2Texture_buf(GRRLIB_texImg *tx)
 	GX_SetCopyFilter(GX_FALSE, NULL, GX_FALSE, NULL);
 	GX_SetTexCopySrc(0, 0, rmode->fbWidth, rmode->efbHeight);
 	GX_SetTexCopyDst(rmode->fbWidth, rmode->efbHeight, GX_TF_RGBA8, GX_FALSE);
-	GX_CopyTex(tx->data, GX_TRUE);
+	GX_CopyTex(tx->data, gx_clear);
 	GX_PixModeSync();
 	GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);	
 	GRRLIB_FlushTex(tx);
@@ -2217,14 +2217,14 @@ const float _jitter3[3][2] = {
 	{ 0.256263f, 0.368119f },
 	{ 0.117148f, -0.117570f }
 };
-/*
-const float _jitter4[4][2] = {
+
+const float _jitter4wide[4][2] = {
 	{ -0.208147f, 0.353730f },
 	{ 0.203849f, -0.353780f },
 	{ -0.292626f, -0.149945f },
 	{ 0.296924f, 0.149994f }
 };
-*/
+
 const float _jitter4[4][2] = {
 	{ -0.108147f, 0.253730f },
 	{ 0.103849f, -0.253780f },
@@ -2232,8 +2232,10 @@ const float _jitter4[4][2] = {
 	{ 0.196924f, 0.049994f }
 };
 
+bool grrlib_wide_aa = true;
 
-void GRRLIB_prepareAAPass(int aa_cnt, int aaStep) {
+void GRRLIB_prepareAAPass(int aa_cnt, int aaStep)
+{
 	float x = 0.0f;
 	float y = 0.0f;
 	u32 w = rmode->fbWidth;
@@ -2248,18 +2250,27 @@ void GRRLIB_prepareAAPass(int aa_cnt, int aaStep) {
 			y += _jitter3[aaStep][1];
 			break;
 		case 4:
-			x += _jitter4[aaStep][0];
-			y += _jitter4[aaStep][1];
+			if (grrlib_wide_aa) {
+				x += _jitter4wide[aaStep][0];
+				y += _jitter4wide[aaStep][1];
+			} else {
+				x += _jitter4[aaStep][0];
+				y += _jitter4[aaStep][1];
+			}
 			break;
 	}
-	GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+	//GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	GX_SetViewport(0+x, 0+y, rmode->fbWidth, rmode->efbHeight, 0, 1);
 	GX_SetScissor(0, 0, w, h);
 	GX_InvVtxCache();
 	GX_InvalidateTexAll();
 }
 
-void GRRLIB_drawAAScene(int aa_cnt, GRRLIB_texImg *texAABuffer) {
+int aa_method = 1;
+
+void GRRLIB_drawAAScene(int aa_cnt, GRRLIB_texImg *texAABuffer)
+{
+	if (aa_method) return;
 	GXTexObj texObj[4];
 	Mtx modelViewMtx;
 	u8 texFmt = GX_TF_RGBA8;
@@ -2336,6 +2347,51 @@ void GRRLIB_drawAAScene(int aa_cnt, GRRLIB_texImg *texAABuffer) {
 	GX_SetNumChans(1);
 	GX_SetNumTexGens(1);
 	GX_SetNumTevStages(1);
+}
+
+/*
+ // aa using viewport -- doesn't work
+		int w = rmode->fbWidth;
+		int h = rmode->efbHeight;
+		int x, y, w2, h2;
+		w2 = w * 2;
+		h2 = h * 2;
+		switch (aaStep) {
+			default:
+			case 0: x = 0; y = 0; break;
+			case 1: x = w; y = 0; break;
+			case 2: x = 0; y = h; break;
+			case 3: x = w; y = h; break;
+		}
+		GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+		GX_SetViewport(-x, -y, w2, h2, 0, 1);
+		GX_SetScissor(0, 0, w, h);
+		GX_SetScissorBoxOffset(0, 0);
+		GX_InvVtxCache();
+		GX_InvalidateTexAll();
+*/
+
+void GRRLIB_DrawImgRect (float x, float y, float w, float h, GRRLIB_texImg *tex, const u32 color)
+{
+	guVector p[4];
+	p[0].x = x;
+	p[0].y = y;
+	p[1].x = x + w;
+	p[1].y = y;
+	p[2].x = x + w;
+	p[2].y = y + h;
+	p[3].x = x;
+	p[3].y = y + h;
+	GRRLIB_DrawImgQuad(p, tex, color);
+}
+
+void GRRLIB_DrawImgNoAA(const f32 xpos, const f32 ypos, const GRRLIB_texImg *tex,
+		const f32 degrees, const f32 scaleX, const f32 scaleY, const u32 color)
+{
+	int aa = GRRLIB_Settings.antialias;
+	GRRLIB_Settings.antialias = false;
+	GRRLIB_DrawImg(xpos, ypos, tex, degrees, scaleX, scaleY, color);
+	GRRLIB_Settings.antialias = aa;
 }
 
 void tx_store(struct GRRLIB_texImg *dest, struct GRRLIB_texImg *src)

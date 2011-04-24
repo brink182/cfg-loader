@@ -484,18 +484,13 @@ void cfg_set_covers_path()
 	snprintf(D_S(CFG.covers_path_3d), "%s/%s", CFG.covers_path, "3d");
 	snprintf(D_S(CFG.covers_path_disc), "%s/%s", CFG.covers_path, "disc");
 	snprintf(D_S(CFG.covers_path_full), "%s/%s", CFG.covers_path, "full");
+	snprintf(D_S(CFG.covers_path_cache), "%s/%s", CFG.covers_path, "cache");
 	CFG.covers_path_2d_set = 0;
 }
 
 char *cfg_get_covers_path(int style)
 {
 	switch (style) {
-		case CFG_COVER_STYLE_FULL:
-			return CFG.covers_path_full;
-		case CFG_COVER_STYLE_3D:
-			return CFG.covers_path_3d;
-		case CFG_COVER_STYLE_DISC:
-			return CFG.covers_path_disc;
 		default:
 		case CFG_COVER_STYLE_2D:
 			if (CFG.covers_path_2d_set) {
@@ -503,6 +498,19 @@ char *cfg_get_covers_path(int style)
 			} else {
 				return CFG.covers_path;
 			}
+
+		case CFG_COVER_STYLE_3D:
+			return CFG.covers_path_3d;
+
+		case CFG_COVER_STYLE_DISC:
+			return CFG.covers_path_disc;
+
+		case CFG_COVER_STYLE_FULL:
+		case CFG_COVER_STYLE_HQ:
+			return CFG.covers_path_full;
+
+		case CFG_COVER_STYLE_CACHE:
+			return CFG.covers_path_cache;
 	}
 	return NULL;
 }
@@ -592,6 +600,7 @@ void cfg_default_url()
 	*CFG.cover_url_3d = 0;
 	*CFG.cover_url_disc = 0;
 	*CFG.cover_url_full = 0;
+	*CFG.cover_url_hq = 0;
 
 	STRCOPY(CFG.cover_url_2d,
 		" http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png"
@@ -627,6 +636,10 @@ void cfg_default_url()
 		//" http://www.wiiboxart.com/artwork/coverfull/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/Full%20Cover/{ID6}.png"
+		);
+
+	STRCOPY(CFG.cover_url_hq,
+		" http://wiitdb.com/wiitdb/artwork/coverfullHQ/{CC}/{ID6}.png"
 		);
 
 	STRCOPY(CFG.gamercard_url,
@@ -2143,14 +2156,11 @@ void cfg_set(char *name, char *val)
 
 	// urls
 	CFG_STR("titles_url", CFG.titles_url);
-	// url_2d
 	CFG_STR_LIST("cover_url", CFG.cover_url_2d);
-	// url_3d
 	CFG_STR_LIST("cover_url_3d", CFG.cover_url_3d);
-	// url_disc
 	CFG_STR_LIST("cover_url_disc", CFG.cover_url_disc);
-	// url_full
 	CFG_STR_LIST("cover_url_full", CFG.cover_url_full);
+	CFG_STR_LIST("cover_url_hq", CFG.cover_url_hq);
 	// download options
 	cfg_bool("download_all_styles", &CFG.download_all);
 	cfg_map("download_id_len", "4", &CFG.download_id_len, 4);
@@ -3221,7 +3231,8 @@ void cfg_setup2()
 			// normal (4:3): COVER_WIDTH = 160;
 			// wide (16:9): COVER_WIDTH = 130;
 			// ratio: *13/16
-			// although true 4:3 -> 16:9 should be *12/16,
+			// although true 4:3 -> 16:9 should be
+			// 4:3=12:9 -> 16:9 => *12/16,
 			// but it looks too compressed
 			// and align to multiple of 2
 			CFG.W_COVER_WIDTH = (COVER_WIDTH * 13 / 16) / 2 * 2;

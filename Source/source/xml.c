@@ -300,8 +300,7 @@ bool OpenXMLFile(char *filename)
 		fseek(filexml, 0 , SEEK_END);
 		u32 size = ftell(filexml);
 		rewind(filexml);
-		xmlData = mem_alloc(size);
-		memset(xmlData, 0, size);
+		xmlData = mem_calloc(size);
 		if (xmlData == NULL) {
 			fclose(filexml);
 			return false;
@@ -322,8 +321,7 @@ bool OpenXMLFile(char *filename)
 		if (db_debug) {
 			printf("uncompressed xml: %dkb\n", zipfilebuffersize/1024);
 		}
-		xmlData = mem_alloc(zipfilebuffersize);
-		memset(xmlData, 0, zipfilebuffersize);
+		xmlData = mem_calloc(zipfilebuffersize);
 		if (xmlData == NULL) {
 			unzCloseCurrentFile(unzfile);
 			unzClose(unzfile);

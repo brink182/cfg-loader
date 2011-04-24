@@ -2,6 +2,7 @@
 #define _MEM_H
 
 #include <stdio.h>
+#include <ogcsys.h>
 
 // max number of mem allocations in mem1/mem2 heaps
 #define MAX_MEM_BLK 1024
@@ -24,6 +25,7 @@ typedef struct
 	int size;
 	blk_list used_list;
 	blk_list free_list;
+	mutex_t mutex;
 } heap;
 
 typedef struct
@@ -58,6 +60,7 @@ void* mem1_alloc(int size);
 void* mem1_realloc(void *ptr, int size);
 void* mem2_alloc(int size);
 void* mem_alloc(int size);
+void* mem_calloc(int size);
 int   mem_resize(void *ptr, int size);
 void* mem_realloc(void *ptr, int size);
 void  mem_free(void *ptr);
@@ -85,8 +88,12 @@ void  util_clear();
 
 #define SAFE_FREE(P) if(P){mem_free(P);P=NULL;}
 
+#define ALIGN_VAL 32
+
 size_t xalign_up(int a, size_t s);
 size_t xalign_down(int a, size_t s);
+size_t align_up(size_t s);
+size_t align_down(size_t s);
 
 typedef struct obj_block
 {

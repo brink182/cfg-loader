@@ -2932,8 +2932,8 @@ void Menu_Install(void)
 	__Menu_PrintInfo2(&header, comp_size, real_size);
 
 	// force fat freespace update when installing
-	//extern int wbfs_fat_vfs_have;
-	//wbfs_fat_vfs_have = 0;
+	extern int wbfs_fat_vfs_have;
+	wbfs_fat_vfs_have = 0;
 	// Disk free space
 	f32 free, used, total;
 	WBFS_DiskSpace(&used, &free);

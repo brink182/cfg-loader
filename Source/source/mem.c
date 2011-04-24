@@ -19,12 +19,11 @@
 #include "mem.h"
 #include "util.h" // required for memcheck
 #include "console.h"
+#include "cache.h"
 
 static heap mem1;
 static heap mem2;
 static void *mem2_start = NULL;
-
-#define ALIGN_VAL 32
 
 inline size_t xalign_up(int a, size_t s)
 {
@@ -184,7 +183,7 @@ mem_blk* blk_merge_add(blk_list *list, mem_blk *ab)
 	return fb;
 }
 
-void *heap_alloc(heap *h, int size)
+void *_heap_alloc(heap *h, int size)
 {
 	mem_blk *ab, *fb;
 	// align size
@@ -201,11 +200,18 @@ void *heap_alloc(heap *h, int size)
 	if (fb->size == 0) {
 		blk_remove(&h->free_list, fb);
 	}
-	memset(ab->ptr, 0, size);
 	return ab->ptr;
 }
 
-int heap_free(heap *h, void *ptr)
+void *heap_alloc(heap *h, int size)
+{
+	LWP_MutexLock(h->mutex);
+	void *ret = _heap_alloc(h, size);
+	LWP_MutexUnlock(h->mutex);
+	return ret;
+}
+
+int _heap_free(heap *h, void *ptr)
 {
 	mem_blk *ab, *fb;
 	if (!ptr) return 0;
@@ -221,12 +227,20 @@ int heap_free(heap *h, void *ptr)
 	return 0;
 }
 
+int heap_free(heap *h, void *ptr)
+{
+	LWP_MutexLock(h->mutex);
+	int ret = _heap_free(h, ptr);
+	LWP_MutexUnlock(h->mutex);
+	return ret;
+}
+
 // resize an existing allocation, without changing location
 // return:
 //   0 on success
 //  -1 on error
 //  >0 the max delta that is possible to resize by
-int heap_resize(heap *h, void *ptr, int size)
+int _heap_resize(heap *h, void *ptr, int size)
 {
 	mem_blk *ab, *fb;
 	mem_blk bb;
@@ -281,7 +295,15 @@ int heap_resize(heap *h, void *ptr, int size)
 	return 0;
 }
 
-void *heap_realloc(heap *h, void *ptr, int size)
+int heap_resize(heap *h, void *ptr, int size)
+{
+	LWP_MutexLock(h->mutex);
+	int ret = _heap_resize(h, ptr, size);
+	LWP_MutexUnlock(h->mutex);
+	return ret;
+}
+
+void *_heap_realloc(heap *h, void *ptr, int size)
 {
 	mem_blk *ab;
 	void *new_ptr;
@@ -328,6 +350,14 @@ void *heap_realloc(heap *h, void *ptr, int size)
 	return new_ptr;
 }
 
+void *heap_realloc(heap *h, void *ptr, int size)
+{
+	LWP_MutexLock(h->mutex);
+	void *ret = _heap_realloc(h, ptr, size);
+	LWP_MutexUnlock(h->mutex);
+	return ret;
+}
+
 void heap_init(heap *h, void *ptr, int size)
 {
 	int d;
@@ -343,6 +373,8 @@ void heap_init(heap *h, void *ptr, int size)
 	h->free_list.num = 1;
 	h->free_list.list[0].ptr = a_ptr;
 	h->free_list.list[0].size = size;
+	h->mutex = LWP_MUTEX_NULL;
+	LWP_MutexInit(&h->mutex, true); // true: allow recursive
 	// 0.4 sec for 60mb
 	//memset(ptr, 0, size);
 	//DCFlushRange(ptr, size);
@@ -412,7 +444,13 @@ void *mem_alloc(int size)
 	if (ptr) return ptr;
 	// sys
 	ptr = memalign(32, size);
-	memset(ptr, 0, size);
+	return ptr;
+}
+
+void *mem_calloc(int size)
+{
+	void *ptr = mem_alloc(size);
+	if (ptr) memset(ptr, 0, size);
 	return ptr;
 }
 
@@ -580,6 +618,8 @@ void lib_mem_stat_str(char *str, int size)
 	lib_info_str(str, size);
 	str_seek_end(&str, &size);
 	mem_stat_str(str, size);
+	str_seek_end(&str, &size);
+	cache_stats(str, size);
 }
 
 void mem_statf(FILE *f)

@@ -79,8 +79,8 @@ struct block read_message(s32 connection, const char *fname)
 	bool found = false;
 	unsigned char *buffer_found;
 
-	buffer_found = mem_alloc(HTTP_BUFFER_SIZE);
-	buffer.data = mem_alloc(HTTP_BUFFER_SIZE);
+	buffer_found = mem_calloc(HTTP_BUFFER_SIZE);
+	buffer.data = mem_calloc(HTTP_BUFFER_SIZE);
 	buffer.filesize = 0;
 	buffer.size = HTTP_BUFFER_SIZE;
 	int progress_count = 0;

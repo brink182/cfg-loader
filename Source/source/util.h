@@ -111,6 +111,7 @@ int hash_init(HashTable *ht, int size, void *cb,
 void hash_close(HashTable *ht);
 void hash_add(HashTable *ht, void *key, int handle);
 int hash_get(HashTable *ht, void *key);
+void hash_remove(HashTable *ht, void *key, int a_handle);
 
 static inline int hash_check_init(HashTable *ht, int size, void *cb,
 		u32 (*hash_fun)(void *cb, void *key),

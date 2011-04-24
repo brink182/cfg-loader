@@ -306,48 +306,6 @@ void test_text_scale()
 
 
 
-static int cover_hold = 0;
-static int hold_x, hold_y, hold_dx, hold_dy;
-
-int handle_game_cover(Widget *ww)
-{
-	if (winput.w_buttons & WPAD_BUTTON_A) {
-		if (wgui_over(ww)) cover_hold = 1;
-		hold_x = winput.w_ir->sx;
-		hold_y = winput.w_ir->sy;
-	}
-	if (cover_hold) {
-		if (!(Wpad_HeldButtons() & WPAD_BUTTON_A)) cover_hold = 0;
-	}
-	if (cover_hold && winput.w_ir->smooth_valid) {
-		hold_dx = winput.w_ir->sx - hold_x;
-		hold_dy = winput.w_ir->sy - hold_y;
-	}
-	return 0;
-}
-
-void render_game_cover(Widget *ww)
-{
-	//wgui_render_page(ww);
-	int x = ww->ax + PAD3 * 3;
-	int y = ww->ay + PAD3 * 2;
-	if (gui_style != GUI_STYLE_COVERFLOW) {
-		draw_grid_cover_at(gameSelected, x, y);
-	} else {
-		static float yrot = 0;
-		int z = 0;
-		if (cover_hold) {
-			z = 10;
-			yrot = hold_dx;
-			Coverflow_drawCoverForGameOptions(gameSelected, x, y, z, hold_dy/2, hold_dx, 0);
-		} else {
-			Coverflow_drawCoverForGameOptions(gameSelected, x, y, z, 0, yrot, 0);
-			yrot++;
-			if (yrot > 360) yrot -= 360;
-		}
-	}
-}
-
 
 struct AltDolInfo
 {
@@ -440,6 +398,9 @@ int get_alt_dol_list_index(struct AltDolInfoList *list, struct Game_CFG *gcfg)
 struct W_GameCfg
 {
 	Widget *dialog;
+	Widget *cstyle;
+	Widget *cctrl; // cover control
+	Widget *cc_nohq;
 	Widget *info;
 	Widget *options;
 	Widget *discard;
@@ -464,6 +425,213 @@ struct W_GameCfg
 	Widget *write_playlog;
 	Widget *clean;
 } wgame;
+
+
+// cover style names
+char *cstyle_names[] =
+{
+	"2D", "3D", "Disc", "Full", "HQ", "RGB",
+	"Full RGB", "Full CMPR", "HQ CMPR"
+};
+
+int cstyle_val[] =
+{
+	CFG_COVER_STYLE_2D,
+	CFG_COVER_STYLE_3D,
+	CFG_COVER_STYLE_DISC,
+	CFG_COVER_STYLE_FULL,
+	//CFG_COVER_STYLE_HQ,
+	CFG_COVER_STYLE_HQ_OR_FULL,
+	CFG_COVER_STYLE_HQ_OR_FULL_RGB,
+	// debug:
+	CFG_COVER_STYLE_FULL_RGB,
+	CFG_COVER_STYLE_FULL_CMPR,
+	CFG_COVER_STYLE_HQ_CMPR,
+};
+
+int cstyle_num = 6;
+int cstyle_num_debug = 9;
+
+static int cover_hold = 0;
+static float hold_x, hold_y; // base
+static float hold_ax, hold_ay; // abs. delta vs base
+static float hold_px, hold_py; // prev
+static float hold_dx, hold_dy; // delta vs prev
+static float hold_sx = 0.5, hold_sy; // average speed of last 10 frames
+static float cover_z = 0;
+
+int handle_game_cover(Widget *ww)
+{
+	wgame.cc_nohq->state = WGUI_STATE_DISABLED;
+	int cstyle = cstyle_val[wgame.cstyle->value]; // remap
+	if (cstyle < CFG_COVER_STYLE_FULL) return 0;
+	if (cstyle > CFG_COVER_STYLE_FULL) {
+		int cs = cstyle;
+		int fmt = CC_COVERFLOW_FMT;
+		int state = -1;
+		cache_remap_style_fmt(&cs, &fmt);
+		if (cs == CFG_COVER_STYLE_HQ || cs == CFG_COVER_STYLE_HQ_OR_FULL) {
+			// if HQ selected then check missing
+			cache_request_cover(gameSelected, CFG_COVER_STYLE_HQ, fmt, CC_PRIO_NONE, &state);
+			if (state == CS_MISSING) {
+				// show missing note
+				wgame.cc_nohq->state = WGUI_STATE_NORMAL;
+			}
+		}
+	}
+	if (winput.w_buttons & WPAD_BUTTON_A) {
+		if (wgui_over(ww)) {
+			cover_hold = 1;
+			hold_x = winput.w_ir->sx;
+			hold_y = winput.w_ir->sy;
+			hold_px = hold_x;
+			hold_py = hold_y;
+			hold_sx = 0;
+			hold_sy = 0;
+		}
+	}
+	if (cover_hold) {
+		if (!(Wpad_HeldButtons() & WPAD_BUTTON_A)) {
+			// released, keep rotating
+			if (fabsf(hold_sx) < 0.5) hold_sx = 0;
+			if (fabsf(hold_sy) < 0.5) hold_sy = 0;
+			// allow to rotate only on one axis
+			if (fabsf(hold_sx) > fabsf(hold_sy)) hold_sy = 0; else hold_sx = 0;
+			cover_hold = 0;
+		}
+	}
+	if (cover_hold && winput.w_ir->smooth_valid) {
+		hold_ax = winput.w_ir->sx - hold_x;
+		hold_ay = winput.w_ir->sy - hold_y;
+		hold_dx = winput.w_ir->sx - hold_px;
+		hold_dy = winput.w_ir->sy - hold_py;
+		hold_px = winput.w_ir->sx;
+		hold_py = winput.w_ir->sy;
+		hold_sx = (hold_sx * 9.0 + hold_dx) / 10.0;
+		hold_sy = (hold_sy * 9.0 + hold_dy) / 10.0;
+	}
+	if (winput.w_buttons & WPAD_BUTTON_PLUS) {
+		cover_z += 5;
+	}
+	if (winput.w_buttons & WPAD_BUTTON_MINUS) {
+		cover_z -= 5;
+	}
+	return 0;
+}
+
+void render_game_cover(Widget *ww)
+{
+	int cstyle = cstyle_val[wgame.cstyle->value]; // remap
+	//wgui_render_page(ww);
+	float x, y;
+	if (cstyle < CFG_COVER_STYLE_FULL) {
+		// x,y: center
+		x = ww->ax + ww->w / 2;
+		y = ww->ay + ww->h / 2;
+		draw_grid_cover_at(gameSelected, x, y, ww->w, ww->h, cstyle);
+	} else {
+		static float yrot = 0;
+		static float xrot = 0;
+		float z = cover_z;
+		if (cover_hold) {
+			z = cover_z + 5;
+			yrot += hold_dx;
+			xrot += hold_dy / 2.0;
+		} else {
+			yrot += hold_sx / 2.0;
+			xrot += hold_sy / 2.0;
+			if (yrot > 360) yrot -= 360;
+			if (yrot < -360) yrot += 360;
+			if (xrot > 360) xrot -= 360;
+			if (xrot < -360) xrot += 360;
+		}
+		x = ww->ax + PAD3 * 3;
+		y = ww->ay + PAD3 * 2;
+		if (z > 0) x += z * 3;
+		Coverflow_drawCoverForGameOptions(gameSelected,
+				x, y, z, xrot, yrot, 0, cstyle);
+	}
+}
+
+void init_cover_page(Widget *pp)
+{
+	Widget *ww;
+	Widget *cc;
+	pos_margin(pp, PAD00);
+	// cover style
+	int ns = cstyle_num;
+	if (CFG.debug >= 3) ns = cstyle_num_debug;
+	ww = wgui_add_listboxx(pp, pos(POS_AUTO, POS_EDGE, SIZE_AUTO, H_SMALL),
+			"Cover Style", ns, cstyle_names);
+	ww->child[0]->action_button = WPAD_BUTTON_UP;
+	ww->child[2]->action_button = WPAD_BUTTON_DOWN;
+	wgui_set_value(ww, CFG.cover_style);
+	wgame.cstyle = ww;
+	ww = wgui_add_text(pp, pos_h(H_SMALL), "[No HQ]");
+	wgame.cc_nohq = ww;
+	// cover image
+	cc = wgui_add(pp, pos(0, 0, SIZE_FULL, -H_SMALL), NULL);
+	cc->render = render_game_cover;
+	cc->handle = handle_game_cover;
+	// debug / test
+	if (CFG.debug) {
+		// fast aa
+		ww = wgui_add_checkbox(cc, pos_h(H_SMALL), "fast ww", true);
+		ww->val_ptr = &aa_method;
+		ww->update = update_val_from_ptr_int;
+		ww->action = action_write_val_ptr_int;
+		pos_newline(cc);
+		// ww level
+		ww = wgui_add_numswitch(cc, pos_h(H_SMALL), NULL, 0, 4);
+		ww->val_ptr = &CFG.gui_antialias;
+		ww->update = update_val_from_ptr_int;
+		ww->action = action_write_val_ptr_int;
+		wgui_propagate_value(ww, SET_VAL_MAX, 4); 
+		ww->child[0]->action_button = 0;
+		ww->child[2]->action_button = 0;
+		pos_newline(cc);
+		// wide ww
+		extern bool grrlib_wide_aa;
+		ww = wgui_add_checkbox(cc, pos_h(H_SMALL), "wide ww", true);
+		ww->val_ptr = &grrlib_wide_aa;
+		ww->update = update_val_from_ptr_bool;
+		ww->action = action_write_val_ptr_bool;
+		pos_newline(cc);
+		// lod bias
+		extern int lod_bias_idx;
+		char *lod_bias_v[] = { "-2.0", "-1.5", "-1.0", "-0.5", "-0.3", "0", "+0.5", "+1" };
+		ww = wgui_add_listboxx(cc, pos_h(H_SMALL), "lod bias", 8, lod_bias_v);
+		ww->val_ptr = &lod_bias_idx;
+		ww->update = update_val_from_ptr_int;
+		ww->action = action_write_val_ptr_int;
+		pos_newline(cc);
+		// grid
+		ww = wgui_add_checkbox(cc, pos_h(H_SMALL), "grid", true);
+		ww->val_ptr = &coverflow_test_grid;
+		ww->update = update_val_from_ptr_bool;
+		ww->action = action_write_val_ptr_bool;
+	}
+	// container for cover controls
+	/*
+	Widget *aa;
+	Pos p;
+	aa = wgui_add(cc, pos(0, POS_EDGE, (H_SMALL+4)*2, (H_SMALL+4)*4), NULL);
+	pos_pad(aa, 4);
+	wgame.cctrl = aa;
+	p = pos_wh(H_SMALL, H_SMALL);
+	ww = wgui_add_button(aa, p, "☻"); // F
+	ww->text_scale *= 1.5;
+	ww = wgui_add_button(aa, p, "↔"); // B =#↔↕�♦☺○o•☼ //
+	ww->text_scale *= 1.6;
+	pos_newline(aa);
+	ww = wgui_add_button(aa, p, "+");
+	ww = wgui_add_button(aa, p, "-");
+	pos_newline(aa);
+	ww = wgui_add_button(aa, p, "▲"); // ^
+	ww = wgui_add_button(aa, p, "▼"); // v
+	pos_newline(aa);
+	*/
+}
 
 void gameopt_inactive(int cond, Widget *ww, int val)
 {
@@ -744,6 +912,7 @@ void action_game_manage_cheats(Widget *ww)
 
 struct BannerInfo
 {
+	int inited;
 	SoundInfo snd;
 	u8 title[84];
 	bool playing;
@@ -854,6 +1023,7 @@ void* banner_thread(void *arg)
 void banner_thread_start()
 {
 	int ret;
+	if (banner.inited) return;
 	memset(&banner, 0, sizeof(banner));
 	banner.lwp   = LWP_THREAD_NULL;
 	banner.mutex = LWP_MUTEX_NULL;
@@ -862,6 +1032,7 @@ void banner_thread_start()
 	LWP_CondInit(&banner.cond);
 	// start thread
 	ret = LWP_CreateThread(&banner.lwp, banner_thread, NULL, NULL, 32*1024, 40);
+	banner.inited = 1;
 }
 
 void banner_thread_play(struct discHdr *header)
@@ -884,6 +1055,7 @@ void banner_thread_play(struct discHdr *header)
 void banner_thread_stop()
 {
 	bool waiting;
+	if (banner.inited == 0) return;
 	if (banner.lwp == LWP_THREAD_NULL) return;
 	// mutex
 	LWP_MutexLock(banner.mutex);
@@ -1035,16 +1207,14 @@ void OpenGameDialog()
 	Widget *pp;
 	Widget *w_game_page = pp = wgui_add_page(dd, NULL, p, "cover");
 	wgui_link_page_ctrl(w_game_page, w_info_radio);
-	pp->render = render_game_cover;
-	pp->handle = handle_game_cover;
+	init_cover_page(pp);
 
 	// page: game info
 	pp = wgui_add_page(dd, w_game_page, pos_auto, "info");
-	Widget *tt;
-	tt = wgui_add_textbox(pp, pos_wh(SIZE_FULL, -bh+PAD1), TXT_H_SMALL, NULL, 0);
-	wgame.info = tt;
-	p = pos_get(tt);
-	ww = wgui_add_pgswitch(pp, tt, pos(p.x, p.y+p.h, p.w, bh), NULL);
+	pos_pad(pp, 0);
+	wgame.info = wgui_add_textbox(pp, pos_wh(SIZE_FULL, -H_NORMAL), TXT_H_SMALL, NULL, 0);
+	pos_newline(pp);
+	ww = wgui_add_pgswitch(pp, wgame.info, pos_wh(SIZE_FULL, H_NORMAL), NULL);
 	
 	// page manage
 	pp = wgui_add_page(dd, w_game_page, pos_auto, "manage");
@@ -1399,8 +1569,11 @@ void action_Theme(Widget *ww)
 	Grx_Init();
 	Cache_Init();
 	if (gui_style != GUI_STYLE_COVERFLOW) {
-		// cover area can change
+		// cover area change
 		grid_init(gameSelected);
+	} else {
+		// reflection change
+		gameSelected = Coverflow_initCoverObjects(gameCnt, gameSelected, true);
 	}
 }
 

@@ -36,29 +36,40 @@ void Do_Shutdown() {
 	Sys_Shutdown();
 }
 
-s8 Wpad_Stick(int n, bool y) {
+void Wpad_Stick(int n, float mm, float *am, float *aa, int *ax, int *ay)
+{
+	float m = 0.0;
+	float a = 0.0;
+	float x = 0.0;
+	float y = 0.0;
+	WPADData *data = WPAD_Data(n);
 
-    float m = 0.0;
-    float a = 0.0;
-    double tmp;
-    WPADData *data = WPAD_Data(n);
+	if (data->exp.type == WPAD_EXP_NUNCHUK) {
+		m = data->exp.nunchuk.js.mag;
+		a = data->exp.nunchuk.js.ang;
+	} else if (data->exp.type == WPAD_EXP_CLASSIC) {
+		m = data->exp.classic.ljs.mag;
+		a = data->exp.classic.ljs.ang;
+	} else if (data->exp.type == WPAD_EXP_GUITARHERO3) {
+		m = data->exp.gh3.js.mag;
+		a = data->exp.gh3.js.ang;
+	}
 
-    if (data->exp.type == WPAD_EXP_NUNCHUK) {
-        m = data->exp.nunchuk.js.mag;
-        a = data->exp.nunchuk.js.ang;
-    } else if (data->exp.type == WPAD_EXP_CLASSIC) {
-        m = data->exp.classic.ljs.mag;
-        a = data->exp.classic.ljs.ang;
-    } else if (data->exp.type == WPAD_EXP_GUITARHERO3) {
-        m = data->exp.gh3.js.mag;
-        a = data->exp.gh3.js.ang;
-    }
-
-    if (m > 1.0) m = 1.0;
-    else if (m < -1.0) m = -1.0;
-
-    tmp = (y == 0) ? m * sin((M_PI * a)/180.0f) : m * cos((M_PI * a)/180.0f);
-    return (s8)(tmp * 128.0f);
+	// no movement zone
+	if ((m > 0 && m < mm) || (m < 0 && m > -mm)) m = 0;
+	if (m > 1.0) m = 1.0;
+	else if (m < -1.0) m = -1.0;
+	if (am) *am = m;
+	if (aa) *aa = a;
+	// sometimes a is NaN
+	if (a >= -360.0 && a <= 360.0 && m >= -1 && m <= 1 ) {
+		x = m * sin((M_PI * a)/180.0f);
+		y = m * cos((M_PI * a)/180.0f);
+	} else {
+		//dbg_printf("wtf: %f\n", a); // NaN
+	}
+	if (ax) *ax = x * 128;
+	if (ay) *ay = y * 128;
 }
 
 void Wpad_getIRx(int n, struct ir_t *ir)
@@ -81,15 +92,20 @@ void Wpad_getIRx(int n, struct ir_t *ir)
 	}
 	ir->sx -= 160;
 	ir->sy -= 220;
-    if (ir->smooth_valid == 0) {
-        s8 padX = PAD_StickX(n);
-        s8 padY = PAD_StickY(n);
-        s8 wpadX = Wpad_Stick(n, 0);
-        s8 wpadY = Wpad_Stick(n, 1);
-		float mX = ((padX+wpadX) / 8);
-		float mY = ((padY+wpadY) / 8);
-		if (mX > 1 || mY > 1 || mX < -1 || mY < -1)
+	if (ir->smooth_valid == 0) {
+		s8 padX = PAD_StickX(n);
+		s8 padY = PAD_StickY(n);
+		int wpadX;
+		int wpadY;
+		float pm, pa;
+		Wpad_Stick(n, 0.08, &pm, &pa, &wpadX, &wpadY);
+		float mX = (float)(padX+wpadX) / 8;
+		float mY = (float)(padY+wpadY) / 8;
+		//dbg_printf("%d,%d %d,%d %.2f,%.2f  %d  %.2f,%.2f  %.2f,%.2f\n",
+		//		padX, padY, wpadX, wpadY, mX, mY, padMoved, pm, pa, coord[0], coord[1]);
+		if (mX > 1 || mY > 1 || mX < -1 || mY < -1) {
 			padMoved = true;
+		}
 		if (padMoved) {
 			coord[0] += mX;
 			coord[1] -= mY;
@@ -104,7 +120,7 @@ void Wpad_getIRx(int n, struct ir_t *ir)
 			ir->smooth_valid = 1;
 			ir->valid = 1;
 		}
-    } else {
+	} else {
 		coord[0] = 320;
 		coord[1] = 240;
 		padMoved = false;

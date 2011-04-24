@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v66
+Configurable SD/USB Loader v67
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -85,7 +85,8 @@ Default File locations:
     2d:            sd:/usb-loader/covers/2d/*.png
     3d:            sd:/usb-loader/covers/3d/*.png
     disc:          sd:/usb-loader/covers/disc/*.png
-    full:          sd:/usb-loader/covers/full/*.png
+    full (and HQ): sd:/usb-loader/covers/full/*.png
+    cache:         sd:/usb-loader/covers/cache/*.ccc
   titles file:     sd:/usb-loader/titles.txt
   themes:          sd:/usb-loader/themes/THEME_NAME/theme.txt
   theme preview:   sd:/usp-loader/themes/*.jpg
@@ -645,24 +646,22 @@ Config file:
 # cover_url = URL      (url for standard 2d flat covers)
 # cover_url_3d = URL   (url for 3d covers)
 # cover_url_disc = URL (url for disc covers)
-# cover_url_full = URL (url for disc covers)
+# cover_url_full = URL (url for full covers)
+# cover_url_hq = URL   (url for HQ full covers)
+#
 #   defaults:
 #
-#    cover_url =
-#    cover_url =+ http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png
-#    cover_url =+ http://boxart.rowdyruff.net/flat/{ID6}.png
+#   cover_url = http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png
 #
-#   cover_url_3d =
-#   cover_url_3d =+ http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png
-#   cover_url_3d =+ http://boxart.rowdyruff.net/3d/{ID6}.png
+#   cover_url_3d = http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png
 #
 #   cover_url_disc =
 #   cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disc/{CC}/{ID6}.png
 #   cover_url_disc =+ http://wiitdb.com/wiitdb/artwork/disccustom/{CC}/{ID6}.png
-#   cover_url_disc =+ http://boxart.rowdyruff.net/fulldisc/{ID6}.png
 #
-#   cover_url_full =
-#   cover_url_full =+ http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png
+#   cover_url_full = http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png
+#
+#   cover_url_hq = http://wiitdb.com/wiitdb/artwork/coverfullHQ/{CC}/{ID6}.png
 #
 # download_id_len = 4, [6]
 #   Specifies the downloaded cover ID length for the saved file name 
@@ -1015,6 +1014,29 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+04-04-2011 cfg v67 (release)
+ * Fixed crash with intro=1 (Issue 123)
+   Possibly also fixes problems with game forwarder channels
+ * Other minor fixes and cleanups
+
+03-04-2011 cfg v67b (beta)
+ * Support for HQ covers (from Wiiflow, thanks to Hibern)
+ * new option: cover_url_hq
+   default: http://wiitdb.com/wiitdb/artwork/coverfullHQ/{CC}/{ID6}.png
+ * File cache of compressed Full and HQ covers for faster loading
+   (Saved to covers_path/cache)
+
+22-03-2011 cfg v67a (alpha)
+ * Improved cover cache - no more cover reloading
+   after a theme or style change or cover download
+ * Minor improvement in coverflow cover rendering
+ * Minor adjustment of stick movement (nunchuck or classic)
+ * Fixed slow movement in console mode game list
+   when games are NTFS and hdd space info is enabled
+
+15-03-2011 cfg v66c (bugfix)
+ * Improved detection of cios d2x v3 (r21003) (thanks kamiro04)
 
 13-03-2011 cfg v66 (release)
  * Version

@@ -1,6 +1,8 @@
 #ifndef _GUI_H_
 #define _GUI_H_
 
+#include "sys/stat.h"
+
 #include "wpad.h"
 #include "my_GRRLIB.h"
 #include "cfg.h"
@@ -56,10 +58,15 @@ void Gui_DrawThemePreview(char *name, int id);
 void Gui_DrawThemePreviewLarge(char *name, int id);
 
 
+int find_cover_path(u8 *id, int cover_style, char *path, int size, struct stat *st);
 GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[], int, int, void *dest, char *path);
 GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[], int, int, void *dest, char *path);
 GRRLIB_texImg Gui_LoadTexture_fullcover(const unsigned char my_png[], int, int, int, void *dest, char *path);
 GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h, void *dest, int dest_w, int dest_h);
+u32 upperPower(u32 width);
+u32 fixGX_GetTexBufferSize(u16 wd, u16 ht, u32 fmt, u8 mipmap, u8 maxlod);
+GRRLIB_texImg Gui_LoadTexture_MIPMAP(const unsigned char my_png[],
+		int width, int height, int maxlod, void *dest, char *path);
 
 s32 __Gui_GetPngDimensions(void *img, u32 *w, u32 *h);
 void Gui_set_camera(ir_t *ir, int);

@@ -212,6 +212,12 @@ void Video_SetMode(void)
 
 	/* Configure the video subsystem */
 	Video_Configure(vmode);
+
+	// VIDEO_WaitVSync This is necessary!
+	// Otherwise the VIDEO_GetCurrentFramebuffer()
+	// returns an invalid ptr before an actual vsync happens
+	// so __console_flush can crash
+	VIDEO_WaitVSync();
 }
 
 void Video_Close()

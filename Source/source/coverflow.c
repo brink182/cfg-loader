@@ -62,6 +62,8 @@ extern bool suppressCoverDrawing;
 //AA
 extern struct GRRLIB_texImg aa_texBuffer[4];
 
+bool coverflow_test_grid = false;
+
 struct settings_cf_global CFG_cf_global;
 struct settings_cf_theme CFG_cf_theme[CF_THEME_NUM];
 
@@ -181,9 +183,7 @@ void Coverflow_Grx_Init() {
 
 		if (CFG.gui_compress_covers) {
 			//store a CMPR version of the full cover
-			void *buf1;
-			buf1 = memalign(32, (COVER_WIDTH * COVER_HEIGHT)/2);
-			tx_tmp = Gui_LoadTexture_CMPR(coverImg_full, COVER_WIDTH, COVER_HEIGHT, buf1, NULL);
+			tx_tmp = Gui_LoadTexture_CMPR(coverImg_full, 0, 0, NULL, NULL);
 			cache2_tex(&t2_nocover_full_CMPR, &tx_tmp);
 		}
 	}
@@ -211,26 +211,22 @@ void Coverflow_Close() {
  *  @param *cover Cover struct representing a game
  *  @return void
  */
-void update_cover_state(Cover *cover) {
+void update_cover_state2(Cover *cover, int cstyle)
+{
 	int gi = cover->gi;
 	
 	//make sure this is a valid cover index
 	if (gi < 0) return;
 	
 	//set the current image state for this cover
-	int actual_i = cache_game_find(gi);
-	cover->state = ccache.game[actual_i].state;
-	
+	GRRLIB_texImg *tx;
+	int fmt = CC_COVERFLOW_FMT;
+	tx = cache_request_cover(gi, cstyle, fmt, CC_PRIO_MED, &cover->state);
 	if (cover->state == CS_PRESENT) {
-		cover->tx = ccache.cover[ccache.game[actual_i].cid].tx;
+		cover->tx = *tx;
 	} else if (cover->state == CS_IDLE) {
-		if (gi > 0 && ccache.game[actual_i-1].state == CS_LOADING) {
-			cover->state = CS_LOADING;
-			goto loading;
-		}
 		cover->tx = t2_hourglass_full.tx;
 	} else if (cover->state == CS_LOADING) {
-		loading:
 		cover->tx = t2_hourglass_full.tx;
 	} else { // CS_MISSING
 		if (CFG.gui_compress_covers)
@@ -240,6 +236,10 @@ void update_cover_state(Cover *cover) {
 	}
 }
 
+void update_cover_state(Cover *cover)
+{
+	update_cover_state2(cover, CFG_COVER_STYLE_FULL);
+}
 
 /**
  * Checks the loading status of the covers.
@@ -250,7 +250,11 @@ void Coverflow_update_state() {
 	struct Cover *cover;
 
 	//center cover
-	update_cover_state(&coverCoords_center);
+	if (showingFrontCover) {
+		update_cover_state(&coverCoords_center);
+	} else {
+		update_cover_state2(&coverCoords_center, CFG_COVER_STYLE_HQ_OR_FULL);
+	}
 
 	//check left side
 	for (i=0; i < CFG_cf_theme[CFG_cf_global.theme].number_of_side_covers + 1; i++) {
@@ -777,6 +781,11 @@ void draw_2dcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xr
  *  @param isFavorite bool represents if the favorite image should be drawn over the cover
  *  @return void
  */
+
+// lod bias: at -1.0 looks best, lower values get slow, higher loose quality
+float lod_bias_a[] = { -2.0, -1.5, -1.0, -0.5, -0.3, 0, +0.5, +1 };
+int lod_bias_idx = 2;
+
 void draw_fullcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 xrot, f32 yrot, f32 zrot, u32 color, u32 edgecolor, bool isFavorite) {
 	Mtx44 GXprojection2D;
 	//Mtx GXview2D;
@@ -849,14 +858,23 @@ void draw_fullcover_image(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32 zpos, f32 
 	GX_SetColorUpdate(GX_ENABLE);
 	GX_SetAlphaUpdate(GX_ENABLE);
 
-	//GX_InitTexObj(&texNoCoverImage, t2_nocover_full.tx.data, t2_nocover_full.tx.w, t2_nocover_full.tx.h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
-	if (CFG.gui_compress_covers)
-		GX_InitTexObj(&texCoverImage, tex->data, COVER_WIDTH, COVER_HEIGHT, GX_TF_CMPR, GX_CLAMP, GX_CLAMP, GX_FALSE);
-	else
-		GX_InitTexObj(&texCoverImage, tex->data, tex->w, tex->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+	int tx_fmt = GX_TF_RGBA8;
+	if (tex->tex_format) tx_fmt = tex->tex_format;
+	GX_InitTexObj(&texCoverImage, tex->data, tex->w, tex->h, tx_fmt, GX_CLAMP, GX_CLAMP, GX_FALSE);
 	
 	//don't enable this or images look crappy - disables aa
 	//GX_InitTexObjLOD(&texCoverImage, GX_NEAR, GX_NEAR, 0, 0, 0, GX_FALSE, GX_FALSE, GX_ANISO_1);
+	if (tex->tex_lod) {
+		// mipmap
+		float lod_bias = lod_bias_a[lod_bias_idx];
+		GX_InitTexObjLOD(&texCoverImage, GX_LIN_MIP_LIN, GX_LINEAR,
+				0.f, // lod min
+				(float)tex->tex_lod, // lod max
+				lod_bias, // lod bias
+				GX_FALSE,
+				GX_FALSE, // edge lod
+				GX_ANISO_1); //GX_ANISO_2 GX_ANISO_4); // _1 seems sharper
+	}
 
 	//-------------------------------------------------
 	// draw the edges
@@ -1216,10 +1234,20 @@ void draw_fullcover_image_reflection(GRRLIB_texImg *tex, f32 xpos, f32 ypos, f32
 	GX_SetColorUpdate(GX_ENABLE);
 	GX_SetAlphaUpdate(GX_ENABLE);
 
-	if (CFG.gui_compress_covers)
-		GX_InitTexObj(&texCoverImage, tex->data, COVER_WIDTH, COVER_HEIGHT, GX_TF_CMPR, GX_CLAMP, GX_CLAMP, GX_FALSE);
-	else
-		GX_InitTexObj(&texCoverImage, tex->data, tex->w, tex->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+	int tx_fmt = GX_TF_RGBA8;
+	if (tex->tex_format) tx_fmt = tex->tex_format;
+	GX_InitTexObj(&texCoverImage, tex->data, tex->w, tex->h, tx_fmt, GX_CLAMP, GX_CLAMP, GX_FALSE);
+	if (tex->tex_lod) {
+		// mipmap
+		float lod_bias = lod_bias_a[lod_bias_idx];
+		GX_InitTexObjLOD(&texCoverImage, GX_LIN_MIP_LIN, GX_LINEAR,
+				0.f, // lod min
+				(float)tex->tex_lod, // lod max
+				lod_bias, // lod bias
+				GX_FALSE,
+				GX_FALSE, // edge lod
+				GX_ANISO_1); //GX_ANISO_2 GX_ANISO_4); // _1 seems sharper
+	}
 
 	//--------------------------------
 	// Reflection
@@ -2336,18 +2364,24 @@ void build_coverPos_type(int type, CoverPos *coverPos) {
  *  @param zrot f32 the Z-axis rotation of the cover
  *  @return void
  */
-void Coverflow_drawCoverForGameOptions(int game_sel, int x, int y, int z, f32 xrot, f32 yrot, f32 zrot)
+void Coverflow_drawCoverForGameOptions(int game_sel,
+		int x, int y, int z, f32 xrot, f32 yrot, f32 zrot, int cstyle)
 {
 	Cover cover;
 	bool favorite;
 	int aa, j;
 	GRRLIB_texImg bg_tx;
-	
+	long long t1, t11, t12, t2;
+
+	if (!grx_cover_init) Coverflow_Grx_Init();
+
+	t1 = gettime();
 	// reset cover indexing to the selected cover
 	setCoverIndexing(gameCnt, game_sel);
 	cache_request_before_and_after(game_sel, 5, 1);
-	//update the cover images from the cache
-	Coverflow_update_state();
+	// update the cover images from the cache
+	//Coverflow_update_state();
+	update_cover_state2(&coverCoords_center, cstyle);
 
 	favorite = is_favorite(gameList[coverCoords_center.gi].id);
 	// init the positioning
@@ -2355,23 +2389,51 @@ void Coverflow_drawCoverForGameOptions(int game_sel, int x, int y, int z, f32 xr
 	// scale the passed in x and y coords to 3d space
 	convert_2dCoords_into_3dCoords(x+80, y+112, -40, &cover.currentPos.x, &cover.currentPos.y);	
 
+	t11 = gettime();
+	//GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+	//GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
+	//GX_InvVtxCache();
+	//GX_InvalidateTexAll();
 	// capture the background for aa
 	bg_tx = GRRLIB_AAScreen2Texture();
-	GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
-	GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
-	GX_InvVtxCache();
-	GX_InvalidateTexAll();
-	GRRLIB_AAScreen2Texture_buf(&bg_tx);
-	
+	GRRLIB_AAScreen2Texture_buf(&bg_tx, GX_FALSE);
+	t12 = gettime();
+
 	aa = (CFG.gui_antialias < 1) ? 1 : CFG.gui_antialias;
 	for(j=0; j < aa; j++) {
 		
 		GRRLIB_prepareAAPass(aa, j);
-	
+
 		Gui_set_camera(NULL, 0);
-		GRRLIB_DrawImg(0, 0, &bg_tx, 0, 1, 1, 0xFFFFFFFF);
+		if (j) GRRLIB_DrawImgNoAA(0, 0, &bg_tx, 0, 1, 1, 0xFFFFFFFF);
 		Gui_set_camera(NULL, 1);
-		
+
+		// debug bench
+		if (coverflow_test_grid)
+		{
+			int mx=8, my=4;
+			int nx, ny;
+			for (ny = 0; ny < my; ny++) {
+				for (nx = 0; nx < mx; nx++) {
+					if (ny == my-1 && nx < 2) continue;
+					float x, y, z;
+					float px, py; //, pz;
+					x = (0.5+nx + 0.1*ny) * 640 / mx;
+					y = (0.5+ny) * 480 / my;
+					z = -150;
+					convert_2dCoords_into_3dCoords(x, y, z, &px, &py);
+					draw_cover_image(&coverCoords_center.tx,
+							px, py, z,
+							//cover.currentPos.xrot, yrot, cover.currentPos.zrot, 
+							xrot, yrot, zrot, 
+							cover.currentPos.alpha,
+							cover.currentPos.reflection_bottom,
+							cover.currentPos.reflection_top, 
+							true, favorite, true, false, coverCoords_center.gi);
+				}
+			}
+		}
+
 		//draw the cover image
 		draw_cover_image(&coverCoords_center.tx,
 				cover.currentPos.x, cover.currentPos.y, cover.currentPos.z + z,
@@ -2381,12 +2443,22 @@ void Coverflow_drawCoverForGameOptions(int game_sel, int x, int y, int z, f32 xr
 				cover.currentPos.reflection_bottom,
 				cover.currentPos.reflection_top, 
 				true, favorite, true, false, coverCoords_center.gi);
-	
+
 		Gui_RenderAAPass(j);
 	}
 	GRRLIB_drawAAScene(aa, aa_texBuffer);
 	GRRLIB_ResetVideo();
-	SAFE_FREE(bg_tx.data)
+	SAFE_FREE(bg_tx.data);
+	t2 = gettime();
+	if (CFG.debug == 3)
+	{
+		GRRLIB_Printf(20, 60, &tx_font, 0xFF00FFFF, 1,
+				"ms:%6.2f %6.2f %6.2f %6.2f",
+				(float)diff_usec(t1,t2)/1000.0,
+				(float)diff_usec(t1,t11)/1000.0,
+				(float)diff_usec(t11,t12)/1000.0,
+				(float)diff_usec(t12,t2)/1000.0);
+	}
 }
 
 

@@ -644,7 +644,7 @@ void sortList(int (*sortFunc) (const void *, const void *))
 			time = 0;
 			ret = WBFS_FAT_find_fname(gameList[i].id, fname, sizeof(fname));
 			if (ret > 0 && stat(fname, &st) == 0) {
-				time = st.st_ctime;
+				time = st.st_mtime;
 			}
 			hmap_add(&install_time, gameList[i].id, &time);
 		}

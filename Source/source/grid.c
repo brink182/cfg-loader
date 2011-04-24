@@ -26,9 +26,13 @@ extern float cam_dir;
 extern float cam_z;
 extern guVector cam_look;
 
+// maybe 12/16
+float widescreen_ratio = 13.0 / 16.0;
+float w_ratio = 1.0;
 
 typedef struct Grid_State
 {
+	float max_w, max_h;
 	float x, y, w, h;
 	float scale, sx, sy;
 	float zoom_step;
@@ -140,6 +144,32 @@ void reset_grid()
 }
 
 
+bool is_visible(struct Grid_State *GS)
+{
+	if (GS->gi < page_gi || GS->gi > page_gi + page_visible) return false;
+	return true;
+}
+
+void update_grid_scale(struct Grid_State *GS, float zoom)
+{
+	GS->scale = GS->max_w / (GS->tx.w * w_ratio);
+	// scale: fit and zoom
+	if (GS->tx.h * GS->scale <= GS->max_h) {
+		// yes, adjust zoom
+		GS->scale = (GS->max_w + zoom) / (GS->tx.w * w_ratio);
+	} else {
+		// no, fit H instead
+		GS->scale = (GS->max_h + zoom) / GS->tx.h;
+	}
+	GS->sx = GS->scale * w_ratio;
+	GS->sy = GS->scale;
+	// adjust coords
+	GS->w = (float)GS->tx.w * GS->sx;
+	GS->h = (float)GS->tx.h * GS->sy;
+	GS->x = (float)GS->center_x - (GS->w / 2.0);
+	GS->y = (float)GS->center_y - (GS->h / 2.0);
+}
+
 /**
  * Checks the CoverCache to see if the cover image for the passed in game is 
  * loaded into the cache yet.  
@@ -147,33 +177,45 @@ void reset_grid()
  *   If the cover isn't loaded: the default "loading" image is returned.
  *   If no cover is found: the default "no cover" image is returned.
  */
-void update_grid_state(struct Grid_State *GS)
+void update_grid_state2(struct Grid_State *GS, int cstyle)
 {
 	int gi = GS->gi;
 	if (gi < 0) return;
-	
-	int actual_i = cache_game_find(gi);
-	GS->state = ccache.game[actual_i].state;
+	GRRLIB_texImg *tx;
+	if (!is_visible(GS)) goto idle;
+	tx = cache_request_cover(gi, cstyle, CC_FMT_C4x4, CC_PRIO_NONE, &GS->state);
 	if (GS->state == CS_PRESENT) {
-		GS->tx = ccache.cover[ccache.game[actual_i].cid].tx;
+		if (!tx) goto missing; // internal error
+		GS->tx = *tx;
 		GS->angle = 0.0;
 	} else if (GS->state == CS_IDLE) {
-		if (gi > 0 && ccache.game[actual_i-1].state == CS_LOADING) goto loading;
+		if (gi > 0) {
+			// if previous is loading then mark this as loading too
+			int state;
+			tx = cache_request_cover(gi-1, cstyle, CC_FMT_C4x4, CC_PRIO_NONE, &state);
+			if (state == CS_LOADING) goto loading;
+		}
+		;idle:;
 		GS->tx = tx_hourglass;
 		GS->angle = 0.0;
 	} else if (GS->state == CS_LOADING) {
-		loading:
+		;loading:;
 		GS->tx = tx_hourglass;
 		GS->angle += 6.0;
 		if (GS->angle > 180.0) GS->angle -= 360.0;
 	} else { // CS_MISSING
+		;missing:;
 		GS->tx = t2_nocover.tx;
 		GS->angle = 0.0;
 	}
-	GS->sx = (float)COVER_WIDTH / (float)GS->tx.w * GS->scale;
-	GS->sy = (float)COVER_HEIGHT / (float)GS->tx.h * GS->scale;
+	update_grid_scale(GS, 0);
 	GS->img_x = GS->center_x - GS->tx.w / 2;
 	GS->img_y = GS->center_y - GS->tx.h / 2;
+}
+
+void update_grid_state(struct Grid_State *GS)
+{
+	update_grid_state2(GS, CFG.cover_style);
 }
 
 void calc_scroll_range()
@@ -227,6 +269,8 @@ void grid_calc_i(int game_i)
 			ix = i / grid_rows;
 			iy = i % grid_rows;
 		}
+		GS->max_w = max_w;
+		GS->max_h = max_h;
 		corner_x = base_x + (int)(max_w+spacing) * ix;
 		corner_y = base_y + (int)(max_h+spacing) * iy;
 		GS->center_x = corner_x + (int)(max_w / 2);
@@ -296,15 +340,15 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 
 	if (CFG.debug) {
 		if (GS->gi == page_gi) {
-			GRRLIB_Rectangle(screen_x + GS->center_x-max_w/2-spacing,
-					screen_y + GS->center_y-max_h/2-spacing,
-					max_w+spacing*2, max_h+spacing*2, 0x0000FF80, 1);
+			GRRLIB_Rectangle(screen_x + GS->center_x - GS->max_w/2 - spacing,
+					screen_y + GS->center_y - GS->max_h/2-spacing,
+					GS->max_w + spacing*2, GS->max_h+spacing*2, 0x0000FF80, 1);
 		}
 		if (GS->gi == page_gi + page_visible - 1
 				|| GS->gi == gameCnt - 1) {
-			GRRLIB_Rectangle(screen_x + GS->center_x-max_w/2-spacing,
-					screen_y + GS->center_y-max_h/2-spacing,
-					max_w+spacing*2, max_h+spacing*2, 0xFF000080, 1);
+			GRRLIB_Rectangle(screen_x + GS->center_x - GS->max_w/2 - spacing,
+					screen_y + GS->center_y - GS->max_h/2-spacing,
+					GS->max_w + spacing*2, GS->max_h+spacing*2, 0xFF000080, 1);
 		}
 	}
 
@@ -313,18 +357,13 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 
 	// favorite
 	if (is_favorite(gameList[GS->gi].id)) {
-		float center_x, center_y;
 		float star_center_x, star_center_y;
 		if (loading) {
-			center_x = GS->img_x + GS->tx.w / 2;
-			center_y = GS->img_y + GS->tx.h / 2;
-			star_center_x = center_x + GS->tx.w/2 * sx;
-			star_center_y = center_y - GS->tx.h/2 * sy;
+			star_center_x = GS->center_x + GS->tx.w/2 * sx;
+			star_center_y = GS->center_y - GS->tx.h/2 * sy;
 		} else {
-			center_x = GS->img_x + COVER_WIDTH/2;
-			center_y = GS->img_y + COVER_HEIGHT/2;
-			star_center_x = center_x + (COVER_WIDTH/2 - tx_star.w/2) * sx;
-			star_center_y = center_y - (COVER_HEIGHT/2 - tx_star.h/2) * sy;
+			star_center_x = GS->center_x + GS->tx.w/2 * sx - tx_star.w/2 * sy;
+			star_center_y = GS->center_y - (GS->tx.h/2 - tx_star.h/2) * sy;
 		}
 		float star_x = star_center_x - tx_star.w/2;
 		float star_y = star_center_y - tx_star.h/2;
@@ -336,7 +375,7 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 				tx_star.handlex, tx_star.handley);
 		*/
 		GRRLIB_DrawImg( screen_x + star_x, screen_y + star_y,
-			&tx_star, 0, sx, sy, color);
+			&tx_star, 0, sy, sy, color);
 	}
 	
 	if (miss) {
@@ -406,7 +445,7 @@ bool is_over(struct Grid_State *GS, ir_t *ir, float screen_x, float screen_y)
 	float x1, y1, x2, y2;
 	float x, y, w, h;
 
-	if (GS->gi < page_gi || GS->gi > page_gi + page_visible) return false;
+	if (!is_visible(GS)) return false;
 
 	if (GS->w > 0 && GS->h > 0) {
 		//over = GRRLIB_PtInRect(GS->x, GS->y, GS->w, GS->h, ir_sx, ir_sy);
@@ -415,13 +454,13 @@ bool is_over(struct Grid_State *GS, ir_t *ir, float screen_x, float screen_y)
 		x2 = GS->x + GS->w;
 		y2 = GS->y + GS->h;
 	} else {
-		float corner_x = GS->center_x - (int)(max_w / 2);
-		float corner_y = GS->center_y - (int)(max_h / 2);
+		float corner_x = GS->center_x - (int)(GS->max_w / 2);
+		float corner_y = GS->center_y - (int)(GS->max_h / 2);
 		//over = GRRLIB_PtInRect(corner_x, corner_y, max_w, max_h, ir_sx, ir_sy);
 		x1 = corner_x;
 		y1 = corner_y;
-		x2 = corner_x + max_w;
-		y2 = corner_y + max_h;
+		x2 = corner_x + GS->max_w;
+		y2 = corner_y + GS->max_h;
 	}
 	x1 += screen_x;
 	x2 += screen_x;
@@ -481,24 +520,8 @@ int grid_update_state_s(ir_t *ir, float screen_x, float screen_y)
 			if (GS->zoom_step < 0) GS->zoom_step = 0;
 		}
 		zoom = (float)spacing * 1.5 * (GS->zoom_step);
-		// scale to fit
-		GS->scale = max_w / (float)COVER_WIDTH;
-		// does H fit?
-		if ((float)COVER_HEIGHT * GS->scale <= max_h) {
-			// yes, adjust zoom
-			GS->scale = (max_w+zoom) / (float)COVER_WIDTH;
-		} else {
-			// no, fit H instead
-			GS->scale = (max_h+zoom) / (float)COVER_HEIGHT;
-		}
-
 		update_grid_state(GS);
-
-		// adjust coords
-		GS->w = (float)GS->tx.w * GS->sx;
-		GS->h = (float)GS->tx.h * GS->sy;
-		GS->x = GS->center_x - (int)(GS->w / 2);
-		GS->y = GS->center_y - (int)(GS->h / 2);
+		update_grid_scale(GS, zoom);
 	}
 	return selected;
 }
@@ -590,7 +613,9 @@ void grid_transit(float screen_x, float screen_y, int selected, float tran)
 {
 	int i;
 	struct Grid_State *GS;
-	float dest_x, dest_y, dest_sx, dest_sy;
+	float dest_sx, dest_sy;
+	float dest_cx, dest_cy;
+	float dest_x, dest_y;
 	
 	for (i=0; i<grid_covers; i++) {
 		GS = &grid_state[i];
@@ -603,23 +628,20 @@ void grid_transit(float screen_x, float screen_y, int selected, float tran)
 		// is missing force present to avoid printing game id
 		if (GS->state == CS_MISSING) GS->state = CS_PRESENT;
 
-		dest_x = COVER_XCOORD + page_scroll;
-		dest_y = COVER_YCOORD;
-		// COVER_WIDTH, COVER_HEIGHT
-		dest_sx = 1;
-		dest_sy = 1;
-		//GS->img_x += (dest_x - GS->img_x) * tran;
-		//GS->img_y += (dest_y - GS->img_y) * tran;
+		dest_sx = (float)COVER_WIDTH / (float)GS->tx.w;
+		dest_sy = (float)COVER_HEIGHT / (float)GS->tx.h;
+		dest_cx = COVER_XCOORD + COVER_WIDTH/2 + page_scroll;
+		dest_cy = COVER_YCOORD + COVER_HEIGHT/2;
+		dest_x = dest_cx - (float)GS->tx.w / 2;
+		dest_y = dest_cy - (float)GS->tx.h / 2;
 		TRAN_F( GS->img_x, dest_x, tran );
 		TRAN_F( GS->img_y, dest_y, tran );
 		GS->img_x -= (int)screen_x;
 		GS->img_y -= (int)screen_y;
-		TRAN_F( GS->center_x, dest_x + COVER_WIDTH/2, tran );
-		TRAN_F( GS->center_y, dest_y + COVER_HEIGHT/2, tran );
+		TRAN_F( GS->center_x, dest_cx, tran );
+		TRAN_F( GS->center_y, dest_cy, tran );
 		GS->center_x -= (int)screen_x;
 		GS->center_y -= (int)screen_y;
-		//GS->sx += (dest_sx - GS->sx) * tran;
-		//GS->sy += (dest_sy - GS->sy) * tran;
 		TRAN_F( GS->sx, dest_sx, tran );
 		TRAN_F( GS->sy, dest_sy, tran );
 	}
@@ -1270,8 +1292,15 @@ void page_move_to(int gi)
 	update_page_i();
 }
 
+void grid_init_ratio()
+{
+	if (CFG.widescreen) w_ratio = widescreen_ratio;
+	else w_ratio = 1.0;
+}
+
 void grid_init(int game_sel)
 {
+	grid_init_ratio();
 	grid_allocate();
 	init_cover_area();
 	grid_set_style(gui_style, grid_rows);
@@ -1283,25 +1312,25 @@ void grid_init(int game_sel)
 	grid_update_all(NULL);
 }
 
-void draw_grid_cover_at(int game_sel, int x, int y)
+void draw_grid_cover_at(int game_sel, int x, int y, int maxw, int maxh, int cstyle)
 {
-	//draw_grid_sel
-	int i;
-	struct Grid_State *GS = NULL;
-	for (i=0; i<grid_covers; i++) {
-		if (grid_state[i].gi == game_sel) {
-			GS = &grid_state[i];
-			break;
-		}
-	}
-	if (!GS) return;
+	struct Grid_State GS1;
+	struct Grid_State *GS = &GS1;
 	cache_release_all();
-	cache_request(game_sel, 1, 1);
-	update_grid_state(GS);
-	GS->img_x = x;
-	GS->img_y = y;
-	GS->sx = 1.2;
-	GS->sy = 1.2;
+	cache_request_cover(game_sel, cstyle, CC_FMT_C4x4, CC_PRIO_HIGH, NULL);
+	grid_init_ratio();
+	page_gi = game_sel;
+	page_visible = 1;
+	GS->gi = game_sel;
+	GS->center_x = x;
+	GS->center_y = y;
+	GS->max_w = maxw;
+	GS->max_h = maxh;
+	update_grid_state2(GS, cstyle);
+	if (GS->sy > 1.2) {
+		GS->sy = 1.2;
+		GS->sx = 1.2 * w_ratio;
+	}
 	draw_grid_1(GS, 0, 0);
 }
 

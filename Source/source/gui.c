@@ -22,6 +22,7 @@
 #include "png.h"
 #include "gettext.h"
 #include "sort.h"
+#include "wgui.h"
 #include "guimenu.h"
 
 #include "intro4_jpg.h"
@@ -483,6 +484,8 @@ void Gui_DrawIntro(void)
 	if ((ti->tm_mon == 3 && ti->tm_mday == 1) || CFG.intro == 41) {
 		CFG.intro = 2;
 		i41 = 1;
+		extern int wgui_disabled;
+		wgui_disabled = 0;
 	} else {
 		if (CFG.direct_launch && CFG.intro==0) {
 			CON_InitEx(rmode, con_x, con_y, con_w, con_h);
@@ -510,17 +513,17 @@ void Gui_DrawIntro(void)
 	if (!img_buf) return;
 
 	if (CFG.intro == 4) {
-		int w, h;
+		int imgw, imgh;
 		void *rgb = NULL;
 		void *rgba = NULL;
-		rgb = Load_JPG_RGB(intro4_jpg, &w, &h);
+		rgb = Load_JPG_RGB(intro4_jpg, &imgw, &imgh);
 		if (!rgb) goto out;
-		if (w == rmode->fbWidth && h == rmode->xfbHeight) {
-			RGB_to_RGBA(rgb, img_buf, w, h, 255);
+		if (imgw == rmode->fbWidth && imgh == rmode->xfbHeight) {
+			RGB_to_RGBA(rgb, img_buf, imgw, imgh, 255);
 		} else {
-			rgba = memalign(32, w * h * 4);
-			RGB_to_RGBA(rgb, rgba, w, h, 255);
-			ResizeRGBA(rgba, w, h, img_buf, rmode->fbWidth, rmode->xfbHeight);
+			rgba = memalign(32, imgw * imgh * 4);
+			RGB_to_RGBA(rgb, rgba, imgw, imgh, 255);
+			ResizeRGBA(rgba, imgw, imgh, img_buf, rmode->fbWidth, rmode->xfbHeight);
 			SAFE_FREE(rgba);
 		}
 		SAFE_FREE(rgb);
@@ -577,6 +580,35 @@ print_ver:
 	SAFE_FREE(img_buf);
 }
 
+int find_cover_path(u8 *id, int cover_style, char *path, int size, struct stat *st)
+{
+	s32 ret = -1;
+	char *coverdir;
+	struct stat st1;
+	if (!st) st = &st1;
+	if (!id || !*id) return -1;
+	if (path) *path = 0;
+	memset(st, 0, sizeof(*st));
+	coverdir = cfg_get_covers_path(cover_style);
+L_retry:
+	/* Generate cover filepath for full covers */
+	snprintf(path, size, "%s/%.6s.png", coverdir, id);
+	/* stat cover */
+	ret = stat(path, st);
+	if (ret != 0) {
+		// if 6 character id not found, try 4 character id
+		snprintf(path, size, "%s/%.4s.png", coverdir, id);
+		ret = stat(path, st);
+	}
+	if (ret != 0) {
+		if (cover_style == CFG_COVER_STYLE_2D && coverdir == CFG.covers_path) {
+			coverdir = CFG.covers_path_2d;
+			goto L_retry;
+		}
+	}
+	return ret;
+}
+
 /**
  * Tries to read the game cover image from disk.  This method uses the passed
  *  in cover_style value to determine which file path to use.  
@@ -595,14 +627,16 @@ int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cov
 	char *coverpath;
 
 	if (path) *path = 0;
-
-	coverpath = cfg_get_covers_path(cover_style);
-
+	ret = find_cover_path(discid, cover_style, filepath, sizeof(filepath), NULL);
+	if (ret == 0) {
+		ret = Fat_ReadFile(filepath, p_imgData);
+	}
+	/*
 	if (discid && *discid) {
 		L_retry:
-		/* Generate cover filepath for full covers */
+		// Generate cover filepath for full covers
 		snprintf(filepath, sizeof(filepath), "%s/%.6s.png", coverpath, discid);
-		/* Open cover */
+		// Open cover
 		ret = Fat_ReadFile(filepath, p_imgData);
 		if (ret <= 0) {
 			// if 6 character id not found, try 4 character id
@@ -621,6 +655,7 @@ int Gui_LoadCover_style(u8 *discid, void **p_imgData, bool load_noimage, int cov
 			if (path) strcopy(path, filepath, 200);
 		}
 	}
+	*/
 	if (ret <= 0 && load_noimage) {
 		coverpath = cfg_get_covers_path(cover_style);
 		L_retry2:
@@ -641,6 +676,7 @@ void DrawCoverImg(u8 *discid, char *img_buf, int width, int height)
 {
 	char *bg_buf = NULL;
 	char *star_buf = NULL;
+	void *fav_buf = NULL;
 	IMGCTX ctx = NULL;
 	s32 ret;
 
@@ -655,7 +691,6 @@ void DrawCoverImg(u8 *discid, char *img_buf, int width, int height)
 	if (is_favorite(discid)) {
 		// star
 		PNGUPROP imgProp;
-		void *fav_buf = NULL;
 		// Select PNG data
 		ret = Load_Theme_Image("favorite.png", &fav_buf);
 		if (ret == 0 && fav_buf) {
@@ -667,6 +702,7 @@ void DrawCoverImg(u8 *discid, char *img_buf, int width, int height)
 		// Get image properties
 		ret = PNGU_GetImageProperties(ctx, &imgProp);
 		if (ret != PNGU_OK) goto out;
+		if (imgProp.imgWidth > width || imgProp.imgHeight > height) goto out;
 		// alloc star img buf
 		star_buf = memalign(32, imgProp.imgWidth * imgProp.imgHeight * 4);
 		if (!star_buf) goto out;
@@ -678,12 +714,12 @@ void DrawCoverImg(u8 *discid, char *img_buf, int width, int height)
 		CompositeRGBA(bg_buf, width, height,
 			   	COVER_WIDTH - imgProp.imgWidth, 0, // right upper corner
 				star_buf, imgProp.imgWidth, imgProp.imgHeight);
-		SAFE_FREE(fav_buf);
-		SAFE_FREE(star_buf);
-		SAFE_PNGU_RELEASE(ctx);
 	}
 
 out:
+	SAFE_PNGU_RELEASE(ctx);
+	SAFE_FREE(fav_buf);
+	SAFE_FREE(star_buf);
 	// draw
 	Video_DrawRGBA(COVER_XCOORD, COVER_YCOORD, bg_buf, width, height);
 	SAFE_FREE(bg_buf);
@@ -1198,9 +1234,13 @@ GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[],
 
 	RGBA_to_4x4((u8*)buf1, (u8*)dest, width4, height4);
 
+	//dbg_printf("RGB8 %dx%d %dx%d %dx%d\n",
+	//		imgProp.imgWidth, imgProp.imgHeight, width, height, width4, height4);
+
 	my_texture.data = dest;
-	my_texture.w = width4;
-	my_texture.h = height4;
+	my_texture.w = width;
+	my_texture.h = height;
+	my_texture.tex_format = GX_TF_RGBA8;
 	GRRLIB_FlushTex(&my_texture);
 	out:
 	SAFE_FREE(buf1);
@@ -1219,25 +1259,26 @@ GRRLIB_texImg Convert_to_CMPR(void *img, int width, int height, void *dest)
 	int ret;
 	void *buf1 = NULL;
 
-	my_texture.data = NULL;
-	my_texture.w = 0;
-	my_texture.h = 0;
+	memset(&my_texture, 0, sizeof(GRRLIB_texImg));
 
-	buf1 = memalign (32, width * height * 4);
+	int size = GX_GetTexBufferSize(width, height, GX_TF_RGBA8, GX_FALSE, 0);
+	buf1 = memalign (32, size);
 	if (buf1 == NULL) goto out;
 	RGBA_to_4x4((u8*)img, (u8*)buf1, width, height);
 
 	if (dest == NULL) {
-		dest = memalign (32, (width * height) / 2);
+		size = GX_GetTexBufferSize(width, height, GX_TF_CMPR, GX_FALSE, 0);
+		dest = memalign (32, size);
 		if (dest == NULL) goto out;
 	}
 	
-	ret = PNGU_RGBA8_To_CMPR(buf1, width, height, dest);
+	ret = PNGU_4x4RGBA8_To_CMPR(buf1, width, height, dest);
 	if (ret != PNGU_OK) goto out;
 	
 	my_texture.data = dest;
 	my_texture.w = width;
 	my_texture.h = height;
+	my_texture.tex_format = GX_TF_CMPR;
 	GRRLIB_FlushTex(&my_texture);
 
 	out:
@@ -1263,7 +1304,6 @@ GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
 	int ret;
 	void *buf1 = NULL;
 	void *buf2 = NULL;
-	u32 imgheight, imgwidth;
 
 	memset(&my_texture, 0, sizeof(GRRLIB_texImg));
 
@@ -1272,13 +1312,22 @@ GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
 	ret = PNGU_GetImageProperties(ctx, &imgProp);
 	if (ret != PNGU_OK) goto out;
    
-	//CMPR is divisible by 8
-	imgheight = imgProp.imgHeight & ~7u;
-	imgwidth = imgProp.imgWidth & ~7u;
+	if (width == 0 && height == 0 && dest == NULL) {
+		width = imgProp.imgWidth;
+		height = imgProp.imgHeight;
+	}
 	
-	//check if we need to resize
-	if ((imgheight != height) || (imgwidth != width)) {
-		//get RGBA8 version of image
+	// CMPR allocation has to be a multiple of 8
+	//u32 imgheight, imgwidth;
+	//imgheight = imgProp.imgHeight & ~7u;
+	//imgwidth = imgProp.imgWidth & ~7u;
+	// instead of trimming we will pad.
+	
+	// check if we need to resize
+	if ((imgProp.imgHeight != height) || (imgProp.imgWidth != width)) {
+		//dbg_printf("cmpr resize %dx%d %dx%d %s\n",
+		//	imgProp.imgWidth, imgProp.imgHeight, width, height, path);
+		// get RGBA8 version of image
 		buf1 = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
 		if (buf1 == NULL) goto out;
 		ret = PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 255);
@@ -1286,37 +1335,182 @@ GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[],
 			if (ret == -666) Gui_HandleBadCoverImage(path);
 			goto out;
 		}
-	   	
-		//allocate for resize to passed in dimensions
-		buf2 = memalign (32, width * height * 4);
+		// allocate for resize to passed in dimensions
+		buf2 = mem_alloc(width * height * 4);
 		if (buf2 == NULL) goto out;		
 		ResizeRGBA(buf1, imgProp.imgWidth, imgProp.imgHeight, buf2, width, height);
-		free(buf1);
-		buf1 = buf2;
-		buf2 = NULL;
-
-		my_texture = Convert_to_CMPR(buf1, width, height, dest);		
-
+		SAFE_FREE(buf1);
+		// convert to cmpr
+		PNGU_RGBA8_To_CMPR(buf2, width, height, dest);
 	} else {
 		if (dest == NULL) {
-			dest = memalign (32, (imgheight * imgwidth) / 2);
+			int size = GX_GetTexBufferSize(imgProp.imgWidth, imgProp.imgHeight,
+					GX_TF_CMPR, GX_FALSE, 0);
+			dest = mem_alloc(size);
 			if (dest == NULL) goto out;
 		}
-		ret = PNGU_DecodeToCMPR (ctx, imgProp.imgWidth, imgProp.imgHeight, dest);
+		ret = PNGU_DecodeToCMPR_Pad(ctx, imgProp.imgWidth, imgProp.imgHeight, dest);
 		if (ret != PNGU_OK) {
 			if (ret == -666) Gui_HandleBadCoverImage(path);
 			goto out;
 		}
-
-		my_texture.w = width;
-		my_texture.h = height;
-		my_texture.data = dest;
-		GRRLIB_FlushTex(&my_texture);
 	}
-
+	my_texture.w = width;
+	my_texture.h = height;
+	my_texture.data = dest;
+	my_texture.tex_format = GX_TF_CMPR;
+	GRRLIB_FlushTex(&my_texture);
 	out:
 	SAFE_FREE(buf1);
 	SAFE_FREE(buf2);
+	if (ctx) PNGU_ReleaseImageContext(ctx);
+	return my_texture;
+}
+
+u32 upperPower(u32 width)
+{
+	u32 i = 8;
+	u32 maxWidth = 1024;
+	while (i < width && i < maxWidth)
+		i <<= 1;
+	return i;
+}
+
+u32 fixGX_GetTexBufferSize(u16 wd, u16 ht, u32 fmt, u8 mipmap, u8 maxlod)
+{
+	if (mipmap) return GX_GetTexBufferSize(wd, ht, fmt, mipmap, maxlod + 1);
+	return GX_GetTexBufferSize(wd, ht, fmt, mipmap, maxlod);
+}
+
+// For powers of two
+void resizeD2x2(u8 *dst, const u8 *src, u32 srcWidth, u32 srcHeight)
+{
+	u32 i = 0, i0 = 0, i1 = 4;
+	u32 i2 = srcWidth * 4;
+	u32 i3 = (srcWidth + 1) * 4;
+	u32 dstWidth = srcWidth >> 1;
+	u32 dstHeight = srcHeight >> 1;
+	u32 w4 = srcWidth * 4;
+	u32 x, y;
+	for (y = 0; y < dstHeight; ++y) {
+		for (x = 0; x < dstWidth; ++x) {
+			dst[i] = ((u32)src[i0] + src[i1] + src[i2] + src[i3]) >> 2;
+			dst[i + 1] = ((u32)src[i0 + 1] + src[i1 + 1] + src[i2 + 1] + src[i3 + 1]) >> 2;
+			dst[i + 2] = ((u32)src[i0 + 2] + src[i1 + 2] + src[i2 + 2] + src[i3 + 2]) >> 2;
+			dst[i + 3] = ((u32)src[i0 + 3] + src[i1 + 3] + src[i2 + 3] + src[i3 + 3]) >> 2;
+			i += 4;
+			i0 += 8;
+			i1 += 8;
+			i2 += 8;
+			i3 += 8;
+		}
+		i0 += w4;
+		i1 += w4;
+		i2 += w4;
+		i3 += w4;
+	}
+}
+
+void ColorizeImage(void *img, int w, int h, u32 color)
+{
+	u32 *p = (u32*)img;
+	int n = w * h;
+	int i;
+	for (i=0; i<n; i++) {
+		*p = color_multiply(*p, color);
+		p++;
+	}
+}
+
+GRRLIB_texImg Gui_LoadTexture_MIPMAP(const unsigned char my_png[],
+		int width, int height, int maxlod, void *dest, char *path)
+{
+	GRRLIB_texImg my_texture;
+	PNGUPROP imgProp;
+	IMGCTX ctx = NULL;
+	void *buf1 = NULL;
+	void *buf2 = NULL;
+	void *destbuf = NULL;
+	int ret;
+	int i;
+
+	memset(&my_texture, 0, sizeof(GRRLIB_texImg));
+
+	ctx = PNGU_SelectImageFromBuffer(my_png);
+	if (ctx == NULL) goto out;
+	ret = PNGU_GetImageProperties(ctx, &imgProp);
+	if (ret != PNGU_OK) goto out;
+   
+	// MIPMAP size has to be a power of 2
+	if (width != upperPower(width) || height != upperPower(width)) {
+		return my_texture;
+	}
+	
+	buf1 = memalign (32, imgProp.imgWidth * imgProp.imgHeight * 4);
+	if (buf1 == NULL) goto out;
+	ret = PNGU_DecodeToRGBA8 (ctx, imgProp.imgWidth, imgProp.imgHeight, buf1, 0, 0xFF);
+	if (ret != PNGU_OK) {
+		if (ret == -666) Gui_HandleBadCoverImage(path);
+		goto out;
+	}
+
+	int size = fixGX_GetTexBufferSize(width, height, GX_TF_RGBA8, GX_TRUE, maxlod);
+	buf2 = mem_alloc(size);
+	if (buf2 == NULL) goto out;		
+
+	int dest_size = fixGX_GetTexBufferSize(width, height, GX_TF_CMPR, GX_TRUE, maxlod);
+	if (!dest) {
+		dest = destbuf = mem_alloc(dest_size);
+		if (dest == NULL) goto out;
+	}
+
+	ResizeRGBA(buf1, imgProp.imgWidth, imgProp.imgHeight, buf2, width, height);
+
+	u32 nWidth = width;
+	u32 nHeight = height;
+	u8 *rgb_src = buf2; // rgba
+	u8 *rgb_dest = buf2; // rgba
+	for (i=0; i<maxlod; i++) {
+		rgb_src = rgb_dest;
+		rgb_dest += nWidth * nHeight * 4;
+		resizeD2x2(rgb_dest, rgb_src, nWidth, nHeight);
+		nWidth >>= 1;
+		nHeight >>= 1;
+	}
+
+	nWidth = width;
+	nHeight = height;
+	rgb_src = buf2;
+	u8 *pdest = dest; // cmpr
+	for (i=0; i<maxlod+1; i++) {
+		// debug
+		/*
+		u32 color = 0xFFFFFFFF;
+		switch (i) {
+			case 0: color = 0xFF0000FF; break;
+			case 2: color = 0x00FF00FF; break;
+			case 4: color = 0x0000FFFF; break;
+		}
+		ColorizeImage(rgb_src, nWidth, nHeight, color);
+		*/
+		// debug
+		PNGU_RGBA8_To_CMPR(rgb_src, nWidth, nHeight, pdest);
+		rgb_src += nWidth * nHeight * 4;
+		pdest += fixGX_GetTexBufferSize(nWidth, nHeight, GX_TF_CMPR, GX_FALSE, 0);
+		nWidth >>= 1;
+		nHeight >>= 1;
+	}
+	// done
+	my_texture.w = width;
+	my_texture.h = height;
+	my_texture.data = dest;
+	my_texture.tex_format = GX_TF_CMPR;
+	my_texture.tex_lod = maxlod;
+	GRRLIB_FlushTex(&my_texture);
+	out:
+	SAFE_FREE(buf1);
+	SAFE_FREE(buf2);
+	if (!my_texture.data) SAFE_FREE(destbuf);
 	if (ctx) PNGU_ReleaseImageContext(ctx);
 	return my_texture;
 }
@@ -1337,9 +1531,7 @@ GRRLIB_texImg Gui_LoadTexture_fullcover(const unsigned char my_png[],
 	void *buf2 = NULL;
 	void *buf3 = NULL;
 
-	my_texture.data = NULL;
-	my_texture.w = 0;
-	my_texture.h = 0;
+	memset(&my_texture, 0, sizeof(GRRLIB_texImg));
 
 	ctx = PNGU_SelectImageFromBuffer(my_png);
 	if (ctx == NULL) goto out;
@@ -1389,11 +1581,13 @@ GRRLIB_texImg Gui_LoadTexture_fullcover(const unsigned char my_png[],
 
 	if (CFG.gui_compress_covers) {
 		my_texture = Convert_to_CMPR(buf2, width, height, dest);
+		my_texture.tex_format = GX_TF_CMPR;
 	} else {
 		RGBA_to_4x4((u8*)buf2, (u8*)dest, width, height);
 		my_texture.data = dest;
 		my_texture.w = width;
 		my_texture.h = height;
+		my_texture.tex_format = GX_TF_RGBA8;
 		GRRLIB_FlushTex(&my_texture);
 	}
 	
@@ -1417,9 +1611,7 @@ GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h,
 	void *buf2 = NULL;
 	GRRLIB_texImg my_texture;
 
-	my_texture.w = 0;
-	my_texture.h = 0;
-	my_texture.data = NULL;
+	memset(&my_texture, 0, sizeof(GRRLIB_texImg));
 	
 	if (!dest) goto out;
 	
@@ -1474,9 +1666,7 @@ GRRLIB_texImg Gui_LoadJPGFromPath(char *path)
 	GRRLIB_texImg tx;
 
 	//init the tex
-	tx.data = NULL;
-	tx.h = 0;
-	tx.w = 0;
+	memset(&tx, 0, sizeof(GRRLIB_texImg));
 	
 	//read in the file
 	ret = Fat_ReadFile(path, &imgData);
@@ -1598,7 +1788,9 @@ void cache2_tex_alloc(struct M2_texImg *dest, int w, int h)
 
 void cache2_tex(struct M2_texImg *dest, GRRLIB_texImg *src)
 {
-	int src_size = src->w * src->h * 4;
+	//int src_size = src->w * src->h * 4;
+	int fmt = src->tex_format ? src->tex_format : GX_TF_RGBA8;
+	int src_size = GX_GetTexBufferSize(src->w, src->h, fmt, GX_FALSE, 0);
 	if (src->data == NULL) return;
 	// realloc
 	cache2_tex_alloc(dest, src->w, src->h);
@@ -1638,12 +1830,43 @@ void cache2_GRRLIB_tex_alloc_fullscreen(GRRLIB_texImg *dest)
 	cache2_GRRLIB_tex_alloc(dest, rmode->fbWidth, rmode->efbHeight);
 }
 
+long long render_cpu; // usec
+long long render_gpu; // usec
+long long render_busy; // usec
+long long render_idle; // usec
+
 void Gui_Render()
 {
+	static long long t0 = 0;
+	static long long t1 = 0;
+	static long long t2 = 0;
+
+	t0 = gettime();
+	if (CFG.debug)
+	{
+		GRRLIB_Rectangle(15,15,620,30, 0x404040B0, 1);
+		// frame = busy (cpu+gpu) + idle
+		GRRLIB_Printf(20, 20, &tx_font, 0xB0B0FFFF, 1,
+				"f:%5.2f = b:%5.2f (c:%5.2f+g:%5.2f) + i:%5.2f ms",
+				(float)(render_busy + render_idle)/1000.0,
+				(float)render_busy/1000.0,
+				(float)render_cpu/1000.0,
+				(float)render_gpu/1000.0,
+				(float)render_idle/1000.0);
+	}
+
 	_GRRLIB_Render();
 	GX_DrawDone();
 	//__console_disable=0; __console_flush(-1); // debug
+	t1 = gettime();
 	_GRRLIB_VSync();
+	if (t2) {
+		render_cpu = diff_usec(t2, t0);
+		render_gpu = diff_usec(t0, t1);
+		render_busy = diff_usec(t2, t1);
+	}
+	t2 = gettime();
+	render_idle = diff_usec(t1, t2);
 	if (gui_style == GUI_STYLE_FLOW_Z) {
 		GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
 	}
@@ -1653,6 +1876,7 @@ void Gui_Render()
 // renders also wgui and pointer
 void Gui_Render_Out(ir_t *ir)
 {
+	wgui_input_save2(ir, NULL);
 	wgui_desk_render(NULL, NULL);
 	Gui_draw_pointer(ir);
 	Gui_Render();
@@ -1663,16 +1887,33 @@ void Gui_Render_Out(ir_t *ir)
  *  @param aaStep int position in the array to store the created tex
  *  @return void
  */
-void Gui_RenderAAPass(int aaStep) {
-	if (aa_texBuffer[aaStep].data==NULL) {
-		// first time, allocate
-		int i;
-		for (i=0; i<CFG.gui_antialias; i++) {
+void Gui_RenderAAPass(int aaStep)
+{
+	if (aa_method == 0) {
+		if (aa_texBuffer[aaStep].data == NULL) {
 			// first time, allocate
-			cache2_GRRLIB_tex_alloc_fullscreen(&aa_texBuffer[i]);
+			cache2_GRRLIB_tex_alloc_fullscreen(&aa_texBuffer[aaStep]);
+			if (aa_texBuffer[aaStep].data == NULL) return;
+		}
+		GRRLIB_AAScreen2Texture_buf(&aa_texBuffer[aaStep], GX_TRUE);
+	} else {
+		// new slightly faster method
+		// also takes less memory - only 1 buffer required
+		if (aa_texBuffer[0].data == NULL) {
+			// first time, allocate
+			cache2_GRRLIB_tex_alloc_fullscreen(&aa_texBuffer[0]);
+			if (aa_texBuffer[0].data == NULL) return;
+		}
+		if (aaStep > 0) {
+			u32 color, alpha;
+			alpha = 0xFF - 0xFF / (aaStep + 1);
+			color = 0xFFFFFF00 | alpha;
+			GRRLIB_DrawImgNoAA(0, 0, &aa_texBuffer[0], 0, 1, 1, color);
+		}
+		if (aaStep < CFG.gui_antialias - 1) {
+			GRRLIB_AAScreen2Texture_buf(&aa_texBuffer[0], GX_TRUE);
 		}
 	}
-	GRRLIB_AAScreen2Texture_buf(&aa_texBuffer[aaStep]);
 }
 
 void Gui_Init()
@@ -2404,6 +2645,7 @@ void Repaint_ConBg(bool exiting)
 	if (CFG.covers == 0) return;
 	if (gameCnt == 0) return;
 	
+	/*
 	int actual_i = cache_game_find(gameSelected);
 	if (ccache.game[actual_i].state == CS_PRESENT) {
 		tx = ccache.cover[ccache.game[actual_i].cid].tx;
@@ -2419,6 +2661,23 @@ void Repaint_ConBg(bool exiting)
 		__Menu_ShowCover();
 		return;
 	}
+	*/
+
+	int state;
+	GRRLIB_texImg *txp = cache_request_cover(gameSelected,
+			CFG.cover_style, CC_FMT_C4x4, CC_PRIO_NONE, &state);
+	if (txp) {
+		if ((txp->w != COVER_WIDTH) || (txp->h != COVER_HEIGHT)) {
+			txp = NULL;
+		}
+	}
+	if (!txp) {
+		extern void __Menu_ShowCover();
+		__Menu_ShowCover();
+		return;
+	}
+	tx = *txp;
+
 	img_buf = memalign(32, tx.w * tx.h * 4);
 	if (img_buf == NULL) return;
 	C4x4_to_RGBA(tx.data, img_buf, tx.w, tx.h);
@@ -2431,7 +2690,7 @@ void Repaint_ConBg(bool exiting)
 void Gui_Refresh_List()
 {
 	cache_release_all();
-	ccache.num_game = gameCnt;
+	cache_num_game();
 	if (gui_style == GUI_STYLE_COVERFLOW) {
 		gameSelected = Coverflow_initCoverObjects(gameCnt, 0, true);
 		//load the covers - alternate right and left
@@ -2749,6 +3008,7 @@ int Gui_Mode()
 	if (Switch_Console_To_Gui()) {
 		// cache error, return to console
 		go_gui = 0;
+		Switch_Gui_To_Console(false);
 		return 0;
 	}
 
@@ -2990,8 +3250,10 @@ int Gui_Mode()
 
 		int us = dbg_time_usec();
 		if (CFG.debug == 3)
-			GRRLIB_Printf(20, 20, &tx_font, 0xFF00FFFF, 1,
+		{
+			GRRLIB_Printf(20, 50, &tx_font, 0xFF00FFFF, 1,
 					"%4d ms:%6.2f", fr_cnt, (float)us/1000.0);
+		}
 		/*
 		Gui_Printf(50, 390, "r x:%6.1f y:%6.1f v: %d %d a:%6.1f",
 				ir.ax, ir.ay, ir.raw_valid, ir.state, ir.angle);
@@ -3003,7 +3265,6 @@ int Gui_Mode()
 		//Gui_FillAscii(10, 10, 0xffffffff, 1);
 		Gui_draw_pointer(&ir);
 		//GRRLIB_Rectangle(fr_cnt % 640, 0, 5, 15, 0x000000FF, 1);
-
 		Gui_Render();
 
 		fr_cnt++;
@@ -3061,10 +3322,12 @@ void Switch_Gui_To_Console(bool exiting)
 
 void Gui_Close()
 {
+	Cache_Close();
+
 	if (CFG.gui == 0) return;
 	if (!grr_init) return;
-	
-	Cache_Close();
+
+	dbg_printf("Gui_Close\n");	
 	__console_flush(0);
 	VIDEO_Flush();
 	VIDEO_WaitVSync();

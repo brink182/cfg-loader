@@ -136,10 +136,22 @@ extern int COVER_HEIGHT_FRONT;
 
 #define CFG_GUI_START 2
 
-#define CFG_COVER_STYLE_2D 0
-#define CFG_COVER_STYLE_3D 1
+#define CFG_COVER_STYLE_2D   0
+#define CFG_COVER_STYLE_3D   1
 #define CFG_COVER_STYLE_DISC 2
 #define CFG_COVER_STYLE_FULL 3
+#define CFG_COVER_STYLE_HQ   4
+// style + format combos:
+#define CFG_COVER_STYLE_FULL_MIPMAP     5
+#define CFG_COVER_STYLE_HQ_MIPMAP       6
+#define CFG_COVER_STYLE_FULL_CMPR       7
+#define CFG_COVER_STYLE_HQ_CMPR         8
+#define CFG_COVER_STYLE_FULL_RGB        9
+#define CFG_COVER_STYLE_HQ_RGB         10
+#define CFG_COVER_STYLE_HQ_OR_FULL     11
+#define CFG_COVER_STYLE_HQ_OR_FULL_RGB 12
+// used just for cache/.ccc path:
+#define CFG_COVER_STYLE_CACHE 20
 
 #define CFG_INSTALL_GAME 0
 #define CFG_INSTALL_ALL  1
@@ -263,6 +275,7 @@ struct CFG
 	char covers_path_3d[200];
 	char covers_path_disc[200];
 	char covers_path_full[200];
+	char covers_path_cache[200];
 	int layout;
 	int covers;
 	// game options:
@@ -341,6 +354,7 @@ struct CFG
 	char cover_url_3d[1000];
 	char cover_url_disc[1000];
 	char cover_url_full[1000];
+	char cover_url_hq[1000];
 
 	// database  options - Lustar
 	char db_url[512];

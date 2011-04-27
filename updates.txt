@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68c (bugfix)
+size = 1569728
+date = 2011-04-27
+url = http://cfg-loader.googlecode.com/files/cfg68c.dol
+Fixed occasional corrupted
+  cover in coverflow modes
+
+release = 68c-222 (bugfix)
+size = 1569728
+date = 2011-04-27
+url = http://cfg-loader.googlecode.com/files/cfg68c-222.dol
+Same as 68c but with different
+default options:
+  ios=222-mload
+
 release = 68 (release)
 size = 1569728
 date = 2011-04-24

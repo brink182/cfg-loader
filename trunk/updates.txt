@@ -13,6 +13,25 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 68d (bugfix)
+size = 1569856
+date = 2011-04-28
+url = http://cfg-loader.googlecode.com/files/cfg68d.dol
+Fixed wrong banner sound playing
+  or hang or crash when using WBFS
+  and the new GUI menu.
+Fixed missing text when a translation
+  was missing (now english is used
+  if a translation is missing)
+
+release = 68d-222 (bugfix)
+size = 1569856
+date = 2011-04-28
+url = http://cfg-loader.googlecode.com/files/cfg68d-222.dol
+Same as 68d but with different
+default options:
+  ios=222-mload
+
 release = 68c (bugfix)
 size = 1569728
 date = 2011-04-27

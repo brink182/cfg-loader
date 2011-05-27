@@ -421,6 +421,21 @@ void mem_init()
 	heap_init(&mem2, m2_start, m2_size);
 }
 
+bool mem_inside(int pool, void *ptr)
+{
+	if (pool & 1) {
+		if (heap_ptr_inside(&mem1, ptr)) {
+			return true;
+		}
+	}
+	if (pool & 2) {
+		if (heap_ptr_inside(&mem2, ptr)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void *mem1_alloc(int size)
 {
 	return heap_alloc(&mem1, size);

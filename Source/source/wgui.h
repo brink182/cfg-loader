@@ -25,6 +25,7 @@
 #define WGUI_TYPE_NUMSWITCH 10
 #define WGUI_TYPE_PGSWITCH  11
 #define WGUI_TYPE_OPTION    12
+#define WGUI_TYPE_USER      20
 
 // use full parent area from pos to edge
 #define SIZE_FULL  0
@@ -92,6 +93,7 @@ struct Wgui_Input
 {
 	ir_t *w_ir;
 	int *p_buttons;
+	int *p_held;
 	int w_buttons;
 };
 
@@ -121,6 +123,8 @@ struct Widget
 	char *name;
 	int state; // normal, hover, disabled, pressed
 	u32 color;
+	bool custom_tx;
+	int tx_idx;
 	bool closing; // mark close
 	bool lock_focus;
 	PosState post;
@@ -128,6 +132,7 @@ struct Widget
 	FontColor text_color;
 	int text_opt; // align, fit
 	float zoom;   // pointer-over zoom amount
+	float max_zoom; // max hover zoom (1.1)
 	float click;  // button press flash amount
 	
 	// update internal state/value from external source

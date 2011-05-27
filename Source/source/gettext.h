@@ -13,10 +13,11 @@ extern "C" {
      * output = the translated msg in utf-8
     */
     const char *gettext(const char *msg);
-#define gt(s) gettext(s)
+#define gt(s) (char*)gettext(s)
 	// gts can be used in static initializations
 #define gts(s) s
 
+char** translate_array(int n, char *src[], char *dest[]);
 
 #ifdef __cplusplus
 }

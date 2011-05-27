@@ -1058,25 +1058,29 @@ Cover_State* cache_find_lru(bool present)
 			lru_cs = cs;
 			//if (lru >= LRU_MAX / 2) break;
 		}
-		if (present && cs->key.style == CFG_COVER_STYLE_HQ) {
-			// prefer releasing HQ since it takes more space
-			hq_cnt++;
-			if (cs->lru > hq_lru) {
-				hq_lru = cs->lru;
-				hq_cs = cs;
-			}
-			// limit HQ RGBA to 3
-			if (cs->key.format == CC_FMT_RGBA) {
+		if (present) {
+			// limit FULL/HQ RGBA to 3
+			if ( (cs->key.style == CFG_COVER_STYLE_FULL
+					|| cs->key.style == CFG_COVER_STYLE_HQ)
+					&& cs->key.format == CC_FMT_RGBA)
+			{
 				rgb_cnt++;
 				if (rgb_cnt > 3) {
 					lru_cs = cs;
 					break;
 				}
 			}
-		}
-		// limit HQ to 10
-		if (hq_cnt > 10) {
-			lru_cs = hq_cs;
+			// limit HQ to 10
+			if (cs->key.style == CFG_COVER_STYLE_HQ) {
+				hq_cnt++;
+				if (cs->lru > hq_lru) {
+					hq_lru = cs->lru;
+					hq_cs = cs;
+				}
+			}
+			if (hq_cnt > 10) {
+				lru_cs = hq_cs;
+			}
 		}
 	}
 	CACHE_UNLOCK();
@@ -1134,6 +1138,7 @@ void* cache_alloc_data(int size)
 		}
 	} while (!ptr);
 	CACHE_UNLOCK();
+	if (!ptr) dbg_printf("cc: alloc err %d\n", size);
 	return ptr;
 }
 
@@ -1289,6 +1294,8 @@ int cache_load_image(u8 *id, GRRLIB_texImg *tx, int style, bool *hqavail)
 	if (memcmp(hdr.id, id, 6)) goto error;
 	if (hdr.version != 1) goto error;
 	if (hdr.gxformat != GX_TF_CMPR) goto error;
+	if (hdr.width > 512) goto error;
+	if (hdr.height > 512) goto error;
 
 	size = fixGX_GetTexBufferSize(hdr.width, hdr.height,
 			hdr.gxformat, hdr.lod ? GX_TRUE : GX_FALSE, hdr.lod);
@@ -1304,6 +1311,7 @@ int cache_load_image(u8 *id, GRRLIB_texImg *tx, int style, bool *hqavail)
 
 	data_size = size + hq_size;
 	data = cache_alloc_data(data_size);
+	if (!data) return -2; // alloc error
 	
 	ret = read(fd, data + hq_size, size);
 	if (ret != size) goto error;
@@ -1411,6 +1419,11 @@ void cache_cover_load(Cover_State *cs)
 			ret = cache_load_image(cs->key.id, &tx, cs->key.style, &hqavail);
 			tload = diff_usec(t1, gettime());
 			if (ret == 0 && tx.data) goto out;
+			if (ret == -2) {
+				// alloc error
+				state = CS_IDLE;
+				goto out;
+			}
 		}
 	}
 	
@@ -1435,8 +1448,8 @@ void cache_cover_load(Cover_State *cs)
 		goto out;
 	}
 	if (resizeToFullCover) {
-		int cover_width_front = (int)(t2_nocover_full.tx.h / 1.4) >> 2 << 2;
-		size = t2_nocover_full.tx.w * t2_nocover_full.tx.h * 4;
+		int cover_width_front = (int)(tx_nocover_full.h / 1.4) >> 2 << 2;
+		size = tx_nocover_full.w * tx_nocover_full.h * 4;
 		if (CFG.gui_compress_covers) {
 			size /= 8;
 		}
@@ -1448,7 +1461,7 @@ void cache_cover_load(Cover_State *cs)
 		// XXX format depends on CFG.gui_compress_covers
 		// needs to be an arg.
 		tx = Gui_LoadTexture_fullcover(img,
-				t2_nocover_full.tx.w, t2_nocover_full.tx.h,
+				tx_nocover_full.w, tx_nocover_full.h,
 				cover_width_front, buf, path);
 		if (!tx.data) {
 			CACHE_SAFE_FREE(buf);
@@ -1493,7 +1506,6 @@ void cache_cover_load(Cover_State *cs)
 		size = fixGX_GetTexBufferSize(width, height, gx_fmt, gx_mipmap, gx_lod);
 		buf = cache_alloc_data(size);
 		if (!buf) {
-			dbg_printf("cc: alloc err %d\n", size);
 			state = CS_IDLE;
 			goto out;
 		}

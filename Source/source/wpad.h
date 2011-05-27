@@ -17,6 +17,7 @@ u32  Wpad_Held();
 u32  Wpad_HeldButtons();
 void Wpad_getIRx(int n, struct ir_t *ir);
 void Wpad_getIR(struct ir_t *ir);
+bool Wpad_set_pos(struct ir_t *ir, float x, float y);
 
 #define WPAD_BUTTON_Z					(0x0001<<16)
 #define WPAD_BUTTON_C					(0x0002<<16)

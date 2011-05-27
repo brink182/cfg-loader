@@ -82,7 +82,7 @@ int Coverflow_init_transition(int trans_type, int speed, int coverCount, bool sp
  *  @return void
  */
 void Coverflow_drawCoverForGameOptions(int game_sel,
-		int x, int y, int z, f32 xrot, f32 yrot, f32 zrot, int cstyle);
+		float x, float y, float z, f32 xrot, f32 yrot, f32 zrot, int cstyle);
 
 
 #endif

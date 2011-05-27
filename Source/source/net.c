@@ -851,11 +851,11 @@ void Download_XML()
 	sleep(4);
 } /* end download zipped xml */
 
-int gamercard_skip = 0;
+int gamercard_enabled = 1;
 
 int gamercard_update(char *ID)
 {
-	if (gamercard_skip) return 0;
+	if (!gamercard_enabled) return 0;
 	char *next_key, *next_url;
 	bool net_initted = false;
 	int gcard_cnt = 0;

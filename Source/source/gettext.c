@@ -276,11 +276,26 @@ bool gettextLoadLanguage(const char* langFile) {
 	return true;
 }
 
-const char *gettext(const char *msgid) {
+const char *gettext(const char *msgid)
+{
 	MSG *msg = findMSG(hash_string(msgid));
-	if (msg && msg->msgstr) return msg->msgstr;
+	if (msg && msg->msgstr) msgid = msg->msgstr;
+	// skip ~~
+	char *xx = strstr(msgid, "~~");
+	if (xx) msgid = xx + 2;
 	return msgid;
 }
 
+char** translate_array(int n, char *src[], char *dest[])
+{
+	int i;
+	if (n && src && dest) {
+		for (i=0; i<n; i++) {
+			if (!src[i]) break;
+			dest[i] = (char*)gettext(src[i]);
+		}
+	}
+	return dest;
+}
 
 

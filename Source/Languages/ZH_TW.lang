@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-11 18:44+0100\n"
+"POT-Creation-Date: 2011-04-14 23:16+0200\n"
 "PO-Revision-Date: 2010-03-17 05:55+0800\n"
 "Last-Translator: nhlay <nhlay6266@hotmail.com>\n"
 "Language-Team: Traditional Chinese (ZH_TW) <nhlay6266@hotmail.com>\n"
@@ -69,11 +69,20 @@ msgstr "< 遞減 >"
 msgid "< DOWNLOAD >"
 msgstr "< 下載 >"
 
+msgid "About"
+msgstr ""
+
 msgid "Action"
 msgstr "動作"
 
 msgid "Additional config:"
 msgstr "額外的設定:"
+
+msgid "Admin Lock:"
+msgstr ""
+
+msgid "Admin Unlock"
+msgstr ""
 
 msgid "Adult"
 msgstr "成人"
@@ -123,6 +132,9 @@ msgid ""
 "game?"
 msgstr "你是否確定要移除這個遊戲?"
 
+msgid "Ascending"
+msgstr ""
+
 #, c-format
 msgid "Auto-start game: %.6s not found!"
 msgstr "自動開始遊戲: %.6s 找不到!"
@@ -130,14 +142,23 @@ msgstr "自動開始遊戲: %.6s 找不到!"
 msgid "Available Updates"
 msgstr "可用的更新"
 
+msgid "Back"
+msgstr ""
+
 msgid "Balance Board"
 msgstr "平衡器"
+
+msgid "Basic"
+msgstr ""
 
 msgid "Block IOS Reload:"
 msgstr "封鎖 IOS 重新載入:"
 
 msgid "Boot Disc"
 msgstr "啟動光碟"
+
+msgid "Boot disc"
+msgstr ""
 
 msgid "Booting Wii game, please wait..."
 msgstr "正在啟動 Wii 遊戲, 請等候..."
@@ -171,6 +192,9 @@ msgstr "正在檢查更新..."
 msgid "Choose a sorting method"
 msgstr "選擇一個排序方式"
 
+msgid "Classic"
+msgstr ""
+
 msgid "Classic Controller"
 msgstr "傳統控制器"
 
@@ -192,8 +216,14 @@ msgstr "設定錯誤, 已達到 MAX_DNS_ENTRIES 並且清單是空的"
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "從 net_read() 連線錯誤  錯誤代碼: %i"
 
+msgid "Console"
+msgstr ""
+
 msgid "Console Def."
 msgstr "預設主控台."
+
+msgid "Controller"
+msgstr ""
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -202,8 +232,20 @@ msgstr "無法初始化 DIP 模組! (ret = %d)"
 msgid "Country Fix:"
 msgstr "國別代碼修復:"
 
+msgid "Cover"
+msgstr ""
+
 msgid "Cover Image:"
 msgstr "封面圖片:"
+
+msgid "Cover Style"
+msgstr ""
+
+msgid "Cover~~Back"
+msgstr ""
+
+msgid "Cover~~Front"
+msgstr ""
 
 msgid "Create"
 msgstr "建立"
@@ -251,8 +293,17 @@ msgstr "跳舞踏墊"
 msgid "Database update successful."
 msgstr "資料庫更新成功."
 
+msgid "Debug"
+msgstr ""
+
+msgid "Delete Game"
+msgstr "移除遊戲"
+
 msgid "Deleting"
 msgstr "正在刪除"
+
+msgid "Descending"
+msgstr ""
 
 msgid "Developer"
 msgstr "開發成員"
@@ -275,8 +326,17 @@ msgstr "完成"
 msgid "Download .txt"
 msgstr "下載 .txt"
 
+msgid "Download All Covers"
+msgstr ""
+
 msgid "Download All Missing Covers"
 msgstr "下載所有缺少的封面"
+
+msgid "Download Missing Covers"
+msgstr ""
+
+msgid "Download Themes"
+msgstr ""
 
 msgid "Download complete."
 msgstr "下載完成."
@@ -284,6 +344,9 @@ msgstr "下載完成."
 #, c-format
 msgid "Download error on gamercard #%d."
 msgstr "下載 Gamercard #%d 錯誤."
+
+msgid "Download titles.txt"
+msgstr ""
 
 msgid "Downloadable Content"
 msgstr "可下載的內容"
@@ -583,6 +646,9 @@ msgstr "錯誤: 沒有 URL."
 msgid "Error: no data."
 msgstr "錯誤: 沒有資料."
 
+msgid "Exit"
+msgstr ""
+
 #, c-format
 msgid "Extracting: %s"
 msgstr "正在解壓縮: %s"
@@ -608,11 +674,26 @@ msgstr "平面封面"
 msgid "FULL cover"
 msgstr "完整封面"
 
+msgid "Fav"
+msgstr ""
+
+msgid "Fav: Off"
+msgstr ""
+
+msgid "Fav: On"
+msgstr ""
+
+msgid "Favorite"
+msgstr ""
+
 msgid "Favorite Games"
 msgstr "最愛的遊戲"
 
 msgid "Favorite:"
 msgstr "最愛的:"
+
+msgid "Favorites:"
+msgstr ""
 
 msgid "Fighting"
 msgstr "格鬥"
@@ -620,6 +701,9 @@ msgstr "格鬥"
 #, c-format
 msgid "File not found! %s"
 msgstr "找不到檔案! %s"
+
+msgid "Filter"
+msgstr ""
 
 msgid "Filter Games"
 msgstr "遊戲過濾"
@@ -632,6 +716,9 @@ msgstr "依類型過濾"
 
 msgid "Filter by Online Features"
 msgstr "依網路功能過濾"
+
+msgid "Filter:"
+msgstr ""
 
 msgid "Fixing EXTEND partition..."
 msgstr "正在修復擴充分割區..."
@@ -655,6 +742,9 @@ msgstr "找到 %s"
 msgid "French"
 msgstr "法文"
 
+msgid "Full"
+msgstr ""
+
 msgid "GB"
 msgstr "GB"
 
@@ -671,9 +761,15 @@ msgstr "遊戲選項: %s"
 msgid "Gamecube"
 msgstr "Gamecube"
 
+msgid "Gamer Card:"
+msgstr ""
+
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "Gamercard #%d 報告: %.*s"
+
+msgid "Genre"
+msgstr ""
 
 msgid "German"
 msgstr "德文"
@@ -684,14 +780,23 @@ msgstr "全域選項"
 msgid "Guitar"
 msgstr "吉他"
 
+msgid "HQ cover"
+msgstr ""
+
 msgid "HTTP Response was without a file"
 msgstr "HTTP 回應沒有檔案"
+
+msgid "Hide"
+msgstr ""
 
 msgid "Hide Game:"
 msgstr "隱藏遊戲:"
 
 msgid "Hold button B to cancel."
 msgstr "按住按鈕 B 取消."
+
+msgid "Homebrew Channel"
+msgstr ""
 
 msgid "Hook Type:"
 msgstr "攔截類型:"
@@ -720,12 +825,18 @@ msgstr ""
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr "LZ77 編碼方式 %x 不一致"
 
+msgid "Info"
+msgstr ""
+
 #, c-format
 msgid "Info file: %s"
 msgstr "檔案資訊: %s"
 
 msgid "Initializing Network..."
 msgstr "初始化網路..."
+
+msgid "Install"
+msgstr ""
 
 msgid "Install Date"
 msgstr "安裝日期"
@@ -790,6 +901,9 @@ msgstr "載入器版本: %s"
 msgid "Loading ..."
 msgstr "正在載入 ..."
 
+msgid "Main"
+msgstr ""
+
 msgid "Main Menu"
 msgstr "主選單"
 
@@ -802,6 +916,9 @@ msgstr ""
 
 msgid "Manage"
 msgstr "管理"
+
+msgid "Manage Cheats"
+msgstr ""
 
 msgid "Microphone"
 msgstr "麥克風"
@@ -1000,14 +1117,29 @@ msgstr "關閉"
 msgid "On"
 msgstr "開啟"
 
+msgid "Online"
+msgstr ""
+
 msgid "Online Content"
 msgstr "線上內容"
 
 msgid "Online Play"
 msgstr "線上遊戲"
 
+msgid "Online Players"
+msgstr ""
+
 msgid "Online Score List"
 msgstr "線上得分清單"
+
+msgid "Online Updates"
+msgstr ""
+
+msgid "Open Sort"
+msgstr ""
+
+msgid "Open Style"
+msgstr ""
 
 msgid "Opening DVD disc..."
 msgstr "正在開啟 DVD 光碟..."
@@ -1015,6 +1147,9 @@ msgstr "正在開啟 DVD 光碟..."
 #, c-format
 msgid "Opening partition: %s"
 msgstr "正在開啟分割區: %s"
+
+msgid "Options"
+msgstr ""
 
 msgid "Options discarded for this game."
 msgstr "放棄這個遊戲設定."
@@ -1024,6 +1159,9 @@ msgstr "儲存這個遊戲設定."
 
 msgid "Out of memory"
 msgstr "記憶體不足"
+
+msgid "Page:"
+msgstr ""
 
 msgid "Partition:"
 msgstr "分割區:"
@@ -1043,6 +1181,9 @@ msgstr "平台"
 
 msgid "Play Count"
 msgstr "遊戲次數"
+
+msgid "Players"
+msgstr ""
 
 msgid "Please insert a game disc..."
 msgstr "請插入遊戲光碟..."
@@ -1217,11 +1358,17 @@ msgstr "設定檔:"
 msgid "Profile: %s"
 msgstr "設定檔: %s"
 
+msgid "Program Updates"
+msgstr ""
+
 msgid "Publisher"
 msgstr "發行者"
 
 msgid "Puzzle"
 msgstr "益智"
+
+msgid "Quit"
+msgstr ""
 
 msgid "RAW"
 msgstr "未經處理"
@@ -1248,14 +1395,14 @@ msgstr "讀取"
 msgid "Reading BCA..."
 msgstr "正在讀取 BCA..."
 
+msgid "Reboot"
+msgstr ""
+
 msgid "Release Date"
 msgstr "發售日期"
 
 msgid "Release Notes: (short)"
 msgstr "發佈註釋: (簡略)"
-
-msgid "Remove Game"
-msgstr "移除遊戲"
 
 msgid "Removing game, please wait..."
 msgstr "正在移除遊戲, 請等候..."
@@ -1269,6 +1416,9 @@ msgstr "已返回! (ret = %d)"
 
 msgid "Rhythm"
 msgstr "節奏"
+
+msgid "Rows:"
+msgstr ""
 
 msgid "Running benchmark, please wait"
 msgstr "正在執行基準, 請等候"
@@ -1284,6 +1434,12 @@ msgstr "成功!"
 
 msgid "Save .gct"
 msgstr "儲存 .gct"
+
+msgid "Save Debug"
+msgstr ""
+
+msgid "Save Settings"
+msgstr ""
 
 msgid "Save debug.log"
 msgstr "儲存 debug.log"
@@ -1307,6 +1463,9 @@ msgstr "正在儲存:"
 msgid "Saving: %s"
 msgstr "正在儲存: %s"
 
+msgid "Scroll:"
+msgstr ""
+
 msgid "Select Alternative .dol:"
 msgstr "選擇替代的 .dol:"
 
@@ -1328,11 +1487,23 @@ msgstr "選擇你要啟動的遊戲"
 msgid "Selected Game"
 msgstr "選取的遊戲"
 
+msgid "Settings"
+msgstr ""
+
 msgid "Shooter"
 msgstr "射擊"
 
+msgid "Show All"
+msgstr ""
+
 msgid "Show cIOS info"
 msgstr "顯示 cIOS 資訊"
+
+msgid "Shutdown"
+msgstr ""
+
+msgid "Side:"
+msgstr ""
 
 msgid "Simulation"
 msgstr "模擬"
@@ -1344,8 +1515,17 @@ msgstr "大小(GB) 類型 掛載 已使用"
 msgid "Size: %d bytes"
 msgstr "大小: %d 位元組"
 
+msgid "Sort"
+msgstr ""
+
 msgid "Sort Games"
 msgstr "排序遊戲"
+
+msgid "Sort Order:"
+msgstr ""
+
+msgid "Sort Type:"
+msgstr ""
 
 #, c-format
 msgid "Sort: %s-%s"
@@ -1356,6 +1536,9 @@ msgstr "西班牙文"
 
 msgid "Sports"
 msgstr "運動"
+
+msgid "Start"
+msgstr ""
 
 msgid "Start Game"
 msgstr "開始遊戲"
@@ -1369,11 +1552,20 @@ msgstr ""
 msgid "Strategy"
 msgstr "戰略"
 
+msgid "Style"
+msgstr ""
+
+msgid "Style:"
+msgstr ""
+
 msgid "Sync FAT free space info?"
 msgstr "同步 FAT 分割區剩餘空間資訊?"
 
 msgid "Synchronizing, please wait."
 msgstr "正在同步, 請等候."
+
+msgid "System"
+msgstr ""
 
 msgid "System Def."
 msgstr "系統預設."
@@ -1454,6 +1646,9 @@ msgstr "未知的"
 msgid "Unknown syntax!"
 msgstr "未知的語法!"
 
+msgid "Unplayed"
+msgstr ""
+
 msgid "Unplayed Games"
 msgstr "沒有玩過的遊戲"
 
@@ -1465,6 +1660,9 @@ msgstr "更新主題"
 
 msgid "Update titles.txt"
 msgstr "更新 titles.txt"
+
+msgid "Updates"
+msgstr ""
 
 msgid "Updating database."
 msgstr "正在更新資料庫."
@@ -1485,6 +1683,9 @@ msgstr "視訊補綴:"
 msgid "Video:"
 msgstr "視訊:"
 
+msgid "View"
+msgstr ""
+
 msgid "Vitality Sensor"
 msgstr "活力偵測器"
 
@@ -1500,6 +1701,9 @@ msgstr "方向盤"
 
 msgid "Wii Speak"
 msgstr "Wii 聊天裝置"
+
+msgid "WiiTDB Game Database"
+msgstr ""
 
 msgid "Wiimote"
 msgstr "遙控器"
@@ -1542,8 +1746,20 @@ msgstr "[ 已找到 ]"
 msgid "[ SAVED ]"
 msgstr "[ 已儲存 ]"
 
+msgid "[HOME]"
+msgstr ""
+
+msgid "[No HQ]"
+msgstr ""
+
 msgid "[USED]"
 msgstr "[已使用]"
+
+msgid "[default]"
+msgstr ""
+
+msgid "[saved]"
+msgstr ""
 
 #, c-format
 msgid "bad wbfs file: %s"
@@ -1558,6 +1774,9 @@ msgstr "刪除"
 #, c-format
 msgid "dest: %p - %p"
 msgstr "接收: %p - %p"
+
+msgid "discard"
+msgstr ""
 
 #, c-format
 msgid "domain %s could not be resolved"
@@ -1616,6 +1835,12 @@ msgstr "隨機讀取速度: %.2f mb/s"
 msgid "random..."
 msgstr "隨機..."
 
+msgid "reset"
+msgstr ""
+
+msgid "revert"
+msgstr ""
+
 msgid "save"
 msgstr "儲存"
 
@@ -1635,3 +1860,6 @@ msgstr "已使用: %p - %p"
 
 #~ msgid "Loading previous game list..."
 #~ msgstr "正在載入之前的遊戲清單..."
+
+#~ msgid "Remove Game"
+#~ msgstr "移除遊戲"

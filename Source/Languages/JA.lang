@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-11 18:44+0100\n"
+"POT-Creation-Date: 2011-04-14 23:16+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -71,11 +71,20 @@ msgstr "< 降順 >"
 msgid "< DOWNLOAD >"
 msgstr "<ダウンロード>"
 
+msgid "About"
+msgstr "情報"
+
 msgid "Action"
 msgstr "アクション"
 
 msgid "Additional config:"
 msgstr "設定の保存場所:"
+
+msgid "Admin Lock:"
+msgstr "管理者ロック:"
+
+msgid "Admin Unlock"
+msgstr "管理者アンロック"
 
 msgid "Adult"
 msgstr "成人向け"
@@ -121,6 +130,9 @@ msgid ""
 "game?"
 msgstr "このゲームを削除しますか?"
 
+msgid "Ascending"
+msgstr "昇順"
+
 #, c-format
 msgid "Auto-start game: %.6s not found!"
 msgstr "自動起動ゲーム: %.6sが見つかりません"
@@ -128,14 +140,23 @@ msgstr "自動起動ゲーム: %.6sが見つかりません"
 msgid "Available Updates"
 msgstr "利用可能な更新"
 
+msgid "Back"
+msgstr "戻る"
+
 msgid "Balance Board"
 msgstr "バランスボード"
+
+msgid "Basic"
+msgstr "ベーシック"
 
 msgid "Block IOS Reload:"
 msgstr "IOSの再読込み禁止"
 
 msgid "Boot Disc"
 msgstr "ディスクを起動"
+
+msgid "Boot disc"
+msgstr "ディスク起動"
 
 msgid "Booting Wii game, please wait..."
 msgstr "起動中です、しばらくお待ちください"
@@ -169,6 +190,9 @@ msgstr "更新を探しています…"
 msgid "Choose a sorting method"
 msgstr "並び替え方法を選んでください"
 
+msgid "Classic"
+msgstr "クラシック"
+
 msgid "Classic Controller"
 msgstr "クラシックコントローラ"
 
@@ -190,8 +214,14 @@ msgstr "設定エラーが発生しました"
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "接続エラーが発生しました:%i"
 
+msgid "Console"
+msgstr "コンソール"
+
 msgid "Console Def."
 msgstr "コンソールの標準"
+
+msgid "Controller"
+msgstr "コントローラ"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -200,8 +230,20 @@ msgstr "DIPモジュールを初期化できませんでした"
 msgid "Country Fix:"
 msgstr "リージョン回避:"
 
+msgid "Cover"
+msgstr "カバー"
+
 msgid "Cover Image:"
 msgstr "カバー画像:"
+
+msgid "Cover Style"
+msgstr "カバースタイル"
+
+msgid "Cover~~Back"
+msgstr "カバー~~背面"
+
+msgid "Cover~~Front"
+msgstr "カバー~~正面"
 
 msgid "Create"
 msgstr "作成"
@@ -249,8 +291,17 @@ msgstr "ダンスマット"
 msgid "Database update successful."
 msgstr "データベースを更新しました"
 
+msgid "Debug"
+msgstr "デバッグ"
+
+msgid "Delete Game"
+msgstr "ゲームを削除"
+
 msgid "Deleting"
 msgstr "削除中"
+
+msgid "Descending"
+msgstr "降順"
 
 msgid "Developer"
 msgstr "開発者"
@@ -273,8 +324,17 @@ msgstr "完了しました"
 msgid "Download .txt"
 msgstr "txtをダウンロード"
 
+msgid "Download All Covers"
+msgstr "全てのカバーをダウンロード"
+
 msgid "Download All Missing Covers"
 msgstr "不足しているカバーをダウンロード"
+
+msgid "Download Missing Covers"
+msgstr "不足しているカバーをダウンロード"
+
+msgid "Download Themes"
+msgstr "テーマをダウンロード"
 
 msgid "Download complete."
 msgstr "ダウンロードしました"
@@ -282,6 +342,9 @@ msgstr "ダウンロードしました"
 #, c-format
 msgid "Download error on gamercard #%d."
 msgstr "ゲーマーカード#%dのダウンロードに失敗しました"
+
+msgid "Download titles.txt"
+msgstr "titles.txtをダウンロード"
 
 msgid "Downloadable Content"
 msgstr "追加データを受信可能"
@@ -584,6 +647,9 @@ msgstr "URLがありません"
 msgid "Error: no data."
 msgstr "データがありません"
 
+msgid "Exit"
+msgstr "終了"
+
 #, c-format
 msgid "Extracting: %s"
 msgstr "解凍中: %s"
@@ -609,10 +675,25 @@ msgstr "正面カバー"
 msgid "FULL cover"
 msgstr "完全なカバー"
 
+msgid "Fav"
+msgstr "お気に入り"
+
+msgid "Fav: Off"
+msgstr "お気に入り:オフ"
+
+msgid "Fav: On"
+msgstr "お気に入り:オン"
+
+msgid "Favorite"
+msgstr "お気に入り"
+
 msgid "Favorite Games"
 msgstr "お気に入りのゲーム"
 
 msgid "Favorite:"
+msgstr "お気に入り:"
+
+msgid "Favorites:"
 msgstr "お気に入り:"
 
 msgid "Fighting"
@@ -621,6 +702,9 @@ msgstr "格闘"
 #, c-format
 msgid "File not found! %s"
 msgstr "ファイルが見つかりません%s"
+
+msgid "Filter"
+msgstr "絞り込み"
 
 msgid "Filter Games"
 msgstr "ゲームの絞り込み"
@@ -633,6 +717,9 @@ msgstr "ジャンルで絞り込む"
 
 msgid "Filter by Online Features"
 msgstr "ネットワーク対応機能で絞り込む"
+
+msgid "Filter:"
+msgstr "絞り込み:"
 
 msgid "Fixing EXTEND partition..."
 msgstr "拡張領域を修復中です…"
@@ -656,6 +743,9 @@ msgstr "%s見つかりました"
 msgid "French"
 msgstr "フランス語"
 
+msgid "Full"
+msgstr "フル"
+
 msgid "GB"
 msgstr "GB"
 
@@ -672,9 +762,15 @@ msgstr "ゲーム設定:%s"
 msgid "Gamecube"
 msgstr "GCコントローラ"
 
+msgid "Gamer Card:"
+msgstr "ゲーマーカード:"
+
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "ゲーマーカード#%dに報告しました: %.*s"
+
+msgid "Genre"
+msgstr "ジャンル"
 
 msgid "German"
 msgstr "ドイツ語"
@@ -685,14 +781,23 @@ msgstr "基本設定"
 msgid "Guitar"
 msgstr "ギター"
 
+msgid "HQ cover"
+msgstr "高品質カバー"
+
 msgid "HTTP Response was without a file"
 msgstr "HTTPの応答はファイル無しでした"
+
+msgid "Hide"
+msgstr "隠す"
 
 msgid "Hide Game:"
 msgstr "ゲームを隠す:"
 
 msgid "Hold button B to cancel."
 msgstr "キャンセルするにはBボタンを押してください"
+
+msgid "Homebrew Channel"
+msgstr "Homebrewチャンネル"
 
 msgid "Hook Type:"
 msgstr "フックタイプ:"
@@ -721,12 +826,18 @@ msgstr ""
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr "%xをLZ77で符号化中に矛盾があります"
 
+msgid "Info"
+msgstr "情報"
+
 #, c-format
 msgid "Info file: %s"
 msgstr "ファイル情報:%s"
 
 msgid "Initializing Network..."
 msgstr "接続中…"
+
+msgid "Install"
+msgstr "インストール"
 
 msgid "Install Date"
 msgstr "インストール日"
@@ -791,6 +902,9 @@ msgstr "ローダーのバージョン: %s"
 msgid "Loading ..."
 msgstr "読み込み中･･･"
 
+msgid "Main"
+msgstr "メイン"
+
 msgid "Main Menu"
 msgstr "メインメニュー"
 
@@ -801,6 +915,9 @@ msgstr "端に近い方のUSBポートを使用してください"
 
 msgid "Manage"
 msgstr "管理画面へ"
+
+msgid "Manage Cheats"
+msgstr "チートを管理"
 
 msgid "Microphone"
 msgstr "マイク"
@@ -1001,14 +1118,29 @@ msgstr "使用しない"
 msgid "On"
 msgstr "使用する"
 
+msgid "Online"
+msgstr "ネットワーク"
+
 msgid "Online Content"
 msgstr "ネットワーク対応"
 
 msgid "Online Play"
 msgstr "ネットワークプレイ"
 
+msgid "Online Players"
+msgstr "ネットワークプレイ人数"
+
 msgid "Online Score List"
 msgstr "オンラインスコアリスト"
+
+msgid "Online Updates"
+msgstr "オンライン更新"
+
+msgid "Open Sort"
+msgstr "並び替えを開く"
+
+msgid "Open Style"
+msgstr "スタイルを開く"
 
 msgid "Opening DVD disc..."
 msgstr "DVDを開いています…"
@@ -1016,6 +1148,9 @@ msgstr "DVDを開いています…"
 #, c-format
 msgid "Opening partition: %s"
 msgstr "開いている領域: %s"
+
+msgid "Options"
+msgstr "オプション"
 
 msgid "Options discarded for this game."
 msgstr "このゲームのため設定を破棄しました"
@@ -1025,6 +1160,9 @@ msgstr "このゲームのため設定を保存しました"
 
 msgid "Out of memory"
 msgstr "メモリ不足"
+
+msgid "Page:"
+msgstr "ページ:"
 
 msgid "Partition:"
 msgstr "使用領域:"
@@ -1044,6 +1182,9 @@ msgstr "プラットフォーム"
 
 msgid "Play Count"
 msgstr "プレイ回数"
+
+msgid "Players"
+msgstr "プレイヤー"
 
 msgid "Please insert a game disc..."
 msgstr "ゲームディスクを入れてください…"
@@ -1218,11 +1359,17 @@ msgstr "ﾌﾟﾛﾌｧｲﾙ:"
 msgid "Profile: %s"
 msgstr "プロファイル: %s"
 
+msgid "Program Updates"
+msgstr "プログラム更新"
+
 msgid "Publisher"
 msgstr "発売元"
 
 msgid "Puzzle"
 msgstr "パズル"
+
+msgid "Quit"
+msgstr "終了"
 
 msgid "RAW"
 msgstr "無圧縮"
@@ -1249,14 +1396,14 @@ msgstr "読み込み"
 msgid "Reading BCA..."
 msgstr "BCAを読み込み中…"
 
+msgid "Reboot"
+msgstr "再起動"
+
 msgid "Release Date"
 msgstr "発売日"
 
 msgid "Release Notes: (short)"
 msgstr "変更点:"
-
-msgid "Remove Game"
-msgstr "ゲームを削除"
 
 msgid "Removing game, please wait..."
 msgstr "ゲームを削除しています、お待ちください…"
@@ -1270,6 +1417,9 @@ msgstr "戻りました(ret = %d)"
 
 msgid "Rhythm"
 msgstr "リズム"
+
+msgid "Rows:"
+msgstr "行:"
 
 msgid "Running benchmark, please wait"
 msgstr "ベンチマークを起動しています､お待ちください"
@@ -1285,6 +1435,12 @@ msgstr "成功しました!"
 
 msgid "Save .gct"
 msgstr "gctを保存"
+
+msgid "Save Debug"
+msgstr "デバッグを保存"
+
+msgid "Save Settings"
+msgstr "設定を保存"
 
 msgid "Save debug.log"
 msgstr "デバッグ情報を保存"
@@ -1308,6 +1464,9 @@ msgstr "保存中:"
 msgid "Saving: %s"
 msgstr "保存中:%s"
 
+msgid "Scroll:"
+msgstr "スクロール:"
+
 msgid "Select Alternative .dol:"
 msgstr "代替dolを選んでください:"
 
@@ -1329,11 +1488,23 @@ msgstr "起動したいゲームを選んでください"
 msgid "Selected Game"
 msgstr "選択されたゲーム"
 
+msgid "Settings"
+msgstr "設定"
+
 msgid "Shooter"
 msgstr "シューティング"
 
+msgid "Show All"
+msgstr "全て表示"
+
 msgid "Show cIOS info"
 msgstr "cIOS情報を表示"
+
+msgid "Shutdown"
+msgstr "シャットダウン"
+
+msgid "Side:"
+msgstr "サイド:"
 
 msgid "Simulation"
 msgstr "シミュレーション"
@@ -1345,8 +1516,17 @@ msgstr "　サイズ(GB) 形式"
 msgid "Size: %d bytes"
 msgstr "サイズ: %dバイト"
 
+msgid "Sort"
+msgstr "並び替え"
+
 msgid "Sort Games"
 msgstr "ゲームを並び替え"
+
+msgid "Sort Order:"
+msgstr "並び替え順:"
+
+msgid "Sort Type:"
+msgstr "並び替えタイプ:"
 
 #, c-format
 msgid "Sort: %s-%s"
@@ -1357,6 +1537,9 @@ msgstr "スペイン語"
 
 msgid "Sports"
 msgstr "スポーツ"
+
+msgid "Start"
+msgstr "はじめる"
 
 msgid "Start Game"
 msgstr "ゲームを始める"
@@ -1370,11 +1553,20 @@ msgstr "DVDを停止中..."
 msgid "Strategy"
 msgstr "戦略ゲーム"
 
+msgid "Style"
+msgstr "スタイル"
+
+msgid "Style:"
+msgstr "スタイル:"
+
 msgid "Sync FAT free space info?"
 msgstr "FATの空き容量情報を同期しますか?"
 
 msgid "Synchronizing, please wait."
 msgstr "同期中です、お待ちください"
+
+msgid "System"
+msgstr "システム"
 
 msgid "System Def."
 msgstr "システムの標準"
@@ -1455,6 +1647,9 @@ msgstr "不明"
 msgid "Unknown syntax!"
 msgstr "不明な構文です"
 
+msgid "Unplayed"
+msgstr "未プレイ"
+
 msgid "Unplayed Games"
 msgstr "プレイされていないゲーム"
 
@@ -1466,6 +1661,9 @@ msgstr "テーマを更新"
 
 msgid "Update titles.txt"
 msgstr "titles.txtを更新"
+
+msgid "Updates"
+msgstr "更新"
 
 msgid "Updating database."
 msgstr "データベースを更新中です"
@@ -1486,6 +1684,9 @@ msgstr "映像パッチ:"
 msgid "Video:"
 msgstr "映像出力:"
 
+msgid "View"
+msgstr "表示"
+
 msgid "Vitality Sensor"
 msgstr "バイタリティセンサー"
 
@@ -1501,6 +1702,9 @@ msgstr "Wiiハンドル"
 
 msgid "Wii Speak"
 msgstr "Wiiスピーク"
+
+msgid "WiiTDB Game Database"
+msgstr "WiiTDBゲームデータベース"
 
 msgid "Wiimote"
 msgstr "Wiiリモコン"
@@ -1544,8 +1748,20 @@ msgstr "[ あります ]"
 msgid "[ SAVED ]"
 msgstr "[ 保存済み ]"
 
+msgid "[HOME]"
+msgstr "[ホーム]"
+
+msgid "[No HQ]"
+msgstr "[HQ無し]"
+
 msgid "[USED]"
 msgstr "[使用中]"
+
+msgid "[default]"
+msgstr "[デフォルト]"
+
+msgid "[saved]"
+msgstr "[保存しました]"
 
 #, c-format
 msgid "bad wbfs file: %s"
@@ -1560,6 +1776,9 @@ msgstr "削除"
 #, c-format
 msgid "dest: %p - %p"
 msgstr "目的地: %p - %p"
+
+msgid "discard"
+msgstr "破棄"
 
 #, c-format
 msgid "domain %s could not be resolved"
@@ -1618,6 +1837,12 @@ msgstr "ランダム読み込み速度: %.2f mb/秒"
 msgid "random..."
 msgstr "ランダム…"
 
+msgid "reset"
+msgstr "初期化"
+
+msgid "revert"
+msgstr "戻す"
+
 msgid "save"
 msgstr "保存"
 
@@ -1635,5 +1860,11 @@ msgstr "Wiiディスクを開けません"
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
 
+#~ msgid "Front"
+#~ msgstr "正面"
+
 #~ msgid "Loading previous game list..."
 #~ msgstr "以前のゲームのリストを読み込み中"
+
+#~ msgid "Remove Game"
+#~ msgstr "ゲームを削除"

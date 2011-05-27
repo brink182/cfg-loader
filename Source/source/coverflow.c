@@ -102,9 +102,9 @@ extern unsigned char coverImg_full[];
 GRRLIB_texImg *tx_cover_top;
 GRRLIB_texImg *tx_cover_front;
 GRRLIB_texImg *tx_cover_side;
-struct M2_texImg t2_nocover_full_CMPR;
-struct M2_texImg t2_hourglass_full;
-struct M2_texImg t2_screenshot;
+GRRLIB_texImg tx_nocover_full_CMPR;
+GRRLIB_texImg tx_hourglass_full;
+GRRLIB_texImg tx_screenshot;
 
 GXTexObj texCoverTop;
 GXTexObj texCoverFront;
@@ -184,7 +184,7 @@ void Coverflow_Grx_Init() {
 		if (CFG.gui_compress_covers) {
 			//store a CMPR version of the full cover
 			tx_tmp = Gui_LoadTexture_CMPR(coverImg_full, 0, 0, NULL, NULL);
-			cache2_tex(&t2_nocover_full_CMPR, &tx_tmp);
+			GRRLIB_TextureMEM2(&tx_nocover_full_CMPR, &tx_tmp);
 		}
 	}
 	grx_cover_init = 1;
@@ -225,14 +225,14 @@ void update_cover_state2(Cover *cover, int cstyle)
 	if (cover->state == CS_PRESENT) {
 		cover->tx = *tx;
 	} else if (cover->state == CS_IDLE) {
-		cover->tx = t2_hourglass_full.tx;
+		cover->tx = tx_hourglass_full;
 	} else if (cover->state == CS_LOADING) {
-		cover->tx = t2_hourglass_full.tx;
+		cover->tx = tx_hourglass_full;
 	} else { // CS_MISSING
 		if (CFG.gui_compress_covers)
-			cover->tx = t2_nocover_full_CMPR.tx;
+			cover->tx = tx_nocover_full_CMPR;
 		else
-			cover->tx = t2_nocover_full.tx;
+			cover->tx = tx_nocover_full;
 	}
 }
 
@@ -1481,13 +1481,13 @@ void set_cover_stencil_colors() {
 void capture_cover_positions() {
 	int i;
 
-	if (t2_screenshot.tx.data == NULL) {
+	if (tx_screenshot.data == NULL) {
 		// first time, allocate
-		int src_size = 16384;  //= 128 * 128
-		t2_screenshot.tx.data = LARGE_realloc(t2_screenshot.tx.data, src_size);
-		t2_screenshot.size = src_size;
-		t2_screenshot.tx.w = 128;
-		t2_screenshot.tx.h = 128;
+		// only 8 bits per pixel (R8)
+		int src_size = 128 * 128;  // 16384
+		tx_screenshot.data = LARGE_alloc(src_size);
+		tx_screenshot.w = 128;
+		tx_screenshot.h = 128;
 	}
 	
 	GRRLIB_prepareStencil();
@@ -1497,7 +1497,7 @@ void capture_cover_positions() {
 		draw_phantom_cover(&coverCoords_right[i].currentPos, coverCoords_right[i].stencil_color);
 	}
 	draw_phantom_cover(&coverCoords_center.currentPos, coverCoords_center.stencil_color);
-	GRRLIB_renderStencil_buf(&t2_screenshot.tx);
+	GRRLIB_renderStencil_buf(&tx_screenshot);
 }
 
 
@@ -1573,7 +1573,7 @@ int is_over_cover(ir_t *ir) {
 	
 	capture_cover_positions();
 	//grab the color under the pointer
-	i = GRRLIB_stencilVal(ir->sx, ir->sy, t2_screenshot.tx);
+	i = GRRLIB_stencilVal(ir->sx, ir->sy, tx_screenshot);
 	selectedColor = GRRLIB_GetColor((u8)i, 0xFF, 0xFF, 0xFF);
 	if (selectedColor == coverCoords_center.stencil_color) {
 		set_selected_state(0);
@@ -1610,7 +1610,8 @@ int is_over_cover(ir_t *ir) {
  *  @param y_3d the converted 3d y coord
  *  @return void
  */
-void convert_2dCoords_into_3dCoords(int x_2d, int y_2d, int zpos, f32 *x_3d, f32 *y_3d) {
+void convert_2dCoords_into_3dCoords(float x_2d, float y_2d, float zpos, f32 *x_3d, f32 *y_3d)
+{
 	Mtx44 GXprojection2D;
 	Mtx GXview2D, GXView2D_Inverse;
 	guVector v1, v1_direction;
@@ -1633,8 +1634,8 @@ void convert_2dCoords_into_3dCoords(int x_2d, int y_2d, int zpos, f32 *x_3d, f32
 	GX_LoadProjectionMtx(GXprojection2D, GX_PERSPECTIVE);
 
 	//calculate the 3d vector based on the passed in 2d points and the perspective
-	v1.x = -(((2.0f * x_2d) / 640) - 1) / GXprojection2D[0][0];
-	v1.y = (((2.0f * y_2d ) / 480) - 1) / GXprojection2D[1][1];
+	v1.x = -(((2.0f * x_2d) / 640.0) - 1.0) / GXprojection2D[0][0];
+	v1.y = (((2.0f * y_2d ) / 480.0) - 1.0) / GXprojection2D[1][1];
 	v1.z = 1.0f;
 	//calculate the vector direction into the inverse world
 	v1_direction.x = v1.x * GXView2D_Inverse[0][0] + v1.y * GXView2D_Inverse[1][0] + v1.z * GXView2D_Inverse[2][0];
@@ -2159,11 +2160,11 @@ int Coverflow_drawCovers(ir_t *ir, int coverCount, bool draw_title) {
 			alpha = 255 * CFG_cf_global.frameIndex / CFG_cf_global.frameCount;
 			Gui_set_camera(NULL, 0);
 			if (CFG_cf_global.transition == CF_TRANS_MOVE_TO_CONSOLE) {
-				GRRLIB_DrawImg(0, 0, &t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
-				GRRLIB_DrawImg(0, 0, &t2_bg_con.tx, 0, 1, 1, 0xFFFFFF00 | (alpha));
+				GRRLIB_DrawImg(0, 0, &tx_bg, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
+				GRRLIB_DrawImg(0, 0, &tx_bg_con, 0, 1, 1, 0xFFFFFF00 | (alpha));
 			} else {
-				GRRLIB_DrawImg(0, 0, &t2_bg_con.tx, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
-				GRRLIB_DrawImg(0, 0, &t2_bg.tx, 0, 1, 1, 0xFFFFFF00 | (alpha));
+				GRRLIB_DrawImg(0, 0, &tx_bg_con, 0, 1, 1, 0xFFFFFF00 | (255-alpha));
+				GRRLIB_DrawImg(0, 0, &tx_bg, 0, 1, 1, 0xFFFFFF00 | (alpha));
 			}
 			Gui_set_camera(NULL, 1);
 		} else {
@@ -2255,7 +2256,7 @@ int Coverflow_drawCovers(ir_t *ir, int coverCount, bool draw_title) {
 		GRRLIB_Printf(50, 55, &tx_font, CFG.gui_text.color, 1, "center  start.yrot:%f end.yrot:%f", coverCoords_center.startPos.yrot, coverCoords_center.endPos.yrot);
 		GRRLIB_Printf(50, 70, &tx_font, CFG.gui_text.color, 1, "trans? %i, framecount: %i, frameindex: %i  ease: %i", CFG_cf_global.transition, CFG_cf_global.frameCount, CFG_cf_global.frameIndex, ease);
 		//to see the mouseover screenshot image:
-		//GRRLIB_DrawImg_format(0, 0, t2_screenshot.tx, GX_TF_I8, 0, 1, 1, 0xFFFFFFFF);
+		//GRRLIB_DrawImg_format(0, 0, tx_screenshot, GX_TF_I8, 0, 1, 1, 0xFFFFFFFF);
 		//currently selected color and cover index:
 		GRRLIB_Printf(200, 410, &tx_font, CFG.gui_text.color, 1.0, "cover(gi): %i  color: %X", selectedCover, selectedColor);
 		//mouse pointer position:
@@ -2365,7 +2366,7 @@ void build_coverPos_type(int type, CoverPos *coverPos) {
  *  @return void
  */
 void Coverflow_drawCoverForGameOptions(int game_sel,
-		int x, int y, int z, f32 xrot, f32 yrot, f32 zrot, int cstyle)
+		float x, float y, float z, f32 xrot, f32 yrot, f32 zrot, int cstyle)
 {
 	Cover cover;
 	bool favorite;
@@ -2405,7 +2406,7 @@ void Coverflow_drawCoverForGameOptions(int game_sel,
 		GRRLIB_prepareAAPass(aa, j);
 
 		Gui_set_camera(NULL, 0);
-		if (j) GRRLIB_DrawImgNoAA(0, 0, &bg_tx, 0, 1, 1, 0xFFFFFFFF);
+		if (j) Gui_DrawImgFullScreen(&bg_tx, 0xFFFFFFFF, false);
 		Gui_set_camera(NULL, 1);
 
 		// debug bench
@@ -2766,6 +2767,12 @@ int Coverflow_process_wiimote_events(ir_t *ir, int coverCount) {
 
 		// jump out if pointer scroll disabled
 		if (!CFG.gui_pointer_scroll) goto out;
+		if (CFG.gui_cover_area.h) {
+			if (ir->sy < CFG.gui_cover_area.y
+					|| ir->sy > CFG.gui_cover_area.y + CFG.gui_cover_area.h) {
+				goto out;
+			}
+		}
 		
 		//scroll left or right
 		if (ir->sx >= -80 && ir->sx < WIIMOTE_SIDE_SCROLL_WIDTH - 1) {

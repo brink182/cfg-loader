@@ -21,6 +21,7 @@ THE SOFTWARE.
 ------------------------------------------------------------------------------*/
 #include <grrlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <pngu.h>
 
 /**

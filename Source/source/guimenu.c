@@ -24,15 +24,8 @@
 
 #if 1
 
-int wgui_disabled = 1;
-
 /*
 Q:
-
-having a 'name: value' which should be a button?
-   (name) _value_
-or  name: (value)
-or (name: value)
 
 use "Back" or "Close" button?
 
@@ -64,6 +57,7 @@ HOME : Home (Quit) Menu
 // desktop dialog stack
 // XXX use Widget*
 Widget wgui_desk;
+Widget *d_custom;
 Widget *d_top;
 Widget *d_bottom;
 
@@ -80,7 +74,6 @@ Widget *desk_open_dialog(Pos p, char *name)
 	pos_desk(&p);
 	pos_init(&wgui_desk);
 	Widget *dd = wgui_add_dialog(&wgui_desk, p, name);
-	dd->dialog_color = 0xFFFFFF80;
 	return dd;
 }
 
@@ -125,7 +118,7 @@ void wgui_test()
 	do {
 		buttons = Wpad_GetButtons();
 		Wpad_getIR(&ir);
-		wgui_input_set(&ir, &buttons);
+		wgui_input_set(&ir, &buttons, NULL);
 		ret = wgui_handle(&dialog);
 		GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
 		wgui_render(&dialog);
@@ -207,16 +200,25 @@ void action_OpenQuit(Widget *parent)
 	Widget *dd;
 	Widget *ww;
 
+	/*
+	if (CFG.home == CFG_HOME_SCRSHOT) {
+		char fn[200];
+		extern bool Save_ScreenShot(char *fn, int size);
+		Save_ScreenShot(fn, sizeof(fn));
+		return;
+	}
+	*/
+
 	if (w_Quit) return;
 	parent = wgui_primary_parent(parent);
 	if (!parent) parent = &wgui_desk;
 	Pos p = pos(50, 50, 640-100, 480-100);
-	w_Quit = dd = wgui_add_dialog(parent, p, "Quit");
+	w_Quit = dd = wgui_add_dialog(parent, p, gt("Quit"));
 	dd->self_ptr = &w_Quit;
 	dd->handle = handle_Quit;
 	dd->ax = 50;
 	dd->ay = 50;
-	dd->dialog_color = 0xFFFFFFB0;
+	dd->dialog_color = CFG.gui_window_color_popup;
 
 	pos_rows(dd, 6, SIZE_FULL);
 	p = pos_auto;
@@ -225,27 +227,27 @@ void action_OpenQuit(Widget *parent)
 	p.w = dd->w / 2;
 
 	if (CFG.home == CFG_HOME_REBOOT) p.h = H_LARGE; else p.h = H_NORMAL;
-	ww = wgui_add_button(dd, p, "Reboot");
+	ww = wgui_add_button(dd, p, gt("Reboot"));
 	ww->action = action_Reboot;
 	ww->action2 = action_close_parent_dialog;
-	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), "[HOME]");
+	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), gt("[HOME]"));
 	pos_newline(dd);
 
 	if (CFG.home == CFG_HOME_HBC) p.h = H_LARGE; else p.h = H_NORMAL;
-	ww = wgui_add_button(dd, p, "Homebrew Channel");
+	ww = wgui_add_button(dd, p, gt("Homebrew Channel"));
 	ww->action = action_HBC;
 	ww->action2 = action_close_parent_dialog;
-	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), "[HOME]");
+	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), gt("[HOME]"));
 	pos_newline(dd);
 
 	if (CFG.home == CFG_HOME_EXIT) p.h = H_LARGE; else p.h = H_NORMAL;
-	ww = wgui_add_button(dd, p, "Exit");
+	ww = wgui_add_button(dd, p, gt("Exit"));
 	ww->action = action_Exit;
 	ww->action2 = action_close_parent_dialog;
-	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), "[HOME]");
+	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), gt("[HOME]"));
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, "Shutdown");
+	ww = wgui_add_button(dd, p, gt("Shutdown"));
 	ww->action = action_Shutdown;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
@@ -256,7 +258,7 @@ void action_OpenQuit(Widget *parent)
 
 	p.w = dd->w / 2;
 	p.y = POS_EDGE;
-	ww = wgui_add_button(dd, p, "Back");
+	ww = wgui_add_button(dd, p, gt("Back"));
 	ww->action = action_close_parent_dialog;
 }
 
@@ -398,6 +400,8 @@ int get_alt_dol_list_index(struct AltDolInfoList *list, struct Game_CFG *gcfg)
 struct W_GameCfg
 {
 	Widget *dialog;
+	Widget *start;
+	Widget *cover;
 	Widget *cstyle;
 	Widget *cctrl; // cover control
 	Widget *cc_nohq;
@@ -430,7 +434,11 @@ struct W_GameCfg
 // cover style names
 char *cstyle_names[] =
 {
-	"2D", "3D", "Disc", "Full", "HQ", "RGB",
+	"2D", "3D",
+	gts("Disc"),
+	gts("Full"),
+	"HQ",
+	"RGB",
 	"Full RGB", "Full CMPR", "HQ CMPR"
 };
 
@@ -459,12 +467,22 @@ static float hold_px, hold_py; // prev
 static float hold_dx, hold_dy; // delta vs prev
 static float hold_sx = 0.5, hold_sy; // average speed of last 10 frames
 static float cover_z = 0;
+static float cover_zd = 0; // dest
+static bool over_cover = false;
+
+int handle_game_start(Widget *ww)
+{
+	int ret = wgui_handle_button(ww);
+	if (over_cover && ww->state == WGUI_STATE_NORMAL) {
+		ww->state = WGUI_STATE_HOVER;
+	}
+	return ret;
+}
 
 int handle_game_cover(Widget *ww)
 {
 	wgame.cc_nohq->state = WGUI_STATE_DISABLED;
 	int cstyle = cstyle_val[wgame.cstyle->value]; // remap
-	if (cstyle < CFG_COVER_STYLE_FULL) return 0;
 	if (cstyle > CFG_COVER_STYLE_FULL) {
 		int cs = cstyle;
 		int fmt = CC_COVERFLOW_FMT;
@@ -479,7 +497,20 @@ int handle_game_cover(Widget *ww)
 			}
 		}
 	}
-	if (winput.w_buttons & WPAD_BUTTON_A) {
+
+	over_cover = false;
+	if (wgui_over(ww)) {
+		over_cover = true;
+		if (winput.w_buttons & WPAD_BUTTON_A) {
+			return WGUI_STATE_PRESS;
+		}
+	}
+
+	if (cstyle < CFG_COVER_STYLE_FULL) return 0;
+
+	int hold_buttons = Wpad_HeldButtons();
+
+	if (winput.w_buttons & WPAD_BUTTON_1) {
 		if (wgui_over(ww)) {
 			cover_hold = 1;
 			hold_x = winput.w_ir->sx;
@@ -491,7 +522,7 @@ int handle_game_cover(Widget *ww)
 		}
 	}
 	if (cover_hold) {
-		if (!(Wpad_HeldButtons() & WPAD_BUTTON_A)) {
+		if (!(hold_buttons & WPAD_BUTTON_1)) {
 			// released, keep rotating
 			if (fabsf(hold_sx) < 0.5) hold_sx = 0;
 			if (fabsf(hold_sy) < 0.5) hold_sy = 0;
@@ -511,11 +542,26 @@ int handle_game_cover(Widget *ww)
 		hold_sy = (hold_sy * 9.0 + hold_dy) / 10.0;
 	}
 	if (winput.w_buttons & WPAD_BUTTON_PLUS) {
-		cover_z += 5;
+		cover_zd += 5;
 	}
 	if (winput.w_buttons & WPAD_BUTTON_MINUS) {
-		cover_z -= 5;
+		cover_zd -= 5;
 	}
+	float zd = 0.0;
+	if (cover_z < cover_zd) zd = +0.2;
+	if (cover_z > cover_zd) zd = -0.2;
+	if (cover_z == cover_zd) {
+		if (hold_buttons & WPAD_BUTTON_PLUS) zd = +0.2;
+		if (hold_buttons & WPAD_BUTTON_MINUS) zd = -0.2;
+		cover_zd += zd;
+		cover_z = cover_zd;
+	}
+	if (fabsf(cover_z - cover_zd) > fabsf(zd)) {
+		cover_z += zd;
+	} else {
+		cover_z = cover_zd;
+	}
+
 	return 0;
 }
 
@@ -547,7 +593,7 @@ void render_game_cover(Widget *ww)
 		}
 		x = ww->ax + PAD3 * 3;
 		y = ww->ay + PAD3 * 2;
-		if (z > 0) x += z * 3;
+		if (z > 0) x += z * 3.0;
 		Coverflow_drawCoverForGameOptions(gameSelected,
 				x, y, z, xrot, yrot, 0, cstyle);
 	}
@@ -561,18 +607,22 @@ void init_cover_page(Widget *pp)
 	// cover style
 	int ns = cstyle_num;
 	if (CFG.debug >= 3) ns = cstyle_num_debug;
+	char *trans_names[ns];
+	translate_array(ns, cstyle_names, trans_names);
 	ww = wgui_add_listboxx(pp, pos(POS_AUTO, POS_EDGE, SIZE_AUTO, H_SMALL),
-			"Cover Style", ns, cstyle_names);
+			gt("Cover Style"), ns, trans_names);
 	ww->child[0]->action_button = WPAD_BUTTON_UP;
 	ww->child[2]->action_button = WPAD_BUTTON_DOWN;
 	wgui_set_value(ww, CFG.cover_style);
 	wgame.cstyle = ww;
-	ww = wgui_add_text(pp, pos_h(H_SMALL), "[No HQ]");
+	ww = wgui_add_text(pp, pos_h(H_SMALL), gt("[No HQ]"));
 	wgame.cc_nohq = ww;
 	// cover image
 	cc = wgui_add(pp, pos(0, 0, SIZE_FULL, -H_SMALL), NULL);
+	cc->type = WGUI_TYPE_USER;
 	cc->render = render_game_cover;
 	cc->handle = handle_game_cover;
+	wgame.cover = cc;
 	// debug / test
 	if (CFG.debug) {
 		// fast aa
@@ -670,30 +720,30 @@ void update_gameopt_state()
 
 	bool changed = CFG_is_changed(wgame.header->id);
 	int saved = wgame.gcfg2->is_saved;
-	wgame.save->name = "save";
+	wgame.save->name = gt("save");
 	wgame.save->render = wgui_render_button;
 	wgame.save->text_opt = WGUI_TEXT_SCALE_FIT_BUTTON;
 	wgame.discard->render = wgui_render_button;
 	wgame.discard->text_opt = WGUI_TEXT_SCALE_FIT_BUTTON;
 	if (!changed && !saved) {
-		wgame.discard->name = "[default]";
+		wgame.discard->name = gt("[default]");
 		wgame.discard->render = wgui_render_text;
 		wgame.discard->text_opt = WGUI_TEXT_SCALE_FIT;
 		wgui_set_inactive(wgame.discard, true);
 		wgui_set_inactive(wgame.save, true);
 	} else if (changed && !saved) {
-		wgame.discard->name = "reset";
+		wgame.discard->name = gt("reset");
 		wgui_set_inactive(wgame.discard, false);
 		wgui_set_inactive(wgame.save, false);
 	} else if (!changed && saved) {
-		wgame.discard->name = "discard";
-		wgame.save->name = "[saved]";
+		wgame.discard->name = gt("discard");
+		wgame.save->name = gt("[saved]");
 		wgame.save->render = wgui_render_text;
 		wgame.save->text_opt = WGUI_TEXT_SCALE_FIT;
 		wgui_set_inactive(wgame.discard, false);
 		wgui_set_inactive(wgame.save, true);
 	} else { // changed && saved
-		wgame.discard->name = "revert";
+		wgame.discard->name = gt("revert");
 		wgui_set_inactive(wgame.discard, false);
 		wgui_set_inactive(wgame.save, false);
 	}
@@ -750,7 +800,13 @@ Widget* wgui_add_game_opt(Widget *parent, char *name, int num, char **values)
 {
 	Pos p = pos_auto;
 	p.w = SIZE_FULL;
-	wgui_Option opt = wgui_add_option(parent, p, 2, 0.45, name, num, values);
+	char **val = values;
+	char *tr_values[num];
+	if (values) {
+		translate_array(num, values, tr_values);
+		val = tr_values;
+	}
+	wgui_Option opt = wgui_add_option(parent, p, 2, 0.45, name, num, val);
 	pos_newline(parent);
 	Widget *ww = opt.control;
 	ww->action = action_game_opt_change;
@@ -818,49 +874,49 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			char *names_ios[num_ios];
 			num_ios = map_to_list(map_ios, num_ios, names_ios);
 
-			ww = wgui_add_game_opt(op, "Language:", CFG_LANG_NUM, languages);
+			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
 			BIND_OPT(language);
 
-			ww = wgui_add_game_opt(op, "Video:", CFG_VIDEO_NUM, videos);
+			ww = wgui_add_game_opt(op, gt("Video:"), CFG_VIDEO_NUM, videos);
 			BIND_OPT(video);
 
-			ww = wgui_add_game_opt(op, "Video Patch:", CFG_VIDEO_PATCH_NUM, names_vpatch);
+			ww = wgui_add_game_opt(op, gt("Video Patch:"), CFG_VIDEO_PATCH_NUM, names_vpatch);
 			BIND_OPT(video_patch);
 
 			ww = wgui_add_game_opt(op, "VIDTV:", 2, NULL);
 			BIND_OPT(vidtv);
 
-			ww = wgui_add_game_opt(op, "Country Fix:", 2, NULL);
+			ww = wgui_add_game_opt(op, gt("Country Fix:"), 2, NULL);
 			BIND_OPT(country_patch);
 
 			ww = wgui_add_game_opt(op, "IOS:", num_ios, names_ios);
 			BIND_OPT(ios_idx);
 
-			ww = wgui_add_game_opt(op, "Block IOS Reload:", 2, NULL);
+			ww = wgui_add_game_opt(op, gt("Block IOS Reload:"), 2, NULL);
 			BIND_OPT(block_ios_reload);
 
 			/////////////////
 			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
 			op->render = NULL;
 
-			ww = wgui_add_game_opt(op, "Alt dol:", 0, NULL);
+			ww = wgui_add_game_opt(op, gt("Alt dol:"), 0, NULL);
 			BIND_OPT(alt_dol);
 			ww->val_ptr = NULL;
 			ww->update = init_alt_dol_if_parent_enabled;
 
-			ww = wgui_add_game_opt(op, "Anti 002 Fix:", 2, NULL);
+			ww = wgui_add_game_opt(op, gt("Anti 002 Fix:"), 2, NULL);
 			BIND_OPT(fix_002);
 
-			ww = wgui_add_game_opt(op, "Ocarina (cheats):", 2, NULL);
+			ww = wgui_add_game_opt(op, gt("Ocarina (cheats):"), 2, NULL);
 			BIND_OPT(ocarina);
 
-			ww = wgui_add_game_opt(op, "Hook Type:", NUM_HOOK, hook_name);
+			ww = wgui_add_game_opt(op, gt("Hook Type:"), NUM_HOOK, hook_name);
 			BIND_OPT(hooktype);
 
-			ww = wgui_add_game_opt(op, "Write Playlog:", 4, playlog_name);
+			ww = wgui_add_game_opt(op, gt("Write Playlog:"), 4, playlog_name);
 			BIND_OPT(write_playlog);
 
-			ww = wgui_add_game_opt(op, "Clear Patches:", 3, names_vpatch);
+			ww = wgui_add_game_opt(op, gt("Clear Patches:"), 3, names_vpatch);
 			BIND_OPT(clean);
 
 			pos_move_to(pp, PAD0, -bh);
@@ -868,11 +924,11 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			pos_columns(pp, 4, SIZE_FULL);
 			Pos p = pos_auto;
 			p.h = bh;
-			ww = wgui_add_button(pp, p, "reset");
+			ww = wgui_add_button(pp, p, gt("reset"));
 			ww->action = action_reset_gamecfg;
 			wgame.discard = ww;
 
-			ww = wgui_add_button(pp, p, "save");
+			ww = wgui_add_button(pp, p, gt("save"));
 			ww->action = action_save_gamecfg;
 			wgame.save = ww;
 
@@ -1160,21 +1216,28 @@ void OpenGameDialog()
 	pos_desk(&p);
 	dd = wgui_add_dialog(NULL, p, "");
 	wgame.dialog = dd;
-	dd->dialog_color = 0xFFFFFF80;
 	//dd->handle = NULL;// default: handle_B_close
 	pos_margin(dd, PAD1);
 	pos_prefsize(dd, dd->w/4, bh);
 
 	Pos pb = pos_auto;
 	pb.x = POS_EDGE;
+	pb.h = bh + PAD0;
 
-	Widget *w_start = wgui_add_button(dd, pb, "Start");
-	pos_newlines(dd, 2);
+	Widget *w_start = wgui_add_button(dd, pb, gt("Start"));
+	w_start->handle = handle_game_start;
+	wgame.start = w_start;
+	pos_newlines(dd, 1);
+	// if wiimote not pointing to screen then
+	// move pointer to start button so that btn A will start directly
+	bool wpad_stick = Wpad_set_pos(winput.w_ir,
+			w_start->ax + w_start->w / 2,
+			w_start->ay + w_start->h / 2);
 	
 	// page radio
 	pos_move_to(dd, pos_get(w_start).x, POS_AUTO);
 	Widget *w_info_radio = wgui_auto_radio_a(dd, 1, 4,
-			"Cover", "Info", "Manage", "Options");
+			gt("Cover"), gt("Info"), gt("Manage"), gt("Options"));
 	if (CFG.disable_options) {
 		wgui_set_inactive(wgui_link_get(w_info_radio, 2), true);
 		wgui_set_inactive(wgui_link_get(w_info_radio, 3), true);
@@ -1195,7 +1258,8 @@ void OpenGameDialog()
 	// back
 	p = pb;
 	p.y = POS_EDGE;
-	Widget *w_back = wgui_add_button(dd, p, "Back");
+	p.h = bh;
+	Widget *w_back = wgui_add_button(dd, p, gt("Back"));
 
 
 	// page cover
@@ -1221,29 +1285,29 @@ void OpenGameDialog()
 	pos_margin(pp, PAD3);
 	pos_prefsize(pp, pp->w - PAD3 * 2, H_NORMAL);
 
-	ww = wgui_add_checkbox(pp, pos_auto, "Favorite", true);
+	ww = wgui_add_checkbox(pp, pos_auto, gt("Favorite"), true);
 	ww->action = action_game_favorite;
 	wgame.favorite = ww;
 	pos_newline(pp);
 
-	ww = wgui_add_button(pp, pos_auto, "Download Missing Covers");
+	ww = wgui_add_button(pp, pos_auto, gt("Download Missing Covers"));
 	ww->action = action_game_missing_covers;
 	pos_newline(pp);
 
-	ww = wgui_add_button(pp, pos_auto, "Download All Covers");
+	ww = wgui_add_button(pp, pos_auto, gt("Download All Covers"));
 	ww->action = action_game_all_covers;
 	pos_newline(pp);
 
-	ww = wgui_add_button(pp, pos_auto, "Manage Cheats");
+	ww = wgui_add_button(pp, pos_auto, gt("Manage Cheats"));
 	ww->action = action_game_manage_cheats;
 	pos_newline(pp);
 
-	ww = wgui_add_button(pp, pos_auto, "Delete Game");
+	ww = wgui_add_button(pp, pos_auto, gt("Delete Game"));
 	Widget *w_delete_game = ww;
 	wgui_set_inactive(ww, CFG.disable_remove);
 	pos_newline(pp);
 
-	ww = wgui_add_checkbox(pp, pos_auto, "Hide", true);
+	ww = wgui_add_checkbox(pp, pos_auto, gt("Hide"), true);
 	ww->action = action_game_hide;
 	wgame.hide = ww;
 	wgui_set_inactive(ww, CFG.admin_mode_locked);
@@ -1253,7 +1317,8 @@ void OpenGameDialog()
 	wgame.options = pp;
 	
 	// select last used page
-	wgui_set_value(w_info_radio, last_game_page);
+	// disabled.
+	//wgui_set_value(w_info_radio, last_game_page);
 	
 	BindGameDialog();
 
@@ -1288,10 +1353,10 @@ void OpenGameDialog()
 
 			if (ww == w_back) break;
 
-			if (ww == w_start) {
+			if (ww == w_start || ww == wgame.cover) {
 				banner_end(true);
 				Switch_WGui_To_Console();
-				//CFG.confirm_start = 0;
+				CFG.confirm_start = 0;
 				Menu_Boot(false);
 				Switch_Console_To_WGui();
 				Music_Mute(false);
@@ -1313,6 +1378,7 @@ void OpenGameDialog()
 	ReleaseGameDialog();
 	banner_end(false);
 	wgui_remove(dd);
+	if (!wpad_stick) Wpad_set_pos(NULL, 0, 0);
 	wgui_input_get();
 }
 
@@ -1344,12 +1410,12 @@ void action_OpenSort(Widget *a_ww)
 	int i;
 	char *name[sortCnt];
 	
-	dd = desk_open_dialog(pos_auto, "Sort");
+	dd = desk_open_dialog(pos_auto, gt("Sort"));
 
 	for (i=0; i<sortCnt; i++) {
 		name[i] = sortTypes[i].name;
-		if (i == 1) name[i] = "Players";
-		if (i == 2) name[i] = "Online Players";
+		if (i == 1) name[i] = gt("Players");
+		if (i == 2) name[i] = gt("Online Players");
 	}
 	pos_margin(dd, PAD1);
 	rr = wgui_arrange_radio(dd, pos_wh(SIZE_FULL, SIZE_AUTO), 3, sortCnt, name);
@@ -1361,14 +1427,14 @@ void action_OpenSort(Widget *a_ww)
 	pos_newlines(dd, 2);
 	
 	rr = wgui_arrange_radio_a(dd, pos_xy(POS_CENTER, POS_AUTO),
-			2, 2, "Ascending", "Descending");
+			2, 2, gt("Ascending"), gt("Descending"));
 	rr->val_ptr = &sort_desc;
 	rr->update = update_val_from_ptr_bool;
 	rr->action = action_sort_order;
 	pos_newlines(dd, 2);
 
 	pos_columns(dd, 3, SIZE_FULL);
-	ww = wgui_add_button(dd, pos_xy(POS_EDGE, POS_EDGE), "Back");
+	ww = wgui_add_button(dd, pos_xy(POS_EDGE, POS_EDGE), gt("Back"));
 	ww->action = action_close_parent_dialog;
 	ww->action_button = WPAD_BUTTON_B;
 }
@@ -1414,11 +1480,11 @@ char *get_filter_name(int type, int index)
 {
 	switch (type) {
 		case FILTER_ALL:
-			return "Show All";
+			return gt("Show All");
 		case FILTER_ONLINE:
-			return "Online Play";
+			return gt("Online Play");
 		case FILTER_UNPLAYED:
-			return "Unplayed";
+			return gt("Unplayed");
 		case FILTER_GENRE:
 			return genreTypes[index][1];
 		case FILTER_CONTROLLER:
@@ -1439,11 +1505,11 @@ void action_OpenFilter(Widget *a_ww)
 	int i;
 	char *names[genreCnt + accessoryCnt + featureCnt];
 
-	dd = desk_open_dialog(pos_auto, "Filter");
+	dd = desk_open_dialog(pos_auto, gt("Filter"));
 
 	// groups (tabs)
 	r_filter_group = rr = wgui_arrange_radio_a(dd, pos_w(SIZE_FULL),
-			3, 3, "Genre", "Controller", "Online");
+			3, 3, gt("Genre"), gt("Controller"), gt("Online"));
 
 	// Genre
 	pos_margin(dd, PAD1);
@@ -1451,7 +1517,7 @@ void action_OpenFilter(Widget *a_ww)
 	w_filter_page = page = pp;
 	wgui_link_page_ctrl(page, r_filter_group);
 	for (i=0; i<genreCnt; i++) {
-		names[i] = genreTypes[i][1];
+		names[i] = gt(genreTypes[i][1]);
 	}
 	r_filter[0] = rr = wgui_arrange_radio(pp, pos_full, 3, genreCnt, names);
 	wgui_radio_set(rr, -1);
@@ -1460,9 +1526,9 @@ void action_OpenFilter(Widget *a_ww)
 	// Controller 
 	pp = wgui_add_page(dd, page, pos_auto, NULL);
 	for (i=0; i<accessoryCnt; i++) {
-		names[i] = accessoryTypes[i][1];
+		names[i] = gt(accessoryTypes[i][1]);
 	}
-	names[5] = "Classic";
+	names[5] = gt("Classic");
 	// -2 = omit last 2 (vitality, udraw)
 	r_filter[1] = rr = wgui_arrange_radio(pp, pos_full, 3, accessoryCnt-2, names);
 	wgui_radio_set(rr, -1);
@@ -1470,9 +1536,9 @@ void action_OpenFilter(Widget *a_ww)
 
 	// Online
 	pp = wgui_add_page(dd, page, pos_auto, NULL);
-	names[0] = "Online Play";
+	names[0] = gt("Online Play");
 	for (i=0; i<featureCnt; i++) {
-		names[i+1] = featureTypes[i][1];
+		names[i+1] = gt(featureTypes[i][1]);
 	}
 	r_filter[2] = rr = wgui_arrange_radio(pp,
 			pos(POS_CENTER, POS_AUTO, SIZE_AUTO, SIZE_FULL),
@@ -1485,12 +1551,12 @@ void action_OpenFilter(Widget *a_ww)
 
 	// all, unplayed
 	pos_columns(dd, 3, SIZE_FULL);
-	r_filter[3] = rr = wgui_auto_radio_a(dd, 2, 2, "Show All", "Unplayed");
+	r_filter[3] = rr = wgui_auto_radio_a(dd, 2, 2, gt("Show All"), gt("Unplayed"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
 	// close	
-	ww = wgui_add_button(dd, pos_auto, "Back");
+	ww = wgui_add_button(dd, pos_auto, gt("Back"));
 	ww->action = action_close_parent_dialog;
 	ww->action_button = WPAD_BUTTON_B;
 
@@ -1575,6 +1641,11 @@ void action_Theme(Widget *ww)
 		// reflection change
 		gameSelected = Coverflow_initCoverObjects(gameCnt, gameSelected, true);
 	}
+	wgui_init();
+	void desk_custom_init();
+	desk_custom_init();
+	void desk_bar_update();
+	desk_bar_update();
 }
 
 void action_OpenStyle(Widget *aa)
@@ -1585,7 +1656,7 @@ void action_OpenStyle(Widget *aa)
 	int i, n = 8;
 	char *names[n];
 
-	dd = desk_open_dialog(pos_auto, "Style");
+	dd = desk_open_dialog(pos_auto, gt("Style"));
 	dd->update = update_Style;
 	pos_pad(dd, PAD0);
 	pos_rows(dd, 7, -PAD0*2);
@@ -1597,27 +1668,28 @@ void action_OpenStyle(Widget *aa)
 	pos_newlines(dd, 2);
 
 	// grid rows
-	ww = wgui_add_text(dd, pos_auto, "Rows:");
+	ww = wgui_add_text(dd, pos_auto, gt("Rows:"));
 	r_rows = rr = wgui_arrange_radio_a(dd, pos_w(400), 4, 4, "1","2","3","4");
 	rr->action = action_Style;
 	pos_newlines(dd, 2);
 
 	// coverflow side
-	ww = wgui_add_text(dd, pos_auto, "Side:");
-	r_side = rr = wgui_arrange_radio_a(dd, pos_w(400), 2, 2, "Front", "Back");
+	ww = wgui_add_text(dd, pos_auto, gt("Side:"));
+	r_side = rr = wgui_arrange_radio_a(dd, pos_w(400), 2, 2,
+			gt("Cover~~Front"), gt("Cover~~Back"));
 	rr->action = action_Style;
 	pos_newlines(dd, 2);
 	
 	// theme
-	ww = wgui_add_text(dd, pos_auto, "Theme:");
+	ww = wgui_add_text(dd, pos_auto, gt("Theme:"));
 	char *theme_names[num_theme];
 	for (i=0; i<num_theme; i++) theme_names[i] = theme_list[i];
-	ww = wgui_add_superbox(dd, pos_auto, "Theme:", num_theme, theme_names);
+	ww = wgui_add_superbox(dd, pos_auto, gt("Theme:"), num_theme, theme_names);
 	ww->action = action_Theme;
 	ww->val_ptr = &cur_theme;
 
 	// close
-	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), "Back");
+	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), gt("Back"));
 	ww->action = action_close_parent_dialog;
 	ww->action_button = WPAD_BUTTON_B;
 
@@ -1640,12 +1712,12 @@ void action_OpenView(Widget *aww)
 	Widget *dd;
 	Widget *ww;
 
-	dd = desk_open_dialog(pos_auto, "View");
+	dd = desk_open_dialog(pos_auto, gt("View"));
 
 	void Init_View_Dialog(Widget *dd);
 	Init_View_Dialog(dd);
 
-	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), "Back");
+	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), gt("Back"));
 	ww->action = action_close_parent_dialog;
 	ww->action_button = WPAD_BUTTON_B;
 }
@@ -1709,38 +1781,38 @@ void Init_Online_Dialog(Widget *dd, bool back)
 	if (pos_avail_w(dd) > 400) p.w = 400;
 	else p.w = SIZE_FULL;
 
-	ww = wgui_add_button(dd, p, "Download Missing Covers");
+	ww = wgui_add_button(dd, p, gt("Download Missing Covers"));
 	ww->action = action_MissingCovers;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, "Download All Covers");
+	ww = wgui_add_button(dd, p, gt("Download All Covers"));
 	ww->action = action_AllCovers;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, "WiiTDB Game Database");
+	ww = wgui_add_button(dd, p, gt("WiiTDB Game Database"));
 	ww->action = action_DownloadWIITDB;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, "Download titles.txt");
+	ww = wgui_add_button(dd, p, gt("Download titles.txt"));
 	ww->action = action_DownloadTitles;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, "Download Themes");
+	ww = wgui_add_button(dd, p, gt("Download Themes"));
 	ww->action = action_DownloadThemes;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, "Program Updates");
+	ww = wgui_add_button(dd, p, gt("Program Updates"));
 	ww->action = action_ProgramUpdate;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
 	if (back) {
-		ww = wgui_add_button(dd, p, "Back");
+		ww = wgui_add_button(dd, p, gt("Back"));
 		ww->action = action_close_parent_dialog;
 	}
 }
@@ -1748,7 +1820,7 @@ void Init_Online_Dialog(Widget *dd, bool back)
 void action_OpenOnline(Widget *_ww)
 {
 	Widget *dd;
-	dd = desk_open_dialog(pos_auto, "Online Updates");
+	dd = desk_open_dialog(pos_auto, gt("Online Updates"));
 	Init_Online_Dialog(dd, true);
 }
 
@@ -1802,11 +1874,11 @@ void Init_Info_Dialog(Widget *dd)
 	page = wgui_add_pages(dd, pos_wh(SIZE_FULL, -H_NORMAL-PAD1), 3, NULL);
 	for (i=0; i<3; i++) {
 		pp = wgui_page_get(page, i);
-		if (i<2) pp->render = NULL;
+		pp->render = NULL; // don't draw page on page
 		pos_margin(pp, 0);
 		pos_pad(pp, 0);
 	}
-	rr = wgui_arrange_radio_a(dd, pos_fill, 3, 3, "Basic", "IOS", "Debug");
+	rr = wgui_arrange_radio_a(dd, pos_fill, 3, 3, gt("Basic"), "IOS", gt("Debug"));
 	wgui_link_page_ctrl(page, rr);
 	// basic
 	Print_SYS_Info_str(basic, sizeof(basic));
@@ -1825,8 +1897,8 @@ void Init_Info_Dialog(Widget *dd)
 	pp = wgui_page_get(page, 2);
 	tt = wgui_add_textbox(pp, pos_wh(SIZE_FULL, -H_SMALL),
 			TXT_H_TINY, debugstr, sizeof(debugstr));
-	wgui_add_pgswitch(pp, tt, pos_h(H_SMALL), NULL);
-	ww = wgui_add_button(pp, pos(POS_EDGE, POS_AUTO, SIZE_AUTO, H_SMALL), "Save Debug");
+	wgui_add_pgswitchx(pp, tt, pos_h(H_SMALL), NULL, 1, "%2d/%2d", 90);
+	ww = wgui_add_button(pp, pos(POS_EDGE, POS_AUTO, SIZE_AUTO, H_SMALL), gt("Save Debug"));
 	ww->action = action_SaveDebug;
 }
 
@@ -1837,31 +1909,32 @@ void Init_Style_Dialog(Widget *dd)
 	dd->update = update_Style;
 
 	// gui style
-	r_style = ww = wgui_add_opt_map(dd, "Style:", map_gui_style);
+	r_style = ww = wgui_add_opt_map(dd, gt("Style:"), map_gui_style);
 	ww->action = action_Style;
 
 	// grid rows
-	r_rows = ww = wgui_add_opt_a(dd, "Rows:", 4, "1","2","3","4");
+	r_rows = ww = wgui_add_opt_a(dd, gt("Rows:"), 4, "1", "2", "3", "4");
 	ww->action = action_Style;
 
 	// coverflow side
-	r_side = ww = wgui_add_opt_a(dd, "Side:", 2, "Front", "Back");
+	r_side = ww = wgui_add_opt_a(dd, gt("Side:"), 2,
+			gt("Cover~~Front"), gt("Cover~~Back"));
 	ww->action = action_Style;
 	
 	update_Style(NULL);
 
 	// theme
-	ww = wgui_add_opt_array(dd, "Theme:", num_theme, sizeof(theme_list[0]), theme_list);
+	ww = wgui_add_opt_array(dd, gt("Theme:"), num_theme, sizeof(theme_list[0]), theme_list);
 	ww->action = action_Theme;
 	ww->val_ptr = &cur_theme;
 
 	// pointer scroll
-	ww = wgui_add_opt(dd, "Scroll:", 2, NULL);
+	ww = wgui_add_opt(dd, gt("Scroll:"), 2, NULL);
 	ww->val_ptr = &CFG.gui_pointer_scroll;
 	ww->action = action_write_val_ptr_int;
 
 	// XXX pop-up Style
-	ww = wgui_add_button(dd, pos_auto, "Open Style");
+	ww = wgui_add_button(dd, pos_auto, gt("Open Style"));
 	ww->action = action_OpenStyle;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
@@ -1876,11 +1949,11 @@ void Init_View_Dialog(Widget *dd)
 {
 	Widget *ww;
 
-	ww = wgui_add_opt(dd, "Favorites:", 2, NULL);
+	ww = wgui_add_opt(dd, gt("Favorites:"), 2, NULL);
 	ww->val_ptr = &enable_favorite;
 	ww->action = action_Favorites;
 
-	ww = wgui_add_opt_array(dd, "Profile:", CFG.num_profiles,
+	ww = wgui_add_opt_array(dd, gt("Profile:"), CFG.num_profiles,
 			sizeof(CFG.profile_names[0]), CFG.profile_names);
 	ww->val_ptr = &CFG.current_profile;
 	ww->action = action_Profile;
@@ -1890,26 +1963,26 @@ void Init_View_Dialog(Widget *dd)
 	char *name[sortCnt];
 	for (i=0; i<sortCnt; i++) {
 		name[i] = sortTypes[i].name;
-		if (i == 1) name[i] = "Players";
-		if (i == 2) name[i] = "Online Players";
+		if (i == 1) name[i] = gt("Players");
+		if (i == 2) name[i] = gt("Online Players");
 	}
-	ww = wgui_add_opt(dd, "Sort Type:", sortCnt, name);
+	ww = wgui_add_opt(dd, gt("Sort Type:"), sortCnt, name);
 	ww->val_ptr = &sort_index;
 	ww->action = action_sort_type;
 
-	ww = wgui_add_opt_a(dd, "Sort Order:", 2, "Ascending", "Descending");
+	ww = wgui_add_opt_a(dd, gt("Sort Order:"), 2, gt("Ascending"), gt("Descending"));
 	ww->val_ptr = &sort_desc;
 	ww->update = update_val_from_ptr_bool;
 	ww->action = action_sort_order;
 
 	// filter
-	ww = wgui_add_opt_button(dd, "Filter:", "");
+	ww = wgui_add_opt_button(dd, gt("Filter:"), "");
 	ww->update = update_FilterName;
 	ww->action = action_OpenFilter;
 	ww->action2 = action_close_parent_dialog;
 	update_FilterName(ww);
 
-	ww = wgui_add_button(dd, pos_auto, "Open Sort");
+	ww = wgui_add_button(dd, pos_auto, gt("Open Sort"));
 	ww->action = action_OpenSort;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
@@ -1927,6 +2000,7 @@ int handle_AdminUnlock(Widget *ww)
 		i++;
 		if (stricmp(unlock_buf, CFG.unlock_password) == 0) {
 			Admin_Unlock(true);
+			Gui_Refresh_List();
 			ww->closing = true;
 		}
 		if (i >= 10) {
@@ -1944,15 +2018,15 @@ void Open_AdminUnlock()
 	memset(unlock_str, 0, sizeof(unlock_str));
 	memset(unlock_buf, 0, sizeof(unlock_buf));
 	STRCOPY(unlock_str, "..........");
-	dd = desk_open_dialog(pos_wh(400, 300), "Admin Unlock");
+	dd = desk_open_dialog(pos_wh(400, 300), gt("Admin Unlock"));
 	dd->handle = handle_AdminUnlock;
-	dd->dialog_color = 0xFFFFFFB0;
+	dd->dialog_color = CFG.gui_window_color_popup;
 	pos_newlines(dd, 2);
 	pos_columns(dd, 2, SIZE_FULL);
 	wgui_add_text(dd, pos_auto, gt("Enter Code: "));
 	wgui_add_text(dd, pos_auto, unlock_str);
 	pos_newlines(dd, 2);
-	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), "Back");
+	ww = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_MEDIUM, SIZE_AUTO), gt("Back"));
 	ww->action = action_close_parent_dialog;
 }
 
@@ -1970,25 +2044,31 @@ void Init_System_Dialog(Widget *dd)
 	Widget *ww;
 
 	char *dev_name = wbfsDev == WBFS_DEVICE_USB ? "USB" : "SD";
-	ww = wgui_add_opt_button(dd, "Device:", dev_name);
+	ww = wgui_add_opt_button(dd, gt("Device:"), dev_name);
 	ww->action = action_Device;
 	ww->action2 = action_close_parent_dialog;
 
-	ww = wgui_add_opt_button(dd, "Partition:", CFG.partition);
+	ww = wgui_add_opt_button(dd, gt("Partition:"), CFG.partition);
 	ww->action = action_Partition;
 	ww->action2 = action_close_parent_dialog;
 
-	ww = wgui_add_opt(dd, "Wiird", 3, str_wiird);
+	char *wiird_val[3];
+	translate_array(3, str_wiird, wiird_val);
+	ww = wgui_add_opt(dd, "Wiird", 3, wiird_val);
 	ww->val_ptr = &CFG.wiird;
 	ww->action = action_write_val_ptr_int;
 
 	// skip game card update option
-	ww = wgui_add_opt(dd, "Gamer Card:", 2, NULL);
-	ww->val_ptr = &gamercard_skip;
+	ww = wgui_add_opt(dd, gt("Gamer Card:"), 2, NULL);
+	ww->val_ptr = &gamercard_enabled;
 	ww->action = action_write_val_ptr_int;
+	if (!*CFG.gamercard_key || !*CFG.gamercard_url) {
+		gamercard_enabled = 0;
+		wgui_set_inactive(ww, true);
+	}
 
 	// Admin Lock
-	ww = wgui_add_opt(dd, "Admin Lock:", 2, NULL);
+	ww = wgui_add_opt(dd, gt("Admin Lock:"), 2, NULL);
 	ww->val_ptr = &CFG.admin_mode_locked;
 	ww->action = action_AdminLock;
 	
@@ -1996,7 +2076,7 @@ void Init_System_Dialog(Widget *dd)
 	// Save Settings
 	pos_newline(dd);
 	pos_columns(dd, 2, SIZE_FULL);
-	ww = wgui_add_button(dd, pos_x(POS_CENTER), "Save Settings");
+	ww = wgui_add_button(dd, pos_x(POS_CENTER), gt("Save Settings"));
 	ww->action = action_SaveSettings;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
@@ -2043,31 +2123,29 @@ void action_OpenSettings(Widget *_ww)
 	Widget *page;
 	Widget *rr;
 	Widget *ww;
-	int i;
 
 	settings_hold_button = Wpad_Held();
 	settings_hold_t1 = gettime();
 
-	dd = desk_open_singular(pos_auto, "Settings", &w_Settings);
+	dd = desk_open_singular(pos_auto, gt("Settings"), &w_Settings);
 	if (!dd) return;
 	dd->handle = handle_Settings;
 	dd->update = update_Settings;
 	pos_margin(dd, PAD1);
-	//dd->dialog_color = 0xFFFFFF80;
 
 	// 70% page 30% tabs
 	Pos p = pos_wh(pos_avail_w(dd)*7/10, SIZE_FULL);
 	page = wgui_add_pages(dd, p, 5, "Settings");
-	for (i=0; i<5; i++) wgui_page_get(page, i)->dialog_color = 0x80808080;
 	// tabs container
 	Widget *cc = wgui_add(dd, pos_fill, NULL);
 	pos_pad(cc, PAD1);
 	pos_columns(cc, 1, SIZE_FULL); 
 	pos_rows(cc, 6, SIZE_FULL); 
-	rr = wgui_auto_radio_a(cc, 1, 5, "Info", "View", "Style", "System", "Updates");
+	rr = wgui_auto_radio_a(cc, 1, 5,
+			gt("Info"), gt("View"), gt("Style"), gt("System"), gt("Updates"));
 	wgui_link_page_ctrl(page, rr);
 	w_settings_radio = rr;
-	ww = wgui_add_button(cc, pos_auto, "Back");
+	ww = wgui_add_button(cc, pos_auto, gt("Back"));
 	ww->action = action_close_parent_dialog;
 
 	// Info
@@ -2124,8 +2202,8 @@ void action_OpenAbout(Widget *_ww)
 	Widget *dd;
 	Widget *ww;
 
-	dd = desk_open_dialog(pos_auto, "About");
-	//dd->dialog_color = 0xFFFFFFC0;
+	dd = desk_open_dialog(pos_auto, gt("About"));
+	dd->dialog_color = CFG.gui_window_color_popup;
 	pos_pad(dd, PAD3);
 
 	STRCOPY(about_str, about_title);
@@ -2136,13 +2214,13 @@ void action_OpenAbout(Widget *_ww)
 
 	pos_newline(dd);
 	ww = wgui_add_page(dd, NULL, pos_wh(SIZE_FULL, -H_NORMAL-PAD3), NULL);
-	ww->dialog_color = 0x40404080;
 	ww = wgui_add_textbox(ww, pos_full, TXT_H_NORMAL, about_str, sizeof(about_str));
 	ww->text_color = about_fc;
 	//ww->opt = 1; // background
 
-	ww = wgui_add_button(dd, pos_xy(POS_CENTER, POS_AUTO), "Back");
+	ww = wgui_add_button(dd, pos_xy(POS_CENTER, POS_AUTO), gt("Back"));
 	ww->action = action_close_parent_dialog;
+	//ww = wgui_add_button(dd, pos_auto, "Test");
 }
 
 
@@ -2153,58 +2231,79 @@ void action_OpenMain(Widget *_ww)
 	Widget *dd;
 	Widget *ww;
 
-	dd = desk_open_singular(pos_auto, "Main Menu", &w_MainMenu);
+	dd = desk_open_singular(pos_auto, gt("Main Menu"), &w_MainMenu);
 	if (!dd) return; // already open
 	pos_margin(dd, PAD3*2);
 	pos_pad(dd, PAD3);
 	pos_columns(dd, 2, SIZE_FULL);
 	pos_rows(dd, 5, SIZE_FULL);
 
-	ww = wgui_add_button(dd, pos_auto, "View");
+	ww = wgui_add_button(dd, pos_auto, gt("View"));
 	ww->action = action_OpenView;
 	ww->action2 = action_close_parent_dialog;
 
-	ww = wgui_add_button(dd, pos_auto, "Style");
+	ww = wgui_add_button(dd, pos_auto, gt("Style"));
 	ww->action = action_OpenStyle;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, pos_auto, "Updates");
+	ww = wgui_add_button(dd, pos_auto, gt("Updates"));
 	ww->action = action_OpenOnline;
 	ww->action2 = action_close_parent_dialog;
 	wgui_set_inactive(ww, CFG.disable_options);
 
-	ww = wgui_add_button(dd, pos_auto, "Settings");
+	ww = wgui_add_button(dd, pos_auto, gt("Settings"));
 	ww->action = action_OpenSettings;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, pos_auto, "Install");
+	ww = wgui_add_button(dd, pos_auto, gt("Install"));
 	ww->action = action_Install;
 	ww->action2 = action_close_parent_dialog;
 	wgui_set_inactive(ww, CFG.disable_install);
 
-	ww = wgui_add_button(dd, pos_auto, "Boot disc");
+	ww = wgui_add_button(dd, pos_auto, gt("Boot disc"));
 	ww->action = action_BootDisc;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, pos_auto, "Console");
+	ww = wgui_add_button(dd, pos_auto, gt("Console"));
 	ww->action = action_Console;
 	ww->action2 = action_close_parent_dialog;
 
-	ww = wgui_add_button(dd, pos_auto, "About");
+	ww = wgui_add_button(dd, pos_auto, gt("About"));
 	ww->action = action_OpenAbout;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, pos_auto, "Quit");
+	ww = wgui_add_button(dd, pos_auto, gt("Quit"));
 	ww->action = action_OpenQuit;
 	ww->action2 = action_close_parent_dialog;
 
-	ww = wgui_add_button(dd, pos_auto, "Back");
+	ww = wgui_add_button(dd, pos_auto, gt("Back"));
 	ww->action = action_close_parent_dialog;
 }
+
+static Widget *w_Konami = NULL;
+
+void action_OpenKonami(Widget *_ww)
+{
+	Widget *dd;
+	Widget *ww;
+
+	dd = desk_open_singular(pos_wh(480, 320), "!!!", &w_Konami);
+	if (!dd) return; // already open
+	
+	pos_margin(dd, PAD3);
+	pos_newline(dd);
+	wgui_add_text(dd, pos_auto, "Debug:");
+	ww = wgui_add_numswitch(dd, pos_w(100), " %d ", 0, 9);
+	wgui_propagate_value(ww, SET_VAL_MAX, 8);
+	ww->val_ptr = &CFG.debug;
+	ww->update = update_val_from_ptr_int;
+	ww->action = action_write_val_ptr_int;
+}
+
 
 void desk_dialog_update(Widget *ww)
 {
@@ -2250,12 +2349,101 @@ void desk_dialog_update(Widget *ww)
 	traverse_children1(ww, adjust_position);
 }
 
+struct CustomButton
+{
+	char *name;
+	void (*action)(Widget *ww);
+};
+
+struct CustomButton custom_button[GUI_BUTTON_NUM] =
+{
+	{ gts("Main"), action_OpenMain },
+	{ gts("Settings"), action_OpenSettings },
+	{ gts("Quit"), action_OpenQuit },
+	{ gts("Style"), action_OpenStyle },
+	{ gts("View"), action_OpenView },
+	{ gts("Sort"), action_OpenSort },
+	{ gts("Filter"), action_OpenFilter },
+	{ "Favorites", action_Favorites }
+};
+
+char *custom_button_name(int i)
+{
+	return custom_button[i].name;
+}
+
+void desk_custom_update(Widget *ww)
+{
+	// set custom buttons inactive if any window is opened
+	traverse_children(ww, wgui_set_inactive, ww->parent->num_child > 3);
+}
+
+// custom buttons
+void desk_custom_init()
+{
+	struct CfgButton *bb;
+	char *name;
+	Widget *ww;
+	int i;
+	Pos p;
+	if (!d_custom) {
+		d_custom = wgui_add(&wgui_desk, pos_full, NULL);
+		d_custom->update = desk_custom_update;
+	}
+	wgui_remove_children(d_custom);
+	for (i=0; i<GUI_BUTTON_NUM; i++) {
+		bb = &CFG.gui_button[i];
+		if (bb->enabled) {
+			p = pos(bb->pos.x, bb->pos.y, bb->pos.w, bb->pos.h);
+			name = gt(custom_button[i].name);
+			if (i == GUI_BUTTON_FAVORITES) {
+				ww = wgui_add_checkboxx(d_custom, p, name,
+						false, gt("Fav: Off"), gt("Fav: On"));
+				ww->val_ptr = &enable_favorite;
+			} else {
+				ww = wgui_add_button(d_custom, p, name);
+			}
+			ww->action = custom_button[i].action;
+			ww->text_color = bb->fc;
+			ww->max_zoom = 1.0 + (float)bb->hover_zoom / 100.0;
+			if (*bb->image && tx_custom[i]) {
+				ww->custom_tx = true;
+				ww->tx_idx = i;
+			}
+		}
+	}
+}
+
+void desk_bar_update()
+{
+	switch (CFG.gui_bar) {
+		case 0:
+			d_top->state = d_bottom->state = WGUI_STATE_DISABLED;
+			break;
+		default:
+		case 1:
+			d_top->state = d_bottom->state = WGUI_STATE_NORMAL;
+			break;
+		case 2: // top
+			d_top->state = WGUI_STATE_NORMAL;
+			d_bottom->state = WGUI_STATE_DISABLED;
+			break;
+		case 3: // bottom
+			d_top->state = WGUI_STATE_DISABLED;
+			d_bottom->state = WGUI_STATE_NORMAL;
+			break;
+	}
+}
+
 void desk_dialog_init()
 {
 	Widget *dd;
 	Widget *ww;
 	int h = H_LARGE;
 	int dh = h + PAD1*2 + PAD2;
+
+	// custom
+	desk_custom_init();
 
 	// top
 	dd = d_top = wgui_add_dialog(&wgui_desk, pos(POS_CENTER, 0, 600, dh), NULL);
@@ -2270,16 +2458,17 @@ void desk_dialog_init()
 	pos_columns(dd, 4, SIZE_FULL);
 	pos_move_to(dd, 0, -h);
 
-	ww = wgui_add_button(dd, pos_auto, "View");
+	ww = wgui_add_button(dd, pos_auto, gt("View"));
 	ww->action = action_OpenView;
 
-	ww = wgui_add_button(dd, pos_auto, "Sort");
+	ww = wgui_add_button(dd, pos_auto, gt("Sort"));
 	ww->action = action_OpenSort;
 	
-	ww = wgui_add_button(dd, pos_auto, "Filter");
+	ww = wgui_add_button(dd, pos_auto, gt("Filter"));
 	ww->action = action_OpenFilter;
 	
-	ww = wgui_add_checkbox(dd, pos_auto, "Fav", true);
+	ww = wgui_add_checkboxx(dd, pos_auto, gt("Fav"),
+			false, gt("Fav: Off"), gt("Fav: On"));
 	ww->val_ptr = &enable_favorite;
 	ww->action = action_Favorites;
 
@@ -2295,17 +2484,19 @@ void desk_dialog_init()
 	pos_prefsize(dd, 0, h);
 	pos_columns(dd, 4, SIZE_FULL);
 
-	ww = wgui_add_button(dd, pos_auto, "Main");
+	ww = wgui_add_button(dd, pos_auto, gt("Main"));
 	ww->action = action_OpenMain;
 
-	ww = wgui_add_button(dd, pos_auto, "Style");
+	ww = wgui_add_button(dd, pos_auto, gt("Style"));
 	ww->action = action_OpenStyle;
 
-	ww = wgui_add_button(dd, pos_auto, "Settings");
+	ww = wgui_add_button(dd, pos_auto, gt("Settings"));
 	ww->action = action_OpenSettings;
 
-	ww = wgui_add_button(dd, pos_auto, "Quit");
+	ww = wgui_add_button(dd, pos_auto, gt("Quit"));
 	ww->action = action_OpenQuit;
+
+	desk_bar_update();
 }
 
 void wgui_desk_close_dialogs(Widget *except)
@@ -2316,6 +2507,7 @@ void wgui_desk_close_dialogs(Widget *except)
 	// must be reverse
 	for (i = wgui_desk.num_child - 1; i >= 0; i--) {
 		cc = wgui_desk.child[i];
+		if (cc == d_custom) continue;
 		if (cc == d_top) continue;
 		if (cc == d_bottom) continue;
 		if (cc == except) continue;
@@ -2349,39 +2541,44 @@ void wgui_konami_handle(int *buttons)
 		} else {
 			wgui_code = 0;
 		}
-		if (wgui_code == 10) {
-			wgui_disabled = 0;
-			wgui_desk_init();
-		}
 		if (wgui_code > 8) {
 			*buttons = 0;
+		}
+		if (wgui_code == 10) {
+			if (!CFG.gui_menu) {
+				CFG.gui_menu = 1;
+				wgui_desk_init();
+			} else {
+				action_OpenKonami(NULL);
+			}
+			wgui_code = 0;
 		}
 	}
 }
 
 void wgui_desk_close()
 {
-	if (wgui_disabled) return;
+	if (!CFG.gui_menu) return;
 	wgui_close(&wgui_desk);
+	d_top = d_bottom = d_custom = NULL;
 }
 
 void wgui_desk_init()
 {
-	if (wgui_disabled) return;
+	if (!CFG.gui_menu) return;
 	wgui_init();
 	wgui_desk_close();
 	Widget_init(&wgui_desk, NULL, pos_full, NULL);
 	desk_dialog_init();
 }
 
-void wgui_desk_handle(struct ir_t *ir, int *buttons)
+void wgui_desk_handle(struct ir_t *ir, int *buttons, int *held)
 {
-	if (wgui_disabled) {
-		wgui_konami_handle(buttons);
-		return;
-	}
+	wgui_konami_handle(buttons);
+	if (!CFG.gui_menu) return;
+
 	// set and save input
-	wgui_input_set(ir, buttons);
+	wgui_input_set(ir, buttons, held);
 	// testing
 	/*
 	if (*buttons & WPAD_BUTTON_PLUS) {
@@ -2419,14 +2616,13 @@ void wgui_desk_handle(struct ir_t *ir, int *buttons)
 				action_OpenSettings(NULL);
 				wgui_input_steal_buttons();
 			}
-			// XXX admin unlock?
 		}
 	}
 }
 
 void wgui_desk_render(struct ir_t *ir, int *buttons)
 {
-	if (wgui_disabled) return;
+	if (!CFG.gui_menu) return;
 	// render
 	GX_SetZMode (GX_FALSE, GX_NEVER, GX_TRUE);
 	wgui_render(&wgui_desk);
@@ -2439,7 +2635,7 @@ void wgui_desk_render(struct ir_t *ir, int *buttons)
 
 // STUB
 void wgui_desk_init() { }
-void wgui_desk_handle(struct ir_t *ir, int *buttons) { }
+void wgui_desk_handle(struct ir_t *ir, int *buttons, int *held) { }
 void wgui_desk_render(struct ir_t *ir, int *buttons) { }
 void wgui_desk_close() { }
 

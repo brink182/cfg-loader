@@ -500,7 +500,6 @@ int load_ehc_module_ex(int verbose)
 	dip_plugin = odip_frag;
 	size_ehcmodule = size_ehcmodule5;
 	ehcmodule = ehcmodule5;
-	//printf("[FRAG]");
 
 	//mload_ehc_fat = 1;
 
@@ -946,7 +945,7 @@ void load_dip_249()
 	int ret;
 	if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18)
 	{
-		printf("[FRAG]");
+		//printf("[FRAG]");
 		if(mload_init()<0) {
 			printf(" ERROR\n");
 			return;
@@ -1143,6 +1142,13 @@ static struct ios_hash_info ios_info[] =
 	{ 249, {0x00ecc3a8, 0xec2d3b64, 0x506314e3, 0x740274ef, 0x6505cc75}, "56 r21-d2x-v3" },
 	{ 249, {0x008e68fd, 0xa1221185, 0xc09a1a26, 0xfeb09ead, 0xf375c2f2}, "57 r21-d2x-v3" },
 	{ 249, {0x006237ad, 0xda4cb0e1, 0xa97e4b41, 0xf1bb24a2, 0xd663b7f7}, "58 r21-d2x-v3" },
+
+	// d2x v4 (r21004) beta 2
+	{ 249, {0x00733fa4, 0x1d3e6245, 0xb0311e24, 0x675868b1, 0x353d882c}, "37 r21-d2x-v4-b2" },
+	{ 249, {0x007b9fca, 0x0a6f40c5, 0xccd37b25, 0x1c49064b, 0x1041ddb3}, "38 r21-d2x-v4-b2" },
+	{ 249, {0x000d243c, 0x07a183df, 0x0592ce22, 0x2bb81b46, 0x64cce4a7}, "56 r21-d2x-v4-b2" },
+	{ 249, {0x00c7b39a, 0xed42a4a0, 0xcc125669, 0xf23c1f6e, 0x2244cb9b}, "57 r21-d2x-v4-b2" },
+	{ 249, {0x00120cb0, 0x4cb9b4b1, 0xbe02e0e6, 0x30bfcb95, 0xfbfcaba5}, "58 r21-d2x-v4-b2" },
 
 	/*
 	// modmii 249

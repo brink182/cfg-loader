@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69a (alpha)
+size = 1571296
+date = 2011-05-28
+url = http://cfg-loader.googlecode.com/files/cfg69a.dol
+detection of cios d2x v4
+d2x v5+ ios reload block on wbfs
+d2x v4+ return to channel method
+new value: return_to_channel = auto
+
+release = 69a-222 (alpha)
+size = 1571296
+date = 2011-05-28
+url = http://cfg-loader.googlecode.com/files/cfg69a-222.dol
+Same as 69a but with different
+default options:
+  ios=222-mload
+
 release = 68d (bugfix)
 size = 1569856
 date = 2011-04-28

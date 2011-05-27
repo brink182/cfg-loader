@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader ES Translation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-11 18:44+0100\n"
+"POT-Creation-Date: 2011-04-14 23:16+0200\n"
 "PO-Revision-Date: 2010-01-23 14:18-0500\n"
 "Last-Translator: TyRaNtM <webmaster@smashsource.net>\n"
 "Language-Team: SPANISH <webmaster@smashsource.net>\n"
@@ -71,11 +71,20 @@ msgstr "< DESC >"
 msgid "< DOWNLOAD >"
 msgstr "< DESCARGAR >"
 
+msgid "About"
+msgstr "Créditos"
+
 msgid "Action"
 msgstr "Acción"
 
 msgid "Additional config:"
 msgstr "Configuración Adicional:"
+
+msgid "Admin Lock:"
+msgstr "Bloqueo Admin:"
+
+msgid "Admin Unlock"
+msgstr "Desbloqueo Admin"
 
 msgid "Adult"
 msgstr "Adulto"
@@ -127,6 +136,9 @@ msgstr ""
 "¿Estás seguro que deseas eliminar este\n"
 "juego?"
 
+msgid "Ascending"
+msgstr "Ascendente"
+
 #, c-format
 msgid "Auto-start game: %.6s not found!"
 msgstr "Auto-inicio del juego: %.6s no encontrado!"
@@ -134,14 +146,23 @@ msgstr "Auto-inicio del juego: %.6s no encontrado!"
 msgid "Available Updates"
 msgstr "Actualizaciones Disponibles"
 
+msgid "Back"
+msgstr "Atrás"
+
 msgid "Balance Board"
 msgstr "Balance Board"
+
+msgid "Basic"
+msgstr "Básico"
 
 msgid "Block IOS Reload:"
 msgstr "Bloq. Recarga IOS:"
 
 msgid "Boot Disc"
 msgstr "Cargar Disco"
+
+msgid "Boot disc"
+msgstr "Cargar disco"
 
 msgid "Booting Wii game, please wait..."
 msgstr "Cargando juego de Wii, espera..."
@@ -175,6 +196,9 @@ msgstr "Comprobando actualizaciones..."
 msgid "Choose a sorting method"
 msgstr "Elige un método de clasificación"
 
+msgid "Classic"
+msgstr "Clásico"
+
 msgid "Classic Controller"
 msgstr "Control Clásico"
 
@@ -196,8 +220,14 @@ msgstr "Error de configuración, MAX_DNS_ENTRIES alcanzado mientras que la lista
 msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "Error de conexión de net_read()  Error: %i"
 
+msgid "Console"
+msgstr "Consola"
+
 msgid "Console Def."
 msgstr "Def. Consola"
+
+msgid "Controller"
+msgstr "Control"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -206,8 +236,20 @@ msgstr "No se pudo inicializar el módulo DIP! (ret = %d)"
 msgid "Country Fix:"
 msgstr "Arreglo de País:  "
 
+msgid "Cover"
+msgstr "Portada"
+
 msgid "Cover Image:"
 msgstr "Imagen de Portada:"
+
+msgid "Cover Style"
+msgstr "Estílo de Portada"
+
+msgid "Cover~~Back"
+msgstr "Portada~~Atrás"
+
+msgid "Cover~~Front"
+msgstr "Portada~~Frente"
 
 msgid "Create"
 msgstr "Crear"
@@ -255,8 +297,17 @@ msgstr "Alfombra de Baile"
 msgid "Database update successful."
 msgstr "Base de Datos exitosamente actualizada."
 
+msgid "Debug"
+msgstr "Depuración"
+
+msgid "Delete Game"
+msgstr "Borrar Juego"
+
 msgid "Deleting"
 msgstr "Eliminando"
+
+msgid "Descending"
+msgstr "Descendente"
 
 msgid "Developer"
 msgstr "Desarrollador"
@@ -279,8 +330,17 @@ msgstr "Hecho."
 msgid "Download .txt"
 msgstr "Descargar .txt"
 
+msgid "Download All Covers"
+msgstr "Descargar Todas las Portadas"
+
 msgid "Download All Missing Covers"
 msgstr "Descargar las Portadas Faltantes"
+
+msgid "Download Missing Covers"
+msgstr "Descargar Portadas Faltantes"
+
+msgid "Download Themes"
+msgstr "Descargar Temas"
 
 msgid "Download complete."
 msgstr "Descarga terminada."
@@ -288,6 +348,9 @@ msgstr "Descarga terminada."
 #, c-format
 msgid "Download error on gamercard #%d."
 msgstr "Error de descarga en la gamercard #%d."
+
+msgid "Download titles.txt"
+msgstr "Descargas titles.txt"
 
 msgid "Downloadable Content"
 msgstr "Contenido Descargable"
@@ -587,6 +650,9 @@ msgstr "Error: no hay URL."
 msgid "Error: no data."
 msgstr "Error: no hay datos."
 
+msgid "Exit"
+msgstr "Salir"
+
 #, c-format
 msgid "Extracting: %s"
 msgstr "Extrayendo: %s"
@@ -612,11 +678,26 @@ msgstr "portada PLANA"
 msgid "FULL cover"
 msgstr "portada COMPLETA"
 
+msgid "Fav"
+msgstr "Fav"
+
+msgid "Fav: Off"
+msgstr "Fav: No"
+
+msgid "Fav: On"
+msgstr "Fav: Si"
+
+msgid "Favorite"
+msgstr "Favorito"
+
 msgid "Favorite Games"
 msgstr "Juegos Favoritos"
 
 msgid "Favorite:"
 msgstr "Favorito:"
+
+msgid "Favorites:"
+msgstr "Favoritos:"
 
 msgid "Fighting"
 msgstr "Pelea"
@@ -624,6 +705,9 @@ msgstr "Pelea"
 #, c-format
 msgid "File not found! %s"
 msgstr "Archivo no encontrado! %s"
+
+msgid "Filter"
+msgstr "Filtro"
 
 msgid "Filter Games"
 msgstr "Filtrar Juegos"
@@ -636,6 +720,9 @@ msgstr "Filtrar por Género"
 
 msgid "Filter by Online Features"
 msgstr "Filtrar por Características Online"
+
+msgid "Filter:"
+msgstr "Filtro:"
 
 msgid "Fixing EXTEND partition..."
 msgstr "Arreglando particiones EXTENDIDAS..."
@@ -659,6 +746,9 @@ msgstr "Encontrados %s"
 msgid "French"
 msgstr "Francés"
 
+msgid "Full"
+msgstr "Completo"
+
 msgid "GB"
 msgstr "GB"
 
@@ -675,9 +765,15 @@ msgstr "Opciones de Juego:  %s"
 msgid "Gamecube"
 msgstr "GameCube"
 
+msgid "Gamer Card:"
+msgstr "Tarjeta de Jugador:"
+
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
 msgstr "Gamercard #%d reportada: %.*s"
+
+msgid "Genre"
+msgstr "Género"
 
 msgid "German"
 msgstr "Alemán"
@@ -688,14 +784,23 @@ msgstr "Opciones Globales"
 msgid "Guitar"
 msgstr "Guitarra"
 
+msgid "HQ cover"
+msgstr "Portada HQ"
+
 msgid "HTTP Response was without a file"
 msgstr "Respuesta HTTP fué sin un archivo"
+
+msgid "Hide"
+msgstr "Ocultar"
 
 msgid "Hide Game:"
 msgstr "Ocultar Juego:"
 
 msgid "Hold button B to cancel."
 msgstr "Mantener el botón B para cancelar."
+
+msgid "Homebrew Channel"
+msgstr "Canal Homebrew"
 
 msgid "Hook Type:"
 msgstr "Tipo de Hook:"
@@ -724,6 +829,9 @@ msgstr ""
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr "Incoherencia en la codificación LZ77 %x"
 
+msgid "Info"
+msgstr "Información"
+
 #, c-format
 msgid "Info file: %s"
 msgstr "Información del archivo: %s"
@@ -731,8 +839,11 @@ msgstr "Información del archivo: %s"
 msgid "Initializing Network..."
 msgstr "Inicializando la Red..."
 
+msgid "Install"
+msgstr "Instalar"
+
 msgid "Install Date"
-msgstr "Fecha de Instalación"
+msgstr "Fecha Instalación"
 
 msgid "Install Game"
 msgstr "Instalar Juego"
@@ -779,7 +890,7 @@ msgid "Language:"
 msgstr "Idioma:"
 
 msgid "Last Play Date"
-msgstr "Fecha de último juego"
+msgstr "Fecha Último Juego"
 
 msgid "Launch Methods"
 msgstr "Métodos de Carga"
@@ -794,6 +905,9 @@ msgstr "Versión del Cargador: %s"
 msgid "Loading ..."
 msgstr "Cargando ..."
 
+msgid "Main"
+msgstr "Principal"
+
 msgid "Main Menu"
 msgstr "Menú Principal"
 
@@ -806,6 +920,9 @@ msgstr ""
 
 msgid "Manage"
 msgstr "Gestionar"
+
+msgid "Manage Cheats"
+msgstr "Gestionar Trucos"
 
 msgid "Microphone"
 msgstr "Micrófono"
@@ -1007,14 +1124,29 @@ msgstr "Desactivado"
 msgid "On"
 msgstr "Activado"
 
+msgid "Online"
+msgstr "Online"
+
 msgid "Online Content"
 msgstr "Contenido Online"
 
 msgid "Online Play"
 msgstr "Juego Online"
 
+msgid "Online Players"
+msgstr "Jugadores Online"
+
 msgid "Online Score List"
 msgstr "Lista de Puntajes Online"
+
+msgid "Online Updates"
+msgstr "Actulizaciones Online"
+
+msgid "Open Sort"
+msgstr "Abrir Clase"
+
+msgid "Open Style"
+msgstr "Abrir Estílo"
 
 msgid "Opening DVD disc..."
 msgstr "Abriendo disco DVD..."
@@ -1022,6 +1154,9 @@ msgstr "Abriendo disco DVD..."
 #, c-format
 msgid "Opening partition: %s"
 msgstr "Abriendo partición: %s"
+
+msgid "Options"
+msgstr "Opciones"
 
 msgid "Options discarded for this game."
 msgstr "Opciones descartadas para este juego."
@@ -1031,6 +1166,9 @@ msgstr "Opciones guardadas para este juego."
 
 msgid "Out of memory"
 msgstr "Sin memoria"
+
+msgid "Page:"
+msgstr "Página:"
 
 msgid "Partition:"
 msgstr "Partición:"
@@ -1050,6 +1188,9 @@ msgstr "Plataforma"
 
 msgid "Play Count"
 msgstr "Conteo de Juego"
+
+msgid "Players"
+msgstr "Jugadores"
 
 msgid "Please insert a game disc..."
 msgstr "Por favor inserte un disco de juego..."
@@ -1224,11 +1365,17 @@ msgstr "Perfil:"
 msgid "Profile: %s"
 msgstr "Perfil: %s"
 
+msgid "Program Updates"
+msgstr "Programar Actualizaciones"
+
 msgid "Publisher"
 msgstr "Editor"
 
 msgid "Puzzle"
 msgstr "Puzzle"
+
+msgid "Quit"
+msgstr "Salir"
 
 msgid "RAW"
 msgstr "RAW"
@@ -1255,14 +1402,14 @@ msgstr "Leer"
 msgid "Reading BCA..."
 msgstr "Leyendo BCA..."
 
+msgid "Reboot"
+msgstr "Reiniciar"
+
 msgid "Release Date"
 msgstr "Fecha de la Versión"
 
 msgid "Release Notes: (short)"
 msgstr "Notas de la Versión: (corto)"
-
-msgid "Remove Game"
-msgstr "Remover Juego"
 
 msgid "Removing game, please wait..."
 msgstr "Eliminando juego, por favor espera..."
@@ -1276,6 +1423,9 @@ msgstr "Regresado! (ret = %d)"
 
 msgid "Rhythm"
 msgstr "Ritmo"
+
+msgid "Rows:"
+msgstr "Filas:"
 
 msgid "Running benchmark, please wait"
 msgstr "Corriendo punto de referencia, por favor espere"
@@ -1291,6 +1441,12 @@ msgstr "ÉXITO!"
 
 msgid "Save .gct"
 msgstr "Guardar .gct"
+
+msgid "Save Debug"
+msgstr "Guardar Depuración"
+
+msgid "Save Settings"
+msgstr "Guardar Configuraciones"
 
 msgid "Save debug.log"
 msgstr "Guardar debug.log"
@@ -1314,6 +1470,9 @@ msgstr "Guardando:"
 msgid "Saving: %s"
 msgstr "Guardando: %s"
 
+msgid "Scroll:"
+msgstr "Desplazamiento:"
+
 msgid "Select Alternative .dol:"
 msgstr "Seleccionando .dol Alternativo:"
 
@@ -1330,16 +1489,28 @@ msgid "Select all"
 msgstr "Selecciona todo"
 
 msgid "Select the game you want to boot"
-msgstr "Selecciona el juego que desea iniciar"
+msgstr "Selecciona el juego que deseas iniciar"
 
 msgid "Selected Game"
 msgstr "Juego Seleccionado"
 
+msgid "Settings"
+msgstr "Configuración"
+
 msgid "Shooter"
 msgstr "Disparos"
 
+msgid "Show All"
+msgstr "Mostrar Todo"
+
 msgid "Show cIOS info"
 msgstr "Mostrar la información del cIOS"
+
+msgid "Shutdown"
+msgstr "Apagado"
+
+msgid "Side:"
+msgstr "Lado:"
 
 msgid "Simulation"
 msgstr "Simulación"
@@ -1351,8 +1522,17 @@ msgstr "Tam.(GB) Tipo  Mont. Usado"
 msgid "Size: %d bytes"
 msgstr "Tamaño: %d bytes"
 
+msgid "Sort"
+msgstr "Ordenar"
+
 msgid "Sort Games"
 msgstr "Ordenar Juegos"
+
+msgid "Sort Order:"
+msgstr "Orden de Clasificación:"
+
+msgid "Sort Type:"
+msgstr "Tipo de Orden:"
 
 #, c-format
 msgid "Sort: %s-%s"
@@ -1364,6 +1544,9 @@ msgstr "Español"
 msgid "Sports"
 msgstr "Deportes"
 
+msgid "Start"
+msgstr "Iniciar"
+
 msgid "Start Game"
 msgstr "Iniciar Juego"
 
@@ -1371,16 +1554,25 @@ msgid "Start this game?"
 msgstr "¿Iniciar este juego?"
 
 msgid "Stopping DVD..."
-msgstr ""
+msgstr "Deteniendo DVD..."
 
 msgid "Strategy"
 msgstr "Estrategia"
+
+msgid "Style"
+msgstr "Estílo"
+
+msgid "Style:"
+msgstr "Estílo:"
 
 msgid "Sync FAT free space info?"
 msgstr "Sincronizar la información de espacio libre FAT?"
 
 msgid "Synchronizing, please wait."
 msgstr "Sincronizando, por favor espera."
+
+msgid "System"
+msgstr "Sistema"
 
 msgid "System Def."
 msgstr "Def. Sistema"
@@ -1461,6 +1653,9 @@ msgstr "Desconocido"
 msgid "Unknown syntax!"
 msgstr "Sintaxis desconocida!"
 
+msgid "Unplayed"
+msgstr "No jugado"
+
 msgid "Unplayed Games"
 msgstr "Juegos Sin Jugar"
 
@@ -1472,6 +1667,9 @@ msgstr "Actualizar temas"
 
 msgid "Update titles.txt"
 msgstr "Actualizar titles.txt"
+
+msgid "Updates"
+msgstr "Actualizaciones"
 
 msgid "Updating database."
 msgstr "Actualizando Base de Datos."
@@ -1492,6 +1690,9 @@ msgstr "Parche al Video:"
 msgid "Video:"
 msgstr "Video:"
 
+msgid "View"
+msgstr "Ver"
+
 msgid "Vitality Sensor"
 msgstr "Vitality Sensor"
 
@@ -1507,6 +1708,9 @@ msgstr "Volante Wii"
 
 msgid "Wii Speak"
 msgstr "Wii Speak"
+
+msgid "WiiTDB Game Database"
+msgstr "Base de Datos WiiTDB"
 
 msgid "Wiimote"
 msgstr "Wiimote"
@@ -1550,8 +1754,20 @@ msgstr "[ ENCONTRADO ]"
 msgid "[ SAVED ]"
 msgstr "[ GUARDADO ]"
 
+msgid "[HOME]"
+msgstr "[INICIO]"
+
+msgid "[No HQ]"
+msgstr "[No HQ]"
+
 msgid "[USED]"
 msgstr "[USADO]"
+
+msgid "[default]"
+msgstr "[defecto]"
+
+msgid "[saved]"
+msgstr "[guardado]"
 
 #, c-format
 msgid "bad wbfs file: %s"
@@ -1566,6 +1782,9 @@ msgstr "borrar"
 #, c-format
 msgid "dest: %p - %p"
 msgstr "dest: %p - %p"
+
+msgid "discard"
+msgstr "descartar"
 
 #, c-format
 msgid "domain %s could not be resolved"
@@ -1624,6 +1843,12 @@ msgstr "velocidad de lectura aleatoria: %.2f mb/s"
 msgid "random..."
 msgstr "al azar..."
 
+msgid "reset"
+msgstr "reiniciar"
+
+msgid "revert"
+msgstr "revertir"
+
 msgid "save"
 msgstr "guardar"
 
@@ -1641,5 +1866,11 @@ msgstr "no se puede abrir el disco de wii"
 msgid "used: %p - %p"
 msgstr "usado: %p - %p"
 
+#~ msgid "Front"
+#~ msgstr "Frente"
+
 #~ msgid "Loading previous game list..."
 #~ msgstr "Cargando lista de juegos anterior.."
+
+#~ msgid "Remove Game"
+#~ msgstr "Remover Juego"

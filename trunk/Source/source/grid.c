@@ -205,7 +205,7 @@ void update_grid_state2(struct Grid_State *GS, int cstyle)
 		if (GS->angle > 180.0) GS->angle -= 360.0;
 	} else { // CS_MISSING
 		;missing:;
-		GS->tx = t2_nocover.tx;
+		GS->tx = tx_nocover;
 		GS->angle = 0.0;
 	}
 	update_grid_scale(GS, 0);
@@ -385,9 +385,7 @@ void draw_grid_1(struct Grid_State *GS, float screen_x, float screen_y)
 		FontColor fc;
 		fc.color = 0xFFFFFFFF;
 		fc.outline = 0x000000FF;
-		fc.outline_auto = 0;
 		fc.shadow = 0;
-		fc.shadow_auto = 0;
 		if (loading) {
 			GRRLIB_Rectangle(x-1,y-1, tx_font.tilew*4+2, tx_font.tileh+2, 0x00000040,1);
 			fc.outline = 0;
@@ -666,9 +664,9 @@ void transition_scroll(int direction, int grid_i)
 		tran = (float)j / (float)tran_steps;
 		step = (float)BACKGROUND_HEIGHT / (float)tran_steps * (float)j;
 		Wpad_getIR(&ir);
-		GRRLIB_DrawSlice(0, 0, t2_bg_con.tx, 0, 1, 1, 0xFFFFFFFF,
+		GRRLIB_DrawSlice(0, 0, tx_bg_con, 0, 1, 1, 0xFFFFFFFF,
 				0, step, BACKGROUND_WIDTH, BACKGROUND_HEIGHT - step);
-		GRRLIB_DrawSlice(0, BACKGROUND_HEIGHT - step, t2_bg.tx, 0, 1, 1, 0xFFFFFFFF,
+		GRRLIB_DrawSlice(0, BACKGROUND_HEIGHT - step, tx_bg, 0, 1, 1, 0xFFFFFFFF,
 				0, 0, BACKGROUND_WIDTH, step);
 		draw_grid_t(0, BACKGROUND_HEIGHT - step, grid_i, NULL, 1-tran);
 		Gui_draw_pointer(&ir);
@@ -690,12 +688,12 @@ void transition_fade(int direction, int grid_i)
 		Wpad_getIR(&ir);
 
 		color = 0xFFFFFF00 | alpha;
-		GRRLIB_DrawImg(0, 0, &t2_bg.tx, 0, 1, 1, color);
+		GRRLIB_DrawImg(0, 0, &tx_bg, 0, 1, 1, color);
 
 		draw_grid_t(0, 0, grid_i, NULL, 1-tran);
 
 		color = 0xFFFFFF00 | (255-alpha);
-		GRRLIB_DrawImg(0, 0, &t2_bg_con.tx, 0, 1, 1, color);
+		GRRLIB_DrawImg(0, 0, &tx_bg_con, 0, 1, 1, color);
 
 		draw_grid_sel(gameSelected, -page_scroll, 0);
 		
@@ -1160,6 +1158,13 @@ void grid_get_scroll(ir_t *ir)
 	
 	// is pointer scroll enabled?
 	if (!CFG.gui_pointer_scroll) return;
+	// if y outside defined cover area don't scroll
+	if (CFG.gui_cover_area.h) {
+		if (ir->sy < CFG.gui_cover_area.y
+				|| ir->sy > CFG.gui_cover_area.y + CFG.gui_cover_area.h) {
+			return;
+		}
+	}
 	// if y out of screen, don't scroll
 	if (ir->sy < 0 || ir->sy > BACKGROUND_HEIGHT) return;
 	// allow x out of screen by pointer size

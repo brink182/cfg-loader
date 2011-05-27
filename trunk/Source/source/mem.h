@@ -56,6 +56,7 @@ void  heap_stat(heap *h, heap_stats *s);
 
 // mem
 void  mem_init();
+bool  mem_inside(int pool, void *ptr);
 void* mem1_alloc(int size);
 void* mem1_realloc(void *ptr, int size);
 void* mem2_alloc(int size);

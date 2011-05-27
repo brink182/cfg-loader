@@ -97,9 +97,9 @@ char* trimcopy(char *dest, char *src, int size)
 	return trimcopy_n(dest, src, size, size);
 }
 
-// returns ptr to next token
-// note: omits empty tokens
+// store token in dest and return ptr to next token
 // on last token returns null
+// note: omits empty tokens
 char* split_token(char *dest, char *src, char delim, int size)
 {
 	char *next;
@@ -119,6 +119,7 @@ char* split_token(char *dest, char *src, char delim, int size)
 	return next;
 }
 
+// store token in dest and return ptr to next token
 // on last token returns ptr to end of string
 // when no more tokens returns null
 char* split_tokens(char *dest, char *src, char *delim, int size)

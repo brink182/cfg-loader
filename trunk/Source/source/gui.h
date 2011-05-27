@@ -14,18 +14,18 @@ extern int gui_mode;
 extern int gui_style;
 extern int grid_rows;
 
+/*
 struct M2_texImg
 {
 	GRRLIB_texImg tx;
 	int size;
 };
+*/
 
-extern struct M2_texImg t2_bg;
-extern struct M2_texImg t2_bg_con;
-extern struct M2_texImg t2_nocover;
-extern struct M2_texImg t2_nocover_full;
-extern struct M2_texImg t2_screenshot;
-
+extern GRRLIB_texImg tx_bg;
+extern GRRLIB_texImg tx_bg_con;
+extern GRRLIB_texImg tx_nocover;
+extern GRRLIB_texImg tx_nocover_full;
 extern GRRLIB_texImg tx_pointer;
 extern GRRLIB_texImg tx_hourglass;
 extern GRRLIB_texImg tx_star;
@@ -57,14 +57,14 @@ void Gui_LoadBackground(void);
 void Gui_DrawThemePreview(char *name, int id);
 void Gui_DrawThemePreviewLarge(char *name, int id);
 
-
+int Load_Theme_Image2(char *name, void **img_buf, bool global);
+int Load_Theme_Image(char *name, void **img_buf);
 int find_cover_path(u8 *id, int cover_style, char *path, int size, struct stat *st);
 GRRLIB_texImg Gui_LoadTexture_RGBA8(const unsigned char my_png[], int, int, void *dest, char *path);
 GRRLIB_texImg Gui_LoadTexture_CMPR(const unsigned char my_png[], int, int, void *dest, char *path);
 GRRLIB_texImg Gui_LoadTexture_fullcover(const unsigned char my_png[], int, int, int, void *dest, char *path);
 GRRLIB_texImg Gui_paste_into_fullcover(void *src, int src_w, int src_h, void *dest, int dest_w, int dest_h);
 u32 upperPower(u32 width);
-u32 fixGX_GetTexBufferSize(u16 wd, u16 ht, u32 fmt, u8 mipmap, u8 maxlod);
 GRRLIB_texImg Gui_LoadTexture_MIPMAP(const unsigned char my_png[],
 		int width, int height, int maxlod, void *dest, char *path);
 
@@ -72,11 +72,13 @@ s32 __Gui_GetPngDimensions(void *img, u32 *w, u32 *h);
 void Gui_set_camera(ir_t *ir, int);
 void Gui_Wpad_IR(int, struct ir_t *ir);
 void gui_tilt_pos(guVector *pos);
+/*
 void cache2_tex(struct M2_texImg *dest, GRRLIB_texImg *src);
 void cache2_tex_alloc(struct M2_texImg *dest, int w, int h);
 void cache2_tex_alloc_fullscreen(struct M2_texImg *dest);
 void cache2_GRRLIB_tex_alloc(GRRLIB_texImg *dest, int w, int h);
 void cache2_GRRLIB_tex_alloc_fullscreen(GRRLIB_texImg *dest);
+*/
 
 void Gui_PrintAlignZ(float x, float y, int alignx, int aligny,
 		GRRLIB_texImg *font, FontColor font_color, float zoom, char *str);
@@ -94,9 +96,9 @@ void Gui_Print_Clock(int x, int y, FontColor font_color, int align);
 u32 color_add(u32 c1, u32 c2, int neg);
 u32 color_multiply(u32 c1, u32 c2);
 void font_color_multiply(FontColor *src, FontColor *dest, u32 color);
-void expand_font_color(FontColor *fc, unsigned *outline, unsigned *shadow);
 
 void Grx_Init();
+void Gui_DrawImgFullScreen(GRRLIB_texImg *tex, const u32 color, bool antialias);
 void Gui_RenderAAPass(int aaStep);
 void Gui_Render();
 void Gui_Render_Out(ir_t *ir);

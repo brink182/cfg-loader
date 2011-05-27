@@ -26,6 +26,7 @@
 #include "sys.h"
 #include "menu.h"
 #include "wbfs.h"
+#include "wgui.h"
 
 char FAT_DRIVE[8] = SDHC_DRIVE;
 char USBLOADER_PATH[200] = "sd:/usb-loader";
@@ -1041,17 +1042,26 @@ void CFG_Default_Theme()
 	strcpy(CFG.favorite, "*");
 	strcpy(CFG.saved, "#");
 
-	CFG.gui_text.color = 0x000000FF; // black
-	CFG.gui_text.outline = 0xFF; //0;
-	CFG.gui_text.outline_auto = 1; //0;
-	CFG.gui_text.shadow = 0;
-	CFG.gui_text.shadow_auto = 0;
+	CFG.gui_text_cfg.color = 0x000000FF; // black
+	CFG.gui_text_cfg.outline = 0xFF; //0;
+	CFG.gui_text_cfg.outline_auto = 1; //0;
+	CFG.gui_text_cfg.shadow = 0;
+	CFG.gui_text_cfg.shadow_auto = 0;
 
-	CFG.gui_text2.color = 0xFFFFFFFF; // white
-	CFG.gui_text2.outline = 0xFF;
-	CFG.gui_text2.outline_auto = 1;
-	CFG.gui_text2.shadow = 0;
-	CFG.gui_text2.shadow_auto = 0;
+	CFG.gui_text2_cfg.color = 0xFFFFFFFF; // white
+	CFG.gui_text2_cfg.outline = 0xFF;
+	CFG.gui_text2_cfg.outline_auto = 1;
+	CFG.gui_text2_cfg.shadow = 0;
+	CFG.gui_text2_cfg.shadow_auto = 0;
+
+	CFG.gui_tc_menu = wgui_fc;
+	CFG.gui_tc_title = CFG.gui_tc_button = CFG.gui_tc_radio =
+		CFG.gui_tc_checkbox = CFG.gui_tc_menu;
+	CFG.gui_tc_info = text_fc;
+	CFG.gui_window_color_base = 0xFFFFFF80;
+	CFG.gui_window_color_popup = 0xFFFFFFB0;
+	memset(CFG.gui_button, 0, sizeof(CFG.gui_button));
+	CFG.gui_bar = 1;
 
 	CFG.gui_title_top = 0;
 
@@ -1148,7 +1158,9 @@ void CFG_Default()
 	CFG.disable_options = 0;
 	CFG.music = 1;
 	CFG.widescreen = CFG_WIDE_AUTO;
-	CFG.gui = 1;
+	CFG.gui = CFG_GUI_START_WGUI;
+	CFG.gui_menu = 1;
+	CFG.gui_start = 1;
 	CFG.gui_rows = 2;
 	CFG.admin_lock = 1;
 	CFG.admin_mode_locked = 1;
@@ -1428,7 +1440,7 @@ bool cfg_color(char *name, int *var)
 }
 
 // text color
-void font_color_set(char *base_name, struct FontColor *fc)
+void font_color_cfg_set(char *base_name, struct FontColor_CFG *fc)
 {
 	if (strncmp(cfg_name, base_name, strlen(base_name)) != 0) return;
 
@@ -1453,6 +1465,59 @@ void font_color_set(char *base_name, struct FontColor *fc)
 
 	cfg_name = old_name;
 }
+
+bool font_color_set(char *name, struct FontColor *fc)
+{
+	if (strcmp(name, cfg_name)) return false;
+	char color_val[16];
+	char *old_val = cfg_val;
+	char *next = cfg_val;
+	int *c = &fc->color;
+	int i = 0;
+	memset(fc, 0, sizeof(*fc));
+	while ((next = split_tokens(color_val, next, "/", sizeof(color_val)))) {
+		cfg_val = color_val;
+		if (!cfg_color(name, c+i)) break;
+		i++;
+		if (i >= 3) break;
+	}
+	cfg_val = old_val;
+	return true;
+}
+
+int get_outline_color(int text_color, int outline_color, int outline_auto)
+{
+	unsigned color, alpha;
+	if (!outline_color) return 0;
+
+	if (outline_auto) {
+		// only alpha specified
+		int avg;
+		avg = ( ((text_color>>8) & 0xFF)
+		      + ((text_color>>16) & 0xFF)
+		      + ((text_color>>24) & 0xFF) ) / 3;
+		if (avg > 0x80) {
+			color = 0x00000000;
+		} else {
+			color = 0xFFFFFF00;
+		}
+	} else {
+		// full color specified
+		color = outline_color;
+	}
+	// apply text alpha to outline alpha
+	alpha = (outline_color & 0xFF) * (text_color & 0xFF) / 0xFF;
+	color = (color & 0xFFFFFF00) | alpha;
+	return color;
+}
+
+void expand_font_color_cfg(FontColor *fc, FontColor_CFG *fcc)
+{
+	fc->color = fcc->color;
+	fc->outline = get_outline_color( fcc->color, fcc->outline, fcc->outline_auto); 
+	fc->shadow = get_outline_color( fcc->color, fcc->shadow, fcc->shadow_auto); 
+}
+
 
 int cfg_pos_xy(char *name, struct PosCoords *pos)
 {
@@ -1490,6 +1555,91 @@ int cfg_pos_area(char *name, struct RectCoords *pos, int min_w, int min_h)
 		}
 	}
 	return -1;
+}
+
+char *custom_button_name(int i);
+
+char *strtolower(char *s)
+{
+	char *ss = s;
+	int c;
+	while (*ss) {
+		c = (unsigned char)*ss;
+		*ss = tolower(c);
+		ss++;
+	}
+	return s;
+}
+
+// n starts at 0
+char* get_token_n(char *dest, int size, char *src, char *delim, int n)
+{
+	int i;
+	char *next = src;
+	*dest = 0;
+	for (i=0; i<=n; i++) {
+		next = split_tokens(dest, next, delim, size);
+		if (!next) break;
+	}
+	//dbg_printf("==== tok %d : %s.\n", n, dest);
+	return next;
+}
+
+bool cfg_gui_button(int i)
+{
+	int ret;
+	char token[64];
+	char *save_val = cfg_val;
+	struct CfgButton *bb = &CFG.gui_button[i];
+	memset(bb, 0, sizeof(*bb));
+	ret = cfg_pos_area(cfg_name, &bb->pos, 4, 4);
+	if (ret <= 0) return false;
+	bb->enabled = 1;
+	// defaults:
+	bb->fc = wgui_fc;
+	bb->hover_zoom = 10;
+	if (get_token_n(token, sizeof(token), cfg_val, ",", 4)) {
+		cfg_val = token;
+		font_color_set(cfg_name, &bb->fc);
+		cfg_val = save_val;
+	}
+	if (get_token_n(token, sizeof(token), cfg_val, ",", 5)) {
+		STRCOPY(bb->image, token);
+	}
+	if (get_token_n(token, sizeof(token), cfg_val, ",", 6)) {
+		cfg_val = token;
+		cfg_map(cfg_name, "button", &bb->type, 0);
+		cfg_map(cfg_name, "icon", &bb->type, 1);
+		cfg_val = save_val;
+	}
+	if (get_token_n(token, sizeof(token), cfg_val, ",", 7)) {
+		cfg_val = token;
+		cfg_int_max(cfg_name, &bb->hover_zoom, 50);
+		cfg_val = save_val;
+	}
+	return true;
+}
+
+bool cfg_gui_custom_buttons()
+{
+	int i;
+	// gui_button_main
+	// gui_button_quit ...
+	char *opt = "gui_button_";
+	int len = strlen(opt);
+	char *name = cfg_name + len;
+	char bname[32];
+	if (strncmp(cfg_name, opt, len) == 0) {
+		for (i=0; i<GUI_BUTTON_NUM; i++) {
+			STRCOPY(bname, custom_button_name(i));
+			strtolower(bname);
+			if (strcmp(name, bname) == 0) {
+				cfg_gui_button(i);
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 // theme options, these can be overriden in config.txt
@@ -1668,8 +1818,21 @@ void theme_set_base(char *name, char *val)
 		memset(CFG.menu_plus_s, ' ', len);
 		CFG.menu_plus_s[len] = 0;
 	}
-	font_color_set("gui_text_", &CFG.gui_text);
-	font_color_set("gui_text2_", &CFG.gui_text2);
+	font_color_cfg_set("gui_text_", &CFG.gui_text_cfg);
+	font_color_cfg_set("gui_text2_", &CFG.gui_text2_cfg);
+	font_color_set("gui_text_color_info", &CFG.gui_tc_info);
+	if (font_color_set("gui_text_color_menu", &CFG.gui_tc_menu)) {
+		CFG.gui_tc_title = CFG.gui_tc_button = CFG.gui_tc_radio =
+			CFG.gui_tc_checkbox = CFG.gui_tc_menu;
+	}
+	font_color_set("gui_text_color_title", &CFG.gui_tc_title);
+	if (font_color_set("gui_text_color_button", &CFG.gui_tc_button)) {
+		CFG.gui_tc_radio = CFG.gui_tc_checkbox = CFG.gui_tc_button;
+	}
+	font_color_set("gui_text_color_radio", &CFG.gui_tc_radio);
+	font_color_set("gui_text_color_checkbox", &CFG.gui_tc_checkbox);
+	cfg_color("gui_window_color_base", &CFG.gui_window_color_base);
+	cfg_color("gui_window_color_popup", &CFG.gui_window_color_popup);
 	cfg_bool("gui_title_top", &CFG.gui_title_top);
 	if (strcmp(name, "covers_size")==0) {
 		int w,h;
@@ -1840,7 +2003,10 @@ void theme_set(char *name, char *val)
 	cfg_pos_area("gui_title_area", &CFG.gui_title_area, 320, 10);
 	cfg_pos_xy("gui_clock_pos", &CFG.gui_clock_pos);
 	cfg_pos_xy("gui_page_pos", &CFG.gui_page_pos);
-	
+	cfg_gui_custom_buttons();
+	cfg_bool("gui_bar", &CFG.gui_bar);
+	cfg_map("gui_bar", "top", &CFG.gui_bar, 2);
+	cfg_map("gui_bar", "bottom", &CFG.gui_bar, 3);
 }
 
 // global options
@@ -2174,11 +2340,19 @@ void cfg_set(char *name, char *val)
 	}
 
 	// gui
-	cfg_bool("gui", &CFG.gui);
-	cfg_map("gui", "start", &CFG.gui, CFG_GUI_START);
-	if (cfg_map("gui", "3", &CFG.gui, CFG_GUI_START)) {
-		extern int wgui_disabled;
-		wgui_disabled = 0;
+	if (cfg_int_max("gui", &CFG.gui, CFG_GUI_START_WGUI) ||
+		cfg_map("gui", "start", &CFG.gui, CFG_GUI_START_WGUI))
+	{
+		if (CFG.gui == CFG_GUI_START || CFG.gui == CFG_GUI_START_WGUI) {
+			CFG.gui_start = 1;
+		} else {
+			CFG.gui_start = 0;
+		}
+		if (CFG.gui > CFG_GUI_START) {
+			CFG.gui_menu = 1;
+		} else {
+			CFG.gui_menu = 0;
+		}
 	}
 
 	cfg_map("gui_transition", "scroll", &CFG.gui_transit, 0);
@@ -2992,6 +3166,7 @@ void CFG_switch_theme(int theme_i)
 	Gui_LoadBackground();
 	Gui_InitConsole();
 	cfg_setup3();
+	wgui_inited = 0;
 }
 
 char *get_clock_str(time_t t)
@@ -3244,6 +3419,8 @@ void cfg_setup2()
 	}
 	
 	setup_theme_preview_coords();
+	expand_font_color_cfg(&CFG.gui_text, &CFG.gui_text_cfg);
+	expand_font_color_cfg(&CFG.gui_text2, &CFG.gui_text2_cfg);
 }
 
 // This has to be called AFTER video & console init

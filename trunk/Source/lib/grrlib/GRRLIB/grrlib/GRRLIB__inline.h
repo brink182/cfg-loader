@@ -116,10 +116,16 @@ INLINE  bool              GRRLIB_GetAntiAliasing (void);
 
 //------------------------------------------------------------------------------
 // GRRLIB_texSetup.h - Create and setup textures
+#if 0
 INLINE  GRRLIB_texImg*  GRRLIB_CreateEmptyTexture (const uint w, const uint h);
 INLINE  void            GRRLIB_ClearTex           (GRRLIB_texImg* tex);
 INLINE  void            GRRLIB_FlushTex           (GRRLIB_texImg *tex);
 INLINE  void            GRRLIB_FreeTexture        (GRRLIB_texImg *tex);
+#endif
+GRRLIB_texImg*  GRRLIB_CreateEmptyTexture (const uint w, const uint h);
+void            GRRLIB_ClearTex           (GRRLIB_texImg* tex);
+void            GRRLIB_FlushTex           (GRRLIB_texImg *tex);
+void            GRRLIB_FreeTexture        (GRRLIB_texImg *tex);
 
 //==============================================================================
 // Definitions of inlined functions

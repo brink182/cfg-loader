@@ -13,9 +13,9 @@
 #include "gui.h"
 #include "cfg.h"
 #include "wgui.h"
+#include "gettext.h"
 
 #include "button_png.h"
-#include "button_sel_png.h"
 #include "window_png.h"
 
 /*
@@ -27,20 +27,25 @@ window.png
 
 */
 
-GRRLIB_texImg *tx_button;
-GRRLIB_texImg *tx_button_sel;
-GRRLIB_texImg *tx_window;
-GRRLIB_texImg tx_button_press;
-//GRRLIB_texImg *tx_cb;
-//GRRLIB_texImg *tx_cb_val;
+#define WGUI_IMG_NORMAL      0
+#define WGUI_IMG_FLASH       1
+#define WGUI_IMG_HOVER       2
+#define WGUI_IMG_PRESS       3
+#define WGUI_IMG_PRESS_HOVER 4
+#define WGUI_IMG_INACTIVE    5
 
-FontColor wgui_fc = { 0x8888FFFF, 0x80 };
-FontColor disabled_fc = { 0x808080B0, 0x40 };
-FontColor text_fc = { 0xFFFFFFFF, 0x80 };
+GRRLIB_texImg *tx_button;
+GRRLIB_texImg *tx_checkbox;
+GRRLIB_texImg *tx_radio;
+GRRLIB_texImg *tx_window;
+GRRLIB_texImg *tx_page;
+GRRLIB_texImg *tx_custom[GUI_BUTTON_NUM];
+
+//FontColor wgui_fc = { 0x6688FFFF, 0xA0, 0x44444444 }; // CFG.gui_tc_menu
+FontColor wgui_fc = { 0xFFFFFFFF, 0xA0, 0x44444444 }; // CFG.gui_tc_menu
+FontColor text_fc = { 0xFFFFFFFF, 0xA0, 0 }; // CFG.gui_tc_info
 FontColor about_fc = { 0xFFFFFFFF, 0xFF };
-//FontColor text_fc = { 0xFF, 0xFFFFFFFF };
-//u32 disabled_color = 0xB0B0B080;
-u32 disabled_color = 0xB0B0B0B0;
+u32 disabled_color = 0xB0B0B0A0;
 
 const Pos pos_auto =
 {
@@ -75,64 +80,177 @@ static struct {
 } save_input;
 
 
-static int wgui_inited = 0;
+int wgui_inited = 0;
 
-void wgui_init_button_press(GRRLIB_texImg *texsrc, GRRLIB_texImg *texdest) {
+void wgui_init_button_press(GRRLIB_texImg *texsrc, GRRLIB_texImg *texdest,
+		int src_h, int dest_y)
+{
 	unsigned int x, y;
 	u32 color;
 	
-	for(y=0; y<texsrc->h; y++) {
-		for(x=0; x<texsrc->w; x++) {
+	for(y=0; y < src_h; y++) {
+		for(x=0; x < texsrc->w; x++) {
 			color = GRRLIB_GetPixelFromtexImg(x, y, texsrc);
-			GRRLIB_SetPixelTotexImg(x, y, texdest, (0xFFFFFF00 | (color & 0xFF)));
+			GRRLIB_SetPixelTotexImg(x, dest_y + y, texdest, (0xFFFFFF00 | (color & 0xFF)));
 		}
 	}
-	texdest->w = texsrc->w;
-	texdest->h = texsrc->h;
-	GRRLIB_InitTileSet(texdest,texdest->w/4, texdest->h, 0);
 	GRRLIB_FlushTex(texdest);
 }
 
-void wgui_init_button(GRRLIB_texImg **ptx, const u8 *img)
+void wgui_init_button(GRRLIB_texImg *tx)
 {
-	GRRLIB_texImg *tx;
-	tx = *ptx = GRRLIB_LoadTexture(img);
-	GRRLIB_InitTileSet(tx, tx->w/4, tx->h, 0);
+	if (!tx) return;
+	// ratio w:h of a single button image is 2:1
+	int h = tx->w / 2;
+	GRRLIB_InitTileSet(tx, tx->w/4, h, 0);
+	// nbtileh is number of button images inside the texture
+	if (tx->nbtileh == 1) {
+		// single button: resize and
+		// create "flash" version of the button for button presses
+		void *data = mem_realloc(tx->data, GRRLIB_DataSize(tx->w, tx->w, 0, 0));
+		if (!data) return;
+		tx->data = data;
+		tx->h = tx->w;
+		wgui_init_button_press(tx, tx, h, h);
+		GRRLIB_InitTileSet(tx, tx->w/4, h, 0);
+	}
 }
 
-void wgui_init_cb(GRRLIB_texImg **ptx, const u8 *img)
+// iw,ih: icon size on screen
+void wgui_init_icon(GRRLIB_texImg *tx, int iw, int ih)
 {
-	GRRLIB_texImg *tx;
-	tx = *ptx = GRRLIB_LoadTexture(img);
-	GRRLIB_InitTileSet(tx, tx->w/4, tx->h, 0);
+	if (!tx) return;
+	// w:h of a single button has same proportions as iw:ih
+	// w:h = iw:ih h=w/iw*ih
+	float fh = (float)tx->w / (float)iw * (float)ih;
+	int num = (int)roundf((float)tx->h / fh);
+	if (num < 1) num = 1;
+	if (num > 6) num = 6;
+	int h = tx->h / num;
+	// num is number of icon images inside the texture
+	if (num == 1) {
+		// single icon: resize and
+		// create "flash" version of the button for button presses
+		void *data = mem_realloc(tx->data, GRRLIB_DataSize(tx->w, h*2, 0, 0));
+		if (!data) return;
+		tx->data = data;
+		tx->h = h * 2;
+		wgui_init_button_press(tx, tx, h, h);
+	}
+	GRRLIB_InitTileSet(tx, tx->w, h, 0);
+}
+
+int wgui_load_texture1(GRRLIB_texImg **ptx, char *name, bool global)
+{
+	GRRLIB_texImg *tx = NULL;
+	void *img_data = NULL;
+	GRRLIB_FREE_TEX(*ptx);
+	int ret = Load_Theme_Image2(name, &img_data, global);
+	if (!img_data) return ret;
+	tx = GRRLIB_LoadTexture(img_data);
+	SAFE_FREE(img_data);
+	if (!tx) return -1;
+	// must be divisible by 4, min size: 8x8 max size: 512x512
+	if ( (tx->w % 4) || (tx->h % 4)
+		|| tx->w < 8 || tx->h < 8
+		|| tx->w > 512 || tx->h > 512)
+	{
+		GRRLIB_FREE_TEX(tx);
+		return -1;
+	}
+	GRRLIB_TextureToMEM2(tx);
+	*ptx = tx;
+	return ret;
+}
+
+int wgui_load_texture(GRRLIB_texImg **ptx, char *name, const u8 *img, bool global)
+{
+	int ret = wgui_load_texture1(ptx, name, global);
+	if (!*ptx && img) {
+		*ptx = GRRLIB_LoadTexture(img);
+		GRRLIB_TextureToMEM2(*ptx);
+	}
+	return ret;
+}
+
+int wgui_load_button(GRRLIB_texImg **ptx, char *name, const u8 *img, bool global)
+{
+	int ret = wgui_load_texture(ptx, name, img, global);
+	wgui_init_button(*ptx);
+	return ret;
+}
+
+int wgui_load_icon(GRRLIB_texImg **ptx, char *name, const u8 *img, bool global, int w, int h)
+{
+	int ret = wgui_load_texture(ptx, name, img, global);
+	wgui_init_icon(*ptx, w, h);
+	//dbg_printf("icon: %s %d %d : %d\n", name, w, h, *ptx ? (*ptx)->nbtileh : -1);
+	return ret;
+}
+
+void wgui_init_window(GRRLIB_texImg *tx)
+{
+	if (!tx) return;
+	GRRLIB_InitTileSet(tx, tx->w/4, tx->h/4, 0);
+}
+
+int wgui_load_window(GRRLIB_texImg **ptx, char *name, const u8 *img, bool global)
+{
+	int ret = wgui_load_texture(ptx, name, img, global);
+	wgui_init_window(*ptx);
+	return ret;
 }
 
 void wgui_init()
 {
 	if (wgui_inited) return;
+	bool global = true;
+	int ret;
 
-	wgui_init_button(&tx_button, button_png);
-	wgui_init_button(&tx_button_sel, button_sel_png);
-	// create "flash" version of the button for button presses
-	tx_store(&tx_button_press, GRRLIB_CreateEmptyTexture(tx_button->w, tx_button->h));
-	wgui_init_button_press(tx_button, &tx_button_press);
+	// button
+	ret = wgui_load_button(&tx_button, "button.png", button_png, global);
+	// if a themed button.png is found
+	// then all other wgui images must be themed too
+	if (ret == 0) global = false;
+	// checkbox
+	wgui_load_button(&tx_checkbox, "checkbox.png", NULL, global);
+	// radio
+	wgui_load_button(&tx_radio, "radio.png", NULL, global);
+	// window
+	wgui_load_window(&tx_window, "window.png", window_png, global);
+	// page
+	wgui_load_window(&tx_page, "page.png", NULL, global);
 
-	//wgui_init_cb(&tx_cb, button_png);
-	//wgui_init_button(&tx_cb_val, button_png);
-	
-	tx_window = GRRLIB_LoadTexture(window_png);
-	GRRLIB_InitTileSet(tx_window, tx_window->w/3, tx_window->h/3, 0);
-	// todo: /4
+	// custom
+	int i;
+	struct CfgButton *bb;
+	for (i=0; i<GUI_BUTTON_NUM; i++) {
+		GRRLIB_FREE_TEX(tx_custom[i]);
+		bb = &CFG.gui_button[i];
+		if (bb->enabled) {
+			if (bb->type == 0) {
+				wgui_load_button(&tx_custom[i], bb->image, NULL, global);
+			} else {
+				wgui_load_icon(&tx_custom[i], bb->image, NULL, global,
+						bb->pos.w, bb->pos.h);
+			}
+		}
+	}
 
 	wgui_inited = 1;
 }
 
-void wgui_DrawWindowBase(int x, int y, int w, int h, u32 color)
+void wgui_DrawWindowBase(GRRLIB_texImg *tx, int x, int y, int w, int h, u32 color)
 {
-	int tw = tx_window->tilew;
-	int th = tx_window->tileh;
+	int tw = tx->tilew;
+	int th = tx->tileh;
 	int ww = w - tw*2;
 	int hh = h - th*2;
+
+	// v:
+	// 0 1 2
+	// 3 4 5
+	// 6 7 8
 
 	guVector v1[] = {
 		{x+tw,    y},
@@ -165,29 +283,33 @@ void wgui_DrawWindowBase(int x, int y, int w, int h, u32 color)
 		{x+tw,    y+h}
 	};
 
-	GRRLIB_DrawTile(x, y, tx_window, 0,1,1, color, 0);
-	GRRLIB_DrawTileQuad(v1, tx_window, color, 1);
-	GRRLIB_DrawTile(x+w-tw, y, tx_window, 0,1,1, color, 2);
+	// tile:
+	//  0  1  2  3
+	//  4  5  6  7
+	//  8  9 10 11
+	// 12 13 14 15
+	GRRLIB_DrawTile(x, y, tx, 0,1,1, color, 0);
+	GRRLIB_DrawTileRectQuad(v1, tx, color, 1, 2, 1);
+	GRRLIB_DrawTile(x+w-tw, y, tx, 0,1,1, color, 3);
 
-	GRRLIB_DrawTileQuad(v3, tx_window, color, 3);
-	GRRLIB_DrawTileQuad(v4, tx_window, color, 4);
-	GRRLIB_DrawTileQuad(v5, tx_window, color, 5);
+	GRRLIB_DrawTileRectQuad(v3, tx, color, 4, 1, 2);
+	GRRLIB_DrawTileRectQuad(v4, tx, color, 5, 2, 2);
+	GRRLIB_DrawTileRectQuad(v5, tx, color, 7, 1, 2);
 
-	GRRLIB_DrawTile(x, y+th+hh, tx_window, 0,1,1, color, 6);
-	GRRLIB_DrawTileQuad(v7, tx_window, color, 7);
-	GRRLIB_DrawTile(x+tw+ww, y+th+hh, tx_window, 0,1,1, color, 8);
-
+	GRRLIB_DrawTile(x, y+th+hh, tx, 0,1,1, color, 12);
+	GRRLIB_DrawTileRectQuad(v7, tx, color, 13, 2, 1);
+	GRRLIB_DrawTile(x+tw+ww, y+th+hh, tx, 0,1,1, color, 15);
 }
 
-void wgui_DrawWindow(int x, int y, int w, int h,
+void wgui_DrawWindow(GRRLIB_texImg *tx, int x, int y, int w, int h,
 		u32 window_color, u32 color, float txt_scale, char *title)
 {
 	int cx = x + w / 2;
 	window_color = color_multiply(window_color, color);
-	wgui_DrawWindowBase(x, y, w, h, window_color);
+	wgui_DrawWindowBase(tx, x, y, w, h, window_color);
 	if (title) {
 		FontColor fc;
-		font_color_multiply(&wgui_fc, &fc, color);
+		font_color_multiply(&CFG.gui_tc_title, &fc, color);
 		Gui_PrintAlignZ(cx, y+PAD2, 0, 0, &tx_font, fc, txt_scale, title);
 		/*char str[16];
 		sprintf(str, "%.2f %.2fx%.2f", txt_scale,
@@ -201,13 +323,15 @@ void wgui_DrawButtonBase(GRRLIB_texImg *tx,
 {
 	float w2 = w / 2.0;
 	float h2 = h / 2.0;
+	bool do_middle = true;
 	x = (x + w2) - w2 * zoom;
 	y = (y + h2) - h2 * zoom;
 	w *= zoom;
 	h *= zoom;
 	h2 = h / 2.0;
-	if (h > w) {
+	if (fabsf(h) >= fabsf(w)) {
 		h2 = w / 2.0;
+		do_middle = false;
 	}
 	guVector v1[] = {
 		{x,    y},
@@ -228,19 +352,62 @@ void wgui_DrawButtonBase(GRRLIB_texImg *tx,
 		{x+w-h2, y+h}
 	};
 
-	state = 0;
-	GRRLIB_DrawTileQuad(v1, tx, color, 0);
-	if (w > h) {
-		f32 px, py, pw, ph;
-		px = tx->tilew;
-		py = 0;
-		pw = tx->tilew * 2;
-		ph = tx->tileh;
-		GRRLIB_DrawPartQuad(v2, tx, px, py, pw, ph, color);
+	state *= 4;
+	GRRLIB_DrawTileQuad(v1, tx, color, state + 0);
+	if (do_middle) {
+		GRRLIB_DrawTileRectQuad(v2, tx, color, state + 1, 2, 1);
 	}
-	GRRLIB_DrawTileQuad(v3, tx, color, 3);
+	GRRLIB_DrawTileQuad(v3, tx, color, state + 3);
 }
 
+void wgui_DrawIconBase(GRRLIB_texImg *tx,
+		float x, float y, float w, float h, float zoom, u32 color, int state)
+{
+	float w2 = w / 2.0;
+	float h2 = h / 2.0;
+	x = (x + w2) - w2 * zoom;
+	y = (y + h2) - h2 * zoom;
+	w *= zoom;
+	h *= zoom;
+	guVector v1[] = {
+		{x,   y},
+		{x+w, y},
+		{x+w, y+h},
+		{x,   y+h}
+	};
+	GRRLIB_DrawTileQuad(v1, tx, color, state);
+}
+
+void wgui_DrawButtonX(GRRLIB_texImg *tx,
+		float x, float y, float w, float h, float zoom, u32 color, int state)
+{
+	if (state >= tx->nbtileh) {
+		if (state == WGUI_IMG_HOVER || state == WGUI_IMG_PRESS_HOVER) {
+			color = color_multiply(color, 0xE0E0FFFF);
+		}
+		switch (state) {
+			case WGUI_IMG_PRESS:
+			case WGUI_IMG_PRESS_HOVER:
+				color = color_multiply(color, 0xA0A0C0FF);
+				zoom = -zoom;
+				break;
+			case WGUI_IMG_FLASH:
+				color = color_multiply(color, 0x808080FF);
+				break;
+			case WGUI_IMG_INACTIVE:
+				color = color_multiply(color, disabled_color);
+				break;
+		}
+		state = 0;
+	}
+	if (tx->nbtilew == 4) {
+		wgui_DrawButtonBase(tx, x, y, w, h, zoom, color, state);
+	} else {
+		wgui_DrawIconBase(tx, x, y, w, h, zoom, color, state);
+	}
+}
+
+#if 0
 float _wgui_DrawButton(GRRLIB_texImg *tx, int x, int y, int w, int h,
 		u32 color, int state, float txt_scale, char *txt)
 {
@@ -258,7 +425,7 @@ float _wgui_DrawButton(GRRLIB_texImg *tx, int x, int y, int w, int h,
 		font_color_multiply(&disabled_fc, &fc, color);
 		color = color_multiply(color, disabled_color);
 	} else {
-		font_color_multiply(&wgui_fc, &fc, color);
+		font_color_multiply(&CFG.gui_tc_menu, &fc, color);
 	}
 	wgui_DrawButtonBase(tx, x, y, w, h, zoom, color, state);
 	Gui_PrintAlignZ(cx, cy, 0, 0, &tx_font, fc, txt_scale, txt);
@@ -267,6 +434,7 @@ float _wgui_DrawButton(GRRLIB_texImg *tx, int x, int y, int w, int h,
 	Gui_PrintAlignZ(cx, y+h, 0, -1, &tx_font, fc, 0.7, str);*/
 	return zoom;
 }
+#endif
 
 void wgui_input_save2(ir_t *ir, int *p_buttons)
 {
@@ -286,11 +454,12 @@ void wgui_input_save()
 	wgui_input_save2(winput.w_ir, winput.p_buttons);
 }
 
-void wgui_input_set(ir_t *ir, int *buttons)
+void wgui_input_set(ir_t *ir, int *buttons, int *held)
 {
 	winput.w_ir = ir;
 	winput.w_buttons = *buttons;
 	winput.p_buttons = buttons;
+	winput.p_held = held;
 	wgui_input_save();
 }
 
@@ -310,6 +479,7 @@ void wgui_input_steal2(ir_t *ir, int *buttons)
 void wgui_input_steal_buttons()
 {
 	if (winput.p_buttons) *winput.p_buttons = 0;
+	if (winput.p_held) *winput.p_held = 0;
 	winput.w_buttons = 0;
 }
 
@@ -534,6 +704,18 @@ void wgui_unlink_value(Widget *a)
 	a->val_link = NULL;
 }
 
+void wgui_set_value_list(Widget *ww, int n, char **values)
+{
+	ww->list_num = n;
+	SAFE_FREE(ww->list_values);
+	if (n > 0 && values) {
+		ww->list_values = malloc(sizeof(char*) * n);
+		memcpy(ww->list_values, values, sizeof(char*) * n);
+	}
+	wgui_propagate_value(ww, SET_VAL_MAX, n - 1);
+}
+
+
 void wgui_remove(Widget *ww);
 
 void wgui_remove_children(Widget *ww)
@@ -577,7 +759,6 @@ void wgui_remove(Widget *ww)
 		}
 	}
 }
-
 
 // handling order:
 //
@@ -1109,8 +1290,11 @@ void Widget_init(Widget *ww, Widget *parent, Pos p, char *name)
 	ww->name = name;
 	ww->parent = parent;
 	ww->color = 0xFFFFFFFF;
+	ww->dialog_color = CFG.gui_window_color_base;
+	ww->zoom = 1.0;
+	ww->max_zoom = 1.1; // +10%
 	ww->text_scale = 1.0;
-	ww->text_color = wgui_fc;
+	ww->text_color = CFG.gui_tc_menu;
 
 	pos_auto_default(&p, name);
 	pos_auto_expand(parent, &p);
@@ -1458,13 +1642,15 @@ float pos_auto_text_scale(Widget *parent, Pos p)
 	return pos_auto_text_scale_h(h);
 }
 
-void wgui_render_str(Widget *ww, char *str, float add_zoom, u32 color)
+void wgui_render_str2(Widget *ww, char *str, float add_zoom, u32 color, FontColor fc)
 {
-	FontColor fc;
 	if (ww->state == WGUI_STATE_INACTIVE) {
+		//font_color_multiply(&disabled_fc, &fc, color);
+		fc.outline = color_multiply(fc.outline, 0xFFFFFFC0);
+		fc.shadow = color_multiply(fc.shadow, 0xFFFFFFC0);
 		color = color_multiply(color, disabled_color);
 	}
-	font_color_multiply(&wgui_fc, &fc, color);
+	font_color_multiply(&fc, &fc, color);
 	float scale = ww->text_scale;
 	int cx, alignx;
 	int cy = ww->ay + ww->h / 2.0;
@@ -1485,6 +1671,11 @@ void wgui_render_str(Widget *ww, char *str, float add_zoom, u32 color)
 	}
 	//GRRLIB_Rectangle(ww->ax, ww->ay, ww->w, ww->h, 0x40408040, 1);
 	Gui_PrintAlignZ(cx, cy, alignx, 0, &tx_font, fc, scale * add_zoom, str);
+}
+
+void wgui_render_str(Widget *ww, char *str, float add_zoom, u32 color)
+{
+	wgui_render_str2(ww, str, add_zoom, color, ww->text_color);
 }
 
 void wgui_render_text(Widget *ww)
@@ -1534,9 +1725,6 @@ void wgui_render_textbox(Widget *ww)
 {
 	FontColor fc;
 	font_color_multiply(&ww->text_color, &fc, ww->color);
-	unsigned outline;
-	unsigned shadow;
-	expand_font_color(&fc, &outline, &shadow);
 	int fw, fh, rows, cols;
 	wgui_textbox_coords(ww, &fw, &fh, &rows, &cols);
 	if (ww->opt) {
@@ -1550,7 +1738,7 @@ void wgui_render_textbox(Widget *ww)
 	if (!s) return;
 	int y = ww->ay;
 	while (rows && *s) {
-		GRRLIB_Print4(ww->ax, y, &tx_font, fc.color, outline, shadow,
+		GRRLIB_Print4(ww->ax, y, &tx_font, fc.color, fc.outline, fc.shadow,
 				ww->text_scale, s, cols);
 		s = strchr(s, '\n');
 		if (!s) break;
@@ -1581,7 +1769,7 @@ Widget* wgui_add_textbox(Widget *parent, Pos p, int font_h, char *text, int strs
 	if (ww) {
 		ww->type = WGUI_TYPE_TEXTBOX;
 		ww->render = wgui_render_textbox;
-		ww->text_color = text_fc;
+		ww->text_color = CFG.gui_tc_info;
 		ww->text_scale = text_h_to_scale(font_h);
 		wgui_textbox_wordwrap(ww, text, strsize);
 	}
@@ -1619,7 +1807,7 @@ Widget* wgui_add_num(Widget *parent, Pos p, char *fmt, int base)
 
 void wgui_render_dialog(Widget *ww)
 {
-	wgui_DrawWindow(ww->ax, ww->ay, ww->w, ww->h,
+	wgui_DrawWindow(tx_window, ww->ax, ww->ay, ww->w, ww->h,
 			ww->dialog_color, ww->color, ww->text_scale, ww->name);
 }
 
@@ -1646,7 +1834,6 @@ void wgui_dialog_ini(Widget *dialog)
 	dialog->type = WGUI_TYPE_DIALOG;
 	dialog->handle = handle_B_close;
 	dialog->render = wgui_render_dialog;
-	dialog->dialog_color = 0xFFFFFFFF;
 	dialog->lock_focus = true;
 	text_scale_fit_dialog(dialog);
 	pos_init_dialog(dialog);
@@ -1698,35 +1885,52 @@ int wgui_handle_button(Widget *ww)
 
 float wgui_DrawButton(Widget *ww, char *str)
 {
+	u32 color = ww->color;
+	int img_state = WGUI_IMG_NORMAL;
+	GRRLIB_texImg *tx = tx_button;
+
 	if (ww->state == WGUI_STATE_HOVER) {
-		if (ww->zoom < 1.1) ww->zoom += 0.02;
-		if (ww->zoom > 1.1) ww->zoom = 1.1;
+		if (ww->zoom < ww->max_zoom) ww->zoom += 0.02;
+		if (ww->zoom > ww->max_zoom) ww->zoom = ww->max_zoom;
+		img_state = WGUI_IMG_HOVER;
 	} else {
 		if (ww->zoom > 1.0) ww->zoom -= 0.02;
 		if (ww->zoom < 1.0) ww->zoom = 1.0;
 	}
 	
-	u32 color = ww->color;
-	if (ww->state == WGUI_STATE_INACTIVE) {
-		color = color_multiply(color, disabled_color);
-	}
-	
-	if (ww->link_first) {
+	if (ww->type == WGUI_TYPE_RADIO) {
+		if (tx_radio) tx = tx_radio;
 		Widget *rr = ww->link_first;
-		if (rr->value == ww->link_index) {
-			wgui_DrawButtonBase(tx_button_sel, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, color, ww->state);
-		} else {
-			wgui_DrawButtonBase(tx_button, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, color, ww->state);
+		if (rr && rr->value == ww->link_index) {
+			img_state = WGUI_IMG_PRESS;
 		} 
-	} else {
-		wgui_DrawButtonBase(tx_button, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, color, ww->state);
+	} else if (ww->type == WGUI_TYPE_CHECKBOX) {
+		if (tx_checkbox) tx = tx_checkbox;
+		if (ww->value) {
+			img_state = WGUI_IMG_PRESS;
+		}
+	}
+	if (ww->custom_tx) {
+		if (tx_custom[ww->tx_idx]) tx = tx_custom[ww->tx_idx];
+	}
+	if (img_state == WGUI_IMG_PRESS && ww->state == WGUI_STATE_HOVER) {
+		img_state = WGUI_IMG_PRESS_HOVER;
+	}
+	if (ww->state == WGUI_STATE_INACTIVE) {
+		img_state = WGUI_IMG_INACTIVE;
+	}
+	wgui_DrawButtonX(tx, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, color, img_state);
+	if (ww->state == WGUI_STATE_PRESS) ww->click = 1.0;
+	if (ww->click > 0 && img_state != WGUI_IMG_PRESS && img_state != WGUI_IMG_PRESS_HOVER) {
+		color = 0xFFFFFF00 | (u8)(ww->click * 255);
+		wgui_DrawButtonX(tx, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, color, WGUI_IMG_PRESS);
 	}
 	wgui_render_str(ww, str, ww->zoom, ww->color);
 	
-	if (ww->state == WGUI_STATE_PRESS) ww->click = 1.0;
 	if (ww->click > 0) {
-		wgui_DrawButtonBase(&tx_button_press, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, 0xFFFFFF00 | (u8)(ww->click * 255), ww->state);
-		ww->click -= 0.07;
+		color = 0xFFFFFF00 | (u8)(ww->click * 255);
+		wgui_DrawButtonX(tx, ww->ax, ww->ay, ww->w, ww->h, ww->zoom, color, WGUI_IMG_FLASH);
+		ww->click -= 0.06;
 		if (ww->click < 0) ww->click = 0;
 	}
 		
@@ -1776,6 +1980,7 @@ Widget* wgui_add_button(Widget *parent, Pos p, char *name)
 		ww->type = WGUI_TYPE_BUTTON;
 		ww->handle = wgui_handle_button;
 		ww->render = wgui_render_button;
+		ww->text_color = CFG.gui_tc_button;
 		text_scale_fit_button(ww, con_len(name), scale);
 	}
 	return ww;
@@ -1791,6 +1996,7 @@ int wgui_handle_checkbox(Widget *ww)
 	if (wgui_over(ww)) {
 		state = WGUI_STATE_HOVER;
 		if (winput.w_buttons & WPAD_BUTTON_A) {
+			state = WGUI_STATE_PRESS;
 			// propagate value and call action hooks
 			wgui_propagate_value(ww, SET_VAL | SET_VAL_ACTION, ww->value ? 0 : 1);
 			wgui_input_steal_buttons();
@@ -1802,7 +2008,12 @@ int wgui_handle_checkbox(Widget *ww)
 
 void wgui_RenderCheckbox(Widget *ww)
 {
-	char *val_text = ww->value ? "On" : "Off";
+	char *val_text;
+	if (ww->list_values && ww->list_num == 2) {
+		val_text = ww->value ? ww->list_values[1] : ww->list_values[0];
+	} else {
+		val_text = ww->value ? gt("On") : gt("Off");
+	}
 	char str[100];
 	if (ww->opt) {
 		snprintf(str, sizeof(str), "%s: %s", ww->name, val_text);
@@ -1811,10 +2022,12 @@ void wgui_RenderCheckbox(Widget *ww)
 	wgui_DrawButton(ww, val_text);
 }
 
-Widget* wgui_add_checkbox(Widget *parent, Pos p, char *name, bool show_name)
+Widget* wgui_add_checkboxx(Widget *parent, Pos p, char *name, bool show_name,
+		char *off, char *on)
 {
-	int len = 3; // "Off"
-	if (show_name) len = con_len(name?name:"") + 5; // ": Off"
+	int len = con_len(gt("Off"));
+	if (off && on) len = con_len(off);
+	if (show_name) len = con_len(name?name:"") + 2 + len; // 2=": "
 	float scale = pos_auto_button_scale_len(parent, &p, len);
 	Widget *ww = wgui_add(parent, p, name);
 	if (ww) {
@@ -1824,9 +2037,19 @@ Widget* wgui_add_checkbox(Widget *parent, Pos p, char *name, bool show_name)
 		ww->render = wgui_RenderCheckbox;
 		ww->opt = show_name;
 		ww->val_max = 1;
+		ww->text_color = CFG.gui_tc_checkbox;
 		text_scale_fit_button(ww, len, scale);
+		if (off && on) {
+			char *vlist[2] = { off, on };
+			wgui_set_value_list(ww, 2, vlist);
+		}
 	}
 	return ww;
+}
+
+Widget* wgui_add_checkbox(Widget *parent, Pos p, char *name, bool show_name)
+{
+	return wgui_add_checkboxx(parent, p, name, show_name, NULL, NULL);
 }
 
 
@@ -1895,6 +2118,7 @@ Widget* wgui_add_radio(Widget *parent, Widget *radio, Pos p, char *name)
 		ww->type = WGUI_TYPE_RADIO;
 		ww->handle = wgui_handle_radio;
 		ww->render = wgui_render_radio;
+		ww->text_color = CFG.gui_tc_radio;
 		text_scale_fit_button(ww, con_len(name), scale);
 		wgui_link(radio, ww);
 		if (!radio) {
@@ -2100,8 +2324,14 @@ int wgui_set_value_page(Widget *ww, int flags, int val)
 
 void wgui_render_page(Widget *ww)
 {
-	wgui_DrawWindow(ww->ax, ww->ay, ww->w, ww->h,
-			ww->dialog_color, ww->color, 0.0, NULL);
+	u32 wcolor = ww->dialog_color;
+	GRRLIB_texImg *tx = tx_page;
+	if (!tx) {
+		tx = tx_window;
+		wcolor = color_multiply(wcolor, 0x80808080);
+	}
+	wgui_DrawWindow(tx, ww->ax, ww->ay, ww->w, ww->h,
+			wcolor, ww->color, 0.0, NULL);
 }
 
 Widget* wgui_add_page(Widget *parent, Widget *page, Pos p, char *name)
@@ -2117,7 +2347,7 @@ Widget* wgui_add_page(Widget *parent, Widget *page, Pos p, char *name)
 		ww->type = WGUI_TYPE_PAGE;
 		ww->handle = NULL;
 		ww->render = wgui_render_page;
-		ww->dialog_color = 0x40404040;
+		ww->dialog_color = 0xFFFFFFFF;
 		// link pages
 		wgui_link(page, ww);
 		if (!page) {
@@ -2132,6 +2362,7 @@ Widget* wgui_add_page(Widget *parent, Widget *page, Pos p, char *name)
 			pos_margin(ww, page->post.margin);
 			pos_pad(ww, page->post.pad);
 			pos_prefsize(ww, page->post.w, page->post.h);
+			ww->dialog_color = page->dialog_color;
 		}
 		// disable page if not selected
 		wgui_set_disabled(ww, ww->link_index != page->value);
@@ -2238,7 +2469,7 @@ Widget* wgui_add_pgswitchx(Widget *parent, Widget *page, Pos p, char *name,
 		int pad_len, char *fmt, int expected_max)
 {
 	Widget *ww;
-	if (!name) name = "Page:";
+	if (!name) name = gt("Page:");
 	if (!fmt) fmt = "%2d / %-2d";
 	int num_len = wgui_num_expected_len(fmt, expected_max);
 	int name_len = con_len(name) + pad_len;
@@ -2295,18 +2526,12 @@ int wgui_set_value_listbox(Widget *ww, int flags, int val)
 
 void wgui_render_listbox(Widget *ww)
 {
-	GRRLIB_Rectangle(ww->ax + ww->h / 2, ww->ay, ww->w - ww->h, ww->h, 0x40404040, 1);
+	GRRLIB_Rectangle(ww->ax + ww->h / 2, ww->ay, ww->w - ww->h, ww->h, 0x60606080, 1);
 }
 
 void wgui_listbox_set_values(Widget *ww, int n, char **values)
 {
-	ww->list_num = n;
-	SAFE_FREE(ww->list_values);
-	if (n > 0 && values) {
-		ww->list_values = malloc(sizeof(char*) * n);
-		memcpy(ww->list_values, values, sizeof(char*) * n);
-	}
-	wgui_propagate_value(ww, SET_VAL_MAX, n - 1);
+	wgui_set_value_list(ww, n, values);
 }
 
 float pos_auto_listbox(Widget *parent, Pos *p, int n, char **values)
@@ -2361,10 +2586,12 @@ void wgui_render_listboxx(Widget *ww)
 {
 	if (ww->state == WGUI_STATE_HOVER || ww->state == WGUI_STATE_PRESS) {
 		//wgui_render_button(ww);
-		wgui_DrawButtonBase(tx_button, ww->ax, ww->ay, ww->w, ww->h,
-				1.0, 0xFFFFFFFF, WGUI_STATE_NORMAL);
+		wgui_DrawButtonX(tx_button, ww->ax, ww->ay, ww->w, ww->h,
+				1.0, 0xFFFFFFFF, WGUI_IMG_HOVER);
+		wgui_render_str2(ww, ww->name, 1.0, ww->color, CFG.gui_tc_button);
+	} else {
+		wgui_render_text(ww);
 	}
-	wgui_render_text(ww);
 }
 
 bool wgui_action_listboxx_base(Widget *ww)
@@ -2389,7 +2616,7 @@ Widget* wgui_listboxx_open_dialog(Widget *ww)
 	Widget *dd = wgui_add_dialog(parent, p, ll->name);
 	dd->ax = 50;
 	dd->ay = 50;
-	dd->dialog_color = 0xFFFFFFB0;
+	dd->dialog_color = CFG.gui_window_color_popup;
 	return dd;
 }
 
@@ -2406,7 +2633,7 @@ void wgui_listboxx_init_dialog(Widget *dd, Widget *ll)
 	if (ll->list_num < 5) pos_newline(dd);
 	Widget *rr = wgui_arrange_radio(dd, p, cols, ll->list_num, ll->list_values);
 	wgui_link_value(ll, rr);
-	Widget *cc = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_NORMAL, H_NORMAL), "Back");
+	Widget *cc = wgui_add_button(dd, pos(POS_EDGE, POS_EDGE, W_NORMAL, H_NORMAL), gt("Back"));
 	cc->action = action_close_parent;
 }
 
@@ -2498,7 +2725,7 @@ void wgui_action_superbox(Widget *ww)
 		wgui_link_value(ll, rr);
 		Widget *page = rr->parent;
 		wgui_set_value(page, ll->value / (2*5));
-		Widget *cc = wgui_add_button(dd, pos(POS_EDGE, POS_AUTO, W_NORMAL, H_NORMAL), "Back");
+		Widget *cc = wgui_add_button(dd, pos(POS_EDGE, POS_AUTO, W_NORMAL, H_NORMAL), gt("Back"));
 		cc->action = action_close_parent;
 	}
 }
@@ -2515,7 +2742,7 @@ Widget* wgui_add_superbox(Widget *parent, Pos p, char *name, int n, char **value
 
 //////// Option
 
-// ( 'name:' (value) )
+// name: (<) _value_ (>)
 
 
 Widget* wgui_add_label(Widget *parent, Pos p, char *name)
@@ -2565,7 +2792,7 @@ wgui_Option wgui_add_option(Widget *parent, Pos p, int pad, float w_ratio,
 		char *name, int num, char **values)
 {
 	wgui_Option opt;
-	char *on_off[2] = { "Off", "On" };
+	char *on_off[2] = { gt("Off"), gt("On") };
 	if (num == 2 && values == NULL) {
 		values = on_off;
 		// alternative: use checkbox or radio

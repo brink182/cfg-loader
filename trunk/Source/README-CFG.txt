@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v67
+Configurable SD/USB Loader v68
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -193,6 +193,8 @@ Other themable gui resources:
   font_uni.png (new type 512 letters unicode)
   font.png (old type 128 letters ascii)
   font_clock.png
+  window.png, page.png
+  button.png, radio.png, checkbox.png
 Same search method as for the background image applies to these files.
 There are some example files in: usb-loader/resources, but note that the program
 does not search in that location, they need to be copied to the base or theme
@@ -586,13 +588,45 @@ Config file:
 #   Valid button values in the list are: 
 #     B, 1, 2, -, M, Minus, +, P, Plus, H, Home, X, Y, Z, C, L, R
 # 
+# gui_window_color_base = RRGGBBAA default: FFFFFF80
+# gui_window_color_popup = RRGGBBAA default: FFFFFFB0
+#
+# gui_text_color_menu = COLOR / OUTLINE / SHADOW
+# gui_text_color_info = COLOR / OUTLINE / SHADOW
+# gui_text_color_title = COLOR / OUTLINE / SHADOW
+# gui_text_color_button = COLOR / OUTLINE / SHADOW
+# gui_text_color_radio = COLOR / OUTLINE / SHADOW
+# gui_text_color_checkbox = COLOR / OUTLINE / SHADOW
+#   default:
+#   gui_text_color_menu = white / A0 / 44444444
+#   gui_text_color_info = white / A0
+#   each component can be "black", "white" or RRGGBBAA
+#   OUTLINE and SHADOW are optional
+#   Setting gui_text_color_menu will set all the colors except info
+#   Setting gui_text_color_button will also set radio and checkbox
+#
+# gui_button_NAME = X, Y, W, H, TextColor, image.png, Type, HoverZoom
+#   NAME can be: main settings quit style view sort filter favorites
+#   TextColor is same format as gui_text_color_menu
+#   (Seting TextColor to 0 will disable text on the button in case icons are used)
+#   Type: button or icon
+#   HoverZoom: 0-50 in %
+#   Paramteres after coordinates are optional. Default values:
+#   gui_button_NAME = X, Y, W, H, white/A0/44444444, button.png, button, 10
+#
+# gui_bar = 0, [1], top, bottom
+#   Will disable / enable gui bar or enable only top or bottom.
 #
 # Global options:
 # ===============
 #
-# gui = [1], 0, start
-#   Enable or disable GUI mode.
-#   Using gui = start will start directly in GUI mode when loader is started.
+# gui = 0, 1, 2, 3, [4], start
+#   gui = 0 : GUI disabled
+#   gui = 1 : GUI enabled, GUI Menu disabled, start in console mode
+#   gui = 2 : GUI enabled, GUI Menu disabled, start in GUI mode
+#   gui = 3 : GUI Menu enabled, start in console mode
+#   gui = 4 : GUI Menu enabled, start in GUI mode
+#   gui = start : same as gui = 4
 #
 # gui_transition = [scroll], fade
 #   Set GUI transition effect between console and gui mode
@@ -1014,6 +1048,115 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+24-04-2011 cfg v68 (release)
+ * Fixed "press any button" after cover download
+ * Fixed gamercard option in gui menu
+
+22-04-2011 cfg v68b4 (beta)
+ * Set custom buttons inactive when any window is opened
+ * New theme options:
+	gui_text_color_title
+	gui_text_color_button
+	gui_text_color_radio
+	gui_text_color_checkbox
+   Setting gui_text_color_menu will set the base gui menu color
+   and all of the above color options too.
+   Setting gui_text_color_button will also set radio and checkbox
+   default value is same as gui_text_color_menu
+
+21-04-2011 cfg v68b3 (beta)
+ * Detection of cios d2x v4 beta 2
+ * If pointer is outside a defined gui_cover_area then don't scroll
+ * Fixed: wrong size of 2d&3d no cover image in gui menu game select
+ * Fixed: admin unlock in gui mode to show full game list
+ * Fixed: missing gui menu custom buttons after switching from console
+ * Cleanups
+
+19-04-2011 cfg v68b2 (beta)
+ * New theme option:
+   gui_button_NAME = X, Y, W, H, TextColor, image.png, Type, HoverZoom
+   NAME can be: main settings quit style view sort filter favorites
+   TextColor is same format as gui_text_color_menu
+   (Seting TextColor to 0 will disable text on the button in case icons are used)
+   Type: button or icon
+   HoverZoom: 0-50 in %
+   Paramteres after coordinates are optional. Default values:
+   gui_button_NAME = X, Y, W, H, white/A0/44444444, button.png, button, 10
+ * New theme option:
+   gui_bar = 0, [1], top, bottom
+   Will disable / enable gui bar or enable only top or bottom.
+ * Minor fixes to gui admin unlock & left/right dpad with coverflow
+ * Changed default gui menu color to white/A0/44444444
+ * Removed [FRAG] note at startup
+
+17-04-2011 cfg v68b (beta)
+ * Translation fixes
+ * Themable gui menu images:
+   buttons: button.png checkbox.png radio.png
+   windows: window.png page.png
+   Images can also be placed in usb-loader base dir
+   and if a theme doesn't provide it's own button.png
+   then images from the base dir are used.
+ * New theme options:
+   gui_window_color_base = RRGGBBAA default: FFFFFF80
+   gui_window_color_popup = RRGGBBAA default: FFFFFFB0
+
+13-04-2011 cfg v68a4 (alpha)
+ * Fixed Translation: Cover~~Front Cover~~Back
+ * Fixed switch from gui to console mode
+ * New themed options:
+   gui_text_color_menu = COLOR / OUTLINE / SHADOW
+   gui_text_color_info = COLOR / OUTLINE / SHADOW
+   default:
+   gui_text_color_menu = 6688FFFF / A0 / 44444444
+   gui_text_color_info = white / A0
+   each component can be "black", "white" or RRGGBBAA
+   OUTLINE and SHADOW are optional
+ * Bigger Start button
+ * Minor GUI menu updates
+
+11-04-2011 cfg v68a3 (alpha)
+ * Translation updates
+   New strings: Cover~~Front Cover~~Back Fav: Off Fav: On
+ * Changed gui option:
+   gui = 0, 1, 2, 3, [4], start
+   gui = 0 : GUI disabled
+   gui = 1 : GUI enabled, GUI Menu disabled, start in console mode
+   gui = 2 : GUI enabled, GUI Menu disabled, start in GUI mode
+   gui = 3 : GUI Menu enabled, start in console mode
+   gui = 4 : GUI Menu enabled, start in GUI mode
+   gui = start : same as gui = 4
+ * Game dialog button changes:
+   Pressing button A on cover will start the game
+   To rotate the cover hold button 1
+   To zoom use buttons +/-
+   buttons UP/DOWN: change cover style
+   buttons LEFT/RIGHT: prev/next game
+ * Cover cache fixes
+
+07-04-2011 cfg v68a2 (alpha)
+ * Skip game start confirmation when started from gui menu.
+ * When a game is selected and the wiimote is not pointing
+   to the screen move the pointer to the start button so
+   that pressing button A will start the game directly.
+ * Always start with cover view in game dialog
+   (previously it remembered the last state)
+ * Changed gui option:
+   gui = 0, 1, 2, [3], start
+   gui = 0 : GUI disabled
+   gui = 1 : GUI enabled but starts in console mode
+   gui = 2 : GUI enabled and starts in GUI mode
+   gui = 3 : GUI and GUI Menu enabled. Starts in GUI mode
+   gui = start : same as gui = 3
+ * Translatable GUI menu
+
+06-04-2011 cfg v68a (alpha)
+ * GUI menu
+
+05-04-2011 cfg v67c (bugfix)
+ * Fixed blurred coverflow in 50 Hz video mode
+ * Fixed detection of missing covers in game options screen
 
 04-04-2011 cfg v67 (release)
  * Fixed crash with intro=1 (Issue 123)

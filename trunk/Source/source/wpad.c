@@ -16,7 +16,9 @@
 
 /* Constants */
 #define MAX_WIIMOTES	4
-#define MAX_X	660
+#define MIN_X	-20
+#define MAX_X	650
+#define MIN_Y	-20
 #define MAX_Y	480
 
 extern u8 shutdown;
@@ -72,6 +74,30 @@ void Wpad_Stick(int n, float mm, float *am, float *aa, int *ax, int *ay)
 	if (ay) *ay = y * 128;
 }
 
+bool Wpad_set_pos(struct ir_t *ir, float x, float y)
+{
+	bool ret = padMoved;
+	if (ir) {
+		if (ir->smooth_valid) return ret;
+		coord[0] = x;
+		coord[1] = y;
+		if (coord[0] < MIN_X) coord[0] = MIN_X;
+		if (coord[0] > MAX_X) coord[0] = MAX_X;
+		if (coord[1] < MIN_Y) coord[1] = MIN_Y;
+		if (coord[1] > MAX_Y) coord[1] = MAX_Y;
+		ir->sx = coord[0];
+		ir->sy = coord[1];
+		ir->angle = 0.0;
+		ir->raw_valid = 1;
+		ir->smooth_valid = 1;
+		ir->valid = 1;
+		padMoved = true;
+	} else {
+		padMoved = false;
+	}
+	return ret;
+}
+
 void Wpad_getIRx(int n, struct ir_t *ir)
 {
 	int i;
@@ -107,18 +133,7 @@ void Wpad_getIRx(int n, struct ir_t *ir)
 			padMoved = true;
 		}
 		if (padMoved) {
-			coord[0] += mX;
-			coord[1] -= mY;
-			if (coord[0] < 0) coord[0] = 0;
-			else if (coord[0] > MAX_X) coord[0] = MAX_X;
-			if (coord[1] < 0) coord[1] = 0;
-			else if (coord[1] > MAX_Y) coord[1] = MAX_Y;
-			ir->sx = coord[0]-20;
-			ir->sy = coord[1]-20;
-			ir->angle = 0.0;
-			ir->raw_valid = 1;
-			ir->smooth_valid = 1;
-			ir->valid = 1;
+			Wpad_set_pos(ir, coord[0] + mX, coord[1] - mY);
 		}
 	} else {
 		coord[0] = 320;
@@ -474,7 +489,6 @@ u32 Wpad_WaitButtonsRpt(void)
 
 	u32 buttons = 0;
 	u32 buttons_held = 0;
-	int cnt;
 	long long t_now;
 	unsigned wait;
 	unsigned ms_diff;
@@ -492,10 +506,7 @@ u32 Wpad_WaitButtonsRpt(void)
 				t_start = gettime();
 			}
 		} else if (held) {
-			buttons_held = 0;
-			for (cnt = 0; cnt < MAX_WIIMOTES; cnt++) {
-				buttons_held |= Wpad_Held_1(cnt);
-			}
+			buttons_held = Wpad_Held();
 			if (buttons_held & (WPAD_BUTTON_UP | WPAD_BUTTON_DOWN | WPAD_BUTTON_LEFT | WPAD_BUTTON_RIGHT)) {
 				t_now = gettime();
 				ms_diff = diff_msec(t_start, t_now);

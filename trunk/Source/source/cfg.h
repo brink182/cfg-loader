@@ -135,6 +135,7 @@ extern int COVER_HEIGHT_FRONT;
 #define GUI_STYLE_COVERFLOW 3
 
 #define CFG_GUI_START 2
+#define CFG_GUI_START_WGUI 4
 
 #define CFG_COVER_STYLE_2D   0
 #define CFG_COVER_STYLE_3D   1
@@ -252,16 +253,52 @@ typedef struct FontColor
 {
 	int color;
 	int outline;
+	int shadow;
+} FontColor;
+
+static inline FontColor Font_Color(int color, int outline, int shadow)
+{
+	FontColor fc;
+	fc.color = color;
+	fc.outline = outline;
+	fc.shadow = shadow;
+	return fc;
+}
+
+typedef struct FontColor_CFG
+{
+	int color;
+	int outline;
 	int outline_auto;
 	int shadow;
 	int shadow_auto;
-} FontColor;
+} FontColor_CFG;
 
 typedef struct MenuButton
 {
 	int mask;
 	int num;
 } MenuButton;
+
+typedef struct CfgButton
+{
+	int enabled;
+	RectCoords pos;
+	FontColor fc;
+	char image[64];
+	int type;
+	int hover_zoom; // in % default: 10%
+} CfgButton;
+
+#define GUI_BUTTON_MAIN      0
+#define GUI_BUTTON_SETTINGS  1
+#define GUI_BUTTON_QUIT      2
+#define GUI_BUTTON_STYLE     3
+#define GUI_BUTTON_VIEW      4
+#define GUI_BUTTON_SORT      5
+#define GUI_BUTTON_FILTER    6
+#define GUI_BUTTON_FAVORITES 7
+#define GUI_BUTTON_NUM       8
 
 struct CFG
 {
@@ -383,6 +420,8 @@ struct CFG
 	int ios, ios_yal, ios_mload;
 	// gui
 	int gui;
+	int gui_start;
+	int gui_menu; // wgui
 	int gui_transit;
 	int gui_style;
 	int gui_rows;
@@ -390,6 +429,16 @@ struct CFG
 	int gui_title_top;
 	struct FontColor gui_text;
 	struct FontColor gui_text2;
+	struct FontColor_CFG gui_text_cfg;
+	struct FontColor_CFG gui_text2_cfg;
+	struct FontColor gui_tc_menu;
+	struct FontColor gui_tc_info;
+	struct FontColor gui_tc_title;
+	struct FontColor gui_tc_button;
+	struct FontColor gui_tc_checkbox;
+	struct FontColor gui_tc_radio;
+	int gui_window_color_base;
+	int gui_window_color_popup;
 	char gui_font[100];
 	int start_favorites;
 	int gui_antialias;
@@ -400,6 +449,8 @@ struct CFG
 	struct PosCoords gui_clock_pos;
 	struct PosCoords gui_page_pos;
 	int gui_pointer_scroll;
+	struct CfgButton gui_button[GUI_BUTTON_NUM];
+	int gui_bar;
 	// global saved state
 	int saved_global;
 	char saved_theme[32];

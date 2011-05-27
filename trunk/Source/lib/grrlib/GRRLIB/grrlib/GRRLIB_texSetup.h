@@ -25,6 +25,8 @@ THE SOFTWARE.
  * Inline functions for the basic manipulation of textures.
  */
 
+#if 0
+
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -86,3 +88,5 @@ void  GRRLIB_ClearTex(GRRLIB_texImg* tex) {
     bzero(tex->data, (tex->h * tex->w) << 2);
     GRRLIB_FlushTex(tex);
 }
+#endif
+

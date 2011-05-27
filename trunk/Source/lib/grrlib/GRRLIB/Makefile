@@ -58,5 +58,5 @@ install :
 	cp -f $(HDR) $(DEST_INC)/
 	cp -f $(INL) $(DEST_INC)/grrlib
 
-#%.o : %.c
-#	$(CC) $(CFLAGS) -c $< -o $@
+%.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@

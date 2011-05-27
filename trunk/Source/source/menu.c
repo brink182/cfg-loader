@@ -761,10 +761,10 @@ void Handle_Home()
 void Print_IOS_Info_str(char *str, int size)
 {
 	*str = 0;
-	int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
-	snprintf(str, size, "IOS%u (r%u) %s\n",
-			IOS_GetVersion(), IOS_GetRevision(),
-			CFG.ios_mload||new_wanin ? "[FRAG]" : "");
+	//int new_wanin = is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18;
+	snprintf(str, size, "IOS%u (r%u)\n",
+			IOS_GetVersion(), IOS_GetRevision());
+			//CFG.ios_mload||new_wanin ? "[FRAG]" : "");
 	str_seek_end(&str, &size);
 	print_mload_version_str(str);
 }
@@ -946,7 +946,7 @@ int Menu_Views()
 		MENU_MARK();
 		printf("<%s>\n", gt("Global Options"));
 		MENU_MARK();
-		printf("<%s>\n", gt("Remove Game"));
+		printf("<%s>\n", gt("Delete Game"));
 		MENU_MARK();
 		printf("<%s>\n", gt("Install Game"));
 		MENU_MARK();
@@ -1970,10 +1970,7 @@ int get_button_action(int buttons)
 
 void __Menu_Controls(void)
 {
-	if (CFG.gui == CFG_GUI_START) {
-		go_gui = true;
-		goto gui_mode;
-	}
+	if (go_gui) goto gui_mode;
 
 	//u32 buttons = Wpad_WaitButtons();
 	u32 buttons = Wpad_WaitButtonsRpt();
@@ -2042,79 +2039,6 @@ void __Menu_Controls(void)
 				DoAction(*(&CFG.button_M + (i - 4)));
 	}
 		
-	//if (buttons & CFG.button_cancel.mask)
-	//	DoAction(CFG.button_B);
-
-	///* HOME button */
-	//if (buttons & CFG.button_exit.mask) {
-	//	DoAction(CFG.button_H);
-	//	//Handle_Home();
-	//}
-
-	///* PLUS (+) button */
-	//if (buttons & WPAD_BUTTON_PLUS)
-	//	DoAction(CFG.button_P);
-	////	Menu_Install();
-
-	///* MINUS (-) button */
-	//if (buttons & WPAD_BUTTON_MINUS)
-	//	DoAction(CFG.button_M);
-	////	Menu_Views();
-	////	Menu_Remove();
-
-	//if (buttons & WPAD_BUTTON_2)
-	//	DoAction(CFG.button_2);
-
-	//if (buttons & CFG.button_other.mask)
-	//	DoAction(CFG.button_1);
-
-	//if (buttons & WPAD_BUTTON_X)
-	//	DoAction(CFG.button_X);
-
-	//if (buttons & WPAD_BUTTON_Y)
-	//	DoAction(CFG.button_Y);
-
-	//if (buttons & WPAD_BUTTON_Z)
-	//	DoAction(CFG.button_Z);
-
-	//if (buttons & WPAD_BUTTON_C)
-	//	DoAction(CFG.button_C);
-
-	//if (buttons & WPAD_BUTTON_L)
-	//	DoAction(CFG.button_L);
-
-	//if (buttons & WPAD_BUTTON_R)
-	//	DoAction(CFG.button_R);
-
-	//// button 2 - switch favorites
-	//if (buttons & CFG.button_save.mask) {
-	//	extern void reset_sort_default();
-	//	reset_sort_default();
-	//	Switch_Favorites(!enable_favorite);
-	//}
-
-
-	//if (CFG.gui) {
-	//	if (CFG.buttons == CFG_BTN_OPTIONS_1) {
-	//		if (buttons & CFG.button_cancel.mask) go_gui = true;
-	//	} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
-	//		if (buttons & CFG.button_other.mask) go_gui = true;
-	//	}
-	//}
-	//if (!CFG.disable_options) {
-	//	if (CFG.buttons == CFG_BTN_OPTIONS_1) {
-	//		if (buttons & CFG.button_other.mask) Menu_Options();
-	//	} else if (CFG.buttons == CFG_BTN_OPTIONS_B) {
-	//		if (buttons & CFG.button_cancel.mask) Menu_Options();
-	//	} else { 
-	//		/* ONE (1) button */
-	//		if (buttons & CFG.button_other.mask) {
-	//			//Menu_Device();
-	//			Menu_Options();
-	//		}
-	//	}
-	//}
-	
 	if (go_gui) {
 		gui_mode:;
 		int prev_sel = gameSelected;
@@ -3775,7 +3699,7 @@ void Direct_Launch()
 void Menu_Loop(void)
 {
 	// enable the console if starting with console mode
-	if (CFG.gui != CFG_GUI_START) {
+	if (!CFG.gui_start) {
 		if (!(CFG.direct_launch && !CFG.intro)) {
 			Gui_Console_Enable();
 		}
@@ -3865,7 +3789,10 @@ void Menu_Loop(void)
 	__console_scroll = 0;
 
 	// Start GUI
-	if (CFG.gui == CFG_GUI_START) goto skip_list;
+	if (CFG.gui_start) {
+		go_gui = true;
+		goto skip_list;
+	}
 
 	/* Menu loop */
 	for (;;) {
@@ -4155,7 +4082,11 @@ int Menu_PrintWait()
 	gecko_printf("%s\n", msg);
 	// clear button states
 	WPAD_Flush(WPAD_CHAN_ALL);
-	return Wpad_WaitButtonsCommon();
+	// wait for button press
+	int button = Wpad_WaitButtonsCommon();
+	// wait for button release
+	while (Wpad_HeldButtons()) VIDEO_WaitVSync();
+	return button;
 }
 
 bool Menu_Confirm(const char *msg)

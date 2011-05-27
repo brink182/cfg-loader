@@ -24,7 +24,7 @@ THE SOFTWARE.
 #include <malloc.h>
 #include <string.h>
 #include <ogc/conf.h>
-#include <fat.h>
+//#include <fat.h>
 
 #define __GRRLIB_CORE__
 #include <grrlib.h>
@@ -34,6 +34,8 @@ THE SOFTWARE.
 
 GRRLIB_drawSettings  GRRLIB_Settings;
 Mtx                  GXmodelView2D;
+
+#if 0
 
 static void  *gp_fifo = NULL;
 
@@ -205,3 +207,5 @@ void  GRRLIB_Exit (void) {
     // Done with TTF
     GRRLIB_ExitTTF();
 }
+#endif
+

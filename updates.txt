@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69a2 (alpha)
+size = 1571360
+date = 2011-05-28
+url = http://cfg-loader.googlecode.com/files/cfg69a2.dol
+Fixed d2x v5+ ios reload block
+
+release = 69a2-222 (alpha)
+size = 1571360
+date = 2011-05-28
+url = http://cfg-loader.googlecode.com/files/cfg69a2-222.dol
+Same as 69a2 but with different
+default options:
+  ios=222-mload
+
 release = 69a (alpha)
 size = 1571296
 date = 2011-05-28

@@ -1324,8 +1324,8 @@ int cache_load_image(u8 *id, GRRLIB_texImg *tx, int style, bool *hqavail)
 	
 	tx->data = data;
 	tx->w = hdr.width;
-	tx->h = hdr.width;
-	tx->tex_lod = hdr.width;
+	tx->h = hdr.height;
+	tx->tex_lod = hdr.lod;
 	tx->tex_format = hdr.gxformat;
 	GRRLIB_FlushTex(tx);
 	*hqavail = hdr.hq ? true : false;

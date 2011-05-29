@@ -981,6 +981,7 @@ struct BannerInfo
 	volatile bool waiting;
 	volatile bool stop;
 };
+
 struct BannerInfo banner;
 
 void banner_parse(struct discHdr *header)

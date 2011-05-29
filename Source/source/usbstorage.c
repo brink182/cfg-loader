@@ -62,6 +62,7 @@ static char fs3[] ATTRIBUTE_ALIGN(32) = "/dev/usb/ehc";
 static s32 hid = -1, fd = -1;
 static u32 sector_size;
 static void *usb_buf2;
+static mutex_t usb_mutex = LWP_MUTEX_NULL;
 
 extern void* SYS_AllocArena2MemLo(u32 size,u32 align);
 
@@ -144,6 +145,7 @@ s32 USBStorage_OpenDev()
 	if (fd < 0) {
 		dbg_printf("\n");
 	}
+	LWP_MutexInit(&usb_mutex, false);
 	return fd;
 }
 
@@ -193,6 +195,8 @@ void USBStorage_Deinit(void)
 		iosDestroyHeap(hid);
 		hid = -1;
 	}*/
+	LWP_MutexDestroy(usb_mutex);
+	usb_mutex = LWP_MUTEX_NULL;
 }
 
 s32 USBStorage_ReadSectors(u32 sector, u32 numSectors, void *buffer)
@@ -213,11 +217,13 @@ s32 USBStorage_ReadSectors(u32 sector, u32 numSectors, void *buffer)
 		while (numSectors) {
 			if (numSectors > max_sec) cnt = max_sec; else cnt = numSectors;
 			size = cnt * sector_size;
+			LWP_MutexLock(usb_mutex);
 			ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_READ_SECTORS,
 					"ii:d", sector, cnt, usb_buf2, size);
+			memcpy(buffer, usb_buf2, size);
+			LWP_MutexUnlock(usb_mutex);
 			//dbg_printf("usb_read_chunk(%u,%u)=%d\n", sector, cnt, ret);
 			if (ret < 0) return ret;
-			memcpy(buffer, usb_buf2, size);
 			numSectors -= cnt;
 			sector += cnt;
 			buffer += size;
@@ -225,8 +231,10 @@ s32 USBStorage_ReadSectors(u32 sector, u32 numSectors, void *buffer)
 	} else {
 		size = sector_size * numSectors;
 		/* Read data */
+		LWP_MutexLock(usb_mutex);
 		ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_READ_SECTORS,
 				"ii:d", sector, numSectors, buffer, size);
+		LWP_MutexUnlock(usb_mutex);
 	}
 	//dbg_printf("read %u %u = %d\n", sector, numSectors, ret);
 
@@ -251,9 +259,11 @@ s32 USBStorage_WriteSectors(u32 sector, u32 numSectors, const void *buffer)
 		while (numSectors) {
 			if (numSectors > max_sec) cnt = max_sec; else cnt = numSectors;
 			size = cnt * sector_size;
+			LWP_MutexLock(usb_mutex);
 			memcpy(usb_buf2, buffer, size);
 			ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_WRITE_SECTORS,
 					"ii:d", sector, cnt, usb_buf2, size);
+			LWP_MutexUnlock(usb_mutex);
 			//dbg_printf("usb_write_chunk(%u,%u)=%d\n", sector, cnt, ret);
 			if (ret < 0) return ret;
 			numSectors -= cnt;
@@ -263,8 +273,10 @@ s32 USBStorage_WriteSectors(u32 sector, u32 numSectors, const void *buffer)
 	} else {
 		size = sector_size * numSectors;
 		/* Write data */
+		LWP_MutexLock(usb_mutex);
 		ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_UMS_WRITE_SECTORS,
 				"ii:d", sector, numSectors, buffer, size);
+		LWP_MutexUnlock(usb_mutex);
 	}
 
 	return ret;

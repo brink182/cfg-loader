@@ -158,7 +158,9 @@ static MSG *findMSG(u32 id) {
 	return NULL;
 }
 
-static MSG *setMSG(const char *msgid, const char *msgstr) {
+static MSG *setMSG(const char *msgid, const char *msgstr)
+{
+	if (!*msgstr) return NULL;
 	char *tmp = expand_escape(msgid);
 	u32 id = hash_string(tmp);
 	free(tmp);
@@ -249,6 +251,7 @@ bool gettextLoadLanguage(const char* langFile) {
 				lastSTR = strdup(str);
 			}
 		} else if (line[0] == '"' && lastID && lastSTR) {
+			// multiline continuation of msgstr
 			str = &line[1];
 			end = strrchr(str, '"');
 			if (end && end >= str) {

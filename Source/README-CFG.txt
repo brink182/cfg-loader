@@ -1049,6 +1049,15 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
+28-04-2011 cfg v68d (bugfix)
+ * Fixed wrong banner sound playing (or hang or crash)
+   when using WBFS and the new GUI menu.
+ * Fixed missing text when a translation was missing
+   (Now english is used if a translation is missing)
+
+27-04-2011 cfg v68c (bugfix)
+ * Fixed occasional corrupted cover in coverflow modes
+
 24-04-2011 cfg v68 (release)
  * Fixed "press any button" after cover download
  * Fixed gamercard option in gui menu

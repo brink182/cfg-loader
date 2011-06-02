@@ -14,11 +14,14 @@ void prep_exit();
 s32  Sys_GetCerts(signed_blob **, u32 *);
 int ReloadIOS(int subsys, int verbose);
 void Block_IOS_Reload();
+void get_title_id();
+void d2x_return_to_channel();
 void load_bca_data(u8 *discid);
 int insert_bca_data();
 int verify_bca_data();
 void print_mload_version_str(char *str);
 void print_mload_version();
+void mk_mload_version();
 void load_dip_249();
 
 #define IOS_TYPE_UNK    0
@@ -28,6 +31,7 @@ void load_dip_249();
 
 int get_ios_type();
 int is_ios_type(int type);
+int is_ios_d2x();
 
 s32 GetTMD(u64 TicketID, signed_blob **Output,  u32 *Length);
 s32 checkIOS(u32 IOS);

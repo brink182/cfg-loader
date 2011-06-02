@@ -691,10 +691,13 @@ void gameopt_inactive(int cond, Widget *ww, int val)
 
 void update_gameopt_state()
 {
-	// ios
-	int cond = (wgame.ios_idx->value < CFG_IOS_222_MLOAD
+	int cond;
+	// block ios reload is supported with hermes and d2x
+	/*
+	cond = (wgame.ios_idx->value < CFG_IOS_222_MLOAD
 			|| wgame.ios_idx->value > CFG_IOS_224_MLOAD);
 	gameopt_inactive(cond, wgame.block_ios_reload, 0);
+	*/
 
 	// clear
 	cond = (wgame.clean->value == CFG_CLEAN_ALL);

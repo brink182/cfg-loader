@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69a4 (alpha)
+size = 1571488
+date = 2011-06-02
+url = http://cfg-loader.googlecode.com/files/cfg69a4.dol
+Fixed #001 error on hermes cios
+Fixed We Dare
+Minor cleanups
+
+release = 69a4-222 (alpha)
+size = 1571488
+date = 2011-06-02
+url = http://cfg-loader.googlecode.com/files/cfg69a4-222.dol
+Same as 69a4 but with different
+default options:
+  ios=222-mload
+
 release = 69a3 (alpha)
 size = 1571488
 date = 2011-05-28

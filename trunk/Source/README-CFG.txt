@@ -1051,6 +1051,9 @@ Changelog:
 
 cfg v69
 
+02-06-2011 cfg v69a5 (alpha)
+ * Support for d2x v6
+
 02-06-2011 cfg v69a4 (alpha)
  * Fixed #001 error on hermes cios for fakesigned games (caused by
    Sam&Max fix which is now disabled on hermes cios, Thanks Wiimm)

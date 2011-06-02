@@ -1062,32 +1062,34 @@ extern u8 dip_plugin_249[size_dip249];
 void load_dip_249()
 {
 	int ret;
-	if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18)
-	{
-		WDVD_Close();
-		//printf("[FRAG]");
-		if(mload_init()<0) {
-			printf("FRAG: mload_init ERROR\n");
-			sleep(5);
-			return;
-		}
-		/*
-		u32 base;
-		int size;
-		mload_get_load_base(&base, &size);
-		printf("base: %08x %x\n", base, size);
-		*/
-		ret = mload_module(dip_plugin_249, size_dip249);
-		if (ret < 0) {
-			printf("FRAG: load ERROR %d\n", ret);
-			sleep(5);
-		}
-		//printf("load mod: %d\n", ret);
-		//mk_mload_version();
-		mload_close();
-		//printf("OK\n");
-		WDVD_Init();
+	// waninkoko cios rev18+ support mload
+	if (!is_ios_type(IOS_TYPE_WANIN)) return;
+	if (IOS_GetRevision() < 18) return;
+	// d2x v6 already includes dip+frag
+	if (is_ios_d2x() > 5) return;
+	WDVD_Close();
+	//printf("[FRAG]");
+	if(mload_init()<0) {
+		printf("FRAG: mload_init ERROR\n");
+		sleep(5);
+		return;
 	}
+	/*
+	   u32 base;
+	   int size;
+	   mload_get_load_base(&base, &size);
+	   printf("base: %08x %x\n", base, size);
+	   */
+	ret = mload_module(dip_plugin_249, size_dip249);
+	if (ret < 0) {
+		printf("FRAG: load ERROR %d\n", ret);
+		sleep(5);
+	}
+	//printf("load mod: %d\n", ret);
+	//mk_mload_version();
+	mload_close();
+	//printf("OK\n");
+	WDVD_Init();
 }
 
 

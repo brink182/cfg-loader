@@ -709,7 +709,9 @@ int ReloadIOS(int subsys, int verbose)
 	}
 
 	if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) {
-		load_dip_249();
+		//load_dip_249();
+		mk_mload_version();
+		mload_close();
 	}
 
 	if (verbose) {
@@ -765,16 +767,133 @@ err:
 
 void Block_IOS_Reload()
 {
+	if (!CFG.game.block_ios_reload) return;
 	if (CFG.ios_mload) {
-		if (CFG.game.block_ios_reload) {
-			patch_datas[0]=*((u32 *) (dip_plugin+16*4));
-			mload_set_ES_ioctlv_vector((void *) patch_datas[0]);
-			printf_(gt("IOS Reload: Blocked"));
-			printf("\n");
-			sleep(1);
+	
+		// hermes ios reload block
+		patch_datas[0]=*((u32 *) (dip_plugin+16*4));
+		mload_set_ES_ioctlv_vector((void *) patch_datas[0]);
+	
+	} else if (is_ios_d2x() >= 5) {
+	
+		// d2x ios reload block
+		int es_fd = IOS_Open("/dev/es", 0);
+		if (es_fd < 0) {
+			printf("Couldn't open ES module\n");
+			sleep(5);
+			return;
+		}
+		static ioctlv vector[0x08] ATTRIBUTE_ALIGN(32);
+		static int mode ATTRIBUTE_ALIGN(32);
+		static int ios ATTRIBUTE_ALIGN(32);
+		mode = 2;
+		ios = IOS_GetVersion();
+		vector[0].data = &mode;
+		vector[0].len = 4;
+		vector[1].data = &ios;
+		vector[1].len = 4;
+		int ret = IOS_Ioctlv(es_fd, 0xA0, 2, 0, vector);
+		IOS_Close(es_fd);
+		dbg_printf("d2x ios reload block %d: %d\n", ios, ret);
+		if (ret < 0) {
+			printf_("d2x IOS reload block FAILED!\n");
+			return;
+		}
+	
+	} else {
+		// unsupported
+		printf_("IOS Reload Block only supported\nwith d2x and hermes cios\n");
+		sleep(3);
+		return;
+	}
+	printf_(gt("IOS Reload: Blocked"));
+	printf("\n");
+	sleep(2);
+}
+
+u32 old_title_id = 0;
+
+void get_title_id()
+{
+	u64 tid;
+	if (ES_GetTitleID(&tid) >= 0) {
+		old_title_id = (u32)tid;
+	} else {
+		// tid = (0x00010001ULL << 32) | *(u32 *)0x80000000;
+		old_title_id = *(u32*)0x80000000;
+	}
+	if (old_title_id <= 2)
+	{
+		// HBC reload stub -> assuming boot from HBC
+		if (strncmp("STUBHAXX", (char *)0x80001804, 8) == 0)
+		{
+			old_title_id = 0xAF1BF516;
+		}	
+	}
+	dbg_printf("channel id: %08X\n", old_title_id);
+}
+
+// by davebaol, WiiPower
+void d2x_return_to_channel()
+{
+	if (CFG.return_to == 1) {
+		CFG.return_to = old_title_id;
+		if (CFG.return_to <= 2) {
+			CFG.return_to = 0;
 		}
 	}
+	dbg_printf("d2x_return_to_channel %08x %d\n", CFG.return_to, is_ios_d2x());
+	if (CFG.return_to <= 2) return;
+	if (is_ios_d2x() < 4) return;
+
+	static u64 sm_title_id  ATTRIBUTE_ALIGN(32);
+	// title id to be launched in place of the system menu
+	sm_title_id = (0x00010001ULL << 32) | CFG.return_to;
+
+	int ret;
+	signed_blob *buf;
+	u32 filesize;
+
+	// Check if the title exists NeoGamma wants the cIOS to return to
+	ret = GetTMD(sm_title_id, &buf, &filesize);
+	if (buf != NULL)
+	{
+		free(buf);
+	}
+
+	if (ret < 0)
+	{
+		return;
+	}
+
+	static ioctlv vector[0x08] ATTRIBUTE_ALIGN(32);
+
+	vector[0].data = &sm_title_id;
+	vector[0].len = 8;
+
+	int es_fd = IOS_Open("/dev/es", 0);
+	if (es_fd < 0)
+	{
+		printf("Couldn't open ES module(2)\n");
+		sleep(5);
+		return;
+	}
+
+	ret = IOS_Ioctlv(es_fd, 0xA1, 1, 0, vector);
+
+	IOS_Close(es_fd);
+
+	dbg_printf("d2x return to channel (%08x %d)\n",
+			CFG.return_to, ret);
+	if (ret >= 0) {
+		// success
+		extern bool disable_return_to_patch;
+		disable_return_to_patch = true;
+	}
 }
+
+
+
 
 u8 BCA_Data[64] ATTRIBUTE_ALIGN(32);
 int have_bca_data = 0;
@@ -945,9 +1064,11 @@ void load_dip_249()
 	int ret;
 	if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18)
 	{
+		WDVD_Close();
 		//printf("[FRAG]");
 		if(mload_init()<0) {
-			printf(" ERROR\n");
+			printf("FRAG: mload_init ERROR\n");
+			sleep(5);
 			return;
 		}
 		/*
@@ -957,10 +1078,15 @@ void load_dip_249()
 		printf("base: %08x %x\n", base, size);
 		*/
 		ret = mload_module(dip_plugin_249, size_dip249);
+		if (ret < 0) {
+			printf("FRAG: load ERROR %d\n", ret);
+			sleep(5);
+		}
 		//printf("load mod: %d\n", ret);
-		mk_mload_version();
+		//mk_mload_version();
 		mload_close();
 		//printf("OK\n");
+		WDVD_Init();
 	}
 }
 
@@ -990,6 +1116,17 @@ int is_ios_type(int type)
 	return (get_ios_type() == type);
 }
 
+int is_ios_d2x()
+{
+	int ios_rev = IOS_GetRevision();
+	if (is_ios_type(IOS_TYPE_WANIN)) {
+		if (ios_rev > 21000 && ios_rev < 25000) {
+			int rev = ios_rev % 100;
+			return rev;
+		}
+	}
+	return 0;
+}
 
 s32 GetTMD(u64 TicketID, signed_blob **Output, u32 *Length)
 {
@@ -1149,6 +1286,24 @@ static struct ios_hash_info ios_info[] =
 	{ 249, {0x000d243c, 0x07a183df, 0x0592ce22, 0x2bb81b46, 0x64cce4a7}, "56 r21-d2x-v4-b2" },
 	{ 249, {0x00c7b39a, 0xed42a4a0, 0xcc125669, 0xf23c1f6e, 0x2244cb9b}, "57 r21-d2x-v4-b2" },
 	{ 249, {0x00120cb0, 0x4cb9b4b1, 0xbe02e0e6, 0x30bfcb95, 0xfbfcaba5}, "58 r21-d2x-v4-b2" },
+
+	// d2x v4 (r21004) release / hb installer
+	{ 249, {0xba124a8e, 0x73f5b2cb, 0x5e2439be, 0x76629335, 0xa3f36418}, "37 r21-d2x-v4" },
+	{ 249, {0x2e5b15a4, 0x6e638735, 0x6d3d7403, 0xa78cdcc0, 0xe62a106b}, "38 r21-d2x-v4" },
+	{ 249, {0xf13c731c, 0x3d77c021, 0x48c3119f, 0x7679939f, 0xbde8857f}, "53 r21-d2x-v4" },
+	{ 249, {0x292464d3, 0xf94267d3, 0x849fd15c, 0x03200bde, 0xe8e0d6e8}, "55 r21-d2x-v4" },
+	{ 249, {0xfefb9f74, 0x9961dd76, 0xe5416e0f, 0x7df6a95b, 0x923d2561}, "56 r21-d2x-v4" },
+	{ 249, {0xb7272b2f, 0x72bdab83, 0x31d0639f, 0xfabc719d, 0xad818d91}, "57 r21-d2x-v4" },
+	{ 249, {0x91a7d59f, 0x4ae0671a, 0x9bdf2593, 0xf7535426, 0x85af4073}, "58 r21-d2x-v4" },
+
+	// d2x v4 (r21004) release / modmii
+	{ 249, {0x00de8cad, 0x17183381, 0x889a1299, 0x834a85eb, 0x45b59e05}, "37 r21-d2x-v4" },
+	{ 249, {0x0007e951, 0x173de10f, 0x0324b33f, 0xaa1f93c7, 0x28461fbe}, "38 r21-d2x-v4" },
+	{ 249, {0x00f92f4f, 0x8f989389, 0xcd9e2732, 0x7752e50b, 0xa47fde40}, "53 r21-d2x-v4" },
+	{ 249, {0x0056c457, 0x99c9a90f, 0xf0d9d994, 0x0724362a, 0xbe8ac29f}, "55 r21-d2x-v4" },
+	{ 249, {0x00a1872f, 0x412f94cf, 0xd90c818b, 0xde15681e, 0x63c41b52}, "56 r21-d2x-v4" },
+	{ 249, {0x00b06c85, 0xab7a94c2, 0x674785fc, 0x8f133335, 0xc9b84d49}, "57 r21-d2x-v4" },
+	{ 249, {0x000530f4, 0x0c472b29, 0xb8f22f5a, 0x752b0613, 0x109bace1}, "58 r21-d2x-v4" },
 
 	/*
 	// modmii 249

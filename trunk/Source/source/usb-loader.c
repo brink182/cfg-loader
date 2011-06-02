@@ -97,6 +97,7 @@ int main(int argc, char **argv)
 	Gui_DrawIntro();
 
 	if (CFG.debug) __console_scroll = 1;
+	get_title_id();
 
 	/* Check for stub IOS */
 	ret = checkIOS(CFG.ios);
@@ -124,7 +125,9 @@ int main(int argc, char **argv)
 		ret = IOS_ReloadIOS(CFG.ios);
 		CURR_IOS_IDX = CFG.game.ios_idx;
 		if (is_ios_type(IOS_TYPE_WANIN) && IOS_GetRevision() >= 18) {
-			load_dip_249();
+			//load_dip_249();
+			mk_mload_version();
+			mload_close();
 		}
 		//usleep(200000); // this seems to cause hdd spin down/up
 	} else {

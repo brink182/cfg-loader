@@ -354,12 +354,12 @@ int set_frag_list(u8 *id)
 
 	//usb_debug_dump(0);
 	// verify id matches
-	char discid[8];
+	static char discid[32] ATTRIBUTE_ALIGN(32);
 	memset(discid, 0, sizeof(discid));
 	/*if (CFG.ios_mload) {
 		ret = USBStorage_WBFS_Read(0, 8, discid);
 	} else */{
-		ret = WDVD_UnencryptedRead(discid, 8, 0);
+		ret = WDVD_UnencryptedRead(discid, 32, 0);
 	}
 	dbg_printf("ID: [%.6s] [%.6s]\n", id, discid);
 	//usb_debug_dump(0);

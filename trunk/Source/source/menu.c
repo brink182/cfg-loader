@@ -1168,7 +1168,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	struct Game_CFG_2 *game_cfg2 = NULL;
 	struct Game_CFG *game_cfg = NULL;
-	int opt_saved, opt_ios_reload, opt_language, opt_video, opt_video_patch, opt_vidtv, opt_country_patch, opt_ocarina; 
+	int opt_saved;
+	//int opt_ios_reload;
+	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_country_patch, opt_ocarina; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
 	int i;
@@ -1218,12 +1220,15 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 		menu_init_active(&menu, active, sizeof(active));
 		opt_saved = game_cfg2->is_saved;
-		// if not mload disable block ios reload opt
+		// block ios reload is supported with hermes and d2x
+		// old: if not mload disable block ios reload opt
+		/*
 		opt_ios_reload = game_cfg->block_ios_reload;
 		if (!is_ios_idx_mload(game_cfg->ios_idx)) {
 			active[8] = 0;
 			opt_ios_reload = 0;
 		}
+		*/
 		// clean options
 		opt_language = game_cfg->language;
 		opt_video = game_cfg->video;
@@ -1329,7 +1334,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Block IOS Reload:"), opt_ios_reload);
+			PRINT_OPT_B(gt("Block IOS Reload:"), game_cfg->block_ios_reload);
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
 		if (menu_window_mark(&menu))
@@ -3578,7 +3583,12 @@ L_repaint:
 		get_time(&TIME.rios2);
 		if (ret < 0) goto out;
 
+		if (wbfs_part_fs != PART_FS_WBFS) {
+			load_dip_249();
+		}
+
 		Block_IOS_Reload();
+		d2x_return_to_channel();
 	
 		// verify IOS version
 		warn_ios_bugs();

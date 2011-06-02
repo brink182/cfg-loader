@@ -2466,6 +2466,8 @@ void cfg_set(char *name, char *val)
 	if (strcmp(name, "return_to_channel")==0) {
 		if (strcmp(val, "0")== 0)
 			CFG.return_to = 0;
+		else if (strcmp(val, "auto")== 0)
+			CFG.return_to = 1;
 		else if (strlen(val) == 4)
 			CFG.return_to = *(int *)val;
 		else if (strlen(val) == 8)

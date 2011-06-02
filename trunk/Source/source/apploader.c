@@ -37,6 +37,7 @@ static u32 buffer[0x20] ATTRIBUTE_ALIGN(32);
 /* Forward Declarations */
 void PatchCountryStrings(void *Address, int Size);
 void maindolpatches(void *dst, int len);
+bool cfg_PatchReturnTo(void *Address, int Size);
 u32 Load_Dol_from_sd();
 u32 Load_Dol_from_disc_menu();
 u32 Load_Dol_from_disc(u32 doloffset);
@@ -404,15 +405,7 @@ s32 Apploader_Run(entry_point *entry)
 	do_wip_patches();
 	wipreset();
 
-	// giantpune's return-to patch added by Dr. Clipper
-    if( CFG.return_to && !CFG.game.clean)
-    {
-        if( PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to) )
-        {
-            //gprintf("return-to patched\n" );
-            DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
-        }
-    }
+	cfg_PatchReturnTo((void*)dolStart, dolEnd - dolStart);
 
 	// alternative dol (WiiPower)
 	if (CFG.game.alt_dol)
@@ -485,6 +478,7 @@ s32 Apploader_Run(entry_point *entry)
 
 	// cios 249 rev13 - 002 fix (by WiiPower)
 	*(u32 *)0x80003140 = *(u32 *)0x80003188;
+	// *(u32 *)0x80003188 = *(u32 *)0x80003140;
 	/*
 	u8 ios = CFG.ios;
 	if (*(u8 *)0x80003189 == ios)
@@ -725,6 +719,23 @@ void maindolpatches(void *dst, int len)
 	DCFlushRange(dst, len);
 }
 
+bool disable_return_to_patch = false;
+
+bool cfg_PatchReturnTo(void *Address, int Size)
+{
+	bool ret = false;
+	if (disable_return_to_patch) return ret;
+	// giantpune's return-to patch added by Dr. Clipper
+	if (CFG.return_to > 2 && !CFG.game.clean) {
+		ret = PatchReturnTo(Address, Size, CFG.return_to);
+		if (ret) {
+			//gprintf("return-to patched\n" );
+			DCFlushRange(Address, Size);
+		}
+	}
+	return ret;
+}
+
 
 // ALT. DOL
 
@@ -833,14 +844,8 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	}
 	printf("\n");
 	
-	// giantpune's return-to patch added by Dr. Clipper
-	if (CFG.return_to && !CFG.game.clean) {
-		if (PatchReturnTo( (u32*)dolStart, dolEnd - dolStart, CFG.return_to) )
-		{
-			// gprintf("return-to patched\n" );
-			DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
-		}
-	}
+	cfg_PatchReturnTo((void*)dolStart, dolEnd - dolStart);
+
 	free(dol_header);
 
 	return entrypoint;
@@ -1151,14 +1156,7 @@ u32 Load_Dol_from_sd()
 	}
 	printf("\n");
 	
-	// giantpune's return-to patch added by Dr. Clipper
-	if (CFG.return_to && !CFG.game.clean) {
-		if (PatchReturnTo( (u32*)dolStart, dolEnd - dolStart , CFG.return_to) )
-		{
-			// gprintf("return-to patched\n" );
-			DCFlushRange( (u32*)dolStart, dolEnd - dolStart );
-		}
-	}
+	cfg_PatchReturnTo((void*)dolStart, dolEnd - dolStart);
 
 	free(dol_header);
 	fclose(file);

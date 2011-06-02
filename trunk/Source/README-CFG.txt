@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v68
+Configurable SD/USB Loader v69
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -1048,6 +1048,29 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+cfg v69
+
+02-06-2011 cfg v69a4 (alpha)
+ * Fixed #001 error on hermes cios for fakesigned games (caused by
+   Sam&Max fix which is now disabled on hermes cios, Thanks Wiimm)
+ * Fixed We Dare (thanks airline38 and WiiPower)
+ * Minor cleanups
+
+28-05-2011 cfg v69a3 (alpha)
+ * Really fixed d2x v5+ ios reload block on wbfs
+
+28-05-2011 cfg v69a2 (alpha)
+ * Fixed d2x v5+ ios reload block on wbfs (tnx WiiPower & davebaol)
+
+28-05-2011 cfg v69a (alpha)
+ * detection of cios d2x v4 (tnx kamiro04 & FIX94)
+ * d2x v5+ ios reload block on wbfs (tnx WiiPower & davebaol)
+ * d2x v4+ return to channel method (tnx WiiPower & davebaol)
+ * added value: return_to_channel = auto
+   will try to detect the channel id from where the loader was started.
+   (although some forwarders are not auto detected properly,
+    but the official one by FIX94 is)
 
 28-04-2011 cfg v68d (bugfix)
  * Fixed wrong banner sound playing (or hang or crash)

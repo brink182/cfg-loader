@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69a6 (alpha)
+size = 1571552
+date = 2011-06-03
+url = http://cfg-loader.googlecode.com/files/cfg69a6.dol
+Improved support for
+  hdd with 4k sectors
+
+release = 69a6-222 (alpha)
+size = 1571552
+date = 2011-06-03
+url = http://cfg-loader.googlecode.com/files/cfg69a6-222.dol
+Same as 69a6 but with different
+default options:
+  ios=222-mload
+
 release = 69a5 (alpha)
 size = 1571552
 date = 2011-06-02

@@ -1051,8 +1051,11 @@ Changelog:
 
 cfg v69
 
+03-06-2011 cfg v69a6 (alpha)
+ * Improved support for hdd with 4k sectors
+
 02-06-2011 cfg v69a5 (alpha)
- * Support for d2x v6
+ * Support for d2x v6 IOS reload block on FAT/NTFS/EXT2 fs.
 
 02-06-2011 cfg v69a4 (alpha)
  * Fixed #001 error on hermes cios for fakesigned games (caused by

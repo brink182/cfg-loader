@@ -291,7 +291,7 @@ static bool __io_usb_IsInserted(void)
 	if (fd < 0) return false;
 	ret = USBStorage_GetCapacity(&sec_size);
 	if (ret == 0) return false;
-	if (sec_size != 512) return false;
+	if (sec_size < 512 || sec_size > 4096) return false;
 	return true;
 }
 

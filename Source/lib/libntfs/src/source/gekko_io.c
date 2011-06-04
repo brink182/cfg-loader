@@ -62,6 +62,7 @@
 #include "cache.h"
 #include "device.h"
 #include "bootsect.h"
+#include "misc.h"
 
 #define DEV_FD(dev) ((gekko_fd *)dev->d_private)
 
@@ -517,7 +518,6 @@ static int ntfs_device_gekko_io_sync(struct ntfs_device *dev)
 
     // Mark the device as clean
     NDevClearDirty(dev);
-    NDevClearSync(dev);
 
     // Flush any sectors in the disc cache (if required)
     if (fd->cache) {

@@ -797,7 +797,7 @@ msgid "Hold button B to cancel."
 msgstr "キャンセルするにはBボタンを押してください"
 
 msgid "Homebrew Channel"
-msgstr "Homebrewチャンネル"
+msgstr "Homebrewチャンネルへ"
 
 msgid "Hook Type:"
 msgstr "フックタイプ:"
@@ -1397,7 +1397,7 @@ msgid "Reading BCA..."
 msgstr "BCAを読み込み中…"
 
 msgid "Reboot"
-msgstr "再起動"
+msgstr "Wiiメニューへ"
 
 msgid "Release Date"
 msgstr "発売日"
@@ -1749,7 +1749,7 @@ msgid "[ SAVED ]"
 msgstr "[ 保存済み ]"
 
 msgid "[HOME]"
-msgstr "[ホーム]"
+msgstr "　"
 
 msgid "[No HQ]"
 msgstr "[HQ無し]"

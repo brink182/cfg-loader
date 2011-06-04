@@ -676,6 +676,9 @@ int ReloadIOS(int subsys, int verbose)
 		WDVD_Close();
 	}
 
+	// deinit isfs, inited in get_iosinfo
+	ISFS_Deinitialize();
+
 	/* Load Custom IOS */
 	dbg_printf("IOS_Reload(%d)\n", CFG.ios);
 	usleep(100000);
@@ -1376,6 +1379,108 @@ s32 brute_modmii(signed_blob *TMD, int size, unsigned char *hash)
 	return -1;
 }
 
+s32 read_file_from_nand(char *filepath, u8 **buffer, u32 *filesize)
+{
+	s32 Fd;
+	int ret;
+
+	if (buffer == NULL)
+	{
+		//printf("NULL Pointer\n");
+		return -1;
+	}
+
+	Fd = ISFS_Open(filepath, ISFS_OPEN_READ);
+	if (Fd < 0)
+	{
+		//printf("ISFS_Open %s failed %d\n", filepath, Fd);
+		return Fd;
+	}
+
+	fstats *status;
+	status = memalign(32, sizeof(fstats));
+	if (status == NULL)
+	{
+		//printf("Out of memory for status\n");
+		return -1;
+	}
+	
+	ret = ISFS_GetFileStats(Fd, status);
+	if (ret < 0)
+	{
+		//printf("ISFS_GetFileStats failed %d\n", ret);
+		ISFS_Close(Fd);
+		free(status);
+		return -1;
+	}
+	
+	*buffer = memalign(32, status->file_length);
+	if (*buffer == NULL)
+	{
+		//printf("Out of memory for buffer\n");
+		ISFS_Close(Fd);
+		free(status);
+		return -1;
+	}
+		
+	ret = ISFS_Read(Fd, *buffer, status->file_length);
+	if (ret < 0)
+	{
+		//printf("ISFS_Read failed %d\n", ret);
+		ISFS_Close(Fd);
+		free(status);
+		free(*buffer);
+		return ret;
+	}
+	
+	ISFS_Close(Fd);
+
+	*filesize = status->file_length;
+	free(status);
+
+	if (*filesize > 0)
+	{
+		DCFlushRange(*buffer, *filesize);
+		ICInvalidateRange(*buffer, *filesize);
+	}
+
+	return 0;
+}
+
+typedef struct _iosinfo_t {
+	u32 magicword; //0x1ee7c105
+	u32 magicversion; // 1
+	u32 version; // Example: 5
+	u32 baseios; // Example: 56
+	char name[0x10]; // Example: d2x
+	char versionstring[0x10]; // Example: beta2
+} __attribute__((packed)) iosinfo_t;
+
+bool get_iosinfo(int ios, signed_blob *TMD, iosinfo_t *iosinfo)
+{
+	char filepath[ISFS_MAXPATH] ATTRIBUTE_ALIGN(0x20);
+	u8 *buffer = NULL;
+	u32 filesize;
+	int ret;
+	bool retval = false;
+
+	ISFS_Initialize();
+	sprintf(filepath, "/title/%08x/%08x/content/%08x.app",
+			0x00000001, ios, *(u8 *)((u32)TMD+0x1E7));
+	ret = read_file_from_nand(filepath, &buffer, &filesize);
+	// ISFS_Deinitialize();
+	// If executed, it causes Castlevania to freeze as soon as the game "sees" a wii mote
+	// It is executed now before an IOS Reload is executed
+	if (ret >= 0 && buffer) {
+		memcpy(iosinfo, buffer, sizeof(*iosinfo));
+		if (iosinfo->magicword == 0x1ee7c105 && iosinfo->magicversion == 1) {
+			retval = true;
+		}
+	}
+	SAFE_FREE(buffer);
+	return retval;
+}
+
 char* get_iosx_info_from_tmd(int ios_slot, u32 *version)
 {
 	signed_blob *TMD = NULL;
@@ -1406,6 +1511,17 @@ char* get_iosx_info_from_tmd(int ios_slot, u32 *version)
 
 	// safety check
 	if (t->title_id != title_id) goto out;
+
+	iosinfo_t iosinfo;
+	if (get_iosinfo(ios_slot, TMD, &iosinfo)) {
+		//sprintf(info, "%s%uv%u%s (%u)", iosinfo->name, iosinfo->baseios, iosinfo->version, iosinfo->versionstring, CIOS_VERSION);				
+		// Example: "d2x56v5beta2 (249)"
+		// "56 r21-d2x-v4"
+		info = info_str;
+		sprintf(info, "%u %s v%u%s", iosinfo.baseios, iosinfo.name,
+				iosinfo.version, iosinfo.versionstring);				
+		goto out;
+	}
 
 	// modmii check
 	// brute match?

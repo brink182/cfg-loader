@@ -1051,6 +1051,10 @@ Changelog:
 
 cfg v69
 
+04-06-2011 cfg v69b1 (beta)
+ * Support for ModMii cios identification (thanks XFlak, WiiPower)
+ * Support for Korean games (by damysteryman)
+
 03-06-2011 cfg v69a7 (alpha)
  * revert to ntfs-3g-2010.10.2 (libntfs-wii r4+r7)
  * Improved support for hdd with 4k sectors

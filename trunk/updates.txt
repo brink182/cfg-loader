@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69b1 (beta)
+size = 1570944
+date = 2011-06-04
+url = http://cfg-loader.googlecode.com/files/cfg69b1.dol
+ModMii cios identification
+Support for Korean games
+
+release = 69b1-222 (beta)
+size = 1570944
+date = 2011-06-04
+url = http://cfg-loader.googlecode.com/files/cfg69b1-222.dol
+Same as 69b1 but with different
+default options:
+  ios=222-mload
+
 release = 69a7 (alpha)
 size = 1569760
 date = 2011-06-04

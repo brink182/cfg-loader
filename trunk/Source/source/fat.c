@@ -405,6 +405,11 @@ int MountFS(char *aname, int device, sec_t sector, int fstype, int verbose)
 		ret = IO_InitUSB(verbose);
 		if (ret) return ret;
 		io = &my_io_usbstorage;
+		u32 sec_size;
+		USBStorage_GetCapacity(&sec_size);
+		if (sec_size > 512) {
+			page_size /= 8; // 8 = 4096/512
+		}
 
 	} else if (device == WBFS_DEVICE_SDHC) {
 

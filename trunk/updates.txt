@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69a7 (alpha)
+size = 1569760
+date = 2011-06-04
+url = http://cfg-loader.googlecode.com/files/cfg69a7.dol
+revert to ntfs-3g-2010.10.2
+  (libntfs-wii r4+r7)
+Improved support for hdd with 4k sec.
+
+release = 69a7-222 (alpha)
+size = 1569760
+date = 2011-06-04
+url = http://cfg-loader.googlecode.com/files/cfg69a7-222.dol
+Same as 69a7 but with different
+default options:
+  ios=222-mload
+
 release = 69a6 (alpha)
 size = 1571552
 date = 2011-06-03

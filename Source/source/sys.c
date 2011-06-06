@@ -24,6 +24,16 @@
 /* Constants */
 #define CERTS_LEN	0x280
 
+typedef struct _iosinfo_t {
+	u32 magicword; //0x1ee7c105
+	u32 magicversion; // 1
+	u32 version; // Example: 5
+	u32 baseios; // Example: 56
+	char name[0x10]; // Example: d2x
+	char versionstring[0x10]; // Example: beta2
+} __attribute__((packed)) iosinfo_t;
+
+bool get_iosinfo(int ios, signed_blob *TMD, iosinfo_t *iosinfo);
 char* get_ios_info_from_tmd();
 
 /* Variables */
@@ -845,9 +855,9 @@ void d2x_return_to_channel()
 			CFG.return_to = 0;
 		}
 	}
-	dbg_printf("d2x_return_to_channel %08x %d\n", CFG.return_to, is_ios_d2x());
 	if (CFG.return_to <= 2) return;
 	if (is_ios_d2x() < 4) return;
+	dbg_printf("d2x_return_to_channel %08x\n", CFG.return_to);
 
 	static u64 sm_title_id  ATTRIBUTE_ALIGN(32);
 	// title id to be launched in place of the system menu
@@ -1069,7 +1079,7 @@ void load_dip_249()
 	if (!is_ios_type(IOS_TYPE_WANIN)) return;
 	if (IOS_GetRevision() < 18) return;
 	// d2x v6 already includes dip+frag
-	if (is_ios_d2x() > 5) return;
+	if (is_ios_d2x() >= 6) return;
 	WDVD_Close();
 	//printf("[FRAG]");
 	if(mload_init()<0) {
@@ -1123,14 +1133,30 @@ int is_ios_type(int type)
 
 int is_ios_d2x()
 {
-	int ios_rev = IOS_GetRevision();
-	if (is_ios_type(IOS_TYPE_WANIN)) {
-		if (ios_rev > 21000 && ios_rev < 25000) {
-			int rev = ios_rev % 100;
-			return rev;
-		}
-	}
-	return 0;
+    signed_blob *TMD = NULL;
+    u32 TMD_size = 0;
+    u64 title_id = TITLE_ID(1, IOS_GetVersion());
+    int ret;
+    
+    ret = GetTMD(title_id, &TMD, &TMD_size);
+    if (ret >= 0) {
+        iosinfo_t iosinfo;
+        ret = get_iosinfo(IOS_GetVersion(), TMD, &iosinfo);
+		SAFE_FREE(TMD);
+		if (ret) {
+            if (strcmp(iosinfo.name, "d2x") == 0) {
+                return iosinfo.version;
+            }
+        }
+    }
+    
+    if (is_ios_type(IOS_TYPE_WANIN)) {
+		int rev = IOS_GetRevision();
+        if (rev > 21000 && rev < 25000) {
+            return rev % 100;
+        }
+    }
+    return 0;
 }
 
 s32 GetTMD(u64 TicketID, signed_blob **Output, u32 *Length)
@@ -1310,6 +1336,14 @@ static struct ios_hash_info ios_info[] =
 	{ 249, {0x00b06c85, 0xab7a94c2, 0x674785fc, 0x8f133335, 0xc9b84d49}, "57 r21-d2x-v4" },
 	{ 249, {0x000530f4, 0x0c472b29, 0xb8f22f5a, 0x752b0613, 0x109bace1}, "58 r21-d2x-v4" },
 
+	// Hermes / PimpMyWii
+	// cIOS 222 v5.1 installed with Pimp My Wii(BASE 38)
+	{ 222, {0x28d6d99e, 0x99373486, 0xa083e938, 0x18716efa, 0xbe17b845}, "38 v5.1 PimpMyWii" },
+	// cIOS 223 v5.1 installed with Pimp My Wii(BASE 37)
+	{ 223, {0x9a9ff057, 0x12fb6494, 0xbeaec75a, 0x374c484f, 0x2937b01b}, "37 v5.1 PimpMyWii" },
+	// cIOS 224 v5.1 installed with Pimp My Wii(BASE 57)
+	{ 224, {0x53ecd1d3, 0xbdd48050, 0x2e15b315, 0x669b3c8e, 0x98888e2f}, "57 v5.1 PimpMyWii" },
+	
 	/*
 	// modmii 249
 	{ 249, {0x005b6439, 0xf4a2e0b7, 0xfce05f75, 0xdb1a66ce, 0x7a0811c1}, "38 r17 modmii" },	
@@ -1446,15 +1480,6 @@ s32 read_file_from_nand(char *filepath, u8 **buffer, u32 *filesize)
 
 	return 0;
 }
-
-typedef struct _iosinfo_t {
-	u32 magicword; //0x1ee7c105
-	u32 magicversion; // 1
-	u32 version; // Example: 5
-	u32 baseios; // Example: 56
-	char name[0x10]; // Example: d2x
-	char versionstring[0x10]; // Example: beta2
-} __attribute__((packed)) iosinfo_t;
 
 bool get_iosinfo(int ios, signed_blob *TMD, iosinfo_t *iosinfo)
 {

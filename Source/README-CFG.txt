@@ -1051,6 +1051,10 @@ Changelog:
 
 cfg v69
 
+06-06-2011 cfg v69b2 (beta)
+ * Use modmii cios identification for d2x version (by R2-D2199)
+ * Detection of hermes cios v5.1 installed with pimp my wii (by xFede)
+
 04-06-2011 cfg v69b1 (beta)
  * Support for ModMii cios identification (thanks XFlak, WiiPower)
  * Support for Korean games (by damysteryman)
@@ -1076,6 +1080,7 @@ cfg v69
 
 28-05-2011 cfg v69a2 (alpha)
  * Fixed d2x v5+ ios reload block on wbfs (tnx WiiPower & davebaol)
+   (Now Sam&Max fix is always enabled)
 
 28-05-2011 cfg v69a (alpha)
  * detection of cios d2x v4 (tnx kamiro04 & FIX94)

@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69b2 (beta)
+size = 1571232
+date = 2011-06-06
+url = http://cfg-loader.googlecode.com/files/cfg69b2.dol
+Use modmii cios identification
+  for d2x version
+Detection of hermes cios v5.1
+  installed with pimp my wii
+
+release = 69b2-222 (beta)
+size = 1571232
+date = 2011-06-06
+url = http://cfg-loader.googlecode.com/files/cfg69b2-222.dol
+Same as 69b2 but with different
+default options:
+  ios=222-mload
+
 release = 69b1 (beta)
 size = 1570944
 date = 2011-06-04

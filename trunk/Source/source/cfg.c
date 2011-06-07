@@ -1171,6 +1171,7 @@ void CFG_Default()
 	// default game settings
 	CFG.game.video    = CFG_VIDEO_AUTO;
 	CFG.game.hooktype = 1; // VBI
+	CFG.game.block_ios_reload = 2; // 2=auto
 	cfg_ios_set_idx(DEFAULT_IOS_IDX);
 	// all other game settings are 0 (memset(0) above)
 	STRCOPY(CFG.sort_ignore, "A,An,The");
@@ -2166,6 +2167,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	cfg_bool("fix_002", &game_cfg->fix_002);
 	cfg_ios_idx(name, val, &game_cfg->ios_idx);
 	cfg_bool("block_ios_reload", &game_cfg->block_ios_reload);
+	cfg_map("block_ios_reload", "auto", &game_cfg->block_ios_reload, 2);
 	if (strcmp("alt_dol", name) == 0) {
 		int set = 0;
 		if (cfg_bool("alt_dol", &game_cfg->alt_dol)) set = 1;
@@ -2832,7 +2834,11 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_BOOL(fix_002);
 		s = ios_str(game_cfg->ios_idx);
 		SAVE_STR("ios", s);
-		SAVE_BOOL(block_ios_reload);
+		if (game_cfg->block_ios_reload == 2) {
+			SAVE_STR("block_ios_reload", "auto");
+		} else {
+			SAVE_BOOL(block_ios_reload);
+		}
 		if (game_cfg->alt_dol < ALT_DOL_DISC) {
 			SAVE_BOOL(alt_dol);
 		} else {

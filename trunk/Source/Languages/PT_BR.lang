@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PT-BR translation for CFG USB loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-14 23:16+0200\n"
+"POT-Creation-Date: 2011-06-07 23:40+0200\n"
 "PO-Revision-Date: 2010-09-23 21:40-0300\n"
 "Last-Translator: LeonLeao <leon.leao92@gmail.com>\n"
 "Language-Team: Brazilian Portuguese\n"
@@ -138,6 +138,9 @@ msgstr ""
 
 msgid "Ascending"
 msgstr "Crescente"
+
+msgid "Auto"
+msgstr ""
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"

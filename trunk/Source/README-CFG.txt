@@ -1051,6 +1051,13 @@ Changelog:
 
 cfg v69
 
+07-06-2011 cfg v69b3 (beta)
+ * changed option: block_ios_reload = 0, 1, [auto]
+   'auto' will enable block ios reload if cios is d2x and ver >= 5
+   'auto' is now the default
+ * Removed detection of hermes ios installed with pimp my wii
+   since the hashes were incorrect.
+
 06-06-2011 cfg v69b2 (beta)
  * Use modmii cios identification for d2x version (by R2-D2199)
  * Detection of hermes cios v5.1 installed with pimp my wii (by xFede)

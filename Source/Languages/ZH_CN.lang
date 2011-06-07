@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-14 23:16+0200\n"
+"POT-Creation-Date: 2011-06-07 23:40+0200\n"
 "PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
@@ -136,6 +136,9 @@ msgstr "你确定要删除此款游戏？"
 
 msgid "Ascending"
 msgstr "正在升序排列中"
+
+msgid "Auto"
+msgstr ""
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"

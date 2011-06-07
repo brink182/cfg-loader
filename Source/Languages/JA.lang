@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-14 23:16+0200\n"
+"POT-Creation-Date: 2011-06-07 23:40+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
 "Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
@@ -132,6 +132,9 @@ msgstr "このゲームを削除しますか?"
 
 msgid "Ascending"
 msgstr "昇順"
+
+msgid "Auto"
+msgstr ""
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"

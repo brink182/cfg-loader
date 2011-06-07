@@ -780,15 +780,9 @@ err:
 
 void Block_IOS_Reload()
 {
-	if (!CFG.game.block_ios_reload) return;
-	if (CFG.ios_mload) {
-	
-		// hermes ios reload block
-		patch_datas[0]=*((u32 *) (dip_plugin+16*4));
-		mload_set_ES_ioctlv_vector((void *) patch_datas[0]);
-	
-	} else if (is_ios_d2x() >= 5) {
-	
+	if (CFG.game.block_ios_reload == 0) return;
+
+	if (is_ios_d2x() >= 5) {
 		// d2x ios reload block
 		int es_fd = IOS_Open("/dev/es", 0);
 		if (es_fd < 0) {
@@ -812,16 +806,27 @@ void Block_IOS_Reload()
 			printf_("d2x IOS reload block FAILED!\n");
 			return;
 		}
+		goto out;
+	}
 	
+	// if set to auto(2) and ios != d2x then don't do anything
+	if (CFG.game.block_ios_reload == 2) return;
+
+	if (CFG.ios_mload) {
+		// hermes ios reload block
+		patch_datas[0]=*((u32 *) (dip_plugin+16*4));
+		mload_set_ES_ioctlv_vector((void *) patch_datas[0]);
 	} else {
 		// unsupported
 		printf_("IOS Reload Block only supported\nwith d2x and hermes cios\n");
 		sleep(3);
 		return;
 	}
+out:
 	printf_(gt("IOS Reload: Blocked"));
 	printf("\n");
-	sleep(2);
+	if (CFG.game.block_ios_reload == 2) return;
+	sleep(1);
 }
 
 u32 old_title_id = 0;
@@ -1336,14 +1341,6 @@ static struct ios_hash_info ios_info[] =
 	{ 249, {0x00b06c85, 0xab7a94c2, 0x674785fc, 0x8f133335, 0xc9b84d49}, "57 r21-d2x-v4" },
 	{ 249, {0x000530f4, 0x0c472b29, 0xb8f22f5a, 0x752b0613, 0x109bace1}, "58 r21-d2x-v4" },
 
-	// Hermes / PimpMyWii
-	// cIOS 222 v5.1 installed with Pimp My Wii(BASE 38)
-	{ 222, {0x28d6d99e, 0x99373486, 0xa083e938, 0x18716efa, 0xbe17b845}, "38 v5.1 PimpMyWii" },
-	// cIOS 223 v5.1 installed with Pimp My Wii(BASE 37)
-	{ 223, {0x9a9ff057, 0x12fb6494, 0xbeaec75a, 0x374c484f, 0x2937b01b}, "37 v5.1 PimpMyWii" },
-	// cIOS 224 v5.1 installed with Pimp My Wii(BASE 57)
-	{ 224, {0x53ecd1d3, 0xbdd48050, 0x2e15b315, 0x669b3c8e, 0x98888e2f}, "57 v5.1 PimpMyWii" },
-	
 	/*
 	// modmii 249
 	{ 249, {0x005b6439, 0xf4a2e0b7, 0xfce05f75, 0xdb1a66ce, 0x7a0811c1}, "38 r17 modmii" },	

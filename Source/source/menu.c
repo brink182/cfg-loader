@@ -1333,8 +1333,13 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			PRINT_OPT_B(gt("Anti 002 Fix:"), game_cfg->fix_002);
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Block IOS Reload:"), game_cfg->block_ios_reload);
+		if (menu_window_mark(&menu)) {
+			if (game_cfg->block_ios_reload == 2) {
+				PRINT_OPT_S(gt("Block IOS Reload:"), gt("Auto"));
+			} else {
+				PRINT_OPT_B(gt("Block IOS Reload:"), game_cfg->block_ios_reload);
+			}
+		}
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
 		if (menu_window_mark(&menu))
@@ -1417,7 +1422,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				CHANGE(game_cfg->ios_idx, CFG_IOS_MAX);
 				break;
 			case 8:
-				CHANGE(game_cfg->block_ios_reload, 1);
+				CHANGE(game_cfg->block_ios_reload, 2);
 				break;
 			case 9:
 				if (!disc) Menu_Alt_Dol(header, game_cfg, 1);

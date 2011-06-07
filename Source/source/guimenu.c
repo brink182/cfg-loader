@@ -692,12 +692,6 @@ void gameopt_inactive(int cond, Widget *ww, int val)
 void update_gameopt_state()
 {
 	int cond;
-	// block ios reload is supported with hermes and d2x
-	/*
-	cond = (wgame.ios_idx->value < CFG_IOS_222_MLOAD
-			|| wgame.ios_idx->value > CFG_IOS_224_MLOAD);
-	gameopt_inactive(cond, wgame.block_ios_reload, 0);
-	*/
 
 	// clear
 	cond = (wgame.clean->value == CFG_CLEAN_ALL);
@@ -895,7 +889,8 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			ww = wgui_add_game_opt(op, "IOS:", num_ios, names_ios);
 			BIND_OPT(ios_idx);
 
-			ww = wgui_add_game_opt(op, gt("Block IOS Reload:"), 2, NULL);
+			char *str_block[3] = { gt("Off"), gt("On"), gt("Auto") };
+			ww = wgui_add_game_opt(op, gt("Block IOS Reload:"), 3, str_block);
 			BIND_OPT(block_ios_reload);
 
 			/////////////////

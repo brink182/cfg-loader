@@ -2193,7 +2193,7 @@ char about_str2[] =
 "CREDITS: "
 "Waninkoko Kwiirk Hermes WiiGator Spaceman Spiff WiiPower "
 "davebaol tueidj FIX94 Narolez dimok giantpune Hibern r-win "
-"Miigotu nIxx fishears pccfatman fig2k4 wiimm Xflak ..."
+"Miigotu nIxx fishears pccfatman fig2k4 wiimm Xflak lustar ..."
 "\n\n"
 "TRANSLATORS: "
 "FIX94 Fox888 TyRaNtM JABE xxdimixx Cambo Hosigumayuugi "

@@ -13,6 +13,28 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69 (release)
+size = 1571392
+date = 2011-06-09
+url = http://cfg-loader.googlecode.com/files/cfg69.dol
+Updated about window with
+  credits & translators list
+
+release = 69-222 (release)
+size = 1571392
+date = 2011-06-09
+url = http://cfg-loader.googlecode.com/files/cfg69-222.dol
+Same as 69 but with different
+default options:
+  ios=222-mload
+
+release = 69-compat (release)
+size = 1655136
+date = 2011-06-09
+url = http://cfg-loader.googlecode.com/files/cfg69-compat.dol
+Same as 69 but built with
+  devkit 17 and libogc 1.7.1
+
 release = 69b3 (beta)
 size = 1571264
 date = 2011-06-07
@@ -58,112 +80,6 @@ size = 1570944
 date = 2011-06-04
 url = http://cfg-loader.googlecode.com/files/cfg69b1-222.dol
 Same as 69b1 but with different
-default options:
-  ios=222-mload
-
-release = 69a7 (alpha)
-size = 1569760
-date = 2011-06-04
-url = http://cfg-loader.googlecode.com/files/cfg69a7.dol
-revert to ntfs-3g-2010.10.2
-  (libntfs-wii r4+r7)
-Improved support for hdd with 4k sec.
-
-release = 69a7-222 (alpha)
-size = 1569760
-date = 2011-06-04
-url = http://cfg-loader.googlecode.com/files/cfg69a7-222.dol
-Same as 69a7 but with different
-default options:
-  ios=222-mload
-
-release = 69a6 (alpha)
-size = 1571552
-date = 2011-06-03
-url = http://cfg-loader.googlecode.com/files/cfg69a6.dol
-Improved support for
-  hdd with 4k sectors
-
-release = 69a6-222 (alpha)
-size = 1571552
-date = 2011-06-03
-url = http://cfg-loader.googlecode.com/files/cfg69a6-222.dol
-Same as 69a6 but with different
-default options:
-  ios=222-mload
-
-release = 69a5 (alpha)
-size = 1571552
-date = 2011-06-02
-url = http://cfg-loader.googlecode.com/files/cfg69a5.dol
- * Support for d2x v6
-
-release = 69a5-222 (alpha)
-size = 1571552
-date = 2011-06-02
-url = http://cfg-loader.googlecode.com/files/cfg69a5-222.dol
-Same as 69a5 but with different
-default options:
-  ios=222-mload
-
-release = 69a4 (alpha)
-size = 1571488
-date = 2011-06-02
-url = http://cfg-loader.googlecode.com/files/cfg69a4.dol
-Fixed #001 error on hermes cios
-Fixed We Dare
-Minor cleanups
-
-release = 69a4-222 (alpha)
-size = 1571488
-date = 2011-06-02
-url = http://cfg-loader.googlecode.com/files/cfg69a4-222.dol
-Same as 69a4 but with different
-default options:
-  ios=222-mload
-
-release = 69a3 (alpha)
-size = 1571488
-date = 2011-05-28
-url = http://cfg-loader.googlecode.com/files/cfg69a3.dol
-Really fixed d2x v5+ ios reload block
-
-release = 69a3-222 (alpha)
-size = 1571488
-date = 2011-05-28
-url = http://cfg-loader.googlecode.com/files/cfg69a3-222.dol
-Same as 69a3 but with different
-default options:
-  ios=222-mload
-
-release = 69a2 (alpha)
-size = 1571360
-date = 2011-05-28
-url = http://cfg-loader.googlecode.com/files/cfg69a2.dol
-Fixed d2x v5+ ios reload block
-
-release = 69a2-222 (alpha)
-size = 1571360
-date = 2011-05-28
-url = http://cfg-loader.googlecode.com/files/cfg69a2-222.dol
-Same as 69a2 but with different
-default options:
-  ios=222-mload
-
-release = 69a (alpha)
-size = 1571296
-date = 2011-05-28
-url = http://cfg-loader.googlecode.com/files/cfg69a.dol
-detection of cios d2x v4
-d2x v5+ ios reload block on wbfs
-d2x v4+ return to channel method
-new value: return_to_channel = auto
-
-release = 69a-222 (alpha)
-size = 1571296
-date = 2011-05-28
-url = http://cfg-loader.googlecode.com/files/cfg69a-222.dol
-Same as 69a but with different
 default options:
   ios=222-mload
 

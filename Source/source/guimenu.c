@@ -2190,10 +2190,17 @@ char about_title[] = "Configurable SD/USB Loader";
 char about_str2[] =
 "by oggzee, usptactical, gannon & Dr. Clipper"
 "\n\n"
-"Based on Wanikoko SD/USB Loader 1.5, Kwiirk Yal & cios 222, "
-"Hermes uLoader 1.6 & cios 222/223+mload + many others (Sorg, nIxx, "
-"fishears, usptactical, 56Killer, WiiShizzza, hungyip84, Narolez, ...)"
+"CREDITS: "
+"Waninkoko Kwiirk Hermes WiiGator Spaceman Spiff WiiPower "
+"davebaol tueidj FIX94 Narolez dimok giantpune Hibern r-win "
+"Miigotu nIxx fishears pccfatman fig2k4 wiimm Xflak ..."
+"\n\n"
+"TRANSLATORS: "
+"FIX94 Fox888 TyRaNtM JABE xxdimixx Cambo Hosigumayuugi "
+"cherries4u Stigmatic LeonLeao pplucky Geridian Clamis "
+"kavid nhlay WiiNero TheRealVisitor Tuzruhu ..."
 ;
+
 char about_str[sizeof(about_title) + sizeof(about_str2) * 2];
 
 void action_OpenAbout(Widget *_ww)
@@ -2203,7 +2210,8 @@ void action_OpenAbout(Widget *_ww)
 
 	dd = desk_open_dialog(pos_auto, gt("About"));
 	dd->dialog_color = CFG.gui_window_color_popup;
-	pos_pad(dd, PAD3);
+	int pad = PAD1;
+	pos_pad(dd, pad);
 
 	STRCOPY(about_str, about_title);
 	char *s = about_str;
@@ -2212,7 +2220,7 @@ void action_OpenAbout(Widget *_ww)
 	STRAPPEND(about_str, about_str2);
 
 	pos_newline(dd);
-	ww = wgui_add_page(dd, NULL, pos_wh(SIZE_FULL, -H_NORMAL-PAD3), NULL);
+	ww = wgui_add_page(dd, NULL, pos_wh(SIZE_FULL, -H_NORMAL-pad), NULL);
 	ww = wgui_add_textbox(ww, pos_full, TXT_H_NORMAL, about_str, sizeof(about_str));
 	ww->text_color = about_fc;
 	//ww->opt = 1; // background

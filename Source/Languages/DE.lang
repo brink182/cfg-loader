@@ -140,7 +140,7 @@ msgid "Ascending"
 msgstr "Aufsteigend"
 
 msgid "Auto"
-msgstr ""
+msgstr "Automatisch"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"

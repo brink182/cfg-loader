@@ -34,7 +34,11 @@ Features:
  - SDHC with multiple partitions supported
    (WBFS for games and FAT for resources...)
  - Custom IOS selection for better compatibility with USB drives and other USB devices.
- - cIOS supported: waninkoko's 247, 248, 249 & 250, Hermes 222, 223 & 224 (mload), kwiirk 222 & 223 (yal)
+ - cIOS supported:
+   davebaol d2x (recommended)
+   waninkoko 247, 248, 249 & 250
+   Hermes 222, 223 & 224 (mload)
+   kwiirk 222 & 223 (yal)
  - Banner sounds
  - Saving game play time to Wii's play log
  - Multiple WBFS partitions support
@@ -916,11 +920,14 @@ Config file:
 # theme_previews = [1], 0
 #   determines if the theme preview images should be downloaded and displayed
 #
-# return_to_channel = [0], JODI, FDCL, ...
+# return_to_channel = [0], auto, JODI, FDCL, ...
 #   Games will return to the selected channel ID
 #   e.g., JODI for HBC or a forwarder channel like FDCL or DCFG
 #     to reload Cfg.
 #   0 is the default Wii Menu operation
+#   auto: will try to detect the channel id from where the loader was started.
+#   (although some forwarders are not auto detected properly,
+#    but the official one by FIX94 is)
 #
 # disable_nsmb_patch = [0],1
 # disable_pop_patch = [0],1
@@ -995,8 +1002,9 @@ Config file:
 #   Note: 222-mload is for Hermes's cIOS and is the default for the -222 version
 #   Note: a few seconds of delay when starting a game with custom ios is expected.
 #
-# block_ios_reload = [0], 1
-#   Required by some games, but works inly with ios: 222-mload, 223-mload, 224-mload
+# block_ios_reload = 0, 1, [auto]
+#   Required by some games, works with d2x cios and in a limited way for hermes cios
+#   0: disabled, 1: enabled, auto: enable if cios is d2x and ver >= 5
 #
 # alt_dol = [0], 1, sd, disc
 #   Alternative .dol loading option (from NeoGamma by WiiPower)
@@ -1049,7 +1057,11 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
-cfg v69
+09-06-2011 cfg v69 (release)
+ * Updated about window with credits & translators list
+ * Full package changes:
+ - New default theme: Blue 2011 (by The-Magician)
+ - Added tetris.mp3
 
 07-06-2011 cfg v69b3 (beta)
  * changed option: block_ios_reload = 0, 1, [auto]

@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 69c (bugfix)
+size = 1571584
+date = 2011-06-12
+url = http://cfg-loader.googlecode.com/files/cfg69c.dol
+Fixed crash when return_to_channel
+  is set to an invalid value
+  (non-existing channel id)
+
+release = 69c-222 (bugfix)
+size = 1571584
+date = 2011-06-12
+url = http://cfg-loader.googlecode.com/files/cfg69c-222.dol
+Same as 69c but with different
+default options:
+  ios=222-mload
+
 release = 69 (release)
 size = 1571392
 date = 2011-06-09

@@ -14,6 +14,7 @@
 #include "sdhc.h"
 #include "usbstorage.h"
 #include "wpad.h"
+#include "apploader.h"
 
 
 #define TITLE_ID(x,y)       (((u64)(x) << 32) | (y))
@@ -869,18 +870,18 @@ void d2x_return_to_channel()
 	sm_title_id = (0x00010001ULL << 32) | CFG.return_to;
 
 	int ret;
-	signed_blob *buf;
+	signed_blob *buf = NULL;
 	u32 filesize;
 
 	// Check if the title exists NeoGamma wants the cIOS to return to
 	ret = GetTMD(sm_title_id, &buf, &filesize);
-	if (buf != NULL)
-	{
-		free(buf);
-	}
-
-	if (ret < 0)
-	{
+	SAFE_FREE(buf);
+	if (ret != 0) {
+		disable_return_to_patch = true;
+		printf("Invalid return_to_channel=%08x\n", CFG.return_to);
+		printf("Try using return_to_channel=auto\n");
+		printf("Which will use channel id: %08x\n", old_title_id);
+		sleep(5);
 		return;
 	}
 
@@ -905,7 +906,6 @@ void d2x_return_to_channel()
 			CFG.return_to, ret);
 	if (ret >= 0) {
 		// success
-		extern bool disable_return_to_patch;
 		disable_return_to_patch = true;
 	}
 }

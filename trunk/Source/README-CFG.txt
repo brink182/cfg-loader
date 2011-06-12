@@ -1057,6 +1057,10 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
+12-06-2011 cfg v69c (bugfix)
+ * Fixed crash when return_to_channel is set to an invalid value
+   (non-existing channel id)
+
 09-06-2011 cfg v69 (release)
  * Updated about window with credits & translators list
  * Full package changes:

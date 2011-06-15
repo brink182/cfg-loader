@@ -17,9 +17,8 @@ release = 69d (bugfix)
 size = 1571584
 date = 2011-06-15
 url = http://cfg-loader.googlecode.com/files/cfg69d.dol
- * Fixed wbfs on hdd with 4k sectors (broken by v69a6)
-   (And disabled fat & ntfs on hdd with 4k sec. since it doesn't work)
- * Updated "about" credits and translators
+Fixed wbfs on hdd with 4k sectors
+Updated "about" credits & translators
 
 release = 69d-222 (bugfix)
 size = 1571584

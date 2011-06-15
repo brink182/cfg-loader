@@ -140,7 +140,7 @@ msgid "Ascending"
 msgstr "Stigende"
 
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -655,7 +655,7 @@ msgid "Error: no data."
 msgstr "Fejl: Ingen data."
 
 msgid "Exit"
-msgstr "Afslutte"
+msgstr "Afslut"
 
 #, c-format
 msgid "Extracting: %s"

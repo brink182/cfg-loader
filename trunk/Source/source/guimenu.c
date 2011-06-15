@@ -2193,12 +2193,12 @@ char about_str2[] =
 "CREDITS: "
 "Waninkoko Kwiirk Hermes WiiGator Spaceman Spiff WiiPower "
 "davebaol tueidj FIX94 Narolez dimok giantpune Hibern r-win "
-"Miigotu nIxx fishears pccfatman fig2k4 wiimm Xflak lustar ..."
+"Miigotu fishears pccfatman fig2k4 wiimm Xflak lustar"
 "\n\n"
 "TRANSLATORS: "
 "FIX94 Fox888 TyRaNtM JABE xxdimixx Cambo Hosigumayuugi "
-"cherries4u Stigmatic LeonLeao pplucky Geridian Clamis "
-"kavid nhlay WiiNero TheRealVisitor Tuzruhu ..."
+"cherries4u Stigmatic mangojambo LeonLeao tarcis pplucky "
+"Geridian Clamis kavid nhlay WiiNero TheRealVisitor Tuzruhu"
 ;
 
 char about_str[sizeof(about_title) + sizeof(about_str2) * 2];
@@ -2219,7 +2219,7 @@ void action_OpenAbout(Widget *_ww)
 	sprintf(s, " v%s \n\n", CFG_VERSION);
 	STRAPPEND(about_str, about_str2);
 
-	pos_newline(dd);
+	//pos_newline(dd);
 	ww = wgui_add_page(dd, NULL, pos_wh(SIZE_FULL, -H_NORMAL-pad), NULL);
 	ww = wgui_add_textbox(ww, pos_full, TXT_H_NORMAL, about_str, sizeof(about_str));
 	ww->text_color = about_fc;

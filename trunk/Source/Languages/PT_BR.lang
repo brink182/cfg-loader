@@ -54,7 +54,7 @@ msgid "(%d seconds timeout)"
 msgstr "(%d segundos de espera)"
 
 msgid "(This can take a couple of minutes)"
-msgstr ""
+msgstr "(Isso pode levar alguns minutos)"
 
 msgid ".dol too small"
 msgstr ".dol muito pequeno"
@@ -140,7 +140,7 @@ msgid "Ascending"
 msgstr "Crescente"
 
 msgid "Auto"
-msgstr ""
+msgstr "Automático"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"

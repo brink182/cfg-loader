@@ -1057,6 +1057,11 @@ RMGP = Super Mario Galaxy
 Changelog:
 ----------
 
+15-06-2011 cfg v69d (bugfix)
+ * Fixed wbfs on hdd with 4k sectors (broken by v69a6)
+   (And disabled fat & ntfs on hdd with 4k sec. since it doesn't work)
+ * Updated "about" credits and translators
+
 12-06-2011 cfg v69c (bugfix)
  * Fixed crash when return_to_channel is set to an invalid value
    (non-existing channel id)

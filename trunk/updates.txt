@@ -66,6 +66,15 @@ url = http://cfg-loader.googlecode.com/files/cfg69-compat.dol
 Same as 69 but built with
   devkit 17 and libogc 1.7.1
 
+release = 69-dbg (debug)
+size = 1571392
+date = 2011-06-09
+url = http://cfg-loader.googlecode.com/files/cfg69-dbg.dol
+Same as 69 but with different
+default options:
+  debug=3
+  home=screenshot
+
 release = 68d (bugfix)
 size = 1569856
 date = 2011-04-28

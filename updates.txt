@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70a (alpha)
+size = 1573504
+date = 2011-06-25
+url = http://cfg-loader.googlecode.com/files/cfg70a.dol
+updated libraries for improved
+  support of hdd with 4k sectors
+  libfat, libntfs, libext2fs r15
+
+release = 70a-222 (alpha)
+size = 1573504
+date = 2011-06-25
+url = http://cfg-loader.googlecode.com/files/cfg70a-222.dol
+Same as 70a but with different
+default options:
+  ios=222-mload
+
 release = 69d (bugfix)
 size = 1571584
 date = 2011-06-15

@@ -13,6 +13,23 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70b (beta)
+size = 1563008
+date = 2011-06-26
+url = http://cfg-loader.googlecode.com/files/cfg70b.dol
+Updated devkitPPC to 23
+Updated libogc to 1.8.7
+Improved clear patches all
+Fixed GUI game options hook type
+
+release = 70b-222 (beta)
+size = 1563008
+date = 2011-06-26
+url = http://cfg-loader.googlecode.com/files/cfg70b-222.dol
+Same as 70b but with different
+default options:
+  ios=222-mload
+
 release = 70a (alpha)
 size = 1573504
 date = 2011-06-25

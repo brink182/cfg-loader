@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70b3 (beta)
+size = 1566944
+date = 2011-07-02
+url = http://cfg-loader.googlecode.com/files/cfg70b3.dol
+Support for hdd with 4k sector size
+ on fat/ntfs/wbfs filesystems
+
+release = 70b3-222 (beta)
+size = 1566944
+date = 2011-07-02
+url = http://cfg-loader.googlecode.com/files/cfg70b3-222.dol
+Same as 70b3 but with different
+default options:
+  ios=222-mload
+
 release = 70b2 (beta)
 size = 1566816
 date = 2011-06-28

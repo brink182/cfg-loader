@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70b5 (beta)
+size = 1567616
+date = 2011-07-03
+url = http://cfg-loader.googlecode.com/files/cfg70b5.dol
+Fixed crashes in GUI game select
+  especially with WBFS partition
+Minor cleanups
+
+release = 70b5-222 (beta)
+size = 1567616
+date = 2011-07-03
+url = http://cfg-loader.googlecode.com/files/cfg70b5-222.dol
+Same as 70b5 but with different
+default options:
+  ios=222-mload
+
 release = 70b4 (beta)
 size = 1567392
 date = 2011-07-02

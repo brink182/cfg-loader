@@ -13,6 +13,21 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70b6 (beta)
+size = 1569440
+date = 2011-07-05
+url = http://cfg-loader.googlecode.com/files/cfg70b6.dol
+Updated to rodries ehcmodule for
+  hermes cios (222,223,224)
+
+release = 70b6-222 (beta)
+size = 1569440
+date = 2011-07-05
+url = http://cfg-loader.googlecode.com/files/cfg70b6-222.dol
+Same as 70b6 but with different
+default options:
+  ios=222-mload
+
 release = 70b5 (beta)
 size = 1567616
 date = 2011-07-03

@@ -575,7 +575,7 @@ inline void GRRLIB_DrawTile_draw(f32 xpos, f32 ypos, GRRLIB_texImg tex, float de
 
 inline void GRRLIB_DrawTile_draw1(f32 xpos, f32 ypos, GRRLIB_texImg *tex, u32 color, int frame)
 {
-    f32 width, height;
+    //f32 width, height;
 
     // Frame Correction by spiffen
     const f32 FRAME_CORR = 0.001f;
@@ -590,8 +590,8 @@ inline void GRRLIB_DrawTile_draw1(f32 xpos, f32 ypos, GRRLIB_texImg *tex, u32 co
 	t2 -= 0.0015f;
 
 
-    width = tex->tilew * 0.5f;
-    height = tex->tileh * 0.5f;
+    //width = tex->tilew * 0.5f;
+    //height = tex->tileh * 0.5f;
     GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
     GX_Position3f32(xpos, ypos, 0);
     GX_Color1u32(color);

@@ -15,6 +15,7 @@
 #include <mp3player.h>
 #include <gcmodplay.h>
 
+#include "dir.h"
 #include "cfg.h"
 #include "music.h"
 #include "wpad.h"
@@ -72,7 +73,7 @@ void Music_UnPause(){
 		if (music_f) {
 			int ret;
 			ret = fseek(music_f, mp3_read_pos, SEEK_SET);
-			//printf("\nseek %d %d\n", mp3_read_pos, ret);
+			if (ret < 0) printf("\nerror seek %d %d\n", mp3_read_pos, ret);
 			//sleep(5);
 		}
 		music_paused = 0;

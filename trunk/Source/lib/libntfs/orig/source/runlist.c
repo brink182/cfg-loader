@@ -5,7 +5,7 @@
  * Copyright (c) 2002-2005 Richard Russon
  * Copyright (c) 2002-2008 Szabolcs Szakacsits
  * Copyright (c) 2004 Yura Pakhuchiy
- * Copyright (c) 2007-2009 Jean-Pierre Andre
+ * Copyright (c) 2007-2010 Jean-Pierre Andre
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -117,18 +117,33 @@ static runlist_element *ntfs_rl_realloc(runlist_element *rl, int old_size,
  *
  *	Returns the reallocated runlist
  *		or NULL if reallocation was not possible (with errno set)
+ *		the runlist is left unchanged if the reallocation fails
  */
 
-runlist_element *ntfs_rl_extend(runlist_element *rl, int more_entries)
+runlist_element *ntfs_rl_extend(ntfs_attr *na, runlist_element *rl,
+			int more_entries)
 {
+	runlist_element *newrl;
 	int last;
+	int irl;
 
-	last = 0;
-	while (rl[last].length)
-		last++;
-	rl = ntfs_rl_realloc(rl,last+1,last+more_entries+1);
-	if (!rl)
-		errno = ENOMEM;
+	if (na->rl && rl) {
+		irl = (int)(rl - na->rl);
+		last = irl;
+		while (na->rl[last].length)
+			last++;
+		newrl = ntfs_rl_realloc(na->rl,last+1,last+more_entries+1);
+		if (!newrl) {
+			errno = ENOMEM;
+			rl = (runlist_element*)NULL;
+		} else
+			na->rl = newrl;
+			rl = &newrl[irl];
+	} else {
+		ntfs_log_error("Cannot extend unmapped runlist");
+		errno = EIO;
+		rl = (runlist_element*)NULL;
+	}
 	return (rl);
 }
 
@@ -764,7 +779,7 @@ runlist_element *ntfs_runlists_merge(runlist_element *drl,
  * two into one, if that is possible (we check for overlap and discard the new
  * runlist if overlap present before returning NULL, with errno = ERANGE).
  */
-runlist_element *ntfs_mapping_pairs_decompress_i(const ntfs_volume *vol,
+static runlist_element *ntfs_mapping_pairs_decompress_i(const ntfs_volume *vol,
 		const ATTR_RECORD *attr, runlist_element *old_rl)
 {
 	VCN vcn;		/* Current vcn. */
@@ -1403,28 +1418,18 @@ int ntfs_write_significant_bytes(u8 *dst, const u8 *dst_max, const s64 n)
 {
 	s64 l = n;
 	int i;
-	s8 j;
 
 	i = 0;
-	do {
+	if (dst > dst_max)
+		goto err_out;
+	*dst++ = l;
+	i++;
+	while ((l > 0x7f) || (l < -0x80)) {
 		if (dst > dst_max)
 			goto err_out;
-		*dst++ = l & 0xffLL;
 		l >>= 8;
+		*dst++ = l;
 		i++;
-	} while (l != 0LL && l != -1LL);
-	j = (n >> 8 * (i - 1)) & 0xff;
-	/* If the sign bit is wrong, we need an extra byte. */
-	if (n < 0LL && j >= 0) {
-		if (dst > dst_max)
-			goto err_out;
-		i++;
-		*dst = (u8)-1;
-	} else if (n > 0LL && j < 0) {
-		if (dst > dst_max)
-			goto err_out;
-		i++;
-		*dst = 0;
 	}
 	return i;
 err_out:
@@ -1622,7 +1627,11 @@ int ntfs_rl_truncate(runlist **arl, const VCN start_vcn)
 
 	if (!arl || !*arl) {
 		errno = EINVAL;
-		ntfs_log_perror("rl_truncate error: arl: %p *arl: %p", arl, *arl);
+		if (!arl)
+			ntfs_log_perror("rl_truncate error: arl: %p", arl);
+		else
+			ntfs_log_perror("rl_truncate error:"
+				" arl: %p *arl: %p", arl, *arl);
 		return -1;
 	}
 	

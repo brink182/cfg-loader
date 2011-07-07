@@ -1,6 +1,7 @@
 #ifndef WIIDISC_H
 #define WIIDISC_H
 #include <stdio.h>
+#include <ogc/es.h>
 #include "libwbfs_os.h" // this file is provided by the project wanting to compile libwbfs and wiidisc
 
 #ifdef __cplusplus
@@ -46,12 +47,16 @@ typedef struct wiidisc_s
         char *extract_pathname;
         u8  *extracted_buffer;
         int extracted_size;
+        tmd *extract_tmd;
+        bool skip_files;
 }wiidisc_t;
 
 wiidisc_t *wd_open_disc(read_wiidisc_callback_t read,void*fp);
 void wd_close_disc(wiidisc_t *);
 // returns a buffer allocated with wbfs_ioalloc() or NULL if not found of alloc error
 u8 * wd_extract_file(wiidisc_t *d, partition_selector_t partition_type, char *pathname);
+
+int wd_extract_tmd(wiidisc_t *d, tmd *tmd);
 
 void wd_build_disc_usage(wiidisc_t *d, partition_selector_t selector, u8* usage_table);
 

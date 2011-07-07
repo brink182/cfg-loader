@@ -141,9 +141,10 @@ Mtx GXview2D;
  * Retrieves the current data for wiimote 1
  *  @return void
  */
+#if 0
 void getWiiMoteInfo() {
 	u32 ext;	//Extension type
-	u32 ret=0;	//remote probe return
+	//u32 ret=0;	//remote probe return
 
 	WPAD_ScanPads();
 	ret=WPAD_Probe(WPAD_CHAN_0,&ext);			//probe remote 1 with extension
@@ -156,7 +157,7 @@ void getWiiMoteInfo() {
 	WPAD_Accel(WPAD_CHAN_0, &wpad_data.accel);			//get accelerometer data
 	WPAD_Expansion(WPAD_CHAN_0, &wpad_data.exp);		//get expansion data
 }
-
+#endif
 
 /**
  * Initilaizes all the common cover images (top, side, front, back)

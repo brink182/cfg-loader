@@ -134,7 +134,7 @@ msgid "Ascending"
 msgstr "昇順"
 
 msgid "Auto"
-msgstr ""
+msgstr "自動"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -200,7 +200,7 @@ msgid "Classic Controller"
 msgstr "クラシックコントローラ"
 
 msgid "Clear Patches:"
-msgstr "クリアパッチ:"
+msgstr "パッチを無効化:"
 
 #, c-format
 msgid "Complete. Size: %d"

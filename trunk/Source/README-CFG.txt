@@ -1,5 +1,5 @@
 
-Configurable SD/USB Loader v69
+Configurable SD/USB Loader v70
 ==============================
 
 by oggzee, usptactical, gannon & Dr. Clipper
@@ -218,6 +218,21 @@ Since version 41 background width can be larger than 640 and will be either
  - cropped if not widescreen
 down to 640x480. Note: height must still be 480.
 
+GUI buttons, icons and windows theme images:
+button images: button.png, radio.png, checkbox.png
+window images: window.png, page.png
+States: button images can contain a single button image
+or multiple images for different states:
+- normal, flash, hover, press, press hover, inactive
+Any number of buttons can be present, if some are missing then
+the normal state + coloring and effects are used to generate the missing state.
+A button width:height must be 2:1, so that the number of states can be
+calculated: num = height * 2 / width
+Scaling: a button is divided to 3 areas horizontally: 1/4 1/2 1/4 the first
+and last are scale proportionally while the middle is streched as much as required.
+Round buttons only use the first and last parts.
+Similarily a window image is divided also to 3 areas vertically and same rules apply.
+The image width and height must be divisible by 4.
 
 
 GUI Mode:
@@ -1032,6 +1047,9 @@ Config file:
 #   In the per-game menu, these options show up as "Off", "On",
 #   "Japanese Title" and "English Title" respectively.
 #
+# clear_patches = [0],1,all
+#   When on (1) return_to_channel and the dvd check are disabled
+#   When 'all', then all .dol patches are disabled
 
 Config file sample:
 -------------------
@@ -1056,6 +1074,44 @@ RMGP = Super Mario Galaxy
 
 Changelog:
 ----------
+
+07-07-2011 cfg v70 (release)
+ * Version
+ * Full package changes:
+ - New default theme: Glass (by The-Magician)
+
+05-07-2011 cfg v70b6 (beta)
+ * Updated to rodries ehcmodule for hermes cios (222,223,224)
+
+03-07-2011 cfg v70b5 (beta)
+ * Fixed occasional crashes in GUI game select
+   especially when using WBFS partition
+ * Minor cleanups
+
+02-07-2011 cfg v70b4 (beta)
+ * Print game requested IOS in game info screen
+   (after the GAMEID and size) (tnx R2-D2199)
+ * Minor cleanups
+
+02-07-2011 cfg v70b3 (beta)
+ * Support for hdd with 4k sector size on fat/ntfs/wbfs filesystems
+   Thanks to: dimok (libs) davebaol (cios) and dexter (testing)
+
+28-06-2011 cfg v70b2 (beta)
+ * Fixed GUI game options when clear patches is set to all
+ * Improved exception stack dump output to show also the debug log and version
+ * Improved gui theme switch to reflect text and button color changes immediately
+
+26-06-2011 cfg v70b (beta)
+ * Updated devkitPPC to 23
+ * Updated libogc to 1.8.7
+ * When clear patches is set to all really disable all game patches,
+   previously some could still be enabled (anti 002 and some others)
+ * Fixed GUI Menu display of game options hook type when ocarina is enabled
+
+25-06-2011 cfg v70a (alpha)
+ * updated libraries for improved support of hdd with 4k sectors: (tnx dimok)
+   libfat r4700, libntfs r10 (ntfs-3g 2011.4.12), libext2fs r15 (v1.0.2)
 
 15-06-2011 cfg v69d (bugfix)
  * Fixed wbfs on hdd with 4k sectors (broken by v69a6)

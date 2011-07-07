@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 
 #include "fat.h"
-#include "ntfs.h"
+#include "ntfs_frag.h"
 #include "ext2_frag.h"
 #include "libwbfs/libwbfs.h"
 #include "wbfs.h"
@@ -130,6 +130,7 @@ int frag_get(FragList *ff, u32 offset, u32 count,
 	// not found
 	if (offset + count > ff->size) {
 		// error: out of range!
+		printf("ERROR: frag_get range %d %d %d\n", offset, count, ff->size);
 		return -1;
 	}
 	// if inside range, then it must be just sparse, zero filled
@@ -185,7 +186,7 @@ int get_frag_list(u8 *id)
 	if (wbfs_part_fs == PART_FS_WBFS) return 0;
 
 	ret = WBFS_FAT_find_fname(id, fname, sizeof(fname));
-	if (!ret) return -1;
+	if (!ret) return -2;
 
 	if (strcasecmp(strrchr(fname,'.'), ".wbfs") == 0) {
 		is_wbfs = 1;
@@ -250,7 +251,7 @@ int get_frag_list(u8 *id)
 			MountPoint *m = mount_find(wbfs_fs_drive);
 			if (!m) {
 				printf("mount %s not found!\n", wbfs_fs_drive);
-				ret_val = -2;
+				ret_val = -3;
 				goto out;
 			}
 			part_sec = m->sector;
@@ -274,15 +275,16 @@ int get_frag_list(u8 *id)
 		// if wbfs file format, remap.
 		//printf("=====\n");
 		wbfs_disc_t *d = WBFS_OpenDisc(id);
-		if (!d) goto out;
+		if (!d) { ret_val = -4; goto out; }
 		frag_init(fw, MAX_FRAG);
-		ret = wbfs_get_fragments(d, &_frag_append, fw);
-		if (ret) goto out;
+		dbg_printf("wbfs dev sector size: %d\n", wbfs_dev_sector_size);
+		ret = wbfs_get_fragments(d, &_frag_append, fw, wbfs_dev_sector_size);
+		if (ret) { ret_val = -5; goto out; }
 		WBFS_CloseDisc(d);
 		frag_dump(fw);
 		// DEBUG: frag_list->num = MAX_FRAG-10; // stress test
 		ret = frag_remap(frag_list, fw, fa);
-		if (ret) goto out;
+		if (ret) { ret_val = -6; goto out; }
 	} else {
 		// .iso does not need remap just copy
 		//printf("fa:\n");

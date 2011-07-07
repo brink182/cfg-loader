@@ -16,11 +16,15 @@
 #include "wpad.h"
 #include "apploader.h"
 
-
-#define TITLE_ID(x,y)       (((u64)(x) << 32) | (y))
-#define TITLE_HIGH(x)       ((u32)((x) >> 32))
-#define TITLE_LOW(x)		((u32)(x))
-
+typedef struct {
+	u32 block_size;
+	u32 free_blocks;
+	u32 used_blocks;
+	u32 unk3;
+	u32 unk4;
+	u32 free_inodes;
+	u32 unk5;
+} isfs_stats_t;
 
 /* Constants */
 #define CERTS_LEN	0x280
@@ -149,19 +153,19 @@ void Sys_Exit()
 
 void Sys_HBC()
 {
-	int ret = 0;
+	//int ret = 0;
 	//dbg_printf("prep_exit\n");
 	prep_exit();
 	//dbg_printf("WII_Initialize\n");
 	WII_Initialize();
 	dbg_printf("HBC107\n");
 	//printf("%d\n1.07\n",ret); sleep(1);
-	ret = WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // 1.07
+	WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // 1.07
 	//printf("%d\nJODI\n",ret); sleep(1);
 	//dbg_printf("jodi\n");
-	ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x4A4F4449)); // JODI
+	WII_LaunchTitle(TITLE_ID(0x00010001,0x4A4F4449)); // JODI
 	//printf("%d\nHAXX\n",ret);
-	ret = WII_LaunchTitle(TITLE_ID(0x00010001,0x48415858)); // HAXX
+	WII_LaunchTitle(TITLE_ID(0x00010001,0x48415858)); // HAXX
 	//printf("%d\nexit\n",ret); sleep(1);
 	dbg_printf("exit\n");
 	exit(0);
@@ -169,11 +173,9 @@ void Sys_HBC()
 
 void Sys_Channel(u32 channel)
 {
-		int ret = 0;
 	prep_exit();
 	WII_Initialize();
-	//printf("%d\nJODI\n",ret); sleep(1);
-    ret = WII_LaunchTitle(TITLE_ID(0x00010001,channel));
+	WII_LaunchTitle(TITLE_ID(0x00010001,channel));
 }
 
 
@@ -213,7 +215,8 @@ void Sys_Channel(u32 channel)
 #define size_odip_frag 9120 // odip + frag
 extern unsigned char odip_frag[size_odip_frag];
 
-#define size_ehcmodule5 25287
+//#define size_ehcmodule5 25287 // 5.0/5.1 hermes
+#define size_ehcmodule5 27134 // 5.1 rodries
 extern unsigned char ehcmodule5[size_ehcmodule5];
 	
 #define size_sdhc_module 5672
@@ -1660,6 +1663,13 @@ void get_all_ios_info_str(char *str, int size)
 		}
 		str_seek_end(&str, &size);
 	}
+	/*
+	isfs_stats_t st ATTRIBUTE_ALIGN(32);
+	memset(&st, 0, sizeof(st));
+	ret = ISFS_GetStats(&st);
+	snprintf(str, size, "%d NAND Free Blocks: %d %d %d\n",
+			ret, st.free_blocks, st.block_size, st.used_blocks);
+	*/
 }
 
 void print_all_ios_info_str(char *str, int size)

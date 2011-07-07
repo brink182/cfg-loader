@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000-2004 Anton Altaparmakov
  * Copyright (c) 2002-2009 Szabolcs Szakacsits
- * Copyright (c) 2008-2009 Jean-Pierre Andre
+ * Copyright (c) 2008-2011 Jean-Pierre Andre
  * Copyright (c) 2008      Bernhard Kaindl
  *
  * This program/include file is free software; you can redistribute it and/or
@@ -132,37 +132,30 @@ BOOL ntfs_names_are_equal(const ntfschar *s1, size_t s1_len,
 								       TRUE;
 }
 
-/**
- * ntfs_names_collate - collate two Unicode names
+/*
+ * ntfs_names_full_collate() fully collate two Unicode names
+ *
  * @name1:	first Unicode name to compare
  * @name1_len:	length of first Unicode name to compare
  * @name2:	second Unicode name to compare
  * @name2_len:	length of second Unicode name to compare
- * @err_val:	if @name1 contains an invalid character return this value
  * @ic:		either CASE_SENSITIVE or IGNORE_CASE
  * @upcase:	upcase table (ignored if @ic is CASE_SENSITIVE)
  * @upcase_len:	upcase table size (ignored if @ic is CASE_SENSITIVE)
  *
- * ntfs_names_collate() collates two Unicode names and returns:
- *
  *  -1 if the first name collates before the second one,
  *   0 if the names match,
  *   1 if the second name collates before the first one, or
- * @err_val if an invalid character is found in @name1 during the comparison.
  *
- * The following characters are considered invalid: '"', '*', '<', '>' and '?'.
- *
- * A few optimizations made by JPA
  */
-
-int ntfs_names_collate(const ntfschar *name1, const u32 name1_len,
+int ntfs_names_full_collate(const ntfschar *name1, const u32 name1_len,
 		const ntfschar *name2, const u32 name2_len,
-		const int err_val __attribute__((unused)),
 		const IGNORE_CASE_BOOL ic, const ntfschar *upcase,
 		const u32 upcase_len)
 {
 	u32 cnt;
-	ntfschar c1, c2;
+	u16 c1, c2;
+	u16 u1, u2;
 
 #ifdef DEBUG
 	if (!name1 || !name2 || (ic && (!upcase || !upcase_len))) {
@@ -171,38 +164,68 @@ int ntfs_names_collate(const ntfschar *name1, const u32 name1_len,
 	}
 #endif
 	cnt = min(name1_len, name2_len);
-		/* JPA average loop count is 8 */
 	if (cnt > 0) {
-		if (ic)
-				/* JPA this loop in 76% cases */
-			do {
-				c1 = le16_to_cpu(*name1);
+		if (ic == CASE_SENSITIVE) {
+			while (--cnt && (*name1 == *name2)) {
 				name1++;
-				c2 = le16_to_cpu(*name2);
 				name2++;
-				if (c1 < upcase_len)
-					c1 = le16_to_cpu(upcase[c1]);
-				if (c2 < upcase_len)
-					c2 = le16_to_cpu(upcase[c2]);
-			} while ((c1 == c2) && --cnt);
-		else
+			}
+			u1 = c1 = le16_to_cpu(*name1);
+			u2 = c2 = le16_to_cpu(*name2);
+			if (u1 < upcase_len)
+				u1 = le16_to_cpu(upcase[u1]);
+			if (u2 < upcase_len)
+				u2 = le16_to_cpu(upcase[u2]);
+			if ((u1 == u2) && cnt)
+				do {
+					name1++;
+					u1 = le16_to_cpu(*name1);
+					name2++;
+					u2 = le16_to_cpu(*name2);
+					if (u1 < upcase_len)
+						u1 = le16_to_cpu(upcase[u1]);
+					if (u2 < upcase_len)
+						u2 = le16_to_cpu(upcase[u2]);
+				} while ((u1 == u2) && --cnt);
+			if (u1 < u2)
+				return -1;
+			if (u1 > u2)
+				return 1;
+			if (name1_len < name2_len)
+				return -1;
+			if (name1_len > name2_len)
+				return 1;
+			if (c1 < c2)
+				return -1;
+			if (c1 > c2)
+				return 1;
+		} else {
 			do {
-				/* JPA this loop in 24% cases */
-				c1 = le16_to_cpu(*name1);
+				u1 = c1 = le16_to_cpu(*name1);
 				name1++;
-				c2 = le16_to_cpu(*name2);
+				u2 = c2 = le16_to_cpu(*name2);
 				name2++;
-			} while ((c1 == c2) && --cnt);
-		if (c1 < c2)
+				if (u1 < upcase_len)
+					u1 = le16_to_cpu(upcase[u1]);
+				if (u2 < upcase_len)
+					u2 = le16_to_cpu(upcase[u2]);
+			} while ((u1 == u2) && --cnt);
+			if (u1 < u2)
+				return -1;
+			if (u1 > u2)
+				return 1;
+			if (name1_len < name2_len)
+				return -1;
+			if (name1_len > name2_len)
+				return 1;
+		}
+	} else {
+		if (name1_len < name2_len)
 			return -1;
-		if (c1 > c2)
+		if (name1_len > name2_len)
 			return 1;
 	}
-	if (name1_len < name2_len)
-		return -1;
-	if (name1_len == name2_len)
-		return 0;
-	return 1;
+	return 0;
 }
 
 /**
@@ -264,7 +287,7 @@ int ntfs_ucsncmp(const ntfschar *s1, const ntfschar *s2, size_t n)
 int ntfs_ucsncasecmp(const ntfschar *s1, const ntfschar *s2, size_t n,
 		const ntfschar *upcase, const u32 upcase_size)
 {
-	ntfschar c1, c2;
+	u16 c1, c2;
 	size_t i;
 
 #ifdef DEBUG
@@ -357,11 +380,26 @@ void ntfs_name_upcase(ntfschar *name, u32 name_len, const ntfschar *upcase,
 		const u32 upcase_len)
 {
 	u32 i;
-	ntfschar u;
+	u16 u;
 
 	for (i = 0; i < name_len; i++)
 		if ((u = le16_to_cpu(name[i])) < upcase_len)
 			name[i] = upcase[u];
+}
+
+/**
+ * ntfs_name_locase - Map a Unicode name to its lowercase equivalent
+ */
+void ntfs_name_locase(ntfschar *name, u32 name_len, const ntfschar *locase,
+		const u32 locase_len)
+{
+	u32 i;
+	u16 u;
+
+	if (locase)
+		for (i = 0; i < name_len; i++)
+			if ((u = le16_to_cpu(name[i])) < locase_len)
+				name[i] = locase[u];
 }
 
 /**
@@ -379,31 +417,6 @@ void ntfs_file_value_upcase(FILE_NAME_ATTR *file_name_attr,
 {
 	ntfs_name_upcase((ntfschar*)&file_name_attr->file_name,
 			file_name_attr->file_name_length, upcase, upcase_len);
-}
-
-/**
- * ntfs_file_values_compare - Which of two filenames should be listed first
- * @file_name_attr1:
- * @file_name_attr2:
- * @err_val:
- * @ic:
- * @upcase:
- * @upcase_len:
- *
- * Description...
- *
- * Returns:
- */
-int ntfs_file_values_compare(const FILE_NAME_ATTR *file_name_attr1,
-		const FILE_NAME_ATTR *file_name_attr2,
-		const int err_val, const IGNORE_CASE_BOOL ic,
-		const ntfschar *upcase, const u32 upcase_len)
-{
-	return ntfs_names_collate((ntfschar*)&file_name_attr1->file_name,
-			file_name_attr1->file_name_length,
-			(ntfschar*)&file_name_attr2->file_name,
-			file_name_attr2->file_name_length,
-			err_val, ic, upcase, upcase_len);
 }
 
 /*
@@ -505,7 +518,7 @@ static int ntfs_utf16_to_utf8(const ntfschar *ins, const int ins_len,
 
 	char *t;
 	int i, size, ret = -1;
-	ntfschar halfpair;
+	int halfpair;
 
 	halfpair = 0;
 	if (!*outs)
@@ -614,24 +627,26 @@ static int utf8_to_utf16_size(const char *s)
 	while ((byte = *((const unsigned char *)s++))) {
 		if (++count >= PATH_MAX) 
 			goto fail;
-		if (byte >= 0xF5) {
-			errno = EILSEQ;
-			goto out;
-		}
-		if (!*s) 
-			break;
-		if (byte >= 0xC0) 
-			s++;
-		if (!*s) 
-			break;
-		if (byte >= 0xE0) 
-			s++;
-		if (!*s) 
-			break;
-		if (byte >= 0xF0) {
-			s++;
-			if (++count >= PATH_MAX)
-				goto fail;
+		if (byte >= 0xc0) {
+			if (byte >= 0xF5) {
+				errno = EILSEQ;
+				goto out;
+			}
+			if (!*s) 
+				break;
+			if (byte >= 0xC0) 
+				s++;
+			if (!*s) 
+				break;
+			if (byte >= 0xE0) 
+				s++;
+			if (!*s) 
+				break;
+			if (byte >= 0xF0) {
+				s++;
+				if (++count >= PATH_MAX)
+					goto fail;
+			}
 		}
 	}
 	ret = count;
@@ -663,8 +678,6 @@ static int utf8_to_unicode(u32 *wc, const char *s)
 	} else if (byte < 0xc2) {
 		goto fail;
 	} else if (byte < 0xE0) {
-		if (strlen(s) < 2)
-			goto fail;
 		if ((s[1] & 0xC0) == 0x80) {
 			*wc = ((u32)(byte & 0x1F) << 6)
 			    | ((u32)(s[1] & 0x3F));
@@ -673,8 +686,6 @@ static int utf8_to_unicode(u32 *wc, const char *s)
 			goto fail;
 					/* three-byte */
 	} else if (byte < 0xF0) {
-		if (strlen(s) < 3)
-			goto fail;
 		if (((s[1] & 0xC0) == 0x80) && ((s[2] & 0xC0) == 0x80)) {
 			*wc = ((u32)(byte & 0x0F) << 12)
 			    | ((u32)(s[1] & 0x3F) << 6)
@@ -693,8 +704,6 @@ static int utf8_to_unicode(u32 *wc, const char *s)
 		goto fail;
 					/* four-byte */
 	} else if (byte < 0xF5) {
-		if (strlen(s) < 4)
-			goto fail;
 		if (((s[1] & 0xC0) == 0x80) && ((s[2] & 0xC0) == 0x80)
 		  && ((s[3] & 0xC0) == 0x80)) {
 			*wc = ((u32)(byte & 0x07) << 18)
@@ -737,6 +746,7 @@ static int ntfs_utf8_to_utf16(const char *ins, ntfschar **outs)
 #endif /* defined(__APPLE__) || defined(__DARWIN__) */
 	const char *t = ins;
 	u32 wc;
+	BOOL allocated;
 	ntfschar *outpos;
 	int shorts, ret = -1;
 
@@ -744,18 +754,30 @@ static int ntfs_utf8_to_utf16(const char *ins, ntfschar **outs)
 	if (shorts < 0)
 		goto fail;
 
+	allocated = FALSE;
 	if (!*outs) {
 		*outs = ntfs_malloc((shorts + 1) * sizeof(ntfschar));
 		if (!*outs)
 			goto fail;
+		allocated = TRUE;
 	}
 
 	outpos = *outs;
 
 	while(1) {
 		int m  = utf8_to_unicode(&wc, t);
-		if (m < 0)
-			goto fail;
+		if (m <= 0) {
+			if (m < 0) {
+				/* do not leave space allocated if failed */
+				if (allocated) {
+					free(*outs);
+					*outs = (ntfschar*)NULL;
+				}
+				goto fail;
+			}
+			*outpos++ = const_cpu_to_le16(0);
+			break;
+		}
 		if (wc < 0x10000)
 			*outpos++ = cpu_to_le16(wc);
 		else {
@@ -763,8 +785,6 @@ static int ntfs_utf8_to_utf16(const char *ins, ntfschar **outs)
 			*outpos++ = cpu_to_le16((wc >> 10) + 0xd800);
 			*outpos++ = cpu_to_le16((wc & 0x3ff) + 0xdc00);
 		}
-		if (m == 0)
-			break;
 		t += m;
 	}
 	
@@ -808,12 +828,15 @@ int ntfs_ucstombs(const ntfschar *ins, const int ins_len, char **outs,
 		int outs_len)
 {
 	char *mbs;
+	int mbs_len;
+#ifdef MB_CUR_MAX
 	wchar_t wc;
-	int i, o, mbs_len;
+	int i, o;
 	int cnt = 0;
 #ifdef HAVE_MBSINIT
 	mbstate_t mbstate;
 #endif
+#endif /* MB_CUR_MAX */
 
 	if (!ins || !outs) {
 		errno = EINVAL;
@@ -827,6 +850,7 @@ int ntfs_ucstombs(const ntfschar *ins, const int ins_len, char **outs,
 	}
 	if (use_utf8)
 		return ntfs_utf16_to_utf8(ins, ins_len, outs, outs_len);
+#ifdef MB_CUR_MAX
 	if (!mbs) {
 		mbs_len = (ins_len + 1) * MB_CUR_MAX;
 		mbs = ntfs_malloc(mbs_len);
@@ -892,6 +916,9 @@ err_out:
 		free(mbs);
 		errno = eo;
 	}
+#else /* MB_CUR_MAX */
+	errno = EILSEQ;
+#endif /* MB_CUR_MAX */
 	return -1;
 }
 
@@ -920,6 +947,7 @@ err_out:
  */
 int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 {
+#ifdef MB_CUR_MAX
 	ntfschar *ucs;
 	const char *s;
 	wchar_t wc;
@@ -927,6 +955,7 @@ int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 #ifdef HAVE_MBSINIT
 	mbstate_t mbstate;
 #endif
+#endif /* MB_CUR_MAX */
 
 	if (!ins || !outs) {
 		errno = EINVAL;
@@ -936,6 +965,7 @@ int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 	if (use_utf8)
 		return ntfs_utf8_to_utf16(ins, outs);
 
+#ifdef MB_CUR_MAX
 	/* Determine the size of the multi-byte string in bytes. */
 	ins_size = strlen(ins);
 	/* Determine the length of the multi-byte string. */
@@ -1025,7 +1055,65 @@ int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 	return o;
 err_out:
 	free(ucs);
+#else /* MB_CUR_MAX */
+	errno = EILSEQ;
+#endif /* MB_CUR_MAX */
 	return -1;
+}
+
+/*
+ *		Turn a UTF8 name uppercase
+ *
+ *	Returns an allocated uppercase name which has to be freed by caller
+ *	or NULL if there is an error (described by errno)
+ */
+
+char *ntfs_uppercase_mbs(const char *low,
+			const ntfschar *upcase, u32 upcase_size)
+{
+	int size;
+	char *upp;
+	u32 wc;
+	int n;
+	const char *s;
+	char *t;
+
+	size = strlen(low);
+	upp = (char*)ntfs_malloc(3*size + 1);
+	if (upp) {
+		s = low;
+		t = upp;
+		do {
+			n = utf8_to_unicode(&wc, s);
+			if (n > 0) {
+				if (wc < upcase_size)
+					wc = le16_to_cpu(upcase[wc]);
+				if (wc < 0x80)
+					*t++ = wc;
+				else if (wc < 0x800) {
+					*t++ = (0xc0 | ((wc >> 6) & 0x3f));
+					*t++ = 0x80 | (wc & 0x3f);
+				} else if (wc < 0x10000) {
+					*t++ = 0xe0 | (wc >> 12);
+					*t++ = 0x80 | ((wc >> 6) & 0x3f);
+					*t++ = 0x80 | (wc & 0x3f);
+				} else {
+					*t++ = 0xf0 | ((wc >> 18) & 7);
+					*t++ = 0x80 | ((wc >> 12) & 63);
+					*t++ = 0x80 | ((wc >> 6) & 0x3f);
+					*t++ = 0x80 | (wc & 0x3f);
+				}
+			s += n;
+			}
+		} while (n > 0);
+		if (n < 0) {
+			free(upp);
+			upp = (char*)NULL;
+			errno = EILSEQ;
+		}
+		*t = 0;
+	}
+	return (upp);
 }
 
 /**
@@ -1040,6 +1128,69 @@ err_out:
  */
 void ntfs_upcase_table_build(ntfschar *uc, u32 uc_len)
 {
+#if 1 /* Vista */
+	/*
+	 *	This is the table as defined by Vista
+	 */
+	/*
+	 * "Start" is inclusive and "End" is exclusive, every value has the
+	 * value of "Add" added to it.
+	 */
+	static int uc_run_table[][3] = { /* Start, End, Add */
+	{0x0061, 0x007b,   -32}, {0x00e0, 0x00f7,  -32}, {0x00f8, 0x00ff, -32}, 
+	{0x0256, 0x0258,  -205}, {0x028a, 0x028c, -217}, {0x037b, 0x037e, 130}, 
+	{0x03ac, 0x03ad,   -38}, {0x03ad, 0x03b0,  -37}, {0x03b1, 0x03c2, -32},
+	{0x03c2, 0x03c3,   -31}, {0x03c3, 0x03cc,  -32}, {0x03cc, 0x03cd, -64},
+	{0x03cd, 0x03cf,   -63}, {0x0430, 0x0450,  -32}, {0x0450, 0x0460, -80},
+	{0x0561, 0x0587,   -48}, {0x1f00, 0x1f08,    8}, {0x1f10, 0x1f16,   8},
+	{0x1f20, 0x1f28,     8}, {0x1f30, 0x1f38,    8}, {0x1f40, 0x1f46,   8},
+	{0x1f51, 0x1f52,     8}, {0x1f53, 0x1f54,    8}, {0x1f55, 0x1f56,   8},
+	{0x1f57, 0x1f58,     8}, {0x1f60, 0x1f68,    8}, {0x1f70, 0x1f72,  74},
+	{0x1f72, 0x1f76,    86}, {0x1f76, 0x1f78,  100}, {0x1f78, 0x1f7a, 128},
+	{0x1f7a, 0x1f7c,   112}, {0x1f7c, 0x1f7e,  126}, {0x1f80, 0x1f88,   8},
+	{0x1f90, 0x1f98,     8}, {0x1fa0, 0x1fa8,    8}, {0x1fb0, 0x1fb2,   8},
+	{0x1fb3, 0x1fb4,     9}, {0x1fcc, 0x1fcd,   -9}, {0x1fd0, 0x1fd2,   8},
+	{0x1fe0, 0x1fe2,     8}, {0x1fe5, 0x1fe6,    7}, {0x1ffc, 0x1ffd,  -9},
+	{0x2170, 0x2180,   -16}, {0x24d0, 0x24ea,  -26}, {0x2c30, 0x2c5f, -48},
+	{0x2d00, 0x2d26, -7264}, {0xff41, 0xff5b,  -32}, {0}
+	};
+	/*
+	 * "Start" is exclusive and "End" is inclusive, every second value is
+	 * decremented by one.
+	 */
+	static int uc_dup_table[][2] = { /* Start, End */
+	{0x0100, 0x012f}, {0x0132, 0x0137}, {0x0139, 0x0149}, {0x014a, 0x0178},
+	{0x0179, 0x017e}, {0x01a0, 0x01a6}, {0x01b3, 0x01b7}, {0x01cd, 0x01dd},
+	{0x01de, 0x01ef}, {0x01f4, 0x01f5}, {0x01f8, 0x01f9}, {0x01fa, 0x0220},
+	{0x0222, 0x0234}, {0x023b, 0x023c}, {0x0241, 0x0242}, {0x0246, 0x024f},
+	{0x03d8, 0x03ef}, {0x03f7, 0x03f8}, {0x03fa, 0x03fb}, {0x0460, 0x0481},
+	{0x048a, 0x04bf}, {0x04c1, 0x04c4}, {0x04c5, 0x04c8}, {0x04c9, 0x04ce},
+	{0x04ec, 0x04ed}, {0x04d0, 0x04eb}, {0x04ee, 0x04f5}, {0x04f6, 0x0513},
+	{0x1e00, 0x1e95}, {0x1ea0, 0x1ef9}, {0x2183, 0x2184}, {0x2c60, 0x2c61},
+	{0x2c67, 0x2c6c}, {0x2c75, 0x2c76}, {0x2c80, 0x2ce3}, {0}
+	};
+	/*
+	 * Set the Unicode character at offset "Offset" to "Value".  Note,
+	 * "Value" is host endian.
+	 */
+	static int uc_byte_table[][2] = { /* Offset, Value */
+	{0x00ff, 0x0178}, {0x0180, 0x0243}, {0x0183, 0x0182}, {0x0185, 0x0184},
+	{0x0188, 0x0187}, {0x018c, 0x018b}, {0x0192, 0x0191}, {0x0195, 0x01f6},
+	{0x0199, 0x0198}, {0x019a, 0x023d}, {0x019e, 0x0220}, {0x01a8, 0x01a7},
+	{0x01ad, 0x01ac}, {0x01b0, 0x01af}, {0x01b9, 0x01b8}, {0x01bd, 0x01bc},
+	{0x01bf, 0x01f7}, {0x01c6, 0x01c4}, {0x01c9, 0x01c7}, {0x01cc, 0x01ca},
+	{0x01dd, 0x018e}, {0x01f3, 0x01f1}, {0x023a, 0x2c65}, {0x023e, 0x2c66},
+	{0x0253, 0x0181}, {0x0254, 0x0186}, {0x0259, 0x018f}, {0x025b, 0x0190},
+	{0x0260, 0x0193}, {0x0263, 0x0194}, {0x0268, 0x0197}, {0x0269, 0x0196},
+	{0x026b, 0x2c62}, {0x026f, 0x019c}, {0x0272, 0x019d}, {0x0275, 0x019f},
+	{0x027d, 0x2c64}, {0x0280, 0x01a6}, {0x0283, 0x01a9}, {0x0288, 0x01ae},
+	{0x0289, 0x0244}, {0x028c, 0x0245}, {0x0292, 0x01b7}, {0x03f2, 0x03f9},
+	{0x04cf, 0x04c0}, {0x1d7d, 0x2c63}, {0x214e, 0x2132}, {0}
+	};
+#else /* Vista */
+	/*
+	 *	This is the table as defined by Windows XP
+	 */
 	static int uc_run_table[][3] = { /* Start, End, Add */
 	{0x0061, 0x007B,  -32}, {0x0451, 0x045D, -80}, {0x1F70, 0x1F72,  74},
 	{0x00E0, 0x00F7,  -32}, {0x045E, 0x0460, -80}, {0x1F72, 0x1F76,  86},
@@ -1076,6 +1227,7 @@ void ntfs_upcase_table_build(ntfschar *uc, u32 uc_len)
 	{0x01A8, 0x01A7}, {0x01DD, 0x018E}, {0x0268, 0x0197},
 	{0}
 	};
+#endif /* Vista */
 	int i, r;
 	int k, off;
 
@@ -1097,6 +1249,59 @@ void ntfs_upcase_table_build(ntfschar *uc, u32 uc_len)
 		k = uc_byte_table[r][1];
 		uc[uc_byte_table[r][0]] = cpu_to_le16(k);
 	}
+}
+
+/*
+ *		Allocate and build the default upcase table
+ *
+ *	Returns the number of entries
+ *		0 if failed
+ */
+
+#define UPCASE_LEN 65536 /* default number of entries in upcase */
+
+u32 ntfs_upcase_build_default(ntfschar **upcase)
+{
+	u32 upcase_len;
+
+	*upcase = (ntfschar*)ntfs_malloc(UPCASE_LEN*2);
+	if (*upcase) {
+		ntfs_upcase_table_build(*upcase, UPCASE_LEN*2);
+		upcase_len = UPCASE_LEN;
+	}
+	return (upcase_len);
+}
+
+/*
+ *		Build a table for converting to lower case
+ *
+ *	This is only meaningful when there is a single lower case
+ *	character leading to an upper case one, and currently the
+ *	only exception is the greek letter sigma which has a single
+ *	upper case glyph (code U+03A3), but two lower case glyphs
+ *	(code U+03C3 and U+03C2, the latter to be used at the end
+ *	of a word). In the following implementation the upper case
+ *	sigma will be lowercased as U+03C3.
+ */
+
+ntfschar *ntfs_locase_table_build(const ntfschar *uc, u32 uc_cnt)
+{
+	ntfschar *lc;
+	u32 upp;
+	u32 i;
+
+	lc = (ntfschar*)ntfs_malloc(uc_cnt*sizeof(ntfschar));
+	if (lc) {
+		for (i=0; i<uc_cnt; i++)
+			lc[i] = cpu_to_le16(i);
+		for (i=0; i<uc_cnt; i++) {
+			upp = le16_to_cpu(uc[i]);
+			if ((upp != i) && (upp < uc_cnt))
+				lc[upp] = cpu_to_le16(i);
+		}
+	} else
+		ntfs_log_error("Could not build the locase table\n");
+	return (lc);
 }
 
 /**
@@ -1170,7 +1375,9 @@ BOOL ntfs_forbidden_chars(const ntfschar *name, int len)
 			| (1L << ('>' - 0x20))
 			| (1L << ('?' - 0x20));
 
-	forbidden = (len == 0) || (le16_to_cpu(name[len-1]) == ' ');
+	forbidden = (len == 0)
+			|| (le16_to_cpu(name[len-1]) == ' ')
+			|| (le16_to_cpu(name[len-1]) == '.');
 	for (i=0; i<len; i++) {
 		ch = le16_to_cpu(name[i]);
 		if ((ch < 0x20)

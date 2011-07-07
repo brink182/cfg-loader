@@ -125,6 +125,7 @@ void* _FAT_mem_allocate(size_t size)
 
 void* _FAT_mem_align(size_t size)
 {
+	//dbg_printf("FAT_mem %d\n", size);
 	if (size < FAT_SLOT_SIZE_MIN || size > FAT_SLOT_SIZE) goto fallback;
 	if (fat_pool == NULL) goto fallback;
 	int i;
@@ -136,6 +137,7 @@ void* _FAT_mem_align(size_t size)
 		}	
 	}
 	fallback:
+	dbg_printf("FAT memalign %d\n", size);
 	return memalign (32, size);		
 }
 

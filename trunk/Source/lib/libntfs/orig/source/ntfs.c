@@ -70,7 +70,7 @@ static const devoptab_t devops_ntfs = {
 void ntfsInit (void)
 {
     static bool isInit = false;
-    
+
     // Initialise ntfs-3g (if not already done so)
     if (!isInit) {
         isInit = true;
@@ -81,12 +81,11 @@ void ntfsInit (void)
         #else
         ntfs_log_set_handler(ntfs_log_handler_null);
         #endif
-        
         // Set our current local
         ntfs_set_locale();
-        
+
     }
-    
+
     return;
 }
 
@@ -98,14 +97,14 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
     int partition_count = 0;
     sec_t part_lba = 0;
     int i;
-    
+
     union {
-        u8 buffer[BYTES_PER_SECTOR];
+        u8 buffer[MAX_SECTOR_SIZE];
         MASTER_BOOT_RECORD mbr;
         EXTENDED_BOOT_RECORD ebr;
         NTFS_BOOT_SECTOR boot;
     } sector;
-    
+
     // Sanity check
     if (!interface) {
         errno = EINVAL;
@@ -113,10 +112,10 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
     }
     if (!partitions)
         return 0;
-    
+
     // Initialise ntfs-3g
     ntfsInit();
-    
+
     // Start the device and check that it is inserted
     if (!interface->startup()) {
         errno = EIO;
@@ -125,7 +124,7 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
     if (!interface->isInserted()) {
         return 0;
     }
-    
+
     // Read the first sector on the device
     if (!interface->readSectors(0, 1, &sector.buffer)) {
         errno = EIO;
@@ -136,12 +135,12 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
     if (sector.mbr.signature == MBR_SIGNATURE) {
         memcpy(&mbr, &sector, sizeof(MASTER_BOOT_RECORD));
         ntfs_log_debug("Valid Master Boot Record found\n");
-        
+
         // Search the partition table for all NTFS partitions (max. 4 primary partitions)
         for (i = 0; i < 4; i++) {
             partition = &mbr.partitions[i];
             part_lba = le32_to_cpu(mbr.partitions[i].lba_start);
-            
+
             ntfs_log_debug("Partition %i: %s, sector %d, type 0x%x\n", i + 1,
                            partition->status == PARTITION_STATUS_BOOTABLE ? "bootable (active)" : "non-bootable",
                            part_lba, partition->type);
@@ -152,11 +151,11 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
                 // Ignore empty partitions
                 case PARTITION_TYPE_EMPTY:
                     continue;
-                
+
                 // NTFS partition
                 case PARTITION_TYPE_NTFS: {
                     ntfs_log_debug("Partition %i: Claims to be NTFS\n", i + 1);
-                    
+
                     // Read and validate the NTFS partition
                     if (interface->readSectors(part_lba, 1, &sector)) {
                         if (sector.boot.oem_id == NTFS_OEM_ID) {
@@ -169,28 +168,28 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
                             ntfs_log_debug("Partition %i: Invalid NTFS boot sector, not actually NTFS\n", i + 1);
                         }
                     }
-                    
+
                     break;
-                
+
                 }
-                
+
                 // DOS 3.3+ or Windows 95 extended partition
                 case PARTITION_TYPE_DOS33_EXTENDED:
                 case PARTITION_TYPE_WIN95_EXTENDED: {
                     ntfs_log_debug("Partition %i: Claims to be Extended\n", i + 1);
-                    
+
                     // Walk the extended partition chain, finding all NTFS partitions within it
                     sec_t ebr_lba = part_lba;
                     sec_t next_erb_lba = 0;
                     do {
-                        
+
                         // Read and validate the extended boot record
                         if (interface->readSectors(ebr_lba + next_erb_lba, 1, &sector)) {
                             if (sector.ebr.signature == EBR_SIGNATURE) {
-                                ntfs_log_debug("Logical Partition @ %d: type 0x%x\n", ebr_lba + next_erb_lba,
+                                ntfs_log_debug("Logical Partition @ %d: %s type 0x%x\n", ebr_lba + next_erb_lba,
                                                sector.ebr.partition.status == PARTITION_STATUS_BOOTABLE ? "bootable (active)" : "non-bootable",
                                                sector.ebr.partition.type);
-                                
+
                                 // Get the start sector of the current partition
                                 // and the next extended boot record in the chain
                                 part_lba = ebr_lba + next_erb_lba + le32_to_cpu(sector.ebr.partition.lba_start);
@@ -214,16 +213,16 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
                                 next_erb_lba = 0;
                             }
                         }
-                        
+
                     } while (next_erb_lba);
-                    
+
                     break;
-                    
+
                 }
-            
+
                 // Unknown or unsupported partition type
                 default: {
-                    
+
                     // Check if this partition has a valid NTFS boot record anyway,
                     // it might be misrepresented due to a lazy partition editor
                     if (interface->readSectors(part_lba, 1, &sector)) {
@@ -238,15 +237,15 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
                             }
                         }
                     }
-                    
+
                     break;
-                    
+
                 }
-                
+
             }
-            
+
         }
-            
+
     // Else it is assumed this device has no master boot record
     } else {
         ntfs_log_debug("No Master Boot Record was found!\n");
@@ -263,12 +262,9 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
                 }
             }
         }
-        
+
     }
 
-    // Shutdown the device
-    /*interface->shutdown();*/
-    
     // Return the found partitions (if any)
     if (partition_count > 0) {
         *partitions = (sec_t*)ntfs_alloc(sizeof(sec_t) * partition_count);
@@ -277,7 +273,7 @@ int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitions)
             return partition_count;
         }
     }
-    
+
     return 0;
 }
 
@@ -294,7 +290,7 @@ int ntfsMountAll (ntfs_md **mounts, u32 flags)
 
     // Initialise ntfs-3g
     ntfsInit();
-    
+
     // Find and mount all NTFS partitions on all known devices
     for (i = 0; discs[i].name != NULL && discs[i].interface != NULL; i++) {
         disc = &discs[i];
@@ -303,7 +299,7 @@ int ntfsMountAll (ntfs_md **mounts, u32 flags)
             for (j = 0, k = 0; j < partition_count; j++) {
 
                 // Find the next unused mount name
-                do {                    
+                do {
                     sprintf(name, "%s%i", NTFS_MOUNT_PREFIX, k++);
                     if (k >= NTFS_MAX_MOUNTS) {
                         ntfs_free(partitions);
@@ -321,12 +317,12 @@ int ntfsMountAll (ntfs_md **mounts, u32 flags)
                         mount_count++;
                     }
                 }
-                
+
             }
             ntfs_free(partitions);
         }
     }
-    
+
     // Return the mounts (if any)
     if (mount_count > 0 && mounts) {
         *mounts = (ntfs_md*)ntfs_alloc(sizeof(ntfs_md) * mount_count);
@@ -335,7 +331,7 @@ int ntfsMountAll (ntfs_md **mounts, u32 flags)
             return mount_count;
         }
     }
-    
+
     return 0;
 }
 
@@ -349,7 +345,7 @@ int ntfsMountDevice (const DISC_INTERFACE *interface, ntfs_md **mounts, u32 flag
     int partition_count = 0;
     char name[128];
     int i, j, k;
-    
+
     // Sanity check
     if (!interface) {
         errno = EINVAL;
@@ -358,7 +354,7 @@ int ntfsMountDevice (const DISC_INTERFACE *interface, ntfs_md **mounts, u32 flag
 
     // Initialise ntfs-3g
     ntfsInit();
-    
+
     // Find the specified device then find and mount all NTFS partitions on it
     for (i = 0; discs[i].name != NULL && discs[i].interface != NULL; i++) {
         if (discs[i].interface == interface) {
@@ -366,9 +362,9 @@ int ntfsMountDevice (const DISC_INTERFACE *interface, ntfs_md **mounts, u32 flag
             partition_count = ntfsFindPartitions(disc->interface, &partitions);
             if (partition_count > 0 && partitions) {
                 for (j = 0, k = 0; j < partition_count; j++) {
-                    
+
                     // Find the next unused mount name
-                    do {                    
+                    do {
                         sprintf(name, "%s%i", NTFS_MOUNT_PREFIX, k++);
                         if (k >= NTFS_MAX_MOUNTS) {
                             ntfs_free(partitions);
@@ -376,7 +372,7 @@ int ntfsMountDevice (const DISC_INTERFACE *interface, ntfs_md **mounts, u32 flag
                             return -1;
                         }
                     } while (ntfsGetDevice(name, false));
-                    
+
                     // Mount the partition
                     if (mount_count < NTFS_MAX_MOUNTS) {
                         if (ntfsMount(name, disc->interface, partitions[j], CACHE_DEFAULT_PAGE_SIZE, CACHE_DEFAULT_PAGE_COUNT, flags)) {
@@ -386,7 +382,7 @@ int ntfsMountDevice (const DISC_INTERFACE *interface, ntfs_md **mounts, u32 flag
                             mount_count++;
                         }
                     }
-                    
+
                 }
                 ntfs_free(partitions);
             }
@@ -399,7 +395,7 @@ int ntfsMountDevice (const DISC_INTERFACE *interface, ntfs_md **mounts, u32 flag
         errno = ENODEV;
         return -1;
     }
-    
+
     // Return the mounts (if any)
     if (mount_count > 0 && mounts) {
         *mounts = (ntfs_md*)ntfs_alloc(sizeof(ntfs_md) * mount_count);
@@ -416,13 +412,13 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
 {
     ntfs_vd *vd = NULL;
     gekko_fd *fd = NULL;
-    
+
     // Sanity check
     if (!name || !interface) {
         errno = EINVAL;
-        return -1;
+        return false;
     }
-    
+
     // Initialise ntfs-3g
     ntfsInit();
 
@@ -431,20 +427,20 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
         errno = EADDRINUSE;
         return false;
     }
-    
+
     // Check that we can at least read from this device
     if (!(interface->features & FEATURE_MEDIUM_CANREAD)) {
         errno = EPERM;
         return false;
     }
-    
+
     // Allocate the volume descriptor
     vd = (ntfs_vd*)ntfs_alloc(sizeof(ntfs_vd));
     if (!vd) {
         errno = ENOMEM;
         return false;
     }
-    
+
     // Setup the volume descriptor
     vd->id = interface->ioType;
     vd->flags = 0;
@@ -455,7 +451,7 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
     vd->atime = ((flags & NTFS_UPDATE_ACCESS_TIMES) ? ATIME_ENABLED : ATIME_DISABLED);
     vd->showHiddenFiles = (flags & NTFS_SHOW_HIDDEN_FILES);
     vd->showSystemFiles = (flags & NTFS_SHOW_SYSTEM_FILES);
-    
+
     // Allocate the device driver descriptor
     fd = (gekko_fd*)ntfs_alloc(sizeof(gekko_fd));
     if (!fd) {
@@ -463,7 +459,7 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
         errno = ENOMEM;
         return false;
     }
-    
+
     // Setup the device driver descriptor
     fd->interface = interface;
     fd->startSector = startSector;
@@ -471,7 +467,7 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
     fd->sectorCount = 0;
     fd->cachePageCount = cachePageCount;
     fd->cachePageSize = cachePageSize;
-    
+
     // Allocate the device driver
     vd->dev = ntfs_device_alloc(name, 0, &ntfs_device_gekko_io_ops, fd);
     if (!vd->dev) {
@@ -479,20 +475,25 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
         ntfs_free(vd);
         return false;
     }
-    
+
     // Build the mount flags
-    if (!(interface->features & FEATURE_MEDIUM_CANWRITE))
-        vd->flags |= MS_RDONLY;
-    if ((interface->features & FEATURE_MEDIUM_CANREAD) && (interface->features & FEATURE_MEDIUM_CANWRITE))
-        vd->flags |= MS_EXCLUSIVE;
+    if (flags & NTFS_READ_ONLY)
+    	vd->flags |= MS_RDONLY;
+    else
+    {
+	    if (!(interface->features & FEATURE_MEDIUM_CANWRITE))
+	        vd->flags |= MS_RDONLY;
+	    if ((interface->features & FEATURE_MEDIUM_CANREAD) && (interface->features & FEATURE_MEDIUM_CANWRITE))
+	        vd->flags |= MS_EXCLUSIVE;
+    }
     if (flags & NTFS_RECOVER)
         vd->flags |= MS_RECOVER;
     if (flags & NTFS_IGNORE_HIBERFILE)
         vd->flags |= MS_IGNORE_HIBERFILE;
-    
+
     if (vd->flags & MS_RDONLY)
         ntfs_log_debug("Mounting \"%s\" as read-only\n", name);
-        
+
     // Mount the device
     vd->vol = ntfs_device_mount(vd->dev, vd->flags);
     if (!vd->vol) {
@@ -507,14 +508,17 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
         ntfs_free(vd);
         return false;
     }
-    
+
+	if (flags & NTFS_IGNORE_CASE)
+		ntfs_set_ignore_case(vd->vol);
+
     // Initialise the volume descriptor
     if (ntfsInitVolume(vd)) {
         ntfs_umount(vd->vol, true);
         ntfs_free(vd);
         return false;
     }
-    
+
     // Add the device to the devoptab table
     if (ntfsAddDevice(name, vd)) {
         ntfsDeinitVolume(vd);
@@ -522,7 +526,7 @@ bool ntfsMount (const char *name, const DISC_INTERFACE *interface, sec_t startSe
         ntfs_free(vd);
         return false;
     }
-    
+
     return true;
 }
 
@@ -534,40 +538,38 @@ void ntfsUnmount (const char *name, bool force)
     vd = ntfsGetVolume(name);
     if (!vd)
         return;
-    
+
     // Remove the device from the devoptab table
     ntfsRemoveDevice(name);
-    
+
     // Deinitialise the volume descriptor
     ntfsDeinitVolume(vd);
-    
+
     // Unmount the volume
     ntfs_umount(vd->vol, force);
-    
+
     // Free the volume descriptor
     ntfs_free(vd);
-    
+
     return;
 }
 
 const char *ntfsGetVolumeName (const char *name)
 {
     ntfs_vd *vd = NULL;
-    
+
     // Sanity check
     if (!name) {
         errno = EINVAL;
         return NULL;
     }
-    
+
     // Get the devices volume descriptor
     vd = ntfsGetVolume(name);
     if (!vd) {
         errno = ENODEV;
-        return false;
+        return NULL;
     }
-    
-    // Get the volumes name
     return vd->vol->vol_name;
 }
 
@@ -577,14 +579,13 @@ bool ntfsSetVolumeName (const char *name, const char *volumeName)
     ntfs_attr *na = NULL;
     ntfschar *ulabel = NULL;
     int ulabel_len;
-    char *label = NULL;
 
     // Sanity check
     if (!name) {
         errno = EINVAL;
         return false;
     }
-    
+
     // Get the devices volume descriptor
     vd = ntfsGetVolume(name);
     if (!vd) {
@@ -595,82 +596,63 @@ bool ntfsSetVolumeName (const char *name, const char *volumeName)
     // Lock
     ntfsLock(vd);
 
-    // Allocate a buffer to hold the new volume name
-    label = ntfs_alloc(strlen(volumeName) + 1);
-    if (!label) {
-        ntfsUnlock(vd);
-        errno = EINVAL;
-        return false;
-    }
-
-    // Copy the new volume name
-    memset(label, 0, strlen(volumeName) + 1);
-    strcpy(label, volumeName);
-
     // Convert the new volume name to unicode
-    ulabel_len = ntfsLocalToUnicode(label, &ulabel) * sizeof(ntfschar);
+    ulabel_len = ntfsLocalToUnicode(volumeName, &ulabel) * sizeof(ntfschar);
     if (ulabel_len < 0) {
-        ntfs_free(label);
         ntfsUnlock(vd);
         errno = EINVAL;
         return false;
     }
-    
+
     // Check if the volume name attribute exists
     na = ntfs_attr_open(vd->vol->vol_ni, AT_VOLUME_NAME, NULL, 0);
     if (na) {
-        
+
         // It does, resize it to match the length of the new volume name
         if (ntfs_attr_truncate(na, ulabel_len)) {
-            ntfs_free(label);
-            ntfs_free(ulabel);
+            free(ulabel);
             ntfsUnlock(vd);
             return false;
         }
-        
+
         // Write the new volume name
         if (ntfs_attr_pwrite(na, 0, ulabel_len, ulabel) != ulabel_len) {
-            ntfs_free(label);
-            ntfs_free(ulabel);
+            free(ulabel);
             ntfsUnlock(vd);
             return false;
         }
-        
+
     } else {
-        
+
         // It doesn't, create it now
         if (ntfs_attr_add(vd->vol->vol_ni, AT_VOLUME_NAME, NULL, 0, (u8*)ulabel, ulabel_len)) {
-            ntfs_free(label);
-            ntfs_free(ulabel);
+            free(ulabel);
             ntfsUnlock(vd);
             return false;
         }
-        
+
     }
 
-    // Update the volumes name (as it has now been changed)
-    if(vd->vol->vol_name) {
-        ntfs_free(vd->vol->vol_name);
-        vd->vol->vol_name = label;
-    }
+    // Reset the volumes name cache (as it has now been changed)
+    vd->name[0] = '\0';
 
     // Close the volume name attribute
     if (na)
         ntfs_attr_close(na);
-    
+
     // Sync the volume node
     if (ntfs_inode_sync(vd->vol->vol_ni)) {
-        ntfs_free(ulabel);
+        free(ulabel);
         ntfsUnlock(vd);
         return false;
     }
-    
+
     // Clean up
-    ntfs_free(ulabel);
-    
+    free(ulabel);
+
     // Unlock
     ntfsUnlock(vd);
-    
+
     return true;
 }
 
@@ -678,4 +660,3 @@ const devoptab_t *ntfsGetDevOpTab (void)
 {
     return &devops_ntfs;
 }
-

@@ -38,6 +38,9 @@
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
 #include <time.h>
 
 #include "compat.h"
@@ -1475,8 +1478,7 @@ found_free_rec:
 	ni->flags = 0;
 	ni->creation_time = ni->last_data_change_time =
 			ni->last_mft_change_time =
-			ni->last_access_time = time(NULL);
-	set_nino_flag(ni, TimesDirty);
+			ni->last_access_time = ntfs_current_time();
 	/* Update the default mft allocation position if it was used. */
 	if (!base_ni)
 		vol->mft_data_pos = bit + 1;
@@ -1778,8 +1780,7 @@ found_free_rec:
 	ni->flags = 0;
 	ni->creation_time = ni->last_data_change_time =
 			ni->last_mft_change_time =
-			ni->last_access_time = time(NULL);
-	set_nino_flag(ni, TimesDirty);
+			ni->last_access_time = ntfs_current_time();
 	/* Update the default mft allocation position if it was used. */
 	if (!base_ni)
 		vol->mft_data_pos = bit + 1;
@@ -1859,7 +1860,11 @@ int ntfs_mft_record_free(ntfs_volume *vol, ntfs_inode *ni)
 	}
 
 	/* Throw away the now freed inode. */
+#if CACHE_NIDATA_SIZE
+	if (!ntfs_inode_real_close(ni)) {
+#else
 	if (!ntfs_inode_close(ni)) {
+#endif
 		vol->free_mft_records++; 
 		return 0;
 	}

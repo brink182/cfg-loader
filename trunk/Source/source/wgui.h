@@ -129,7 +129,8 @@ struct Widget
 	bool lock_focus;
 	PosState post;
 	float text_scale;
-	FontColor text_color;
+	//FontColor text_color;
+	int text_color; // index
 	int text_opt; // align, fit
 	float zoom;   // pointer-over zoom amount
 	float max_zoom; // max hover zoom (1.1)
@@ -157,7 +158,7 @@ struct Widget
 	// *self_ptr is set to NULL when closed
 	// so that multiple instances can be prevented
 
-	u32 dialog_color;
+	u32 dialog_color; // index or color
 	//u32 base_color;
 
 	int value; // cbox radio listbox page textbox

@@ -531,6 +531,12 @@ static errcode_t device_gekko_set_option(io_channel dev, const char *option, con
 	return EXT2_ET_INVALID_ARGUMENT;
 }
 
+static errcode_t device_gekko_discard(io_channel channel, unsigned long long block, unsigned long long count)
+{
+    //!TODO as soon as it is implemented in the official lib
+    return 0;
+}
+
 /**
  * Device operations for working with gekko style devices and files.
  */
@@ -549,6 +555,7 @@ const struct struct_io_manager struct_gekko_io_manager =
 	device_gekko_io_stat,
 	device_gekko_io_read64,
 	device_gekko_io_write64,
+	device_gekko_discard,
 };
 
 io_manager gekko_io_manager = (io_manager) &struct_gekko_io_manager;

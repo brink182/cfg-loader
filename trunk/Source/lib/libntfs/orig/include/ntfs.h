@@ -1,6 +1,7 @@
 /**
  * ntfs.h - Simple functionality for startup, mounting and unmounting of NTFS-based devices.
  *
+ * Copyright (c) 2010 Dimok
  * Copyright (c) 2009 Rhys "Shareese" Koedijk
  * Copyright (c) 2006 Michael "Chishm" Chisholm
  *
@@ -47,8 +48,10 @@ extern "C" {
 #define NTFS_UPDATE_ACCESS_TIMES        0x00000004 /* Update file and directory access times */
 #define NTFS_RECOVER                    0x00000008 /* Reset $LogFile if dirty (i.e. from unclean disconnect) */
 #define NTFS_IGNORE_HIBERFILE           0x00000010 /* Mount even if volume is hibernated */
-#define NTFS_SU                         NTFS_SHOW_HIDDEN_FILES & NTFS_SHOW_SYSTEM_FILES
-#define NTFS_FORCE                      NTFS_RECOVER & NTFS_IGNORE_HIBERFILE
+#define NTFS_READ_ONLY                  0x00000020 /* Mount in read only mode */
+#define NTFS_IGNORE_CASE                0x00000040 /* Ignore case sensitivity. Everything must be and  will be provided in lowercase. */
+#define NTFS_SU                         NTFS_SHOW_HIDDEN_FILES | NTFS_SHOW_SYSTEM_FILES
+#define NTFS_FORCE                      NTFS_RECOVER | NTFS_IGNORE_HIBERFILE
 
 /**
  * ntfs_md - NTFS mount descriptor
@@ -64,7 +67,7 @@ typedef struct _ntfs_md {
  *
  * @param INTERFACE The block device to search
  * @param PARTITIONS (out) A pointer to receive the array of partition start sectors
- * 
+ *
  * @return The number of entries in PARTITIONS or -1 if an error occurred (see errno)
  * @note The caller is responsible for freeing PARTITIONS when finished with it
  */
@@ -75,7 +78,7 @@ extern int ntfsFindPartitions (const DISC_INTERFACE *interface, sec_t **partitio
  *
  * @param MOUNTS (out) A pointer to receive the array of mount descriptors
  * @param FLAGS Additional mounting flags. (see above)
- * 
+ *
  * @return The number of entries in MOUNTS or -1 if an error occurred (see errno)
  * @note The caller is responsible for freeing MOUNTS when finished with it
  * @note All device caches are setup using default values (see above)
@@ -88,7 +91,7 @@ extern int ntfsMountAll (ntfs_md **mounts, u32 flags);
  * @param INTERFACE The block device to mount.
  * @param MOUNTS (out) A pointer to receive the array of mount descriptors
  * @param FLAGS Additional mounting flags. (see above)
- * 
+ *
  * @return The number of entries in MOUNTS or -1 if an error occurred (see errno)
  * @note The caller is responsible for freeing MOUNTS when finished with it
  * @note The device cache is setup using default values (see above)
@@ -102,9 +105,9 @@ extern int ntfsMountDevice (const DISC_INTERFACE* interface, ntfs_md **mounts, u
  * @param INTERFACE The block device to mount
  * @param STARTSECTOR The sector the partition begins at (see @ntfsFindPartitions)
  * @param CACHEPAGECOUNT The total number of pages in the device cache
- * @param CACHEPAGESIZE The number of sectors per cache page 
+ * @param CACHEPAGESIZE The number of sectors per cache page
  * @param FLAGS Additional mounting flags (see above)
- * 
+ *
  * @return True if mount was successful, false if no partition was found or an error occurred (see errno)
  * @note ntfsFindPartitions should be used first to locate the partitions start sector
  */

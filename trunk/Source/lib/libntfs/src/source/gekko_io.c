@@ -62,7 +62,6 @@
 #include "cache.h"
 #include "device.h"
 #include "bootsect.h"
-#include "misc.h"
 
 #define DEV_FD(dev) ((gekko_fd *)dev->d_private)
 
@@ -113,7 +112,7 @@ static int ntfs_device_gekko_io_open(struct ntfs_device *dev, int flags)
     }
 
     // Check that there is a valid NTFS boot sector at the start of the device
-    NTFS_BOOT_SECTOR *boot = (NTFS_BOOT_SECTOR *) ntfs_malloc(MAX_SECTOR_SIZE);
+    NTFS_BOOT_SECTOR *boot = (NTFS_BOOT_SECTOR *) ntfs_alloc(MAX_SECTOR_SIZE);
     if(boot == NULL) {
         errno = ENOMEM;
         return -1;
@@ -518,6 +517,7 @@ static int ntfs_device_gekko_io_sync(struct ntfs_device *dev)
 
     // Mark the device as clean
     NDevClearDirty(dev);
+    NDevClearSync(dev);
 
     // Flush any sectors in the disc cache (if required)
     if (fd->cache) {

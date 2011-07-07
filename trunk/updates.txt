@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70 (release)
+size = 1569440
+date = 2011-07-07
+url = http://cfg-loader.googlecode.com/files/cfg70.dol
+Version
+
+release = 70-222 (release)
+size = 1569440
+date = 2011-07-07
+url = http://cfg-loader.googlecode.com/files/cfg70-222.dol
+Same as 70 but with different
+default options:
+  ios=222-mload
+
 release = 70b6 (beta)
 size = 1569440
 date = 2011-07-05
@@ -41,88 +55,6 @@ size = 1567616
 date = 2011-07-03
 url = http://cfg-loader.googlecode.com/files/cfg70b5-222.dol
 Same as 70b5 but with different
-default options:
-  ios=222-mload
-
-release = 70b4 (beta)
-size = 1567392
-date = 2011-07-02
-url = http://cfg-loader.googlecode.com/files/cfg70b4.dol
-Print game requested IOS in game info
- screen (after the GAMEID and size)
-Minor cleanups
-
-release = 70b4-222 (beta)
-size = 1567424
-date = 2011-07-02
-url = http://cfg-loader.googlecode.com/files/cfg70b4-222.dol
-Same as 70b4 but with different
-default options:
-  ios=222-mload
-
-release = 70b3 (beta)
-size = 1566944
-date = 2011-07-02
-url = http://cfg-loader.googlecode.com/files/cfg70b3.dol
-Support for hdd with 4k sector size
- on fat/ntfs/wbfs filesystems
-
-release = 70b3-222 (beta)
-size = 1566944
-date = 2011-07-02
-url = http://cfg-loader.googlecode.com/files/cfg70b3-222.dol
-Same as 70b3 but with different
-default options:
-  ios=222-mload
-
-release = 70b2 (beta)
-size = 1566816
-date = 2011-06-28
-url = http://cfg-loader.googlecode.com/files/cfg70b2.dol
-Fixed  game options when clear
-  patches is set to all
-Improved exception stack dump output
-  to show also the debug log and version
-Improved gui theme switch
-
-release = 70b2-222 (beta)
-size = 1566816
-date = 2011-06-28
-url = http://cfg-loader.googlecode.com/files/cfg70b2-222.dol
-Same as 70b2 but with different
-default options:
-  ios=222-mload
-
-release = 70b (beta)
-size = 1563008
-date = 2011-06-26
-url = http://cfg-loader.googlecode.com/files/cfg70b.dol
-Updated devkitPPC to 23
-Updated libogc to 1.8.7
-Improved clear patches all
-Fixed GUI game options hook type
-
-release = 70b-222 (beta)
-size = 1563008
-date = 2011-06-26
-url = http://cfg-loader.googlecode.com/files/cfg70b-222.dol
-Same as 70b but with different
-default options:
-  ios=222-mload
-
-release = 70a (alpha)
-size = 1573504
-date = 2011-06-25
-url = http://cfg-loader.googlecode.com/files/cfg70a.dol
-updated libraries for improved
-  support of hdd with 4k sectors
-  libfat, libntfs, libext2fs r15
-
-release = 70a-222 (alpha)
-size = 1573504
-date = 2011-06-25
-url = http://cfg-loader.googlecode.com/files/cfg70a-222.dol
-Same as 70a but with different
 default options:
   ios=222-mload
 

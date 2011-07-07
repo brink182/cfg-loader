@@ -49,7 +49,10 @@ static rw_sector_callback_t readCallback  = NULL;
 static rw_sector_callback_t writeCallback = NULL;
 
 /* Variables */
-static u32 nb_sectors, sector_size;
+static u32 nb_sectors;
+u32 wbfs_dev_sector_size;
+
+static mutex_t wbfs_disc_mutex = LWP_MUTEX_NULL;
 
 void __WBFS_Spinner(s32 x, s32 max)
 {
@@ -162,7 +165,7 @@ s32 __WBFS_ReadUSB(void *fp, u32 lba, u32 count, void *iobuf)
 
 	/* Do reads */
 	while (cnt < count) {
-		void *ptr     = ((u8 *)iobuf) + (cnt * sector_size);
+		void *ptr     = ((u8 *)iobuf) + (cnt * wbfs_dev_sector_size);
 		u32   sectors = (count - cnt);
 
 		/* Read sectors is too big */
@@ -188,7 +191,7 @@ s32 __WBFS_WriteUSB(void *fp, u32 lba, u32 count, void *iobuf)
 
 	/* Do writes */
 	while (cnt < count) {
-		void *ptr     = ((u8 *)iobuf) + (cnt * sector_size);
+		void *ptr     = ((u8 *)iobuf) + (cnt * wbfs_dev_sector_size);
 		u32   sectors = (count - cnt);
 
 		/* Write sectors is too big */
@@ -214,7 +217,7 @@ s32 __WBFS_ReadSDHC(void *fp, u32 lba, u32 count, void *iobuf)
 
 	/* Do reads */
 	while (cnt < count) {
-		void *ptr     = ((u8 *)iobuf) + (cnt * sector_size);
+		void *ptr     = ((u8 *)iobuf) + (cnt * wbfs_dev_sector_size);
 		u32   sectors = (count - cnt);
 
 		/* Read sectors is too big */
@@ -240,7 +243,7 @@ s32 __WBFS_WriteSDHC(void *fp, u32 lba, u32 count, void *iobuf)
 
 	/* Do writes */
 	while (cnt < count) {
-		void *ptr     = ((u8 *)iobuf) + (cnt * sector_size);
+		void *ptr     = ((u8 *)iobuf) + (cnt * wbfs_dev_sector_size);
 		u32   sectors = (count - cnt);
 
 		/* Write sectors is too big */
@@ -264,6 +267,10 @@ s32 WBFS_Init_Dev(u32 device)
 {
 	s32 ret = -1;
 
+	if (wbfs_disc_mutex == LWP_MUTEX_NULL) {
+		LWP_MutexInit(&wbfs_disc_mutex, true);
+	}
+
 	/* Try to mount device */
 	switch (device) {
 		case WBFS_DEVICE_USB:
@@ -280,7 +287,7 @@ s32 WBFS_Init_Dev(u32 device)
 					writeCallback = __WBFS_WriteUSB;
 
 					/* Device info */
-					nb_sectors = USBStorage_GetCapacity(&sector_size);
+					nb_sectors = USBStorage_GetCapacity(&wbfs_dev_sector_size);
 
 					get_time(&TIME.usb_retry2);
 					t2 = TIME_D(usb_init);
@@ -307,7 +314,7 @@ s32 WBFS_Init_Dev(u32 device)
 
 					/* Device info */
 					nb_sectors  = 0;
-					sector_size = SDHC_SECTOR_SIZE;
+					wbfs_dev_sector_size = SDHC_SECTOR_SIZE;
 
 					goto out;
 				}
@@ -388,7 +395,7 @@ s32 WBFS_Open(void)
 	wbfs_part_fs = 0;
 	wbfs_part_idx = 0;
 	wbfs_part_lba = 0;
-	hdd = wbfs_open_hd(readCallback, writeCallback, NULL, sector_size, nb_sectors, 0);
+	hdd = wbfs_open_hd(readCallback, writeCallback, NULL, wbfs_dev_sector_size, nb_sectors, 0);
 	if (!hdd)
 		return -1;
 	wbfs_part_idx = 1;
@@ -523,7 +530,7 @@ s32 WBFS_OpenLBA(u32 lba, u32 size)
 	wbfs_t *part = NULL;
 
 	/* Open partition */
-	part = wbfs_open_partition(readCallback, writeCallback, NULL, sector_size, size, lba, 0);
+	part = wbfs_open_partition(readCallback, writeCallback, NULL, wbfs_dev_sector_size, size, lba, 0);
 	if (!part) return -1;
 
 	/* Close current hard disk */
@@ -538,7 +545,7 @@ s32 WBFS_Format(u32 lba, u32 size)
 	wbfs_t *partition = NULL;
 
 	/* Reset partition */
-	partition = wbfs_open_partition(readCallback, writeCallback, NULL, sector_size, size, lba, 1);
+	partition = wbfs_open_partition(readCallback, writeCallback, NULL, wbfs_dev_sector_size, size, lba, 1);
 	if (!partition)
 		return -1;
 
@@ -750,30 +757,39 @@ s32 WBFS_DiskSpace(f32 *used, f32 *free)
 
 wbfs_disc_t* WBFS_OpenDisc(u8 *discid)
 {
+	wbfs_disc_t *ret = NULL;
 	//dbg_printf("WBFS_OpenDisc(%.6s) %d\n", discid, wbfs_part_fs);
-	if (wbfs_part_fs) return WBFS_FAT_OpenDisc(discid);
-
-	/* No device open */
-	if (!hdd)
-		return NULL;
-
-	/* Open disc */
-	return wbfs_open_disc(hdd, discid);
+	LWP_MutexLock(wbfs_disc_mutex);
+	if (wbfs_part_fs) {
+		ret = WBFS_FAT_OpenDisc(discid);
+	} else {
+		if (!hdd) {
+			/* No device open */
+			ret = NULL;
+		} else {
+			/* Open disc */
+			ret = wbfs_open_disc(hdd, discid);
+		}
+	}
+	if (ret == NULL) {
+		LWP_MutexUnlock(wbfs_disc_mutex);
+	}
+	return ret;
 }
 
 void WBFS_CloseDisc(wbfs_disc_t *disc)
 {
 	if (wbfs_part_fs) {
 		WBFS_FAT_CloseDisc(disc);
-		return;
+	} else {
+		if (hdd && disc) {
+			/* Close disc */
+			wbfs_close_disc(disc);
+		}
 	}
-
-	/* No device open */
-	if (!hdd || !disc)
-		return;
-
-	/* Close disc */
-	wbfs_close_disc(disc);
+	if (disc) {
+		LWP_MutexUnlock(wbfs_disc_mutex);
+	}
 }
 
 typedef struct {
@@ -810,7 +826,7 @@ int WBFS_GetDolList(u8 *discid, DOL_LIST *list)
 	if (!d) return -1;
 	fst_size = wbfs_extract_file(d, "", (void*)&fst);
 	WBFS_CloseDisc(d);
-	if (!fst) return -1;
+	if (!fst || fst_size < 0) return -1;
 
 	u32 count = _be32((u8*)&fst[0].filelen);
 	u32 i;

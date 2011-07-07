@@ -106,6 +106,7 @@ typedef struct wbfs_s
 typedef struct wbfs_disc_s
 {
         wbfs_t *p;
+        u8 *tmp_buff;  // pre-allocated buffer for unaligned read
         wbfs_disc_info_t  *header;	  // pointer to wii header
         int i;		  		  // disc index in the wbfs header (disc_table)
 }wbfs_disc_t;
@@ -219,12 +220,13 @@ u32 wbfs_size_disc(wbfs_t*p,read_wiidisc_callback_t read_src_wii_disc,
 				  u32 *comp_size, u32 *real_size);
 
 typedef int (*_frag_append_t)(void *ff, u32 offset, u32 sector, u32 count);
-int wbfs_get_fragments(wbfs_disc_t *d, _frag_append_t append_fragment, void *callback_data);
+int wbfs_get_fragments(wbfs_disc_t *d, _frag_append_t append_fragment, void *callback_data, u32 sector_size);
 
 extern wbfs_t wbfs_iso_file;
 u32 wbfs_disc_sector_used(wbfs_disc_t *d, u32 *num_blk);
 int wbfs_iso_file_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len);
 
+int wbfs_extract_tmd(wbfs_disc_t*d, tmd *tmd);
 
 #ifdef __cplusplus
    }

@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include "dir.h"
 #include "libwbfs/libwbfs.h"
 #include "sdhc.h"
 #include "usbstorage.h"

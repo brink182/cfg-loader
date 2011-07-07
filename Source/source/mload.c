@@ -59,6 +59,9 @@ int n;
 		usleep(200*1000);
 	}
 
+	/*
+	 * iosDestroyHeap removed in libogc 1.8.7
+	 * because it doesn't really release the mem
 	if(mload_fd<0)
 		{
 		
@@ -68,6 +71,7 @@ int n;
 			hid=-1;
 			}
 		}
+	*/
 
 return mload_fd;
 }
@@ -80,11 +84,13 @@ int mload_close()
 {
 int ret;
 
+	/*
 	if(hid>=0)
 		{
 		iosDestroyHeap(hid);
 		hid=-1;
 		}
+	*/
 
 	if(mload_fd<0) return -1;
 	

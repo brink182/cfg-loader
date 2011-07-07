@@ -5,6 +5,7 @@
  * Copyright (c) 2004-2005 Richard Russon
  * Copyright (c) 2005-2006 Yura Pakhuchiy
  * Copyright (c) 2005-2009 Szabolcs Szakacsits
+ * Copyright (c) 2010      Jean-Pierre Andre
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -57,6 +58,7 @@
 #endif
 
 #define MS_IGNORE_HIBERFILE   0x20000000
+#define MS_FORENSIC	      0x04000000 /* No modification during mount */
 
 /* Forward declaration */
 typedef struct _ntfs_volume ntfs_volume;
@@ -251,7 +253,9 @@ struct _ntfs_volume {
 	s64 free_mft_records; 	/* Same for free mft records (see above) */
 	BOOL efs_raw;		/* volume is mounted for raw access to
 				   efs-encrypted files */
-
+#ifdef XATTR_MAPPINGS
+	struct XATTRMAPPING *xattr_mapping;
+#endif /* XATTR_MAPPINGS */
 #if CACHE_INODE_SIZE
 	struct CACHE_HEADER *xinode_cache;
 #endif

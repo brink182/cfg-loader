@@ -376,8 +376,8 @@ void heap_init(heap *h, void *ptr, int size)
 	h->mutex = LWP_MUTEX_NULL;
 	LWP_MutexInit(&h->mutex, true); // true: allow recursive
 	// 0.4 sec for 60mb
-	//memset(ptr, 0, size);
-	//DCFlushRange(ptr, size);
+	memset(ptr, 0, size);
+	DCFlushRange(ptr, size);
 }
 
 int heap_ptr_inside(heap *h, void *ptr)

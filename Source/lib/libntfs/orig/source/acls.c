@@ -4,7 +4,7 @@
  *	This module is part of ntfs-3g library, but may also be
  *	integrated in tools running over Linux or Windows
  *
- * Copyright (c) 2007-2009 Jean-Pierre Andre
+ * Copyright (c) 2007-2010 Jean-Pierre Andre
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -39,6 +39,9 @@
 #endif
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
 #endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -560,7 +563,8 @@ static BOOL valid_acl(const ACL *pacl, unsigned int end)
 				&((const char*)pacl)[offace];
 			acesz = le16_to_cpu(pace->size);
 			if (((offace + acesz) > end)
-			   || !ntfs_valid_sid(&pace->sid))
+			   || !ntfs_valid_sid(&pace->sid)
+			   || ((ntfs_sid_size(&pace->sid) + 8) != (int)acesz))
 				 ok = FALSE;
 			offace += acesz;
 		}
@@ -611,7 +615,6 @@ BOOL ntfs_valid_descr(const char *securattr, unsigned int attrsz)
 		 * old revision and no DACL though SE_DACL_PRESENT is set
 		 */
 	if ((attrsz >= sizeof(SECURITY_DESCRIPTOR_RELATIVE))
-		&& (ntfs_attr_size(securattr) <= attrsz)
 		&& (phead->revision == SECURITY_DESCRIPTOR_REVISION)
 		&& (offowner >= sizeof(SECURITY_DESCRIPTOR_RELATIVE))
 		&& ((offowner + 2) < attrsz)
@@ -619,14 +622,15 @@ BOOL ntfs_valid_descr(const char *securattr, unsigned int attrsz)
 		&& ((offgroup + 2) < attrsz)
 		&& (!offdacl
 			|| ((offdacl >= sizeof(SECURITY_DESCRIPTOR_RELATIVE))
-			    && (offdacl < attrsz)))
+			    && (offdacl+sizeof(ACL) < attrsz)))
 		&& (!offsacl
 			|| ((offsacl >= sizeof(SECURITY_DESCRIPTOR_RELATIVE))
-			    && (offsacl < attrsz)))
+			    && (offsacl+sizeof(ACL) < attrsz)))
 		&& !(phead->owner & const_cpu_to_le32(3))
 		&& !(phead->group & const_cpu_to_le32(3))
 		&& !(phead->dacl & const_cpu_to_le32(3))
 		&& !(phead->sacl & const_cpu_to_le32(3))
+		&& (ntfs_attr_size(securattr) <= attrsz)
 		&& ntfs_valid_sid((const SID*)&securattr[offowner])
 		&& ntfs_valid_sid((const SID*)&securattr[offgroup])
 			/*
@@ -704,10 +708,12 @@ int ntfs_inherit_acl(const ACL *oldacl, ACL *newacl,
 			if (ntfs_same_sid(&pnewace->sid, ownersid)) {
 				memcpy(&pnewace->sid, usid, usidsz);
 				acesz = usidsz + 8;
+				pnewace->size = cpu_to_le16(acesz);
 			}
 			if (ntfs_same_sid(&pnewace->sid, groupsid)) {
 				memcpy(&pnewace->sid, gsid, gsidsz);
 				acesz = gsidsz + 8;
+				pnewace->size = cpu_to_le16(acesz);
 			}
 			if (pnewace->mask & GENERIC_ALL) {
 				pnewace->mask &= ~GENERIC_ALL;
@@ -2982,8 +2988,10 @@ static int build_std_permissions(const char *securattr,
 	if (offdacl) {
 		acecnt = le16_to_cpu(pacl->ace_count);
 		offace = offdacl + sizeof(ACL);
-	} else
+	} else {
 		acecnt = 0;
+		offace = 0;
+	}
 	for (nace = 0; nace < acecnt; nace++) {
 		pace = (const ACCESS_ALLOWED_ACE*)&securattr[offace];
 		if (!(pace->flags & INHERIT_ONLY_ACE)) {
@@ -3252,8 +3260,10 @@ static int build_ownadmin_permissions(const char *securattr,
 	if (offdacl) {
 		acecnt = le16_to_cpu(pacl->ace_count);
 		offace = offdacl + sizeof(ACL);
-	} else
+	} else {
 		acecnt = 0;
+		offace = 0;
+	}
 	firstapply = TRUE;
 	isforeign = 3;
 	for (nace = 0; nace < acecnt; nace++) {
@@ -3947,33 +3957,6 @@ static SID *encodesid(const char *sidstr)
 }
 
 /*
- *			Early logging before the logs are redirected
- *
- *	(not quite satisfactory : this appears before the ntfs-g banner,
- *	and with a different pid)
- */
-
-static void log_early_error(const char *format, ...)
-		__attribute__((format(printf, 1, 2)));
-
-static void log_early_error(const char *format, ...)
-{
-	va_list args;
-
-	va_start(args, format);
-#ifdef HAVE_SYSLOG_H
-	openlog("ntfs-3g", LOG_PID, LOG_USER);
-	ntfs_log_handler_syslog(NULL, NULL, 0,
-		NTFS_LOG_LEVEL_ERROR, NULL,
-		format, args);
-#else
-	vfprintf(stderr,format,args);
-#endif
-	va_end(args);
-}
-
-
-/*
  *		Get a single mapping item from buffer
  *
  *	Always reads a full line, truncating long lines
@@ -4035,7 +4018,7 @@ static struct MAPLIST *getmappingitem(FILEREADER reader, void *fileid,
 			if (pu && pg)
 				*pu = *pg = '\0';
 			else {
-				log_early_error("Bad mapping item \"%s\"\n",
+				ntfs_log_early_error("Bad mapping item \"%s\"\n",
 					item->maptext);
 				free(item);
 				item = (struct MAPLIST*)NULL;
@@ -4164,7 +4147,7 @@ struct MAPPING *ntfs_do_user_mapping(struct MAPLIST *firstitem)
 				if (pwd)
 					uid = pwd->pw_uid;
 				else
-					log_early_error("Invalid user \"%s\"\n",
+					ntfs_log_early_error("Invalid user \"%s\"\n",
 						item->uidstr);
 			}
 		}
@@ -4244,7 +4227,7 @@ struct MAPPING *ntfs_do_group_mapping(struct MAPLIST *firstitem)
 					if (grp)
 						gid = grp->gr_gid;
 					else
-						log_early_error("Invalid group \"%s\"\n",
+						ntfs_log_early_error("Invalid group \"%s\"\n",
 							item->gidstr);
 				}
 			}

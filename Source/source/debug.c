@@ -22,7 +22,7 @@ static long long dbg_t;
 
 static int debug_inited = 0;
 static int debug_logging = 1;
-char dbg_log_buf[10240]; // 10k
+char dbg_log_buf[DBG_LOG_SIZE];
 
 long long dbg_time_usec()
 {
@@ -81,11 +81,22 @@ int dbg_printv(int level, const char *fmt, va_list ap)
 	if (!CFG.debug  && !CFG.debug_gecko && !debug_logging) return 0;
 	r = vsnprintf(str, sizeof(str), fmt, ap);
 	if (debug_logging) {
+		int len1 = strlen(dbg_log_buf);
+		int len2 = strlen(str);
+		if (len1 + len2 >= sizeof(dbg_log_buf)) {
+			// move text down
+			int need = len1 + len2 + 1 - sizeof(dbg_log_buf);
+			char *cut = dbg_log_buf + sizeof(dbg_log_buf) - DBG_LOG_CUT;
+			memmove(cut, cut + need, DBG_LOG_CUT - need);
+			memcpy(cut, "\n\n~~~\n\n", 7);
+			dbg_log_buf[sizeof(dbg_log_buf) - need] = 0;
+		}
 		strappend(dbg_log_buf, str, sizeof(dbg_log_buf));
+		/*
 		if (strlen(dbg_log_buf) >= sizeof(dbg_log_buf) - 1) {
 			// buf full, disable log
 			debug_logging = 0;
-		}
+		}*/
 	}
 	if (debug_inited) {
 		if (CFG.debug >= level) {

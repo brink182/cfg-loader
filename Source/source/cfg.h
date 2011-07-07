@@ -251,12 +251,12 @@ struct Game_CFG_2
 
 typedef struct FontColor
 {
-	int color;
-	int outline;
-	int shadow;
+	u32 color;
+	u32 outline;
+	u32 shadow;
 } FontColor;
 
-static inline FontColor Font_Color(int color, int outline, int shadow)
+static inline FontColor Font_Color(u32 color, u32 outline, u32 shadow)
 {
 	FontColor fc;
 	fc.color = color;
@@ -267,11 +267,11 @@ static inline FontColor Font_Color(int color, int outline, int shadow)
 
 typedef struct FontColor_CFG
 {
-	int color;
-	int outline;
-	int outline_auto;
-	int shadow;
-	int shadow_auto;
+	u32 color;
+	u32 outline;
+	u32 outline_auto;
+	u32 shadow;
+	u32 shadow_auto;
 } FontColor_CFG;
 
 typedef struct MenuButton
@@ -299,6 +299,21 @@ typedef struct CfgButton
 #define GUI_BUTTON_FILTER    6
 #define GUI_BUTTON_FAVORITES 7
 #define GUI_BUTTON_NUM       8
+
+#define GUI_COLOR_NONE  0
+#define GUI_COLOR_BASE  1
+#define GUI_COLOR_POPUP 2
+#define GUI_COLOR_NUM   3
+
+#define GUI_TC_MENU     0
+#define GUI_TC_INFO     1
+#define GUI_TC_TITLE    2
+#define GUI_TC_BUTTON   3
+#define GUI_TC_CHECKBOX 4
+#define GUI_TC_RADIO    5
+#define GUI_TC_ABOUT    6
+#define GUI_TC_CBUTTON  7 // custom button
+#define GUI_TC_NUM      (GUI_TC_CBUTTON + GUI_BUTTON_NUM)
 
 struct CFG
 {
@@ -431,14 +446,8 @@ struct CFG
 	struct FontColor gui_text2;
 	struct FontColor_CFG gui_text_cfg;
 	struct FontColor_CFG gui_text2_cfg;
-	struct FontColor gui_tc_menu;
-	struct FontColor gui_tc_info;
-	struct FontColor gui_tc_title;
-	struct FontColor gui_tc_button;
-	struct FontColor gui_tc_checkbox;
-	struct FontColor gui_tc_radio;
-	int gui_window_color_base;
-	int gui_window_color_popup;
+	struct FontColor gui_tc[GUI_TC_NUM];
+	u32 gui_window_color[GUI_COLOR_NUM];
 	char gui_font[100];
 	int start_favorites;
 	int gui_antialias;

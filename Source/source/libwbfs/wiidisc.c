@@ -148,8 +148,14 @@ static u32 do_fst(wiidisc_t *d,u8 *fst, const char *names, u32 i)
                 if(d->extract_pathname && strcasecmp(name, d->extract_pathname)==0)
                 {
                         d->extracted_buffer = wbfs_ioalloc(size);
-                        d->extracted_size = size;
-                        partition_read(d,offset, d->extracted_buffer, size,0);
+						if (!d->extracted_buffer) {
+							// malloc error
+							d->extracted_buffer = wbfs_ioalloc(1);
+							d->extracted_size = -1;
+						} else {
+							d->extracted_size = size;
+							partition_read(d,offset, d->extracted_buffer, size,0);
+						}
                 }else
                         partition_read(d,offset, 0, size,1);
 		return i + 1;
@@ -236,19 +242,25 @@ static void do_partition(wiidisc_t*d)
 	if (cert == 0)
 		wbfs_fatal("malloc cert");
 	partition_raw_read(d,cert_offset, cert, cert_size);
-
+	
+	if (d->extract_tmd) {
+		void *tmd_data = SIGNATURE_PAYLOAD((signed_blob *)tmd);
+		memcpy(d->extract_tmd, tmd_data, sizeof(*d->extract_tmd));
+	}
 
 	_decrypt_title_key(tik, d->disc_key);
 
 	partition_raw_read(d,h3_offset, 0, 0x18000);
-        wbfs_iofree(b);
-        wbfs_iofree(tik);
+	wbfs_iofree(b);
+	wbfs_iofree(tik);
 	wbfs_iofree(cert);
 	wbfs_iofree(tmd);
 
-	do_files(d);
-
+	if (!d->skip_files) {
+		do_files(d);
+	}
 }
+
 static int test_parition_skip(u32 partition_type,partition_selector_t part_sel)
 {
         switch(part_sel)
@@ -327,6 +339,21 @@ u8 * wd_extract_file(wiidisc_t *d, partition_selector_t partition_type, char *pa
         retval = d->extracted_buffer;
         d->extracted_buffer = 0;
         return retval;
+}
+
+int wd_extract_tmd(wiidisc_t *d, tmd *tmd)
+{
+	int retval = 0;
+	memset(tmd, 0, sizeof(*tmd));
+	d->extract_tmd = tmd;
+	d->skip_files = true;
+	d->part_sel = ONLY_GAME_PARTITION;
+	do_disc(d);
+	d->extract_tmd = NULL;
+	d->skip_files = false;
+	d->part_sel = ALL_PARTITIONS;
+	if (tmd->sys_version == 0) retval = -1;
+	return retval;
 }
 
 void wd_build_disc_usage(wiidisc_t *d, partition_selector_t selector, u8* usage_table)

@@ -185,15 +185,18 @@ wbfs_disc_t *wbfs_open_disc(wbfs_t* p, u8 *discid)
         u32 i;
         int disc_info_sz_lba = p->disc_info_sz>>p->hd_sec_sz_s;
         wbfs_disc_t *d = 0;
+		d = wbfs_malloc(sizeof(*d));
+		if(!d)
+			ERROR("allocating memory");
+        d->tmp_buff = wbfs_ioalloc(p->hd_sec_sz);
+        if (!d->tmp_buff)
+			ERROR("allocating memory");
         for(i=0;i<p->max_disc;i++)
         {
                 if (p->head->disc_table[i]){
                         p->read_hdsector(p->callback_data,
-                                         p->part_lba+1+i*disc_info_sz_lba,1,p->tmp_buffer);
-                        if(wbfs_memcmp(discid,p->tmp_buffer,6)==0){
-                                d = wbfs_malloc(sizeof(*d));
-                                if(!d)
-                                        ERROR("allocating memory");
+                                         p->part_lba+1+i*disc_info_sz_lba,1,d->tmp_buff);
+                        if(wbfs_memcmp(discid,d->tmp_buff,6)==0){
                                 d->p = p;
                                 d->i = i;
                                 d->header = wbfs_ioalloc(p->disc_info_sz);
@@ -209,19 +212,23 @@ wbfs_disc_t *wbfs_open_disc(wbfs_t* p, u8 *discid)
                         }
                 }
         }
-        return 0;
 error:
-        if(d)
+        if(d) {
+			if (d->tmp_buff) wbfs_iofree(d->tmp_buff);
                 wbfs_iofree(d);
+		}
         return 0;
         
 }
+
 void wbfs_close_disc(wbfs_disc_t*d)
 {
         d->p->n_disc_open --;
+		wbfs_iofree(d->tmp_buff);
         wbfs_iofree(d->header);
         wbfs_free(d);
 }
+
 // offset is pointing 32bit words to address the whole dvd, although len is in bytes
 int wbfs_disc_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len)
 {
@@ -244,13 +251,13 @@ int wbfs_disc_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len)
         if(unlikely(off)){
                 off*=4;
                 err = p->read_hdsector(p->callback_data,
-                                       p->part_lba + (iwlba<<iwlba_shift) + lba, 1, p->tmp_buffer);
+                                       p->part_lba + (iwlba<<iwlba_shift) + lba, 1, d->tmp_buff);
                 if(err)
                         return err;
                 len_copied = p->hd_sec_sz - off;
                 if(likely(len < len_copied))
                         len_copied = len;
-                wbfs_memcpy(ptr, p->tmp_buffer + off, len_copied);
+                wbfs_memcpy(ptr, d->tmp_buff + off, len_copied);
                 len -= len_copied;
                 ptr += len_copied;
                 lba++;
@@ -283,10 +290,10 @@ int wbfs_disc_read(wbfs_disc_t*d,u32 offset, u8 *data, u32 len)
         }
         if(unlikely(len)){
                 err = p->read_hdsector(p->callback_data,
-                                 p->part_lba + (iwlba<<iwlba_shift) + lba, 1, p->tmp_buffer);
+                                 p->part_lba + (iwlba<<iwlba_shift) + lba, 1, d->tmp_buff);
                 if(err)
                         return err;
-                wbfs_memcpy(ptr, p->tmp_buffer, len);
+                wbfs_memcpy(ptr, d->tmp_buff, len);
         }     
         return 0;
 }
@@ -691,6 +698,11 @@ int wbfs_extract_file(wbfs_disc_t*d, char *path, void **data)
         wd->extracted_size = 0;
         *data = wd_extract_file(wd, ONLY_GAME_PARTITION, path);
         ret = wd->extracted_size;
+		if (ret < 0 && *data) {
+			// malloc error, returned buf to 1
+			free(*data);
+			*data = NULL;
+		}
         if (!*data) {
                 //ERROR("file not found");
                 ret = -1;
@@ -700,11 +712,28 @@ error:
         return ret;
 }
 
-int wbfs_get_fragments(wbfs_disc_t *d, _frag_append_t append_fragment, void *callback_data)
+int wbfs_extract_tmd(wbfs_disc_t*d, tmd *tmd)
+{
+        wiidisc_t *wd = 0;
+        int ret = 0;
+
+        wd = wd_open_disc(read_wiidisc_wbfsdisc, d);
+        if (!wd) {
+                ERROR("opening wbfs disc");
+				return -1;
+        }
+        ret = wd_extract_tmd(wd, tmd);
+        wd_close_disc(wd);
+error:
+        return ret;
+}
+
+int wbfs_get_fragments(wbfs_disc_t *d, _frag_append_t append_fragment, void *callback_data, u32 sector_size)
 {
 	if (!d) return -1;
 	wbfs_t *p = d->p;
-	int src_wbs_nlb = p->wbfs_sec_sz / p->hd_sec_sz;
+	if (sector_size == 0) sector_size = p->hd_sec_sz;
+	int src_wbs_nlb = p->wbfs_sec_sz / sector_size;
 	int i, ret, last = 0;
 	for( i=0; i< p->n_wbfs_sec_per_disc; i++)
 	{

@@ -41,10 +41,9 @@ GRRLIB_texImg *tx_window;
 GRRLIB_texImg *tx_page;
 GRRLIB_texImg *tx_custom[GUI_BUTTON_NUM];
 
-//FontColor wgui_fc = { 0x6688FFFF, 0xA0, 0x44444444 }; // CFG.gui_tc_menu
-FontColor wgui_fc = { 0xFFFFFFFF, 0xA0, 0x44444444 }; // CFG.gui_tc_menu
-FontColor text_fc = { 0xFFFFFFFF, 0xA0, 0 }; // CFG.gui_tc_info
-FontColor about_fc = { 0xFFFFFFFF, 0xFF };
+FontColor wgui_fc = { 0xFFFFFFFF, 0xA0, 0x44444444 }; // GUI_TC_MENU
+FontColor text_fc = { 0xFFFFFFFF, 0xA0, 0 }; // GUI_TC_INFO
+FontColor about_fc = { 0xFFFFFFFF, 0xFF }; // GUI_TC_ABOUT
 u32 disabled_color = 0xB0B0B0A0;
 
 const Pos pos_auto =
@@ -309,7 +308,7 @@ void wgui_DrawWindow(GRRLIB_texImg *tx, int x, int y, int w, int h,
 	wgui_DrawWindowBase(tx, x, y, w, h, window_color);
 	if (title) {
 		FontColor fc;
-		font_color_multiply(&CFG.gui_tc_title, &fc, color);
+		font_color_multiply(&CFG.gui_tc[GUI_TC_TITLE], &fc, color);
 		Gui_PrintAlignZ(cx, y+PAD2, 0, 0, &tx_font, fc, txt_scale, title);
 		/*char str[16];
 		sprintf(str, "%.2f %.2fx%.2f", txt_scale,
@@ -425,7 +424,7 @@ float _wgui_DrawButton(GRRLIB_texImg *tx, int x, int y, int w, int h,
 		font_color_multiply(&disabled_fc, &fc, color);
 		color = color_multiply(color, disabled_color);
 	} else {
-		font_color_multiply(&CFG.gui_tc_menu, &fc, color);
+		font_color_multiply(&CFG.gui_tc[GUI_TC_MENU], &fc, color);
 	}
 	wgui_DrawButtonBase(tx, x, y, w, h, zoom, color, state);
 	Gui_PrintAlignZ(cx, cy, 0, 0, &tx_font, fc, txt_scale, txt);
@@ -1283,6 +1282,20 @@ void pos_rows(Widget *ww, int rows, int ph)
 	ww->post.h = h;
 }
 
+static inline u32 get_gui_color(u32 color)
+{
+	if (color > 0 && color < GUI_COLOR_NUM) {
+		return CFG.gui_window_color[color];
+	}
+	return color;
+}
+
+static inline FontColor get_text_color(u32 tc)
+{
+	if (tc >= GUI_TC_NUM) tc = GUI_TC_NUM - 1;
+	return CFG.gui_tc[tc];
+}
+
 void Widget_init(Widget *ww, Widget *parent, Pos p, char *name)
 {
 	memset(ww, 0, sizeof(*ww));
@@ -1290,11 +1303,11 @@ void Widget_init(Widget *ww, Widget *parent, Pos p, char *name)
 	ww->name = name;
 	ww->parent = parent;
 	ww->color = 0xFFFFFFFF;
-	ww->dialog_color = CFG.gui_window_color_base;
+	ww->dialog_color = GUI_COLOR_BASE;
 	ww->zoom = 1.0;
 	ww->max_zoom = 1.1; // +10%
 	ww->text_scale = 1.0;
-	ww->text_color = CFG.gui_tc_menu;
+	ww->text_color = GUI_TC_MENU;
 
 	pos_auto_default(&p, name);
 	pos_auto_expand(parent, &p);
@@ -1675,7 +1688,7 @@ void wgui_render_str2(Widget *ww, char *str, float add_zoom, u32 color, FontColo
 
 void wgui_render_str(Widget *ww, char *str, float add_zoom, u32 color)
 {
-	wgui_render_str2(ww, str, add_zoom, color, ww->text_color);
+	wgui_render_str2(ww, str, add_zoom, color, get_text_color(ww->text_color));
 }
 
 void wgui_render_text(Widget *ww)
@@ -1724,7 +1737,8 @@ void wgui_textbox_coords(Widget *ww, int *fw, int *fh, int *rows, int *cols)
 void wgui_render_textbox(Widget *ww)
 {
 	FontColor fc;
-	font_color_multiply(&ww->text_color, &fc, ww->color);
+	FontColor fc1 = get_text_color(ww->text_color);
+	font_color_multiply(&fc1, &fc, ww->color);
 	int fw, fh, rows, cols;
 	wgui_textbox_coords(ww, &fw, &fh, &rows, &cols);
 	if (ww->opt) {
@@ -1769,7 +1783,7 @@ Widget* wgui_add_textbox(Widget *parent, Pos p, int font_h, char *text, int strs
 	if (ww) {
 		ww->type = WGUI_TYPE_TEXTBOX;
 		ww->render = wgui_render_textbox;
-		ww->text_color = CFG.gui_tc_info;
+		ww->text_color = GUI_TC_INFO;
 		ww->text_scale = text_h_to_scale(font_h);
 		wgui_textbox_wordwrap(ww, text, strsize);
 	}
@@ -1808,7 +1822,7 @@ Widget* wgui_add_num(Widget *parent, Pos p, char *fmt, int base)
 void wgui_render_dialog(Widget *ww)
 {
 	wgui_DrawWindow(tx_window, ww->ax, ww->ay, ww->w, ww->h,
-			ww->dialog_color, ww->color, ww->text_scale, ww->name);
+			get_gui_color(ww->dialog_color), ww->color, ww->text_scale, ww->name);
 }
 
 void pos_init_dialog(Widget *ww)
@@ -1980,7 +1994,7 @@ Widget* wgui_add_button(Widget *parent, Pos p, char *name)
 		ww->type = WGUI_TYPE_BUTTON;
 		ww->handle = wgui_handle_button;
 		ww->render = wgui_render_button;
-		ww->text_color = CFG.gui_tc_button;
+		ww->text_color = GUI_TC_BUTTON;
 		text_scale_fit_button(ww, con_len(name), scale);
 	}
 	return ww;
@@ -2037,7 +2051,7 @@ Widget* wgui_add_checkboxx(Widget *parent, Pos p, char *name, bool show_name,
 		ww->render = wgui_RenderCheckbox;
 		ww->opt = show_name;
 		ww->val_max = 1;
-		ww->text_color = CFG.gui_tc_checkbox;
+		ww->text_color = GUI_TC_CHECKBOX;
 		text_scale_fit_button(ww, len, scale);
 		if (off && on) {
 			char *vlist[2] = { off, on };
@@ -2079,11 +2093,11 @@ int wgui_handle_radio(Widget *ww)
 void wgui_render_radio(Widget *ww)
 {
 	//int i;
-	float zoom;
 	//Widget *rr = ww->link_first;
 	//char str[100]; // dbg
 	//sprintf(str, "%d.%d %s", rr->value, ww->link_index, ww->name);
-	zoom = wgui_DrawButton(ww, ww->name);
+	//float zoom = 
+	wgui_DrawButton(ww, ww->name);
 	/*
 	if (rr->value == ww->link_index) {
 		float cx, cy, w2, h2;
@@ -2118,7 +2132,7 @@ Widget* wgui_add_radio(Widget *parent, Widget *radio, Pos p, char *name)
 		ww->type = WGUI_TYPE_RADIO;
 		ww->handle = wgui_handle_radio;
 		ww->render = wgui_render_radio;
-		ww->text_color = CFG.gui_tc_radio;
+		ww->text_color = GUI_TC_RADIO;
 		text_scale_fit_button(ww, con_len(name), scale);
 		wgui_link(radio, ww);
 		if (!radio) {
@@ -2324,7 +2338,7 @@ int wgui_set_value_page(Widget *ww, int flags, int val)
 
 void wgui_render_page(Widget *ww)
 {
-	u32 wcolor = ww->dialog_color;
+	u32 wcolor = get_gui_color(ww->dialog_color);
 	GRRLIB_texImg *tx = tx_page;
 	if (!tx) {
 		tx = tx_window;
@@ -2588,7 +2602,7 @@ void wgui_render_listboxx(Widget *ww)
 		//wgui_render_button(ww);
 		wgui_DrawButtonX(tx_button, ww->ax, ww->ay, ww->w, ww->h,
 				1.0, 0xFFFFFFFF, WGUI_IMG_HOVER);
-		wgui_render_str2(ww, ww->name, 1.0, ww->color, CFG.gui_tc_button);
+		wgui_render_str2(ww, ww->name, 1.0, ww->color, CFG.gui_tc[GUI_TC_BUTTON]);
 	} else {
 		wgui_render_text(ww);
 	}
@@ -2616,7 +2630,7 @@ Widget* wgui_listboxx_open_dialog(Widget *ww)
 	Widget *dd = wgui_add_dialog(parent, p, ll->name);
 	dd->ax = 50;
 	dd->ay = 50;
-	dd->dialog_color = CFG.gui_window_color_popup;
+	dd->dialog_color = GUI_COLOR_POPUP;
 	return dd;
 }
 
@@ -2664,7 +2678,6 @@ Widget* wgui_paginate_radio(Widget *parent, Pos p, int cols, int rows, int n, ch
 	Widget *r1 = NULL;
 	Widget *rr = NULL;
 	Widget *pp = NULL;
-	Widget *pswitch = NULL;
 	int pref_w = parent->post.w;
 	int pref_h = parent->post.h;
 	//int ph = p.h;
@@ -2689,7 +2702,8 @@ Widget* wgui_paginate_radio(Widget *parent, Pos p, int cols, int rows, int n, ch
 	}
 	pos_margin(parent, old_margin);
 	pos_newline(parent);
-	pswitch = wgui_add_pgswitch(parent, pp, pos_auto, NULL);
+	//Widget *pswitch = 
+	wgui_add_pgswitch(parent, pp, pos_auto, NULL);
 	pos_prefsize(parent, pref_w, pref_h);
 	return r1;
 }

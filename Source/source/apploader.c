@@ -678,24 +678,24 @@ void maindolpatches(void *dst, int len)
 {
 	DCFlushRange(dst, len);
 
+	if (CFG.game.clean == CFG_CLEAN_ALL) return;
+
 	wipregisteroffset((u32)dst, len);
 
-	if (CFG.game.clean != CFG_CLEAN_ALL) {
-		patch_video_modes(dst, len);
-	}
+	patch_video_modes(dst, len);
 
-	if (CFG.game.ocarina && CFG.game.clean != CFG_CLEAN_ALL) {
+	if (CFG.game.ocarina) {
 		dogamehooks(dst,len);
 	}
-	if (CFG.game.vidtv && CFG.game.clean != CFG_CLEAN_ALL) {
+	if (CFG.game.vidtv) {
 		vidolpatcher(dst,len);
 	}
 	/*LANGUAGE PATCH - FISHEARS*/
-	if (CFG.game.language != CFG_LANG_CONSOLE && CFG.game.clean != CFG_CLEAN_ALL) {
+	if (CFG.game.language != CFG_LANG_CONSOLE) {
 		langpatcher(dst,len);
 	}
 	// Country Patch by WiiPower
-	if(CFG.game.country_patch && CFG.game.clean != CFG_CLEAN_ALL) {
+	if(CFG.game.country_patch) {
 		PatchCountryStrings(dst, len);
 	}
 
@@ -779,7 +779,7 @@ u32 fstfileoffset(u32 index)
 u32 Load_Dol_from_disc(u32 doloffset)
 {
 	int ret;
-	void *dol_header;	
+	void *dol_header = NULL;	
 	u32 entrypoint;
 
 	dol_header = memalign(32, sizeof(dolheader));
@@ -795,11 +795,13 @@ u32 Load_Dol_from_disc(u32 doloffset)
 	//ret = bwDVD_LowRead(dol_header, sizeof(dolheader), doloffset, __dvd_readidcb);
 	//DVD_CHECK();
 	ret = WDVD_Read(dol_header, sizeof(dolheader), (doloffset<<2));
+	if (ret < 0) goto error;
 
 	entrypoint = load_dol_start(dol_header);
 
 	if (entrypoint == 0)
 	{
+error:
 		printf(gt("Invalid .dol"));
 		printf("\n");
 		sleep(2);
@@ -828,6 +830,7 @@ u32 Load_Dol_from_disc(u32 doloffset)
 			dbg_printf("\rdol [%d] @ 0x%08x [%6x] 0x%08x\n", sec_idx,
 						(int)offset, len, (int)offset + len);
 			ret = WDVD_Read(offset, len, (doloffset<<2) + pos);
+			if (ret < 0) goto error;
 
 			maindolpatches(offset, len);
 

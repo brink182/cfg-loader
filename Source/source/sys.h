@@ -1,6 +1,10 @@
 #ifndef _SYS_H_
 #define _SYS_H_
 
+#define TITLE_ID(x,y)       (((u64)(x) << 32) | (y))
+#define TITLE_HIGH(x)       ((u32)((x) >> 32))
+#define TITLE_LOW(x)		((u32)(x))
+
 /* Prototypes */
 void Sys_Init(void);
 void Sys_Reboot(void);

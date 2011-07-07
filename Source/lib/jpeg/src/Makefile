@@ -16,6 +16,7 @@ include $(DEVKITPPC)/wii_rules
 
 LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
 LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+DEPSDIR := .
 
 DKV			:= $(shell $(DEVKITPPC)/bin/$(CC) --version | sed 's/^.*(devkitPPC release \([0-9]*\)).*$$/\1/;q')
 DEST_INC	:=	../include
@@ -28,6 +29,7 @@ CFLAGS  := -Os $(MACHDEP) $(INCLUDE)
 LIB 	:= jpeg
 CFILES	:= $(wildcard *.c)
 OFILES	:= $(CFILES:.c=.o)
+DEPENDS	:= $(OFILES:.o=.d)
 ARC 	:= lib$(LIB).a
 HDR 	:= jpeglib.h jconfig.h jmorecfg.h
 
@@ -39,7 +41,7 @@ all : $(ARC)
 $(ARC) : $(OFILES)
 
 clean :
-	rm -f $(OFILES) $(ARC)
+	rm -f $(OFILES) $(ARC) $(DEPENDS)
 
 install :
 	mkdir -p  $(DEST_LIB)  $(DEST_INC)

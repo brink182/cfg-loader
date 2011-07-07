@@ -5,7 +5,7 @@
  * Copyright (c) 2004-2005 Anton Altaparmakov
  * Copyright (c) 2004-2006 Szabolcs Szakacsits
  * Copyright (c)      2005 Yura Pakhuchiy
- * Copyright (c) 2009-2010 Jean-Pierre Andre
+ * Copyright (c) 2009-2011 Jean-Pierre Andre
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -61,6 +61,10 @@
 #include "lcnalloc.h"
 #include "logging.h"
 #include "misc.h"
+
+#undef le16_to_cpup 
+/* the standard le16_to_cpup() crashes for unaligned data on some processors */ 
+#define le16_to_cpup(p) (*(u8*)(p) + (((u8*)(p))[1] << 8))
 
 /**
  * enum ntfs_compression_constants - constants used in the compression code
@@ -1247,6 +1251,7 @@ static int ntfs_compress_overwr_free(ntfs_attr *na, runlist_element *rl,
 		case 1 :
 			/* there is a single hole, may have to merge */
 			freerl->vcn = freevcn;
+			freerl->length = freecnt;
 			if (freerl[1].lcn == LCN_HOLE) {
 				freerl->length += freerl[1].length;
 				erl = freerl;

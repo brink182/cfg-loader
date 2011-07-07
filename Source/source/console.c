@@ -22,6 +22,7 @@
 #include <sys/iosupport.h>
 
 #include "util.h"
+#include "version.h"
 
 #include "pngu/pngu.h"
 
@@ -114,9 +115,9 @@ static void *_console_buffer = NULL;
 // transparency
 struct _c1
 {
-   	//char c;
-   	wchar_t c;
-   	int fg, bg;
+	//char c;
+	wchar_t c;
+	int fg, bg;
 };
 //static void *_bg_buffer = NULL;
 //static unsigned int _bg_color = COLOR_BLACK;
@@ -135,6 +136,7 @@ extern u8 console_font_512[];
 
 int fb_change = 0;
 int retrace_cnt = 0;
+int con_exception_mode = 0;
 
 void __console_vipostcb(u32 retraceCnt)
 {
@@ -161,7 +163,7 @@ void __console_flush(int retrace_min)
 	fb_change = 0;
 	retrace_cnt = 0;
 
-    if (__console_disable) return;
+	if (__console_disable) return;
 
 	ptr = curr_con->destbuffer;
 	fb = VIDEO_GetCurrentFramebuffer()+(curr_con->target_y*curr_con->tgt_stride) + curr_con->target_x*VI_DISPLAY_PIX_SZ;
@@ -271,7 +273,8 @@ static void _bg_console_draw_glyph(unsigned char *pbits)
 	unsigned char *bg;
 	unsigned char bits;
 	unsigned int color;
-	unsigned int fgcolor, bgcolor;
+	unsigned int fgcolor;
+	//unsigned int bgcolor;
 	unsigned int nextline;
 	u8 *c1, *c2;
 
@@ -285,7 +288,7 @@ static void _bg_console_draw_glyph(unsigned char *pbits)
 	
 	nextline = con->con_stride/4 - 4;
 	fgcolor = con->foreground;
-	bgcolor = con->background;
+	//bgcolor = con->background;
 
 	for (ay = 0; ay < FONT_YSIZE; ay++)
 	{
@@ -557,7 +560,7 @@ void _bg_scroll()
 {
 	// clear
 	_bg_repaint();
-    // scroll
+	// scroll
 	memmove(_c_buffer, _c_buffer + curr_con->con_cols,
 		sizeof(struct _c1) * (curr_con->con_rows-1) * curr_con->con_cols);
 	// clear last
@@ -632,12 +635,15 @@ void __console_enable(void *fb)
 
 void __console_init(void *framebuffer,int xstart,int ystart,int xres,int yres,int stride)
 {
+	// note: this is called by the CODE DUMP handler (c_default_exceptionhandler)
+	if (yres > 480) yres = 480;
 	unsigned int level;
 	console_data_s *con = &stdcon;
 
 	_CPU_ISR_Disable(level);
 
 	_tr_enable = 0;
+	__console_disable = 0;
 
 	con->destbuffer = framebuffer;
 	con->con_xres = xres;
@@ -666,6 +672,18 @@ void __console_init(void *framebuffer,int xstart,int ystart,int xres,int yres,in
 
 	setvbuf(stdout, NULL , _IONBF, 0);
 	setvbuf(stderr, NULL , _IONBF, 0);
+
+	// print debug log
+	if (con_exception_mode == 0) {
+		void Music_PauseVoice(bool pause);
+		Music_PauseVoice(true);
+		__console_scroll = 1;
+		con_exception_mode = 1;
+		puts(dbg_log_buf);
+		fputs("cfg", stdout);
+		puts(CFG_VERSION_STR);
+	}
+	con_exception_mode = 2;
 }
 
 void __console_init_ex(void *conbuffer,int tgt_xstart,int tgt_ystart,int tgt_stride,int con_xres,int con_yres,int con_stride)
@@ -849,7 +867,7 @@ static int __console_parse_escsequence(char *pchr)
 
 				//39 is the reset code
 				if(parameters[0] == 9){
-				    parameters[0] = 15;
+					parameters[0] = 15;
 				}
 				else if(parameters[0] > 7){
 					parameters[0] = 7;
@@ -899,6 +917,40 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 	if(!curr_con) return -1;
 	con = curr_con;
 	if(!tmp || len<=0) return -1;
+
+	// custom formatting of exception
+	switch (con_exception_mode) {
+		default:
+		case 0:
+		case 1:
+			break;
+		case 2:
+			if (strcasestr(ptr, "Exception")) {
+				while (*tmp == '\n') tmp++;
+				con_exception_mode++;
+			}
+			break;
+		case 3:
+			if (strcasestr(ptr, "STACK DUMP")) {
+				con_exception_mode++;
+				break;
+			}
+			return len;
+		case 4:
+			if (strcasestr(ptr, "CODE DUMP")) {
+				con_exception_mode++;
+				tmp = "\n\n";
+				len = 2;
+			}
+			break;
+		case 5:
+			if (strcasestr(ptr, "Reload")) {
+				con_exception_mode = 1;
+				//WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // HBC 1.07
+				break;
+			}
+			return len;
+	}
 
 	i = 0;
 	while(*tmp!='\0' && i<len)
@@ -1013,9 +1065,6 @@ int __console_write(struct _reent *r,int fd,const char *ptr,size_t len)
 
 void CON_Init(void *framebuffer,int xstart,int ystart,int xres,int yres,int stride)
 {
-    // note: this is called by the CODE DUMP handler
-	_tr_enable = 0;
-    __console_disable = 0;
 	__console_init(framebuffer,xstart,ystart,xres,yres,stride);
 }
 

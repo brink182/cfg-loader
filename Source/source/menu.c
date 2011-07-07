@@ -432,28 +432,6 @@ bool check_dual_layer(u64 real_size, struct Game_CFG_2 *game_cfg)
 	return false;
 }
 
-
-void __Menu_PrintInfo2(struct discHdr *header, u64 comp_size, u64 real_size)
-{
-	float size = (float)comp_size / 1024 / 1024 / 1024;
-	char *dl_str = is_dual_layer(real_size) ? "(dual-layer)" : "";
-	char *title = get_title(header);
-	int len = con_len(title);
-	int pad = con_len(CFG.menu_plus_s);
-	int cols, rows;
-	CON_GetMetrics(&cols, &rows);
-	if (pad + len < cols) {
-		printf_("%s\n", title);
-	} else {
-		printf("%s\n", __Menu_WrapTitle(title, cols-1));
-	}
-	printf_("(%.6s) ", header->id);
-	printf("(%.2f%s) ", size, gt("GB"));
-	printf("%s\n\n", dl_str);
-	//printf(" comp: %lld (%.2fMB)\n", comp_size, (f32)comp_size/1024/1024);
-	//printf(" real: %lld (%.2fMB)\n", real_size, (f32)real_size/1024/1024);
-}
-
 void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 {
 	static u64 last_comp = 0, last_real = 0;
@@ -474,25 +452,60 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	}
 }
 
-void __Menu_PrintInfo(struct discHdr *header)
+void Menu_GameInfoStr2(struct discHdr *header, char *str, u64 comp_size, u64 real_size)
 {
-	u64 comp_size, real_size = 0;
-	__Menu_GameSize(header, &comp_size, &real_size);
-	__Menu_PrintInfo2(header, comp_size, real_size);
+	float size = (float)comp_size / 1024.0 / 1024.0 / 1024.0;
+	char *s = str;
+	sprintf(s, "[%.6s]", header->id);
+	s += strlen(s);
+	sprintf(s, " %.2f%s", size, gt("GB"));
+	if (is_dual_layer(real_size)) {
+		s += strlen(s);
+		sprintf(s, " %s", "(dual-layer)");
+	}
+	// req. ios
+	tmd game_tmd;
+	memset(&game_tmd, 0, sizeof(game_tmd));
+	wbfs_disc_t* d = WBFS_OpenDisc(header->id);
+	if (d) {
+		size = wbfs_extract_tmd(d, &game_tmd);
+		WBFS_CloseDisc(d);
+	}
+	if (game_tmd.sys_version) {
+		s += strlen(s);
+		sprintf(s, " IOS%d\n\n", TITLE_LOW(game_tmd.sys_version));
+	}
 }
 
 void Menu_GameInfoStr(struct discHdr *header, char *str)
 {
 	u64 comp_size, real_size = 0;
 	__Menu_GameSize(header, &comp_size, &real_size);
-	float size = (float)comp_size / 1024 / 1024 / 1024;
-	char *dl_str = is_dual_layer(real_size) ? "(dual-layer)" : "";
-	char *s = str;
-	sprintf(s, "(%.6s) ", header->id);
-	s += strlen(s);
-	sprintf(s, "(%.2f%s) ", size, gt("GB"));
-	s += strlen(s);
-	sprintf(s, "%s\n\n", dl_str);
+	Menu_GameInfoStr2(header, str, comp_size, real_size);
+}
+
+void __Menu_PrintInfo2(struct discHdr *header, u64 comp_size, u64 real_size)
+{
+	char *title = get_title(header);
+	int len = con_len(title);
+	int pad = con_len(CFG.menu_plus_s);
+	int cols, rows;
+	CON_GetMetrics(&cols, &rows);
+	if (pad + len < cols) {
+		printf_("%s\n", title);
+	} else {
+		printf("%s\n", __Menu_WrapTitle(title, cols-1));
+	}
+	char info_str[64];
+	Menu_GameInfoStr2(header, info_str, comp_size, real_size);
+	printf_("%s", info_str);
+}
+
+void __Menu_PrintInfo(struct discHdr *header)
+{
+	u64 comp_size, real_size = 0;
+	__Menu_GameSize(header, &comp_size, &real_size);
+	__Menu_PrintInfo2(header, comp_size, real_size);
 }
 
 void __Menu_MoveList(s8 delta)
@@ -1170,7 +1183,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	struct Game_CFG *game_cfg = NULL;
 	int opt_saved;
 	//int opt_ios_reload;
-	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_country_patch, opt_ocarina; 
+	int opt_language, opt_video, opt_video_patch, opt_vidtv;
+	int opt_country_patch, opt_anti_002, opt_ocarina; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
 	int i;
@@ -1235,6 +1249,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		opt_video_patch = game_cfg->video_patch;
 		opt_vidtv = game_cfg->vidtv;
 		opt_country_patch = game_cfg->country_patch;
+		opt_anti_002 = game_cfg->fix_002;
 		opt_ocarina = game_cfg->ocarina;
 		if (game_cfg->clean == CFG_CLEAN_ALL) {
 			opt_language = CFG_LANG_CONSOLE;
@@ -1242,14 +1257,16 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			opt_video_patch = CFG_VIDEO_PATCH_OFF;
 			opt_vidtv = 0;
 			opt_country_patch = 0;
+			opt_anti_002 = 0;
 			opt_ocarina = 0;
-			active[1] = 0;
-			active[2] = 0;
-			active[3] = 0;
-			active[4] = 0;
-			active[5] = 0;
-			active[10] = 0;
-			active[11] = 0;
+			active[1] = 0; // language
+			active[2] = 0; // video
+			active[3] = 0; // video_patch
+			active[4] = 0; // vidtv
+			active[5] = 0; // country
+			active[6] = 0; // anti 002
+			active[10] = 0; // ocarina
+			active[11] = 0; // hook
 		}
 
 		// if not ocarina and not wiird, deactivate hooks
@@ -1320,7 +1337,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
 		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Language:"), gt(languages[game_cfg->language]));
+			PRINT_OPT_S(gt("Language:"), gt(languages[opt_language]));
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
 		if (menu_window_mark(&menu))
@@ -1330,7 +1347,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (menu_window_mark(&menu))
 			PRINT_OPT_B(gt("Country Fix:"), opt_country_patch);
 		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Anti 002 Fix:"), game_cfg->fix_002);
+			PRINT_OPT_B(gt("Anti 002 Fix:"), opt_anti_002);
 		if (menu_window_mark(&menu))
 			PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
 		if (menu_window_mark(&menu)) {
@@ -3890,9 +3907,9 @@ void menu_move_wrap(struct Menu *m)
 
 void menu_move_adir(struct Menu *m, int dir)
 {
-	int i, n;
+	int i;
 	menu_move_cap(m);
-	n = m->current;
+	//int n = m->current;
 	for (i=0; i<m->num_opt; i++) {
 		m->current += dir;
 		menu_move_wrap(m);

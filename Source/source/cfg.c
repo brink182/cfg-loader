@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
+#include "dir.h"
 #include "cfg.h"
 #include "wpad.h"
 #include "gui.h"
@@ -1054,12 +1055,16 @@ void CFG_Default_Theme()
 	CFG.gui_text2_cfg.shadow = 0;
 	CFG.gui_text2_cfg.shadow_auto = 0;
 
-	CFG.gui_tc_menu = wgui_fc;
-	CFG.gui_tc_title = CFG.gui_tc_button = CFG.gui_tc_radio =
-		CFG.gui_tc_checkbox = CFG.gui_tc_menu;
-	CFG.gui_tc_info = text_fc;
-	CFG.gui_window_color_base = 0xFFFFFF80;
-	CFG.gui_window_color_popup = 0xFFFFFFB0;
+	CFG.gui_tc[GUI_TC_MENU] = wgui_fc;
+	CFG.gui_tc[GUI_TC_TITLE] =
+		CFG.gui_tc[GUI_TC_BUTTON] =
+		CFG.gui_tc[GUI_TC_RADIO] =
+		CFG.gui_tc[GUI_TC_CHECKBOX] =
+		CFG.gui_tc[GUI_TC_MENU];
+	CFG.gui_tc[GUI_TC_INFO] = text_fc;
+	CFG.gui_tc[GUI_TC_ABOUT] = about_fc;
+	CFG.gui_window_color[GUI_COLOR_BASE] = 0xFFFFFF80;
+	CFG.gui_window_color[GUI_COLOR_POPUP] = 0xFFFFFFB0;
 	memset(CFG.gui_button, 0, sizeof(CFG.gui_button));
 	CFG.gui_bar = 1;
 
@@ -1432,11 +1437,11 @@ void cfg_id_list(char *name, char list[][8], int *num_list, int max_list)
 	}
 }
 
-bool cfg_color(char *name, int *var)
+bool cfg_color(char *name, u32 *var)
 {
-	if (cfg_map(name, "black", var, 0x000000FF)) return true;
-	if (cfg_map(name, "white", var, 0xFFFFFFFF)) return true;
-	if (cfg_int_hex(name, var)) return true;
+	if (cfg_map(name, "black", (int*)var, 0x000000FF)) return true;
+	if (cfg_map(name, "white", (int*)var, 0xFFFFFFFF)) return true;
+	if (cfg_int_hex(name, (int*)var)) return true;
 	return false;
 }
 
@@ -1473,7 +1478,7 @@ bool font_color_set(char *name, struct FontColor *fc)
 	char color_val[16];
 	char *old_val = cfg_val;
 	char *next = cfg_val;
-	int *c = &fc->color;
+	u32 *c = &fc->color;
 	int i = 0;
 	memset(fc, 0, sizeof(*fc));
 	while ((next = split_tokens(color_val, next, "/", sizeof(color_val)))) {
@@ -1597,11 +1602,11 @@ bool cfg_gui_button(int i)
 	if (ret <= 0) return false;
 	bb->enabled = 1;
 	// defaults:
-	bb->fc = wgui_fc;
+	CFG.gui_tc[GUI_TC_CBUTTON + i] = wgui_fc;
 	bb->hover_zoom = 10;
 	if (get_token_n(token, sizeof(token), cfg_val, ",", 4)) {
 		cfg_val = token;
-		font_color_set(cfg_name, &bb->fc);
+		font_color_set(cfg_name, &CFG.gui_tc[GUI_TC_CBUTTON + i]);
 		cfg_val = save_val;
 	}
 	if (get_token_n(token, sizeof(token), cfg_val, ",", 5)) {
@@ -1821,19 +1826,19 @@ void theme_set_base(char *name, char *val)
 	}
 	font_color_cfg_set("gui_text_", &CFG.gui_text_cfg);
 	font_color_cfg_set("gui_text2_", &CFG.gui_text2_cfg);
-	font_color_set("gui_text_color_info", &CFG.gui_tc_info);
-	if (font_color_set("gui_text_color_menu", &CFG.gui_tc_menu)) {
-		CFG.gui_tc_title = CFG.gui_tc_button = CFG.gui_tc_radio =
-			CFG.gui_tc_checkbox = CFG.gui_tc_menu;
+	font_color_set("gui_text_color_info", &CFG.gui_tc[GUI_TC_INFO]);
+	if (font_color_set("gui_text_color_menu", &CFG.gui_tc[GUI_TC_MENU])) {
+		CFG.gui_tc[GUI_TC_TITLE] = CFG.gui_tc[GUI_TC_BUTTON] = CFG.gui_tc[GUI_TC_RADIO] =
+			CFG.gui_tc[GUI_TC_CHECKBOX] = CFG.gui_tc[GUI_TC_MENU];
 	}
-	font_color_set("gui_text_color_title", &CFG.gui_tc_title);
-	if (font_color_set("gui_text_color_button", &CFG.gui_tc_button)) {
-		CFG.gui_tc_radio = CFG.gui_tc_checkbox = CFG.gui_tc_button;
+	font_color_set("gui_text_color_title", &CFG.gui_tc[GUI_TC_TITLE]);
+	if (font_color_set("gui_text_color_button", &CFG.gui_tc[GUI_TC_BUTTON])) {
+		CFG.gui_tc[GUI_TC_RADIO] = CFG.gui_tc[GUI_TC_CHECKBOX] = CFG.gui_tc[GUI_TC_BUTTON];
 	}
-	font_color_set("gui_text_color_radio", &CFG.gui_tc_radio);
-	font_color_set("gui_text_color_checkbox", &CFG.gui_tc_checkbox);
-	cfg_color("gui_window_color_base", &CFG.gui_window_color_base);
-	cfg_color("gui_window_color_popup", &CFG.gui_window_color_popup);
+	font_color_set("gui_text_color_radio", &CFG.gui_tc[GUI_TC_RADIO]);
+	font_color_set("gui_text_color_checkbox", &CFG.gui_tc[GUI_TC_CHECKBOX]);
+	cfg_color("gui_window_color_base", &CFG.gui_window_color[GUI_COLOR_BASE]);
+	cfg_color("gui_window_color_popup", &CFG.gui_window_color[GUI_COLOR_POPUP]);
 	cfg_bool("gui_title_top", &CFG.gui_title_top);
 	if (strcmp(name, "covers_size")==0) {
 		int w,h;

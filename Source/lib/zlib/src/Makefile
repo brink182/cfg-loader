@@ -10,6 +10,8 @@ endif
 
 include $(DEVKITPPC)/wii_rules
 
+DEPSDIR := .
+
 #PREFIX	:= $(DEVKITPPC)/bin/powerpc-eabi-
 #CC		:=	$(PREFIX)gcc
 #AR		:=	$(PREFIX)ar
@@ -25,6 +27,7 @@ CFLAGS  := -Os -Wall $(MACHDEP) $(INCLUDE)
 LIB 	:= zlib
 CFILES	:= $(wildcard *.c)
 OFILES	:= $(CFILES:.c=.o)
+DEPENDS	:= $(OFILES:.o=.d)
 ARC 	:= libz.a
 HDR 	:= $(LIB).h zconf.h
 
@@ -36,7 +39,7 @@ all : $(ARC)
 $(ARC) : $(OFILES)
 
 clean :
-	rm -f $(OFILES) $(ARC)
+	rm -f $(OFILES) $(ARC) $(DEPENDS)
 
 install :
 	mkdir -p  $(DEST_LIB)  $(DEST_INC)

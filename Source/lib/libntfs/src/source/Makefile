@@ -116,6 +116,7 @@ DEST_LIB	:=	../../lib$(DKV)
 install:
 	mkdir -p $(DEST_INC) $(DEST_LIB)
 	cp ../include/ntfs.h $(DEST_INC)
+	cp ../include/ntfs_frag.h $(DEST_INC)
 	cp ../lib/wii/libntfs.a $(DEST_LIB)
 
 #---------------------------------------------------------------------------------

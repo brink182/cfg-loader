@@ -20,6 +20,7 @@ extern int wbfs_part_fs;
 extern u32 wbfs_part_idx;
 extern u32 wbfs_part_lba;
 extern char wbfs_fs_drive[16];
+extern u32 wbfs_dev_sector_size;
 
 /* Prototypes */
 s32 WBFS_Init_Dev(u32 device);

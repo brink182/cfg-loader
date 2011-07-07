@@ -109,8 +109,7 @@ void wgui_test()
 	ww = wgui_add_button(&dialog, pos(50, 100, 64, 64), "+");
 	ww = wgui_add_button(&dialog, pos(50, 200, 40, 64), "-");
 
-	Widget *radio;
-	radio =
+	//Widget *radio;
 	ww = wgui_add_radio(&dialog, NULL, pos(150, 100, 100, 64), "Radio1");
 	ww = wgui_add_radio(&dialog, ww, pos(150, 190, 100, 64), "Radio2");
 	ww = wgui_add_radio(&dialog, ww, pos(150, 280, 100, 64), "Radio3");
@@ -218,7 +217,7 @@ void action_OpenQuit(Widget *parent)
 	dd->handle = handle_Quit;
 	dd->ax = 50;
 	dd->ay = 50;
-	dd->dialog_color = CFG.gui_window_color_popup;
+	dd->dialog_color = GUI_COLOR_POPUP;
 
 	pos_rows(dd, 6, SIZE_FULL);
 	p = pos_auto;
@@ -694,17 +693,23 @@ void update_gameopt_state()
 	int cond;
 
 	// clear
+	wgui_update(wgame.clean);
 	cond = (wgame.clean->value == CFG_CLEAN_ALL);
 	gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
 	gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
 	gameopt_inactive(cond, wgame.video_patch, CFG_VIDEO_PATCH_OFF);
 	gameopt_inactive(cond, wgame.vidtv, 0);
 	gameopt_inactive(cond, wgame.country_patch, 0);
+	gameopt_inactive(cond, wgame.fix_002, 0);
 	gameopt_inactive(cond, wgame.ocarina, 0);
 
-	// ocarina
+	// ocarina hook type
+	wgui_update(wgame.ocarina);
 	cond = (cond || (!wgame.ocarina->value && !CFG.wiird));
 	gameopt_inactive(cond, wgame.hooktype, 0);
+
+	// update values from val_ptr
+	traverse1(wgame.dialog, wgui_update);
 
 	// game opt save state:
 	//
@@ -749,8 +754,8 @@ void update_gameopt_state()
 
 void action_save_gamecfg(Widget *ww)
 {
-	int ret;
-	ret = CFG_save_game_opt(wgame.header->id);
+	//int ret;
+	CFG_save_game_opt(wgame.header->id);
 	// XXX on error open info dialog
 	// if (!ret) printf(gt("Error saving options!"));
 	update_gameopt_state();
@@ -760,12 +765,12 @@ void action_reset_gamecfg(Widget *ww)
 {
 	bool changed = CFG_is_changed(wgame.header->id);
 	int saved = wgame.gcfg2->is_saved;
-	int ret;
 	if (changed && saved) {
 		// copy saved over current
 		memcpy(&wgame.gcfg2->curr, &wgame.gcfg2->save, sizeof(wgame.gcfg2->curr));
 	} else {
-		ret = CFG_discard_game_opt(wgame.header->id);
+		//int ret;
+		CFG_discard_game_opt(wgame.header->id);
 		// XXX on error open info dialog
 		//if (!ret) printf(gt("Error discarding options!")); 
 	}
@@ -833,7 +838,10 @@ void init_alt_dol_if_parent_enabled(Widget *ww)
 	// init alt dol list on demand
 	// only when page 2 of game options is visible
 	// because it takes some time to scan for alt dols
-	if (ww->parent->state != WGUI_STATE_DISABLED) {
+	Widget *parent = ww->parent->parent;
+	// 2x parent because first parent is the option container
+	// next parent is page
+	if (parent->state != WGUI_STATE_DISABLED) {
 		BIND_OPT(alt_dol);
 		ww->val_ptr = NULL;
 		ww->update = NULL; // remove call to this function
@@ -1077,7 +1085,6 @@ void* banner_thread(void *arg)
 
 void banner_thread_start()
 {
-	int ret;
 	if (banner.inited) return;
 	memset(&banner, 0, sizeof(banner));
 	banner.lwp   = LWP_THREAD_NULL;
@@ -1086,7 +1093,7 @@ void banner_thread_start()
 	LWP_MutexInit(&banner.mutex, FALSE);
 	LWP_CondInit(&banner.cond);
 	// start thread
-	ret = LWP_CreateThread(&banner.lwp, banner_thread, NULL, NULL, 32*1024, 40);
+	LWP_CreateThread(&banner.lwp, banner_thread, NULL, NULL, 64*1024, 40);
 	banner.inited = 1;
 }
 
@@ -1153,7 +1160,6 @@ void BindGameDialog()
 	header = &gameList[gameSelected];
 	wgame.header = header;
 	dbg_printf("game %.6s\n", header->id);
-	banner_thread_play(header);
 	// title
 	wgame.dialog->name = get_title(header);
 	text_scale_fit_dialog(wgame.dialog);
@@ -1169,6 +1175,8 @@ void BindGameDialog()
 	wgui_set_value(wgame.hide, is_hide_game(header->id) ? 1 : 0);
 	// options
 	InitGameOptionsPage(wgame.options, H_NORMAL);
+	// banner
+	banner_thread_play(header);
 }
 
 void ReleaseGameDialog()
@@ -1867,7 +1875,7 @@ void Init_Info_Dialog(Widget *dd)
 	Widget *page, *pp, *rr, *tt, *ww;
 	static char basic[400];
 	static char iosinfo[500];
-	static char debugstr[10000];
+	static char debugstr[DBG_LOG_SIZE + 400 + 500];
 	int i;
 
 	page = wgui_add_pages(dd, pos_wh(SIZE_FULL, -H_NORMAL-PAD1), 3, NULL);
@@ -2019,7 +2027,7 @@ void Open_AdminUnlock()
 	STRCOPY(unlock_str, "..........");
 	dd = desk_open_dialog(pos_wh(400, 300), gt("Admin Unlock"));
 	dd->handle = handle_AdminUnlock;
-	dd->dialog_color = CFG.gui_window_color_popup;
+	dd->dialog_color = GUI_COLOR_POPUP;
 	pos_newlines(dd, 2);
 	pos_columns(dd, 2, SIZE_FULL);
 	wgui_add_text(dd, pos_auto, gt("Enter Code: "));
@@ -2209,7 +2217,7 @@ void action_OpenAbout(Widget *_ww)
 	Widget *ww;
 
 	dd = desk_open_dialog(pos_auto, gt("About"));
-	dd->dialog_color = CFG.gui_window_color_popup;
+	dd->dialog_color = GUI_COLOR_POPUP;
 	int pad = PAD1;
 	pos_pad(dd, pad);
 
@@ -2222,7 +2230,7 @@ void action_OpenAbout(Widget *_ww)
 	//pos_newline(dd);
 	ww = wgui_add_page(dd, NULL, pos_wh(SIZE_FULL, -H_NORMAL-pad), NULL);
 	ww = wgui_add_textbox(ww, pos_full, TXT_H_NORMAL, about_str, sizeof(about_str));
-	ww->text_color = about_fc;
+	ww->text_color = GUI_TC_ABOUT;
 	//ww->opt = 1; // background
 
 	ww = wgui_add_button(dd, pos_xy(POS_CENTER, POS_AUTO), gt("Back"));
@@ -2411,7 +2419,7 @@ void desk_custom_init()
 				ww = wgui_add_button(d_custom, p, name);
 			}
 			ww->action = custom_button[i].action;
-			ww->text_color = bb->fc;
+			ww->text_color = GUI_TC_CBUTTON + i;
 			ww->max_zoom = 1.0 + (float)bb->hover_zoom / 100.0;
 			if (*bb->image && tx_custom[i]) {
 				ww->custom_tx = true;

@@ -15,6 +15,7 @@
 #include <wchar.h>
 #include <locale.h>
 #include <asndlib.h>
+#include <dirent.h>
 
 #include "disc.h"
 #include "fat.h"
@@ -149,12 +150,113 @@ char *skip_sort_ignore(char *s)
 	return s;
 }
 
+s32 get_DML_game_list_cnt()
+{
+	FILE *fp;
+	u32 DML_GameCount = 0;
+	
+	static char name_buffer[64] ATTRIBUTE_ALIGN(32);;
+    DIR *sdir;
+    DIR *s2dir;
+    struct dirent *entry;
+
+	// 1st count the number of games
+	sdir = opendir("sd:/games");
+	do
+	{
+		entry = readdir(sdir);
+		if (entry)
+		{
+			sprintf(name_buffer, "sd:/games/%s", entry->d_name);
+			if (strlen(entry->d_name) != 6)
+			{
+				continue;
+			}
+			s2dir =  opendir(name_buffer);
+			if (s2dir)
+			{
+				sprintf(name_buffer, "sd:/games/%s/game.iso", entry->d_name);
+				fp = fopen(name_buffer, "rb");
+				if (fp)
+				{
+					fseek(fp, 0, SEEK_END);
+					if (ftell(fp) > 1000000)
+					{
+						DML_GameCount++;
+					}
+					fclose(fp);
+				}
+				closedir(s2dir);
+			}
+		}
+	} while (entry);
+	closedir(sdir);
+	
+	return DML_GameCount;
+}
+
+s32 get_DML_game_list(void *outbuf)
+{
+	//u32 temp_DML_GameCount = 0;
+	FILE *fp;
+	u32 DML_GameCount = 0;
+	
+	static char name_buffer[64] ATTRIBUTE_ALIGN(32);;
+    DIR *sdir;
+    DIR *s2dir;
+    struct dirent *entry;
+
+	// 1st count the number of games
+	sdir = opendir("sd:/games");
+	do
+	{
+		entry = readdir(sdir);
+		if (entry)
+		{
+			sprintf(name_buffer, "sd:/games/%s", entry->d_name);
+			if (strlen(entry->d_name) != 6)
+			{
+				continue;
+			}
+			s2dir =  opendir(name_buffer);
+			if (s2dir)
+			{
+				sprintf(name_buffer, "sd:/games/%s/game.iso", entry->d_name);
+				fp = fopen(name_buffer, "rb");
+				if (fp)
+				{
+					fseek(fp, 0, SEEK_END);
+					if (ftell(fp) > 1000000)
+					{
+						dbg_printf("Found DML game %s\n", entry->d_name);
+						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+						struct discHdr *temp = (struct discHdr *)memalign(32, sizeof(struct discHdr));
+						memset(temp, 0, sizeof(struct discHdr));
+						memcpy(temp->id, entry->d_name, 6);
+						fseek(fp, 0x20, SEEK_SET);
+						fread(temp->title, 1, 0x40, fp);
+						memcpy(ptr, (u8*)temp, sizeof(struct discHdr));
+						free(temp);
+						DML_GameCount++;
+					}
+					fclose(fp);
+				}
+				closedir(s2dir);
+			}
+		}
+	} while (entry);
+	closedir(sdir);
+	
+	return 0;
+}
+
 s32 __Menu_GetEntries(void)
 {
 	struct discHdr *buffer = NULL;
 
 	u32 cnt, len;
 	s32 ret;
+	s32 dml = get_DML_game_list_cnt();
 
 	Cache_Invalidate();
 
@@ -172,7 +274,7 @@ s32 __Menu_GetEntries(void)
 		return ret;
 
 	/* Buffer length */
-	len = sizeof(struct discHdr) * cnt;
+	len = sizeof(struct discHdr) * (cnt+dml);
 
 	/* Allocate memory */
 	buffer = (struct discHdr *)memalign(32, len);
@@ -181,9 +283,11 @@ s32 __Menu_GetEntries(void)
 
 	/* Clear buffer */
 	memset(buffer, 0, len);
+	
+	get_DML_game_list(buffer);
 
 	/* Get header list */
-	ret = WBFS_GetHeaders(buffer, cnt, sizeof(struct discHdr));
+	ret = WBFS_GetHeaders(buffer+dml, cnt, sizeof(struct discHdr));
 	if (ret < 0)
 		goto err;
 
@@ -193,7 +297,7 @@ s32 __Menu_GetEntries(void)
 
 	/* Set values */
 	gameList = buffer;
-	gameCnt  = cnt;
+	gameCnt  = cnt+dml;
 
 	/* Reset variables */
 	gameSelected = gameStart = 0;
@@ -223,6 +327,7 @@ s32 __Menu_GetEntries(void)
 		memcpy(filter_gameList, all_gameList, len);
 		filter_gameCnt = all_gameCnt;
 	}
+	
 
 	return 0;
 

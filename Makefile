@@ -305,6 +305,10 @@ $(OUTPUT).elf: $(OFILES)
 	@echo $(notdir $<)
 	@$(bin2o)
 
+%.mp3.o : %.mp3
+	@echo $(notdir $<)
+	@$(bin2o)
+
 #%.o: %.c
 #	@echo $(notdir $<)
 #	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@

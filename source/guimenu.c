@@ -22,6 +22,8 @@
 #include "util.h"
 #include "music.h"
 
+#define DML_MAGIC 0x444D4C00
+
 #if 1
 
 /*
@@ -1003,7 +1005,9 @@ void banner_parse(struct discHdr *header)
 void banner_play()
 {
 	// play banner sound
-	if (banner.snd.dsp_data && !banner.playing) {
+	if (wgame.header->magic == DML_MAGIC) {
+		Music_GC_Start();
+	} else if (banner.snd.dsp_data && !banner.playing) {
 		int fmt = (banner.snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
 		SND_SetVoice(1, fmt, banner.snd.rate, 0,
 			banner.snd.dsp_data, banner.snd.size,
@@ -1015,8 +1019,10 @@ void banner_play()
 
 void banner_stop()
 {
-	// stop banner sound, resume mp3
-	if (banner.snd.dsp_data && banner.playing) {
+	// stop banner sound, resume mp3	
+	if (wgame.header->magic == DML_MAGIC) {
+		Music_GC_Stop();
+	} else if (banner.snd.dsp_data && banner.playing) {
 		SND_StopVoice(1);
 		banner.playing = false;
 	}

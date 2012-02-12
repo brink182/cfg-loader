@@ -198,7 +198,6 @@ s32 get_DML_game_list_cnt()
 
 s32 get_DML_game_list(void *outbuf)
 {
-	//u32 temp_DML_GameCount = 0;
 	FILE *fp;
 	u32 DML_GameCount = 0;
 	
@@ -231,14 +230,11 @@ s32 get_DML_game_list(void *outbuf)
 					{
 						dbg_printf("Found DML game %s\n", entry->d_name);
 						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-						struct discHdr *temp = (struct discHdr *)memalign(32, sizeof(struct discHdr));
-						memset(temp, 0, sizeof(struct discHdr));
-						memcpy(temp->id, entry->d_name, 6);
-						temp->magic = DML_MAGIC;
+						struct discHdr *dmlGame = (struct discHdr *)ptr;
+						memcpy(dmlGame->id, entry->d_name, 6);
+						dmlGame->magic = DML_MAGIC;
 						fseek(fp, 0x20, SEEK_SET);
-						fread(temp->title, 1, 0x40, fp);
-						memcpy(ptr, (u8*)temp, sizeof(struct discHdr));
-						free(temp);
+						fread(dmlGame->title, 1, 0x40, fp);
 						DML_GameCount++;
 					}
 					fclose(fp);
@@ -3510,7 +3506,9 @@ L_repaint:
 	__console_flush(0);
 
 	// play banner sound
-	if (snd.dsp_data && !banner_playing) {
+	if (header->magic == DML_MAGIC) {
+		Music_GC_Start();
+	} else if (snd.dsp_data && !banner_playing) {
 		// pause mp3
 		Music_PauseVoice(true);
 		int fmt = (snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
@@ -3547,7 +3545,9 @@ L_repaint:
 	}
 
 	// stop banner sound, resume mp3
-	if (snd.dsp_data && banner_playing) {
+	if (header->magic == DML_MAGIC) {
+		Music_GC_Stop();
+	} else if (snd.dsp_data && banner_playing) {
 		SND_StopVoice(1);
 		SAFE_FREE(snd.dsp_data);
 		if (buttons & CFG.button_confirm.mask) {
@@ -3663,6 +3663,10 @@ L_repaint:
 	}
 	get_time(&TIME.gcard2);
 	
+	printf("\n");
+	printf_x(gt("Booting Wii game, please wait..."));
+	printf("\n\n");
+	
 	if (header->magic == DML_MAGIC)
 	{
 		FILE *f;
@@ -3701,10 +3705,6 @@ L_repaint:
 		WII_LaunchTitle(0x0000000100000100ULL);
 		return;
 	}
-	
-	printf("\n");
-	printf_x(gt("Booting Wii game, please wait..."));
-	printf("\n\n");
 
 	// If fat, open wbfs disc and verfy id as a consistency check
 	if (!disc) {

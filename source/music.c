@@ -21,6 +21,7 @@
 #include "wpad.h"
 #include "video.h"
 #include "gettext.h"
+#include "gc_mp3.h"
 
 #define FORMAT_MP3 1
 #define FORMAT_MOD 2
@@ -458,3 +459,15 @@ void Music_Stop()
 	ASND_End();
 }
 
+void Music_GC_Start() {
+	MP3Player_PlayBuffer(gc_mp3, gc_mp3_size, NULL);
+}
+
+void Music_GC_Stop() {
+	if (!MP3Player_IsPlaying()) return;
+	Music_Mute(true);
+	Music_PauseVoice(false);
+	SND_Pause(0);
+	Music_UnPause();
+	MP3Player_Stop();
+}

@@ -47,9 +47,10 @@
 #include "gettext.h"
 #include "playlog.h"
 #include "dolmenu.h"
+#include "gc.h"
 
 #define CHANGE(V,M) {V+=change; if(V>(M)) V=(M); if(V<0) V=0;}
-
+#define DML_MAGIC 0x444D4C00
 
 char CFG_VERSION[] = CFG_VERSION_STR;
 
@@ -233,6 +234,7 @@ s32 get_DML_game_list(void *outbuf)
 						struct discHdr *temp = (struct discHdr *)memalign(32, sizeof(struct discHdr));
 						memset(temp, 0, sizeof(struct discHdr));
 						memcpy(temp->id, entry->d_name, 6);
+						temp->magic = DML_MAGIC;
 						fseek(fp, 0x20, SEEK_SET);
 						fread(temp->title, 1, 0x40, fp);
 						memcpy(ptr, (u8*)temp, sizeof(struct discHdr));
@@ -3660,7 +3662,46 @@ L_repaint:
 		if (!Menu_Confirm(0)) return;
 	}
 	get_time(&TIME.gcard2);
-
+	
+	if (header->magic == DML_MAGIC)
+	{
+		FILE *f;
+		const char* filepath = "sd:/games/boot.bin";
+		f = fopen(filepath, "wb");
+		fwrite(header->id, 1, 6, f);
+		fclose(f);
+		
+		get_time(&TIME.playstat1);
+		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
+		get_time(&TIME.playstat2);
+		
+		//Tell DML to boot the game from sd card
+		*(vu32*)0x80001800 = 0xB002D105;
+		DCFlushRange((void *)(0x80001800), 4);
+		ICInvalidateRange((void *)(0x80001800), 4);		
+		
+		memcpy((char *)0x80000000, (char *)header->id, 6);
+		
+		*(vu32*)0xCC003024 |= 7;
+		
+		if(header->id[3] == 'P')
+			set_video_mode(1);
+		else
+			set_video_mode(0);
+		VIDEO_SetBlack(TRUE);
+		VIDEO_Flush();
+		VIDEO_WaitVSync();
+		
+		UnmountAll(NULL);
+		Services_Close();
+		Subsystem_Close();
+		Wpad_Disconnect();
+		
+		WII_Initialize();
+		WII_LaunchTitle(0x0000000100000100ULL);
+		return;
+	}
+	
 	printf("\n");
 	printf_x(gt("Booting Wii game, please wait..."));
 	printf("\n\n");
@@ -3717,7 +3758,6 @@ L_repaint:
 	}
 
 	if (!disc) {
-
 		get_time(&TIME.rios1);
 		ret = ReloadIOS(1, 1);
 		get_time(&TIME.rios2);

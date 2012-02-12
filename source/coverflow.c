@@ -54,6 +54,8 @@
 #define EASING_TYPE_SLOW 3
 #define EASING_TYPE_LINEAR 0
 
+#define DML_MAGIC 0x444D4C00
+
 extern struct discHdr *gameList;
 extern s32 gameCnt;
 extern bool loadGame;
@@ -1721,6 +1723,9 @@ void get_boxcover_edge_color(int gi, bool selected, u8 alpha, u32 color, u32 ref
 	//New Super Mario Bros
 	if (strncmp(gameid, "SMN", 3) == 0) col = 0xFF000000 | alpha;
 
+	//GameCube Games
+	if(gameList[gi].magic == DML_MAGIC)  col = 0x32323200 | alpha;
+	
 	if (selected) {
 		*edgecolor = col;
 		*reflectionBottomEdge = addU32Value(col, reflectionColorBottom, 0x11111100, 1);

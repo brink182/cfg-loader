@@ -23,6 +23,8 @@
 #include "frag.h"
 #include "gettext.h"
 #include "dolmenu.h"
+#define GB_SIZE         1073741824.0
+
 
 #include "wpad.h"
 #define ALIGNED(x) __attribute__((aligned(x)))
@@ -337,6 +339,57 @@ s32 Disc_SetWBFS(u32 mode, u8 *id)
 	return WDVD_SetWBFSMode(mode, id);
 }
 
+void __Dump_Spinner(s32 x, s32 max)
+{
+	static time_t start;
+	static u32 expected;
+
+	f32 percent, size;
+	u32 d, h, m, s;
+
+	/* First time */
+	if (!x) {
+		start    = time(0);
+		expected = 300;
+	}
+
+	/* Elapsed time */
+	d = time(0) - start;
+
+	if (x != max) {
+		/* Expected time */
+		if (d && x)
+			expected = (expected * 3 + d * max / x) / 4;
+
+		/* Remaining time */
+		d = (expected > d) ? (expected - d) : 1;
+	}
+
+	/* Calculate time values */
+	h =  d / 3600;
+	m = (d / 60) % 60;
+	s =  d % 60;
+
+	/* Calculate percentage/size */
+	percent = (x * 100.0) / max;
+	size = (0x8000 / GB_SIZE) * max;
+
+	Con_ClearLine();
+
+	/* Show progress */
+	if (x != max) {
+		printf_(gt("%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"),
+				percent, size, "/-\\|"[(x / 10) % 4], h, m, s);
+		printf("\r");
+		fflush(stdout);
+	} else {
+		printf_(gt("%.2fGB copied in %d:%02d:%02d"), size, h, m, s);
+		printf("  \n");
+	}
+
+	__console_flush(1);
+}
+
 s32 Disc_ReadHeader(void *outbuf)
 {
 	/* Read disc header */
@@ -347,6 +400,81 @@ s32 Disc_ReadGCHeader(void *outbuf)
 {
 	/* Read disc header */
 	return WDVD_UnencryptedRead(outbuf, sizeof(struct gc_discHdr), 0);
+}
+
+s32 Disc_DumpGCGame() {
+	struct gc_discHdr *header = (struct gc_discHdr *)buffer;
+	s32 ret = Disc_ReadGCHeader(header);
+	u8 *bootBin = memalign(32, 0x440);
+	u8 *bi2Bin = memalign(32, 0x2000);
+	u8 *apploaderImg = memalign(32, 0x1C720);
+	
+	ret = WDVD_UnencryptedRead(bootBin, 0x440, 0);
+	
+	char sysFolder[20];
+	sprintf(sysFolder, "sd:/games/%s/sys", header->id);
+	mkpath(sysFolder, 0777);
+	
+	char filepath1[29];
+	sprintf(filepath1, "sd:/games/%s/sys/boot.bin", header->id);
+	FILE *out = fopen( filepath1, "wb" );
+	if( out == NULL )
+	{
+		return -1;
+	}
+	fwrite(bootBin, 1, 0x440, out);
+	fclose(out);
+	free(bootBin);
+	
+	ret = WDVD_UnencryptedRead(bi2Bin, 0x2000, 0x440);
+	
+	char filepath2[28];
+	sprintf(filepath2, "sd:/games/%s/sys/bi2.bin", header->id);
+	out = fopen( filepath2, "wb" );
+	if( out == NULL )
+	{
+		return -1;
+	}
+	fwrite(bi2Bin, 1, 0x2000, out);
+	fclose(out);
+	free(bi2Bin);
+	
+	ret = WDVD_UnencryptedRead(apploaderImg, 0x1C720, 0x2440);
+	
+	char filepath3[34];
+	sprintf(filepath3, "sd:/games/%s/sys/apploader.img", header->id);
+	out = fopen( filepath3, "wb" );
+	if( out == NULL )
+	{
+		return -1;
+	}
+	fwrite(apploaderImg, 1, 0x1C704, out);
+	fclose(out);
+	free(apploaderImg);
+	
+	char filepath4[25];
+	sprintf(filepath4, "sd:/games/%s/game.iso", header->id);
+	out = fopen( filepath4, "wb" );
+	if( out == NULL )
+	{
+		return -1;
+	}
+	u8 *buf = memalign(32, 0x28000);
+	u64 offset = 0;
+	int i = 0;
+	for (i = 0; i < 0x22CF; i++) {
+		ret = WDVD_UnencryptedRead(buf, 0x28000, offset);
+		if (ret < 0) {
+			break;
+		}
+		fwrite(buf, 1, 0x28000, out);
+		offset += 0x28000;
+		__Dump_Spinner(i+1, 0x22CF);
+	}
+	fclose(out);
+	free(buf);
+	
+	return 0;
 }
 
 s32 Disc_Type(bool gc)
@@ -640,4 +768,3 @@ int yal_Identify()
 	}
 	return 0;
 }
-

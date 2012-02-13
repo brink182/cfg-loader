@@ -2027,23 +2027,23 @@ char *ios_str(int idx)
 
 void set_recommended_cIOS_idx(int ios) {
 	if (ios == cIOS_base[0]) {
-		CFG.ios = 245;
+		cfg_ios_set_idx(CFG_IOS_245);
 	} else if (ios == cIOS_base[1]) {
-		CFG.ios = 246;
+		cfg_ios_set_idx(CFG_IOS_246);
 	} else if (ios == cIOS_base[2]) {
-		CFG.ios = 247;
+		cfg_ios_set_idx(CFG_IOS_247);
 	} else if (ios == cIOS_base[3]) {
-		CFG.ios = 248;
+		cfg_ios_set_idx(CFG_IOS_248);
 	} else if (ios == cIOS_base[4]) {
-		CFG.ios = 249;
+		cfg_ios_set_idx(CFG_IOS_249);
 	} else if (ios == cIOS_base[5]) {
-		CFG.ios = 250;
+		cfg_ios_set_idx(CFG_IOS_250);
 	} else if (ios == cIOS_base[6]) {
-		CFG.ios = 222;
+		cfg_ios_set_idx(CFG_IOS_222_MLOAD);
 	} else if (ios == cIOS_base[7]) {
-		CFG.ios = 223;
+		cfg_ios_set_idx(CFG_IOS_223_MLOAD);
 	} else if (ios == cIOS_base[8]) {
-		CFG.ios = 224;
+		cfg_ios_set_idx(CFG_IOS_224_MLOAD);
 	} else {
 		int i = 0;
 		for (i = 0; i < 9; i++) {
@@ -2051,7 +2051,7 @@ void set_recommended_cIOS_idx(int ios) {
 				cfg_ios_set_idx(i);
 				break;
 			} else {
-				CFG.ios = 249;
+				cfg_ios_set_idx(CFG_IOS_249);
 			}
 		}
 	}

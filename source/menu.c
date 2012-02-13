@@ -2966,6 +2966,45 @@ void Menu_Install(void)
 		printf(gt("OK!"));
 		printf("\n");
 	}
+	
+	if (Disc_IsGC() == 0) {
+		Disc_ReadHeader(&header);
+		u64 comp_size = 0, real_size = 0;
+
+		Gui_DrawCover(header.id);
+		
+		char filepath[25];
+		sprintf(filepath, "sd:/games/%s/game.iso", header.id);
+		
+		FILE *fp = fopen(filepath, "r");
+		if (fp) {
+			printf_x(gt("ERROR: Game already installed!!"));
+			fclose(fp);
+			goto out;
+		}
+		
+		printf("\n");
+		__Menu_PrintInfo2(&header, comp_size, real_size);
+		printf("\n");
+		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+		printf("\n");
+		printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+		printf("\n");
+		DefaultColor();
+		for (;;) {
+			u32 buttons = Wpad_WaitButtonsCommon();
+			if (buttons & CFG.button_confirm.mask) break;
+			if (buttons & CFG.button_cancel.mask) {
+				goto out2;
+			}
+		}
+
+		printf_x(gt("Installing game, please wait..."));
+		printf("\n\n");
+		Disc_DumpGCGame();
+		__Menu_GetEntries();
+		goto out;
+	}
 
 	/* Check disc */
 	ret = Disc_IsWii();

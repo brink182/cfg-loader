@@ -69,6 +69,7 @@ s32  Disc_IsWii(void);
 s32  Disc_IsGC(void);
 s32  Disc_BootPartition(u64, bool dvd);
 s32  Disc_WiiBoot(bool dvd);
+s32  Disc_DumpGCGame();
 
 u32 appentrypoint;
 #endif

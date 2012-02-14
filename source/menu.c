@@ -3714,6 +3714,11 @@ L_repaint:
 		fwrite(header->id, 1, 6, f);
 		fclose(f);
 		
+		if (CFG.game.language > 1 && CFG.game.language < 8)
+			set_language(CFG.game.language-1);
+		else
+			set_language(0);
+		
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
 		get_time(&TIME.playstat2);

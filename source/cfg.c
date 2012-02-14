@@ -1188,7 +1188,7 @@ void CFG_Default()
 	CFG.num_profiles = 1;
 	//CFG.current_profile = 0;
 	STRCOPY(CFG.profile_names[0], "default");
-	STRCOPY(CFG.titles_url, "http://gametdb.com/titles.txt?LANG={DBL}&GAMECUBE=true");
+	STRCOPY(CFG.titles_url, "http://www.gametdb.com/titles.txt?LANG={DBL}");
 	CFG.intro = 4;
 	CFG.fat_install_dir = 1;
 	CFG.fat_split_size = 4;
@@ -1196,7 +1196,7 @@ void CFG_Default()
 	//CFG.db_ignore_titles = 0;
 	//CFG.write_playlog = 0;
 	CFG.write_playstats = 1;
-	STRCOPY(CFG.db_url, "http://gametdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true&GAMECUBE=true");
+	STRCOPY(CFG.db_url, "http://www.gametdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true&GAMECUBE=true");
 	STRCOPY(CFG.db_language, auto_cc());
 	STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
 	STRCOPY(CFG.sort, "title-asc");

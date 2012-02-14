@@ -608,7 +608,7 @@ void cfg_default_url()
 	*CFG.cover_url_hq = 0;
 
 	STRCOPY(CFG.cover_url_2d,
-		" http://wiitdb.com/wiitdb/artwork/cover/{CC}/{ID6}.png"
+		" http://art.gametdb.com/wii/cover/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/cover/{ID6}.png"
 		//" http://boxart.rowdyruff.net/flat/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/160/225/boxart/{ID6}.png"
@@ -617,7 +617,7 @@ void cfg_default_url()
 		);
 
 	STRCOPY(CFG.cover_url_3d,
-		" http://wiitdb.com/wiitdb/artwork/cover3D/{CC}/{ID6}.png"
+		" http://art.gametdb.com/wii/cover3D/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/cover3D/{ID6}.png"
 		//" http://boxart.rowdyruff.net/3d/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/160/225/3D/{ID6}.png"
@@ -626,8 +626,8 @@ void cfg_default_url()
 		);
 
 	STRCOPY(CFG.cover_url_disc,
-		" http://wiitdb.com/wiitdb/artwork/disc/{CC}/{ID6}.png"
-		" http://wiitdb.com/wiitdb/artwork/disccustom/{CC}/{ID6}.png"
+		" http://art.gametdb.com/wii/disc/{CC}/{ID6}.png"
+		" http://art.gametdb.com/wii/disccustom/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/disc/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/disccustom/{ID6}.png"
 		//" http://boxart.rowdyruff.net/fulldisc/{ID6}.png"
@@ -637,14 +637,14 @@ void cfg_default_url()
 		);
 
 	STRCOPY(CFG.cover_url_full,
-		" http://wiitdb.com/wiitdb/artwork/coverfull/{CC}/{ID6}.png"
+		" http://art.gametdb.com/wii/coverfull/{CC}/{ID6}.png"
 		//" http://www.wiiboxart.com/artwork/coverfull/{ID6}.png"
 		//" http://www.muntrue.nl/covers/ALL/512/340/fullcover/{ID6}.png"
 		//" http://wiicover.gateflorida.com/sites/default/files/cover/Full%20Cover/{ID6}.png"
 		);
 
 	STRCOPY(CFG.cover_url_hq,
-		" http://wiitdb.com/wiitdb/artwork/coverfullHQ/{CC}/{ID6}.png"
+		" http://art.gametdb.com/wii/coverfullHQ/{CC}/{ID6}.png"
 		);
 
 	STRCOPY(CFG.gamercard_url,
@@ -1188,7 +1188,7 @@ void CFG_Default()
 	CFG.num_profiles = 1;
 	//CFG.current_profile = 0;
 	STRCOPY(CFG.profile_names[0], "default");
-	STRCOPY(CFG.titles_url, "http://wiitdb.com/titles.txt?LANG={DBL}");
+	STRCOPY(CFG.titles_url, "http://gametdb.com/titles.txt?LANG={DBL}&GAMECUBE=true");
 	CFG.intro = 4;
 	CFG.fat_install_dir = 1;
 	CFG.fat_split_size = 4;
@@ -1196,7 +1196,7 @@ void CFG_Default()
 	//CFG.db_ignore_titles = 0;
 	//CFG.write_playlog = 0;
 	CFG.write_playstats = 1;
-	STRCOPY(CFG.db_url, "http://wiitdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true");
+	STRCOPY(CFG.db_url, "http://gametdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true&GAMECUBE=true");
 	STRCOPY(CFG.db_language, auto_cc());
 	STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
 	STRCOPY(CFG.sort, "title-asc");

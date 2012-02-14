@@ -21,6 +21,7 @@
 #include "sys.h"
 #include "util.h"
 #include "music.h"
+#include "gc_wav.h"
 
 #define DML_MAGIC 0x444D4C00
 
@@ -997,7 +998,11 @@ void banner_parse(struct discHdr *header)
 	memset(&banner.snd, 0, sizeof(banner.snd));
 	memset(&banner.title, 0, sizeof(banner.title));
 	banner.parsed = false;
-	WBFS_Banner(header->id, &banner.snd, banner.title, true, true);
+	if (wgame.header->magic == DML_MAGIC) {
+		parse_riff(&gc_wav, &banner.snd);
+	} else {
+		WBFS_Banner(header->id, &banner.snd, banner.title, true, true);
+	}
 	// CFG_read_active_game_setting(header->id).write_playlog);
 	banner.parsed = true;
 }
@@ -1005,9 +1010,7 @@ void banner_parse(struct discHdr *header)
 void banner_play()
 {
 	// play banner sound
-	if (wgame.header->magic == DML_MAGIC) {
-		Music_GC_Start();
-	} else if (banner.snd.dsp_data && !banner.playing) {
+	if (banner.snd.dsp_data && !banner.playing) {
 		int fmt = (banner.snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
 		SND_SetVoice(1, fmt, banner.snd.rate, 0,
 			banner.snd.dsp_data, banner.snd.size,
@@ -1020,9 +1023,7 @@ void banner_play()
 void banner_stop()
 {
 	// stop banner sound, resume mp3	
-	if (wgame.header->magic == DML_MAGIC) {
-		Music_GC_Stop();
-	} else if (banner.snd.dsp_data && banner.playing) {
+	if (banner.snd.dsp_data && banner.playing) {
 		SND_StopVoice(1);
 		banner.playing = false;
 	}

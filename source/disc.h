@@ -1,6 +1,8 @@
 #ifndef _DISC_H_
 #define _DISC_H_
 
+#define GC_GAME_SIZE 0x57058000
+
 /* Disc header structure */
 struct discHdr
 {

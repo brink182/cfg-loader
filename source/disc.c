@@ -372,7 +372,7 @@ void __Dump_Spinner(s32 x, s32 max)
 
 	/* Calculate percentage/size */
 	percent = (x * 100.0) / max;
-	size = (0x8000 / GB_SIZE) * max;
+	size = (GC_GAME_SIZE / GB_SIZE);
 
 	Con_ClearLine();
 
@@ -469,7 +469,7 @@ s32 Disc_DumpGCGame() {
 		}
 		fwrite(buf, 1, 0x28000, out);
 		offset += 0x28000;
-		__Dump_Spinner(i+1, 0x22CF);
+		__Dump_Spinner(i, 0x22CF);
 	}
 	fclose(out);
 	free(buf);

@@ -48,6 +48,7 @@
 #include "playlog.h"
 #include "dolmenu.h"
 #include "gc.h"
+#include "gc_wav.h"
 
 #define CHANGE(V,M) {V+=change; if(V>(M)) V=(M); if(V<0) V=0;}
 #define DML_MAGIC 0x444D4C00
@@ -542,6 +543,20 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	//f32 size = 0.0;
 	*comp_size = 0;
 	*real_size = 0;
+	
+	if (header->magic == DML_MAGIC) {
+		char filepath[25];
+		sprintf(filepath, "sd:/games/%s/game.iso", header->id);
+		
+		FILE *fp = fopen(filepath, "r");
+		if (!fp) {
+			return;
+		}
+		fseek(fp, 0, SEEK_END);
+		*comp_size = *real_size = ftell(fp);
+		fclose(fp);
+		return;
+	}
 
 	/* Get game size */
 	if (strncmp((char*)last_id, (char*)header->id, 6) == 0 && last_comp && last_real) {
@@ -2969,7 +2984,7 @@ void Menu_Install(void)
 	
 	if (Disc_IsGC() == 0) {
 		Disc_ReadHeader(&header);
-		u64 comp_size = 0, real_size = 0;
+		u64 real_size = 0;
 
 		Gui_DrawCover(header.id);
 		
@@ -2984,7 +2999,8 @@ void Menu_Install(void)
 		}
 		
 		printf("\n");
-		__Menu_PrintInfo2(&header, comp_size, real_size);
+		__Menu_PrintInfo2(&header, GC_GAME_SIZE, real_size);
+		printf("\n");
 		printf("\n");
 		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
 		printf("\n");
@@ -3545,9 +3561,7 @@ L_repaint:
 	__console_flush(0);
 
 	// play banner sound
-	if (header->magic == DML_MAGIC) {
-		Music_GC_Start();
-	} else if (snd.dsp_data && !banner_playing) {
+	if (snd.dsp_data && !banner_playing) {
 		// pause mp3
 		Music_PauseVoice(true);
 		int fmt = (snd.channels == 2) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT;
@@ -3584,9 +3598,7 @@ L_repaint:
 	}
 
 	// stop banner sound, resume mp3
-	if (header->magic == DML_MAGIC) {
-		Music_GC_Stop();
-	} else if (snd.dsp_data && banner_playing) {
+	if (snd.dsp_data && banner_playing) {
 		SND_StopVoice(1);
 		SAFE_FREE(snd.dsp_data);
 		if (buttons & CFG.button_confirm.mask) {

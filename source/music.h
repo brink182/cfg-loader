@@ -9,5 +9,3 @@ void Music_Pause();
 void Music_UnPause();
 void Music_Mute(bool mute);
 void Music_PauseVoice(bool pause);
-void Music_GC_Start();
-void Music_GC_Stop();

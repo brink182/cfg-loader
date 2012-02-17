@@ -3855,6 +3855,20 @@ L_repaint:
 	}
 
 	if (gc) {
+		set_language(0);
+		if(header->id[3] == 'P')
+			set_video_mode(1);
+		else
+			set_video_mode(0);
+		VIDEO_SetBlack(TRUE);
+		VIDEO_Flush();
+		VIDEO_WaitVSync();
+		
+		UnmountAll(NULL);
+		Services_Close();
+		Subsystem_Close();
+		Wpad_Disconnect();
+		
 		WII_Initialize();
 		ret = WII_LaunchTitle(0x0000000100000100ULL);
 	} else {

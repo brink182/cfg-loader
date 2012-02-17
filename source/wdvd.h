@@ -22,6 +22,7 @@ s32 WDVD_Eject(void);
 s32 WDVD_Read_Disc_BCA(void *buf);
 s32 WDVD_SetFragList(int device, void *fraglist, int size);
 s32 WDVD_hello(u32 *status);
+s32 WDVD_setstreaming(void);
 
 // yal
 int YAL_Set_OffsetBase(unsigned int Base);

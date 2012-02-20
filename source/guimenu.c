@@ -24,6 +24,7 @@
 #include "gc_wav.h"
 
 #define DML_MAGIC 0x444D4C00
+#define DML_MAGIC_HDD DML_MAGIC + 1
 
 #if 1
 
@@ -998,7 +999,7 @@ void banner_parse(struct discHdr *header)
 	memset(&banner.snd, 0, sizeof(banner.snd));
 	memset(&banner.title, 0, sizeof(banner.title));
 	banner.parsed = false;
-	if (wgame.header->magic == DML_MAGIC) {
+	if (wgame.header->magic == DML_MAGIC || wgame.header->magic == DML_MAGIC_HDD) {
 		parse_riff(&gc_wav, &banner.snd);
 	} else {
 		WBFS_Banner(header->id, &banner.snd, banner.title, true, true);

@@ -993,7 +993,7 @@ out:
 
 void Online_Update()
 {
-	char *updates_url = "http://cfg-loader.googlecode.com/svn/trunk/updates.txt";
+	char *updates_url = "http://cfg-loader-mod.googlecode.com/svn/trunk/updates.txt";
 	struct block file;
 	file.data = NULL;
 

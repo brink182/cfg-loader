@@ -1,0 +1,83 @@
+metaxml=<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+metaxml=<app version="1">
+metaxml=	<name>Configurable USB Loader MOD</name>
+metaxml=	<version>{VERSION}</version>
+metaxml=	<release_date>{DATE}</release_date>
+metaxml=	<coder>oggzee, usptactical, gannon, Clipper, R2-D2199, FIX94 ...</coder>
+metaxml=	<short_description>Play from USB drive</short_description>
+metaxml=<long_description>
+metaxml=Play Wii Backups from USB harddrive
+metaxml=Waninkoko cIOS 249 is required!
+metaxml=Hermes cIOS 222/223 is supported.
+metaxml=USE AT YOUR OWN RISK!
+metaxml=</long_description>
+metaxml=</app>
+
+release = 70r13 (beta)
+size = 1569440
+date = 2011-07-07
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr13.dol
+-added auto copying of gc games usb->sd (tnx stfour)
+-added ability to remove gc games
+
+release = 70r12 (beta)
+size = 1665408
+date = 2012-02-17
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr12.dol
+-fixed launching retail gc games
+-added audio streaming for retail gc games
+
+release = 70r11 (beta)
+size = 1665216
+date = 2012-02-14
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr11.dol
+-showing GC game size in game info screen
+-fixed GC dumping spinner
+-fixed gc sound playing bug
+
+release = 70r10 (beta)
+size = 1577504
+date = 2012-02-14
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr10.dol
+-downloading gamecube information from gametdb too now (thanks lustar)
+-updated urls to gametdb
+
+release = 70r8 (beta)
+size = 1577504
+date = 2012-02-14
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr8.dol
+-added basic DML language setlection (just system default, english, german, frensh, spanish, italian and dutch work)
+
+release = 70r7 (beta)
+size = 1577440
+date = 2012-02-13
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr7.dol
+-added GC game dumping to SD for DML (quick & dirty, dumping progress size display is not correct)
+-fixed  bug in auto cIOS selection
+
+release = 70r6 (beta)
+size = 1575776
+date = 2012-02-12
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr6.dol
+-smaller gc mp3 ;)
+
+release = 70r5 (beta)
+size = 1602016
+date = 2012-02-12
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr5.dol
+-added GC sound for gamecube games
+-code cleanup
+
+release = 70r4 (beta)
+size = 1556064
+date = 2012-02-12
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr4.dol
+-added black cover side color for gamecube games
+-added basic DML support
+-added listing of GC games on SD Card
+
+release = 70r1 (beta)
+size = 1554176
+date = 2012-02-11
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr1.dol
+Added auto cIOS selection

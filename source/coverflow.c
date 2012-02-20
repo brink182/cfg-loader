@@ -55,6 +55,7 @@
 #define EASING_TYPE_LINEAR 0
 
 #define DML_MAGIC 0x444D4C00
+#define DML_MAGIC_HDD DML_MAGIC + 1
 
 extern struct discHdr *gameList;
 extern s32 gameCnt;
@@ -1724,7 +1725,7 @@ void get_boxcover_edge_color(int gi, bool selected, u8 alpha, u32 color, u32 ref
 	if (strncmp(gameid, "SMN", 3) == 0) col = 0xFF000000 | alpha;
 
 	//GameCube Games
-	if(gameList[gi].magic == DML_MAGIC)  col = 0x32323200 | alpha;
+	if(gameList[gi].magic == DML_MAGIC || gameList[gi].magic == DML_MAGIC_HDD)  col = 0x32323200 | alpha;
 	
 	if (selected) {
 		*edgecolor = col;

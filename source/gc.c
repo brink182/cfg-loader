@@ -3,7 +3,6 @@
 #include <gccore.h>
 #include <ogc/es.h>
 #include <ogc/video_types.h>
-#include <dirent.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <malloc.h>
@@ -11,8 +10,21 @@
 #include <ogcsys.h>
 #include <unistd.h>
 #include <sys/statvfs.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <sys/statvfs.h>
+
 #include "gc.h"
+#include "dir.h"
+#include "util.h"
+#include "gettext.h"
+#include "wpad.h"
+#include "debug.h"
+
 #define SEP 0xFF
+#define MAX_FAT_PATH 1024
 
 #define BC 0x0000000100000100ULL
 #define MIOS 0x0000000100000101ULL
@@ -101,4 +113,38 @@ void set_language(u8 lang)
 
 	__SYS_UnlockSram(1); // 1 -> write changes
 	while(!__SYS_SyncSram());
+}
+
+s32 DML_RemoveGame(u8 *discid)
+{
+	char fname[MAX_FAT_PATH];
+	snprintf(fname, sizeof(fname), "sd:/games/%s/game.iso", (char*)discid);
+	remove(fname);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/boot.bin", (char*)discid);
+	remove(fname);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/bi2.bin", (char*)discid);
+	remove(fname);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/apploader.img", (char*)discid);
+	remove(fname);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys", (char*)discid);
+	unlink(fname);
+	snprintf(fname, sizeof(fname), "sd:/games/%s", (char*)discid);
+	unlink(fname);
+	
+	return 0;
+}
+
+bool DML_GameIsInstalled(u8 *discid) {
+	char filepath[64];
+	sprintf(filepath, "sd:/games/%s/game.iso", (char*)discid);
+	
+	dbg_printf("Filepath on SD: %s\n", filepath);
+	
+	FILE *fp = fopen(filepath, "r");
+	if (fp) {
+		fclose(fp);
+		return true;
+	}
+	dbg_printf("Not found\n");
+	return false;
 }

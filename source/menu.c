@@ -49,9 +49,12 @@
 #include "dolmenu.h"
 #include "gc.h"
 #include "gc_wav.h"
+#include "fileOps.h"
+#include "sdhc.h"
 
 #define CHANGE(V,M) {V+=change; if(V>(M)) V=(M); if(V<0) V=0;}
 #define DML_MAGIC 0x444D4C00
+#define DML_MAGIC_HDD DML_MAGIC + 1
 
 char CFG_VERSION[] = CFG_VERSION_STR;
 
@@ -82,6 +85,8 @@ static int disable_install = 0;
 static int disable_options = 0;
 static int confirm_start = 1;
 static bool unlock_init = true;
+
+extern char wbfs_fs_drive[16];
 
 char *videos[CFG_VIDEO_NUM] = 
 {
@@ -162,7 +167,7 @@ s32 get_DML_game_list_cnt()
     DIR *s2dir;
     struct dirent *entry;
 
-	// 1st count the number of games
+	// 1st count the number of games on SD
 	sdir = opendir("sd:/games");
 	do
 	{
@@ -194,6 +199,43 @@ s32 get_DML_game_list_cnt()
 	} while (entry);
 	closedir(sdir);
 	
+	// 2st count the number of games on hdd
+	char filepath[64];
+	sprintf(filepath, "%s/games", wbfs_fs_drive);
+	dbg_printf(filepath);
+	sdir = opendir(filepath);
+	do
+	{
+		entry = readdir(sdir);
+		if (entry)
+		{
+			sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
+			if (strlen(entry->d_name) != 6)
+			{
+				continue;
+			}
+			s2dir =  opendir(name_buffer);
+			if (s2dir)
+			{
+				sprintf(name_buffer, "%s/games/%s/game.iso", wbfs_fs_drive, entry->d_name);
+				fp = fopen(name_buffer, "rb");
+				if (fp)
+				{
+					fseek(fp, 0, SEEK_END);
+					if (ftell(fp) > 1000000)
+					{
+						if (!DML_GameIsInstalled((u8*)entry->d_name)) {
+							DML_GameCount++;
+						}
+					}
+					fclose(fp);
+				}
+				closedir(s2dir);
+			}
+		}
+	} while (entry);
+	closedir(sdir);
+	
 	return DML_GameCount;
 }
 
@@ -207,7 +249,7 @@ s32 get_DML_game_list(void *outbuf)
     DIR *s2dir;
     struct dirent *entry;
 
-	// 1st count the number of games
+	// 1st count the number of games on SD
 	sdir = opendir("sd:/games");
 	do
 	{
@@ -246,6 +288,50 @@ s32 get_DML_game_list(void *outbuf)
 	} while (entry);
 	closedir(sdir);
 	
+	// 2st count the number of games on hdd
+	char filepath[64];
+	sprintf(filepath, "%s/games", wbfs_fs_drive);
+	dbg_printf(filepath);
+	sdir = opendir(filepath);
+	do
+	{
+		entry = readdir(sdir);
+		if (entry)
+		{
+			sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
+			if (strlen(entry->d_name) != 6)
+			{
+				continue;
+			}
+			s2dir =  opendir(name_buffer);
+			if (s2dir)
+			{
+				sprintf(name_buffer, "%s/games/%s/game.iso", wbfs_fs_drive, entry->d_name);
+				fp = fopen(name_buffer, "rb");
+				if (fp)
+				{
+					fseek(fp, 0, SEEK_END);
+					if (ftell(fp) > 1000000)
+					{
+						if (!DML_GameIsInstalled((u8*)entry->d_name)) {
+							dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
+							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+							struct discHdr *dmlGame = (struct discHdr *)ptr;
+							memcpy(dmlGame->id, entry->d_name, 6);
+							dmlGame->magic = DML_MAGIC_HDD;
+							fseek(fp, 0x20, SEEK_SET);
+							fread(dmlGame->title, 1, 0x40, fp);
+							DML_GameCount++;
+						}
+					}
+					fclose(fp);
+				}
+				closedir(s2dir);
+			}
+		}
+	} while (entry);
+	closedir(sdir);
+	
 	return 0;
 }
 
@@ -274,6 +360,8 @@ s32 __Menu_GetEntries(void)
 
 	/* Buffer length */
 	len = sizeof(struct discHdr) * (cnt+dml);
+	
+	dbg_printf("Found %d games (%d wii games and %d gc games)\n", cnt+dml, cnt, dml);
 
 	/* Allocate memory */
 	buffer = (struct discHdr *)memalign(32, len);
@@ -592,6 +680,9 @@ void Menu_GameInfoStr2(struct discHdr *header, char *str, u64 comp_size, u64 rea
 	if (game_tmd.sys_version) {
 		s += strlen(s);
 		sprintf(s, " IOS%d\n\n", TITLE_LOW(game_tmd.sys_version));
+	} else {
+		s += strlen(s);
+		sprintf(s, "\n\n");
 	}
 }
 
@@ -2983,18 +3074,31 @@ void Menu_Install(void)
 	}
 	
 	if (Disc_IsGC() == 0) {
+		f32 free, used, total;
+		SD_DiskSpace(&used, &free);
+		total = used + free;
+		printf_x("sd: ");
+		printf(gt("%.1fGB free of %.1fGB"), free, total);
+		printf("\n\n");
+
+		bench_io();
+
+		// require +128kb for operating safety
+		if ((f32)GC_GAME_SIZE + (f32)128*1024 >= free * GB_SIZE) {
+			printf_x(gt("ERROR: not enough free space!!"));
+			printf("\n\n");
+			goto out;
+		}
+		//sleep(10);
+		//goto out;
+		
 		Disc_ReadHeader(&header);
 		u64 real_size = 0;
 
 		Gui_DrawCover(header.id);
 		
-		char filepath[25];
-		sprintf(filepath, "sd:/games/%s/game.iso", header.id);
-		
-		FILE *fp = fopen(filepath, "r");
-		if (fp) {
+		if (DML_GameIsInstalled(header.id)) {
 			printf_x(gt("ERROR: Game already installed!!"));
-			fclose(fp);
 			goto out;
 		}
 		
@@ -3217,17 +3321,21 @@ void Menu_Remove(void)
 	fflush(stdout);
 
 	/* Remove game */
-	ret = WBFS_RemoveGame(header->id);
-	if (ret < 0) {
-		printf("\n");
-		printf_(gt("ERROR! (ret = %d)"), ret);
-		printf("\n");
-		goto out;
+	if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) {
+		ret = DML_RemoveGame(header->id);
 	} else {
-		printf(" ");
-		printf(gt("OK!"));
+		ret = WBFS_RemoveGame(header->id);
+		if (ret < 0) {
+			printf("\n");
+			printf_(gt("ERROR! (ret = %d)"), ret);
+			printf("\n");
+			goto out;
+		} else {
+			printf(" ");
+			printf(gt("OK!"));
+		}
 	}
-
+	
 	/* Reload entries */
 	__Menu_GetEntries();
 
@@ -3717,6 +3825,33 @@ L_repaint:
 	printf("\n");
 	printf_x(gt("Booting Wii game, please wait..."));
 	printf("\n\n");
+	
+	if (header->magic == DML_MAGIC_HDD) {
+		if (!fsop_DirExist ("sd:/games"))
+		{
+			fsop_MakeFolder ("sd:/games");
+		}
+		char source[64];
+		char target[64];
+		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->id);
+		sprintf(target, "sd:/games/%s", header->id);
+		fsop_CopyFolder(source, target, NULL);
+		header->magic = DML_MAGIC;
+		printf("\n");
+		printf("\n");
+		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
+		printf("\n");
+		printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
+		printf("\n");
+		DefaultColor();
+		for (;;) {
+			u32 buttons = Wpad_WaitButtonsCommon();
+			if (buttons & CFG.button_confirm.mask) break;
+			if (buttons & CFG.button_cancel.mask) {
+				return;
+			}
+		}
+	}
 	
 	if (header->magic == DML_MAGIC)
 	{

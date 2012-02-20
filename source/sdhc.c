@@ -3,9 +3,13 @@
 #include <string.h>
 #include <ogcsys.h>
 #include <sdcard/wiisd_io.h>
+#include <sys/statvfs.h>
 
+#include "util.h"
+#include "gettext.h"
 #include "sdhc.h"
 #include "debug.h"
+#include "video.h"
 
 /* IOCTL comamnds */
 #define IOCTL_SDHC_INIT		0x01
@@ -15,6 +19,7 @@
 
 #define SDHC_HEAPSIZE		0x8000
 #define SDHC_MEM2_SIZE		0x10000
+#define GB_SIZE         1073741824.0
 // 0x10000 = 64 KB = 128 x 512 sector
 
 int sdhc_mode_sd = 0;
@@ -243,4 +248,27 @@ const DISC_INTERFACE my_io_sdhc_ro = {
 	(FN_MEDIUM_SHUTDOWN)     &__io_SDHC_Close
 };
 
+s32 SD_DiskSpace(f32 *used, f32 *free)
+{
+	f32 size;
+	int ret;
+	struct statvfs vfs;
 
+	*used = 0;
+	*free = 0;
+
+	extern void printf_(const char *fmt, ...);
+	printf("\r");
+	printf_(gt("calculating space, please wait..."));
+	printf("\r");
+	ret = statvfs("sd:", &vfs);
+	Con_ClearLine();
+	if (ret) return 0;
+
+	/* FS size in GB */
+	size = (f32)vfs.f_frsize * (f32)vfs.f_blocks / GB_SIZE;
+	*free = (f32)vfs.f_frsize * (f32)vfs.f_bfree / GB_SIZE;
+	*used = size - *free;
+
+	return 0;
+}

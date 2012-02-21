@@ -1043,7 +1043,7 @@ int PNGU_RGBA8_To_CMPR(void *buf_rgb, PNGU_u32 width, PNGU_u32 height, void *buf
  */
 void user_error (png_structp png_ptr, png_const_charp c)
 {
-	longjmp (png_ptr->jmpbuf, 1);
+	longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 

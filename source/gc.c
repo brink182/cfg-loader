@@ -1,20 +1,10 @@
-#include <stdint.h>
-#include <string.h>
 #include <gccore.h>
-#include <ogc/es.h>
-#include <ogc/video_types.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <math.h>
-#include <ogcsys.h>
 #include <unistd.h>
 #include <sys/statvfs.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <sys/statvfs.h>
 
 #include "gc.h"
 #include "dir.h"
@@ -23,20 +13,7 @@
 #include "wpad.h"
 #include "debug.h"
 
-#define SEP 0xFF
 #define MAX_FAT_PATH 1024
-
-#define BC 0x0000000100000100ULL
-#define MIOS 0x0000000100000101ULL
-
-/** Base address for video registers. */
-#define MEM_VIDEO_BASE (0xCC002000)
-
-#define VIDEO_MODE_NTSC 0
-#define VIDEO_MODE_PAL 1
-#define VIDEO_MODE_PAL60 2
-#define VIDEO_MODE_NTSC480P 3
-#define VIDEO_MODE_PAL480P 4
 
 #define SRAM_ENGLISH 0
 #define SRAM_GERMAN 1
@@ -55,22 +32,32 @@ void set_video_mode(int i)
 	sram = __SYS_LockSram();
 	void *m_frameBuf;
 	static GXRModeObj *rmode;
-	if (i == VIDEO_MODE_NTSC)
+
+	if(VIDEO_HaveComponentCable())
+		sram->flags |= 0x80; //set progressive flag
+	else
+		sram->flags &= 0x7F; //clear progressive flag
+
+	if (!i)
 	{
 		rmode = &TVNtsc480IntDf;
-		sram->flags = sram->flags & ~(1 << 0);	// Clear bit 0 to set the video mode to NTSC
+		sram->flags &= 0xFE; // Clear bit 0 to set the video mode to NTSC
+		sram->ntd &= 0xBF; //clear pal60 flag
 	}
 	else
 	{
 		rmode = &TVPal528IntDf;
-		sram->flags = sram->flags |  (1 << 0);	// Set bit 0 to set the video mode to PAL
+		sram->flags |= 0x01; // Set bit 0 to set the video mode to PAL
+		sram->ntd |= 0x40; //set pal60 flag
 	}
-	
+
 	__SYS_UnlockSram(1); // 1 -> write changes
 	while(!__SYS_SyncSram());
 
 	/* Set video mode to PAL or NTSC */
-	*(u32*)0x800000CC = i;
+	*(vu32*)0x800000CC = i;
+	DCFlushRange((void *)(0x800000CC), 1);
+	ICInvalidateRange((void *)(0x800000CC), 1);
 	
 	VIDEO_Configure(rmode);
 	m_frameBuf = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));

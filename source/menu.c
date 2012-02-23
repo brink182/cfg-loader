@@ -3087,7 +3087,8 @@ void Menu_Install(void)
 		if ((f32)GC_GAME_SIZE + (f32)128*1024 >= free * GB_SIZE) {
 			printf_x(gt("ERROR: not enough free space!!"));
 			printf("\n\n");
-			goto out;
+			// Does not work perfectly
+			//goto out;
 		}
 		//sleep(10);
 		//goto out;
@@ -4094,7 +4095,6 @@ void Direct_Launch()
 void Menu_Loop(void)
 {
 	fill_base_array();
-	CFG.game.ios_idx = CFG_IOS_AUTO;
 	// enable the console if starting with console mode
 	if (!CFG.gui_start) {
 		if (!(CFG.direct_launch && !CFG.intro)) {

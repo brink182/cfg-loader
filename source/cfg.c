@@ -2106,7 +2106,7 @@ void cfg_ios_set_idx(int ios_idx)
 			CFG.ios_yal = 1;
 			break;
 		default:
-			ios_idx = CFG_IOS_249;
+			ios_idx = CFG_IOS_AUTO;
  	}
 
 	CFG.game.ios_idx = ios_idx;

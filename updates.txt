@@ -13,9 +13,27 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r15 (beta)
+size = 1781120
+date = 2012-02-23
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr15.dol
+-compiled with libogc svn r4884 
+(this should fix the newer wii motes)
+-fixed issue 9
+
+release = 70r14 (beta)
+size = 1776512
+date = 2012-02-21
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr14.dol
+-updated DML and GC video patch
+(fixes problems with PAL games)
+-set progressive flag in DML and GC if
+component cable is found
+-updated pngu command, no warning anymore :P
+
 release = 70r13 (beta)
-size = 1569440
-date = 2011-07-07
+size = 1793152
+date = 2012-02-20
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr13.dol
 -added auto copying of gc games usb->sd (tnx stfour)
 -added ability to remove gc games

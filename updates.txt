@@ -99,3 +99,9 @@ size = 1554176
 date = 2012-02-11
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr1.dol
 Added auto cIOS selection
+
+release = 70 (release)
+size = 1569440
+date = 2011-07-07
+url = http://cfg-loader.googlecode.com/files/cfg70.dol
+Version

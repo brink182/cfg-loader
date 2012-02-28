@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70-mod-r15 (mod)
+size = 1781184
+date = 2012-02-23
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr15.dol
+Mod by FIX94 and R2-D2199 with:
+- gamecube games support (DML)
+- new wiimote+ support (libogc r4884)
+
 release = 70 (release)
 size = 1569440
 date = 2011-07-07
@@ -24,37 +32,6 @@ size = 1569440
 date = 2011-07-07
 url = http://cfg-loader.googlecode.com/files/cfg70-222.dol
 Same as 70 but with different
-default options:
-  ios=222-mload
-
-release = 70b6 (beta)
-size = 1569440
-date = 2011-07-05
-url = http://cfg-loader.googlecode.com/files/cfg70b6.dol
-Updated to rodries ehcmodule for
-  hermes cios (222,223,224)
-
-release = 70b6-222 (beta)
-size = 1569440
-date = 2011-07-05
-url = http://cfg-loader.googlecode.com/files/cfg70b6-222.dol
-Same as 70b6 but with different
-default options:
-  ios=222-mload
-
-release = 70b5 (beta)
-size = 1567616
-date = 2011-07-03
-url = http://cfg-loader.googlecode.com/files/cfg70b5.dol
-Fixed crashes in GUI game select
-  especially with WBFS partition
-Minor cleanups
-
-release = 70b5-222 (beta)
-size = 1567616
-date = 2011-07-03
-url = http://cfg-loader.googlecode.com/files/cfg70b5-222.dol
-Same as 70b5 but with different
 default options:
   ios=222-mload
 

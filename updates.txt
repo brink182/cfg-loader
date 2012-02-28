@@ -14,7 +14,7 @@ metaxml=</long_description>
 metaxml=</app>
 
 release = 70r15 (beta)
-size = 1781120
+size = 1781184
 date = 2012-02-23
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr15.dol
 -compiled with libogc svn r4884 

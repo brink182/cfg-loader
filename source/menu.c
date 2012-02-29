@@ -157,6 +157,15 @@ char *skip_sort_ignore(char *s)
 	return s;
 }
 
+struct discHdr *getHeaderById(struct discHdr *list, int cnt, u8 *id) {
+	u32 i = 0;
+	for (i=0; i < cnt; i++) {
+		struct discHdr *header = list+i;
+		if (!memcmp(header->id, id, 6)) return header;
+	}
+	return NULL;
+}
+
 s32 get_DML_game_list_cnt()
 {
 	FILE *fp;
@@ -175,10 +184,6 @@ s32 get_DML_game_list_cnt()
 		if (entry)
 		{
 			sprintf(name_buffer, "sd:/games/%s", entry->d_name);
-			if (strlen(entry->d_name) != 6)
-			{
-				continue;
-			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -210,10 +215,6 @@ s32 get_DML_game_list_cnt()
 		if (entry)
 		{
 			sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
-			if (strlen(entry->d_name) != 6)
-			{
-				continue;
-			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -224,9 +225,7 @@ s32 get_DML_game_list_cnt()
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) > 1000000)
 					{
-						if (!DML_GameIsInstalled((u8*)entry->d_name)) {
-							DML_GameCount++;
-						}
+						DML_GameCount++;
 					}
 					fclose(fp);
 				}
@@ -257,10 +256,6 @@ s32 get_DML_game_list(void *outbuf)
 		if (entry)
 		{
 			sprintf(name_buffer, "sd:/games/%s", entry->d_name);
-			if (strlen(entry->d_name) != 6)
-			{
-				continue;
-			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -274,8 +269,11 @@ s32 get_DML_game_list(void *outbuf)
 						dbg_printf("Found DML game %s\n", entry->d_name);
 						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
 						struct discHdr *dmlGame = (struct discHdr *)ptr;
-						memcpy(dmlGame->id, entry->d_name, 6);
+						memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+						memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
 						dmlGame->magic = DML_MAGIC;
+						fseek(fp, 0, SEEK_SET);
+						fread(dmlGame->id, 1, 6, fp);
 						fseek(fp, 0x20, SEEK_SET);
 						fread(dmlGame->title, 1, 0x40, fp);
 						DML_GameCount++;
@@ -299,10 +297,6 @@ s32 get_DML_game_list(void *outbuf)
 		if (entry)
 		{
 			sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
-			if (strlen(entry->d_name) != 6)
-			{
-				continue;
-			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -313,12 +307,19 @@ s32 get_DML_game_list(void *outbuf)
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) > 1000000)
 					{
-						if (!DML_GameIsInstalled((u8*)entry->d_name)) {
+						u8 id[6];
+						fseek(fp, 0, SEEK_SET);
+						fread(id, 1, 6, fp);
+						
+						if (!getHeaderById(outbuf, DML_GameCount, id)) {
 							dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
 							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
 							struct discHdr *dmlGame = (struct discHdr *)ptr;
-							memcpy(dmlGame->id, entry->d_name, 6);
+							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
 							dmlGame->magic = DML_MAGIC_HDD;
+							fseek(fp, 0, SEEK_SET);
+							fread(dmlGame->id, 1, 6, fp);
 							fseek(fp, 0x20, SEEK_SET);
 							fread(dmlGame->title, 1, 0x40, fp);
 							DML_GameCount++;
@@ -332,12 +333,13 @@ s32 get_DML_game_list(void *outbuf)
 	} while (entry);
 	closedir(sdir);
 	
-	return 0;
+	return DML_GameCount;
 }
 
 s32 __Menu_GetEntries(void)
 {
 	struct discHdr *buffer = NULL;
+	struct discHdr *dmlBuffer = NULL;
 
 	u32 cnt, len;
 	s32 ret;
@@ -357,11 +359,21 @@ s32 __Menu_GetEntries(void)
 	ret = WBFS_GetCount(&cnt);
 	if (ret < 0)
 		return ret;
+		
+	/* Allocate memory */
+	dmlBuffer = (struct discHdr *)memalign(32, dml);
+	if (!dmlBuffer)
+		return -1;
+	
+	/* Clear buffer */
+	memset(dmlBuffer, 0, sizeof(struct discHdr)*dml);
+	
+	dml = get_DML_game_list(dmlBuffer);
 
 	/* Buffer length */
 	len = sizeof(struct discHdr) * (cnt+dml);
 	
-	dbg_printf("Found %d games (%d wii games and %d gc games)\n", cnt+dml, cnt, dml);
+	dbg_printf("Found %d games (%d wii games and %d gc games)\n", len/sizeof(struct discHdr), cnt, dml);
 
 	/* Allocate memory */
 	buffer = (struct discHdr *)memalign(32, len);
@@ -371,7 +383,8 @@ s32 __Menu_GetEntries(void)
 	/* Clear buffer */
 	memset(buffer, 0, len);
 	
-	get_DML_game_list(buffer);
+	memcpy(buffer, dmlBuffer, sizeof(struct discHdr) * dml);
+	free(dmlBuffer);
 
 	/* Get header list */
 	ret = WBFS_GetHeaders(buffer+dml, cnt, sizeof(struct discHdr));
@@ -634,7 +647,7 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	
 	if (header->magic == DML_MAGIC) {
 		char filepath[25];
-		sprintf(filepath, "sd:/games/%s/game.iso", header->id);
+		sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
 		
 		FILE *fp = fopen(filepath, "r");
 		if (!fp) {
@@ -3098,7 +3111,7 @@ void Menu_Install(void)
 
 		Gui_DrawCover(header.id);
 		
-		if (DML_GameIsInstalled(header.id)) {
+		if (getHeaderById(gameList, gameCnt, header.id)) {
 			printf_x(gt("ERROR: Game already installed!!"));
 			goto out;
 		}
@@ -3323,7 +3336,7 @@ void Menu_Remove(void)
 
 	/* Remove game */
 	if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) {
-		ret = DML_RemoveGame(header->id);
+		ret = DML_RemoveGame(*header);
 	} else {
 		ret = WBFS_RemoveGame(header->id);
 		if (ret < 0) {
@@ -3575,7 +3588,7 @@ restart_menu_boot:;
 	game_cfg = CFG_find_game(header->id);
 
 	// Get game size
-	if (!disc) WBFS_GameSize2(header->id, &comp_size, &real_size);
+	if (!disc && header->magic != DML_MAGIC && header->magic != DML_MAGIC_HDD) WBFS_GameSize2(header->id, &comp_size, &real_size);
 	bool dl_warn = check_dual_layer(real_size, game_cfg);
 	bool can_skip = !CFG.confirm_start && !dl_warn && check_device(game_cfg, false);
 	bool do_skip = (disc && !CFG.confirm_start) || (!disc && can_skip);
@@ -3643,7 +3656,7 @@ L_repaint:
 	DefaultColor();
 
 	//Does DL warning apply to launching discs too? Not sure
-	if (!disc) {
+	if (!disc && header->magic != DML_MAGIC && header->magic != DML_MAGIC_HDD) {
 		check_device(game_cfg, true);
 		if (dl_warn) print_dual_layer_note();
 	}
@@ -3834,8 +3847,8 @@ L_repaint:
 		}
 		char source[64];
 		char target[64];
-		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->id);
-		sprintf(target, "sd:/games/%s", header->id);
+		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
+		sprintf(target, "sd:/games/%s", header->folder);
 		fsop_CopyFolder(source, target, NULL);
 		header->magic = DML_MAGIC;
 		printf("\n");
@@ -3859,7 +3872,7 @@ L_repaint:
 		FILE *f;
 		const char* filepath = "sd:/games/boot.bin";
 		f = fopen(filepath, "wb");
-		fwrite(header->id, 1, 6, f);
+		fwrite(header->folder, 1, strlen(header->folder), f);
 		fclose(f);
 		
 		if (CFG.game.language > 1 && CFG.game.language < 8)

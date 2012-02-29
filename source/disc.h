@@ -34,6 +34,7 @@ struct discHdr
 
 	/* Padding */
 	u8 unused3[30];
+	char folder[0xFF];
 } ATTRIBUTE_PACKED;
 
 struct gc_discHdr
@@ -59,6 +60,20 @@ struct gc_discHdr
 
 	/* Game title */
 	char title[124];
+};
+
+struct dml_Game
+{
+	/* Game ID */
+	u8 id[6];
+
+	/* Game version */
+	u8 disc;
+
+	/* Game title */
+	char title[64];
+
+	char folder[0xFF];
 };
 
 /* Prototypes */

@@ -12,6 +12,7 @@
 #include "gettext.h"
 #include "wpad.h"
 #include "debug.h"
+#include "disc.h"
 
 #define MAX_FAT_PATH 1024
 
@@ -102,20 +103,20 @@ void set_language(u8 lang)
 	while(!__SYS_SyncSram());
 }
 
-s32 DML_RemoveGame(u8 *discid)
+s32 DML_RemoveGame(struct discHdr header)
 {
 	char fname[MAX_FAT_PATH];
-	snprintf(fname, sizeof(fname), "sd:/games/%s/game.iso", (char*)discid);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/game.iso", header.folder);
 	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/boot.bin", (char*)discid);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/boot.bin", header.folder);
 	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/bi2.bin", (char*)discid);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/bi2.bin", header.folder);
 	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/apploader.img", (char*)discid);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/apploader.img", header.folder);
 	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys", (char*)discid);
+	snprintf(fname, sizeof(fname), "sd:/games/%s/sys", header.folder);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s", (char*)discid);
+	snprintf(fname, sizeof(fname), "sd:/games/%s", header.folder);
 	unlink(fname);
 	
 	return 0;

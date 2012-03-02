@@ -13,10 +13,16 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r19 (beta)
+size = 1781568
+date = 2012-03-02
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr19.dol
+-bugfix
+
 release = 70r18 (beta)
 size = 1781440
 date = 2012-02-29
-url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr19.dol
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr18.dol
 -support for custom DML game paths
 
 release = 70r15 (beta)

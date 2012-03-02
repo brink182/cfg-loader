@@ -184,6 +184,10 @@ s32 get_DML_game_list_cnt()
 		if (entry)
 		{
 			sprintf(name_buffer, "sd:/games/%s", entry->d_name);
+			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
+ 			{
+				continue;
+ 			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -203,6 +207,9 @@ s32 get_DML_game_list_cnt()
 		}
 	} while (entry);
 	closedir(sdir);
+	sdir = NULL;
+	
+	if (!strncmp(wbfs_fs_drive, "sd:", 3)) return DML_GameCount;
 	
 	// 2st count the number of games on hdd
 	char filepath[64];
@@ -215,6 +222,10 @@ s32 get_DML_game_list_cnt()
 		if (entry)
 		{
 			sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
+			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
+ 			{
+				continue;
+ 			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -256,6 +267,10 @@ s32 get_DML_game_list(void *outbuf)
 		if (entry)
 		{
 			sprintf(name_buffer, "sd:/games/%s", entry->d_name);
+			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
+ 			{
+				continue;
+ 			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -285,6 +300,9 @@ s32 get_DML_game_list(void *outbuf)
 		}
 	} while (entry);
 	closedir(sdir);
+	sdir = NULL;
+	
+	if (!strncmp(wbfs_fs_drive, "sd:", 3)) return DML_GameCount;
 	
 	// 2st count the number of games on hdd
 	char filepath[64];
@@ -297,6 +315,10 @@ s32 get_DML_game_list(void *outbuf)
 		if (entry)
 		{
 			sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
+			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
+ 			{
+				continue;
+ 			}
 			s2dir =  opendir(name_buffer);
 			if (s2dir)
 			{
@@ -336,6 +358,7 @@ s32 get_DML_game_list(void *outbuf)
 	return DML_GameCount;
 }
 
+
 s32 __Menu_GetEntries(void)
 {
 	struct discHdr *buffer = NULL;
@@ -361,7 +384,7 @@ s32 __Menu_GetEntries(void)
 		return ret;
 		
 	/* Allocate memory */
-	dmlBuffer = (struct discHdr *)memalign(32, dml);
+	dmlBuffer = (struct discHdr *)memalign(32, sizeof(struct discHdr)*dml);
 	if (!dmlBuffer)
 		return -1;
 	
@@ -648,6 +671,18 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	if (header->magic == DML_MAGIC) {
 		char filepath[25];
 		sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
+		
+		FILE *fp = fopen(filepath, "r");
+		if (!fp) {
+			return;
+		}
+		fseek(fp, 0, SEEK_END);
+		*comp_size = *real_size = ftell(fp);
+		fclose(fp);
+		return;
+	} else if (header->magic == DML_MAGIC_HDD) {
+		char filepath[25];
+		sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
 		
 		FILE *fp = fopen(filepath, "r");
 		if (!fp) {
@@ -3851,20 +3886,6 @@ L_repaint:
 		sprintf(target, "sd:/games/%s", header->folder);
 		fsop_CopyFolder(source, target, NULL);
 		header->magic = DML_MAGIC;
-		printf("\n");
-		printf("\n");
-		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
-		printf("\n");
-		printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
-		printf("\n");
-		DefaultColor();
-		for (;;) {
-			u32 buttons = Wpad_WaitButtonsCommon();
-			if (buttons & CFG.button_confirm.mask) break;
-			if (buttons & CFG.button_cancel.mask) {
-				return;
-			}
-		}
 	}
 	
 	if (header->magic == DML_MAGIC)

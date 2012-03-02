@@ -34,6 +34,7 @@ struct discHdr
 
 	/* Padding */
 	u8 unused3[30];
+	
 	char folder[0xFF];
 } ATTRIBUTE_PACKED;
 

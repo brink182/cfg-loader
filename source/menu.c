@@ -212,7 +212,7 @@ s32 get_DML_game_list_cnt()
 	if (!strncmp(wbfs_fs_drive, "sd:", 3)) return DML_GameCount;
 	
 	// 2st count the number of games on hdd
-	char filepath[64];
+	char filepath[0xFF];
 	sprintf(filepath, "%s/games", wbfs_fs_drive);
 	dbg_printf(filepath);
 	sdir = opendir(filepath);
@@ -305,7 +305,7 @@ s32 get_DML_game_list(void *outbuf)
 	if (!strncmp(wbfs_fs_drive, "sd:", 3)) return DML_GameCount;
 	
 	// 2st count the number of games on hdd
-	char filepath[64];
+	char filepath[0xFF];
 	sprintf(filepath, "%s/games", wbfs_fs_drive);
 	dbg_printf(filepath);
 	sdir = opendir(filepath);
@@ -669,7 +669,7 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	*real_size = 0;
 	
 	if (header->magic == DML_MAGIC) {
-		char filepath[25];
+		char filepath[0xFF];
 		sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
 		
 		FILE *fp = fopen(filepath, "r");
@@ -681,7 +681,7 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 		fclose(fp);
 		return;
 	} else if (header->magic == DML_MAGIC_HDD) {
-		char filepath[25];
+		char filepath[0xFF];
 		sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
 		
 		FILE *fp = fopen(filepath, "r");

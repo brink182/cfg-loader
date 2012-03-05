@@ -3884,7 +3884,7 @@ L_repaint:
 		char target[64];
 		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
 		sprintf(target, "sd:/games/%s", header->folder);
-		fsop_CopyFolder(source, target, NULL);
+		fsop_CopyFolder(source, target);
 		header->magic = DML_MAGIC;
 	}
 	

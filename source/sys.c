@@ -1123,6 +1123,7 @@ int get_ios_type()
 		case 248:
 		case 249:
 		case 250:
+		case 251:
 			return IOS_TYPE_WANIN;
 		case 222:
 		case 223:
@@ -1598,7 +1599,7 @@ retry:;
 			goto retry;
 		}
 		// patch title id, so hash matches
-		if (ios_slot >= 245 && ios_slot <= 250) {
+		if (ios_slot >= 245 && ios_slot <= 251) {
 			if (t->title_id != TITLE_ID(1, 249)) {
 				t->title_id = TITLE_ID(1, 249);
 				goto retry;
@@ -1640,7 +1641,7 @@ retry:;
 void fill_base_array() {
 	int i = 0;
 	
-	for (i = 0; i < 9; i++) {
+	for (i = 0; i < 10; i++) {
 		cIOS_base[i] = 0;
 	}
 	char *temp;
@@ -1688,25 +1689,32 @@ void fill_base_array() {
 			cIOS_base[5] = atoi(temp);// CFG_IOS_250
 	}
 	
+	temp = get_iosx_info_from_tmd(251, NULL);
+	if (temp) {
+		strncpy(baseBuf, temp, 2);
+		if (strcmp(baseBuf, "??") != 0)
+			cIOS_base[6] = atoi(temp);// CFG_IOS_251
+	}
+	
 	temp = get_iosx_info_from_tmd(222, NULL);
 	if (temp) {
 		strncpy(baseBuf, temp, 2);
 		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[6] = atoi(temp);// CFG_IOS_222
+			cIOS_base[7] = atoi(temp);// CFG_IOS_222
 	}
 	
 	temp = get_iosx_info_from_tmd(223, NULL);
 	if (temp) {
 		strncpy(baseBuf, temp, 2);
 		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[7] = atoi(temp);// CFG_IOS_223
+			cIOS_base[8] = atoi(temp);// CFG_IOS_223
 	}
 	
 	temp = get_iosx_info_from_tmd(224, NULL);
 	if (temp) {
 		strncpy(baseBuf, temp, 2);
 		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[8] = atoi(temp);// CFG_IOS_224
+			cIOS_base[9] = atoi(temp);// CFG_IOS_224
 	}
 }
 
@@ -1720,7 +1728,7 @@ void get_all_ios_info_str(char *str, int size)
 	int i;
 	char *info;
 	int ret;
-	for (i=222; i<=250; i++) {
+	for (i=222; i<=251; i++) {
 		if (i > 224 && i < 245) continue;
 		snprintf(str, size, "IOS%d ", i);
 		str_seek_end(&str, &size);

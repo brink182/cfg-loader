@@ -26,7 +26,17 @@ en exposed s_fsop fsop structure can be used by callback to update operation sta
 #include "gettext.h"
 #include "util.h"
 
-s_fsop fsop;
+#define SET(a, b) a = b; DCFlushRange(&a, sizeof(a));
+#define STACKSIZE 8192
+
+static u8 *buff = NULL;
+static FILE *fs = NULL, *ft = NULL;
+static u32 block = 32768;
+static u32 blockIdx = 0;
+static u32 blockInfo[2] = {0,0};
+static u32 blockReady = 0;
+static u32 stopThread;
+static u64 folderSize = 0;
 
 void __Copy_Spinner(s32 x, s32 max)
 {
@@ -79,63 +89,6 @@ void __Copy_Spinner(s32 x, s32 max)
 	__console_flush(1);
 }
 
-// read a file from disk
-u8 *fsop_ReadFile (char *path, size_t bytes2read, size_t *bytesReaded)
-{
-	FILE *f;
-	size_t size = 0;
-	
-	f = fopen(path, "rb");
-	if (!f)
-	{
-		if (bytesReaded) *bytesReaded = size;
-		return NULL;
-	}
-
-	//Get file size
-	fseek( f, 0, SEEK_END);
-	size = ftell(f);
-	
-	if (size == 0) 
-	{
-		fclose (f);
-		return NULL;
-	}
-	
-	// goto to start
-	fseek( f, 0, SEEK_SET);
-	
-	if (bytes2read > 0 && bytes2read < size)
-		size = bytes2read;
-	
-	u8 *buff = malloc (size);
-	size = fread (buff, 1, size, f);
-	fclose (f);
-	
-	if (bytesReaded) *bytesReaded = size;
-
-	return buff;
-}
-
-// write a buffer to disk
-bool fsop_WriteFile (char *path, u8 *buff, size_t len)
-{
-	FILE *f;
-	size_t size = 0;
-	
-	f = fopen(path, "wb");
-	if (!f)
-	{
-		return false;
-	}
-
-	size = fwrite (buff, 1, len, f);
-	fclose (f);
-
-	if (size == len) return true;
-	return false;
-}
-
 // return false if the file doesn't exist
 bool fsop_GetFileSizeBytes (char *path, size_t *filesize)	// for me stats st_size report always 0 :(
 {
@@ -160,34 +113,9 @@ bool fsop_GetFileSizeBytes (char *path, size_t *filesize)	// for me stats st_siz
 }
 
 /*
-
-*/
-u32 fsop_CountDirItems (char *source)
-{
-	DIR *pdir;
-	struct dirent *pent;
-	u32 count = 0;
-	
-	pdir=opendir(source);
-	
-	while ((pent=readdir(pdir)) != NULL) 
-	{
-		// Skip it
-		if (strcmp (pent->d_name, ".") == 0 || strcmp (pent->d_name, "..") == 0)
-			continue;
-
-		count++;
-	}
-	
-	closedir(pdir);
-	
-	return count;
-}
-
-/*
 Recursive fsop_GetFolderBytes
 */
-u64 fsop_GetFolderBytes (char *source, fsopCallback vc)
+u64 fsop_GetFolderBytes (char *source)
 {
 	DIR *pdir;
 	struct dirent *pent;
@@ -207,7 +135,7 @@ u64 fsop_GetFolderBytes (char *source, fsopCallback vc)
 		// If it is a folder... recurse...
 		if (fsop_DirExist (newSource))
 		{
-			bytes += fsop_GetFolderBytes (newSource, vc);
+			bytes += fsop_GetFolderBytes (newSource);
 		}
 		else	// It is a file !
 		{
@@ -224,9 +152,9 @@ u64 fsop_GetFolderBytes (char *source, fsopCallback vc)
 	return bytes;
 	}
 
-u32 fsop_GetFolderKb (char *source, fsopCallback vc)
+u32 fsop_GetFolderKb (char *source)
 {
-	u32 ret = (u32) round ((double)fsop_GetFolderBytes (source, vc) / 1000.0);
+	u32 ret = (u32) round ((double)fsop_GetFolderBytes (source) / 1000.0);
 
 	return ret;
 }
@@ -240,23 +168,6 @@ u32 fsop_GetFreeSpaceKb (char *path) // Return free kb on the device passed
 	u32 ret = (u32)round( ((double)s.f_bfree / 1000.0) * s.f_bsize);
 	
 	return ret ;
-}
-
-
-bool fsop_StoreBuffer (char *fn, u8 *buff, int size, fsopCallback vc)
-{
-	FILE * f;
-	int bytes;
-	
-	f = fopen(fn, "wb");
-	if (!f) return false;
-	
-	bytes = fwrite (buff, 1, size, f);
-	fclose(f);
-	
-	if (bytes == size) return true;
-	
-	return false;
 }
 
 bool fsop_FileExist (char *fn)
@@ -282,16 +193,33 @@ bool fsop_DirExist (char *path)
 	return false;
 }
 
-bool fsop_CopyFile (char *source, char *target, fsopCallback vc)
+static void *thread_CopyFileReader (void *arg)
+{
+	u32 rb;
+	stopThread = 0;
+	DCFlushRange(&stopThread, sizeof(stopThread));
+	do
+	{
+		SET (rb, fread(&buff[blockIdx*block], 1, block, fs ));
+		SET (blockInfo[blockIdx], rb);
+		SET (blockReady, 1);
+
+		while (blockReady && !stopThread) usleep(1);
+	}
+	while (stopThread == 0);
+
+	stopThread = -1;
+	DCFlushRange(&stopThread, sizeof(stopThread));
+
+	return 0;
+}
+
+bool fsop_CopyFile (char *source, char *target)
 {
 	int err = 0;
-	fsop.breakop = 0;
-	
-	u8 *buff = NULL;
+
 	u32 size;
 	u32 bytes, rb,wb;
-	u32 block = 65536;
-	FILE *fs = NULL, *ft = NULL;
 	
 	if (strstr (source, "usb:") && strstr (target, "usb:"))
 	{
@@ -315,8 +243,6 @@ bool fsop_CopyFile (char *source, char *target, fsopCallback vc)
 	fseek ( fs, 0, SEEK_END);
 	size = ftell(fs);
 
-	fsop.size = size;
-	
 	if (size == 0)
 	{
 		fclose (fs);
@@ -326,47 +252,74 @@ bool fsop_CopyFile (char *source, char *target, fsopCallback vc)
 		
 	// Return to beginning....
 	fseek( fs, 0, SEEK_SET);
-	
-	buff = memalign (32, block);
+
+	u8 * threadStack = NULL;
+	lwp_t hthread = LWP_THREAD_NULL;
+
+	buff = memalign (32, block*2);
 	if (buff == NULL) 
 	{
 		fclose (fs);
 		return false;
 	}
-	
+
+	blockIdx = 0;
+	blockReady = 0;
+	blockInfo[0] = 0;
+	blockInfo[1] = 0;
+
+	threadStack = memalign(32,STACKSIZE);
+	LWP_CreateThread (&hthread, thread_CopyFileReader, NULL, threadStack, STACKSIZE, 30);
+
+	while (stopThread != 0)
+		usleep (5);
+
 	bytes = 0;
-	bool spinnerFlag = false;
-	if (strstr (source, "game.iso")) {
-		__Copy_Spinner(bytes, size);
-		spinnerFlag = true;
-	}
+	u32 bi;
 	do
 	{
-		rb = fread(buff, 1, block, fs );
-		wb = fwrite(buff, 1, rb, ft );
+		while (!blockReady) usleep (1); // Let's wait for incoming block from the thread
 		
+		bi = blockIdx;
+
+		// let's th thread to read the next buff
+		SET (blockIdx, 1 - blockIdx);
+		SET (blockReady, 0);
+
+		rb = blockInfo[bi];
+		// write current block
+		wb = fwrite(&buff[bi*block], 1, rb, ft);
+
 		if (wb != wb) err = 1;
 		if (rb == 0) err = 1;
 		bytes += rb;
-		
-		if (spinnerFlag) __Copy_Spinner(bytes, size);
-		
-		fsop.multy.bytes += rb;
-		fsop.bytes = bytes;
-		
-		if (vc) vc();
-		if (fsop.breakop) break;
+
+		__Copy_Spinner(bytes, folderSize);
 	}
 	while (bytes < size && err == 0);
+
+	stopThread = 1;
+	DCFlushRange(&stopThread, sizeof(stopThread));
+
+	while (stopThread != -1)
+		usleep (5);
+
+	LWP_JoinThread(hthread, NULL);
+	free(threadStack);
+
+	stopThread = 1;
+	DCFlushRange(&stopThread, sizeof(stopThread));
 
 	fclose (fs);
 	fclose (ft);
 	
 	free(buff);
 	
-	if (err) unlink (target);
-
-	if (fsop.breakop || err) return false;
+	if (err) 
+	{
+		unlink (target);
+		return false;
+	}
 	
 	return true;
 }
@@ -374,7 +327,7 @@ bool fsop_CopyFile (char *source, char *target, fsopCallback vc)
 /*
 Semplified folder make
 */
-int fsop_MakeFolder (char *path)
+bool fsop_MakeFolder (char *path)
 {
 	if (mkdir(path, S_IREAD | S_IWRITE) == 0) return true;
 	
@@ -384,7 +337,7 @@ int fsop_MakeFolder (char *path)
 /*
 Recursive copyfolder
 */
-static bool doCopyFolder (char *source, char *target, fsopCallback vc)
+static bool doCopyFolder (char *source, char *target)
 {
 	DIR *pdir;
 	struct dirent *pent;
@@ -411,12 +364,11 @@ static bool doCopyFolder (char *source, char *target, fsopCallback vc)
 		// If it is a folder... recurse...
 		if (fsop_DirExist (newSource))
 		{
-			ret = doCopyFolder (newSource, newTarget, vc);
+			ret = doCopyFolder (newSource, newTarget);
 		}
 		else	// It is a file !
 		{
-			strcpy (fsop.op, pent->d_name);
-			ret = fsop_CopyFile (newSource, newTarget, vc);
+			ret = fsop_CopyFile (newSource, newTarget);
 		}
 	}
 	
@@ -425,24 +377,17 @@ static bool doCopyFolder (char *source, char *target, fsopCallback vc)
 	return ret;
 }
 	
-bool fsop_CopyFolder (char *source, char *target, fsopCallback vc)
+bool fsop_CopyFolder (char *source, char *target)
 {
-	fsop.breakop = 0;
-	fsop.multy.startms = ticks_to_millisecs(gettime());
-	fsop.multy.bytes = 0;
-	fsop.multy.size = fsop_GetFolderBytes (source, vc);
-	
-	//return false;
-	
-	//fsop_KillFolderTree (target, vc);
-	
-	return doCopyFolder (source, target, vc);
+	folderSize = fsop_GetFolderBytes(source);
+
+	return doCopyFolder (source, target);
 }
 	
 /*
 Recursive copyfolder
 */
-bool fsop_KillFolderTree (char *source, fsopCallback vc)
+bool fsop_KillFolderTree (char *source)
 {
 	DIR *pdir;
 	struct dirent *pent;
@@ -461,14 +406,11 @@ bool fsop_KillFolderTree (char *source, fsopCallback vc)
 		// If it is a folder... recurse...
 		if (fsop_DirExist (newSource))
 		{
-			fsop_KillFolderTree (newSource, vc);
+			fsop_KillFolderTree (newSource);
 		}
 		else	// It is a file !
 		{
-			sprintf (fsop.op, "Removing %s", pent->d_name);
 			unlink (newSource);
-			
-			if (vc) vc();
 		}
 	}
 	
@@ -519,45 +461,3 @@ bool fsop_CreateFolderTree (char *path)
 	// Check if the tree has been created
 	return fsop_DirExist (path);
 }
-	
-	
-// Count the number of folder in a full path. It can be path1/path2/path3 or <mount>://path1/path2/path3
-int fsop_CountFolderTree (char *path)
-{
-	int i;
-	int start, len;
-	char b[8];
-	char *p;
-	int count = 0;
-	
-	start = 0;
-	
-	strcpy (b, "://");
-	p = strstr (path, b);
-	if (p == NULL)
-	{
-		strcpy (b, ":/");
-		p = strstr (path, b);
-	}
-	
-	if (p == NULL)
-		start = 0;
-	else
-		start = (p - path) + strlen(b);
-	
-	len = strlen(path);
-	if (path[len-1] == '/') len--;
-	if (len <= 0) return 0;
-
-	for (i = start; i <= len; i++)
-	{
-		if (path[i] == '/' || i == len)
-		{
-			count ++;
-		}
-	}
-	
-	// Check if the tree has been created
-	return count;
-}
-

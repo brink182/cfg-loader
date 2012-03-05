@@ -13,6 +13,15 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r21 (beta)
+size = 1777984
+date = 2012-03-05
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr21.dol
+-added threaded gamecube usb to sd copy,
+thanks stfour, makes copy way faster, also
+cleaned up fileops code
+-added support for ios251 (soon you will see why)
+
 release = 70r20 (beta)
 size = 1793312
 date = 2012-03-04

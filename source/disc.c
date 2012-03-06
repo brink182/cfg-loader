@@ -416,12 +416,12 @@ s32 Disc_DumpGCGame() {
 	
 	ret = WDVD_UnencryptedRead(bootBin, 0x440, 0);
 	
-	char sysFolder[20];
-	sprintf(sysFolder, "sd:/games/%s/sys", header->id);
+	char sysFolder[0xff];
+	sprintf(sysFolder, "sd:/games/%s [%s]/sys", header->title, header->id);
 	mkpath(sysFolder, 0777);
 	
-	char filepath1[29];
-	sprintf(filepath1, "sd:/games/%s/sys/boot.bin", header->id);
+	char filepath1[0xff];
+	sprintf(filepath1, "sd:/games/%s [%s]/sys/boot.bin", header->title, header->id);
 	FILE *out = fopen( filepath1, "wb" );
 	if( out == NULL )
 	{
@@ -433,8 +433,8 @@ s32 Disc_DumpGCGame() {
 	
 	ret = WDVD_UnencryptedRead(bi2Bin, 0x2000, 0x440);
 	
-	char filepath2[28];
-	sprintf(filepath2, "sd:/games/%s/sys/bi2.bin", header->id);
+	char filepath2[0xff];
+	sprintf(filepath2, "sd:/games/%s [%s]/sys/bi2.bin", header->title, header->id);
 	out = fopen( filepath2, "wb" );
 	if( out == NULL )
 	{
@@ -446,8 +446,8 @@ s32 Disc_DumpGCGame() {
 	
 	ret = WDVD_UnencryptedRead(apploaderImg, 0x1C720, 0x2440);
 	
-	char filepath3[34];
-	sprintf(filepath3, "sd:/games/%s/sys/apploader.img", header->id);
+	char filepath3[0xff];
+	sprintf(filepath3, "sd:/games/%s [%s]/sys/apploader.img", header->title, header->id);
 	out = fopen( filepath3, "wb" );
 	if( out == NULL )
 	{
@@ -457,8 +457,8 @@ s32 Disc_DumpGCGame() {
 	fclose(out);
 	free(apploaderImg);
 	
-	char filepath4[25];
-	sprintf(filepath4, "sd:/games/%s/game.iso", header->id);
+	char filepath4[0xff];
+	sprintf(filepath4, "sd:/games/%s [%s]/game.iso", header->title, header->id);
 	out = fopen( filepath4, "wb" );
 	if( out == NULL )
 	{

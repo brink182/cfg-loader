@@ -13,6 +13,12 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r22 (beta)
+size = 1793888
+date = 2012-03-06
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr22.dol
+-added game title to GC dump foldername
+
 release = 70r21 (beta)
 size = 1777984
 date = 2012-03-05

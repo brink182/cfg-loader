@@ -3138,8 +3138,6 @@ void Menu_Install(void)
 			// Does not work perfectly
 			//goto out;
 		}
-		//sleep(10);
-		//goto out;
 		
 		Disc_ReadHeader(&header);
 		u64 real_size = 0;

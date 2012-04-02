@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r23 (beta)
+size = 1778688
+date = 2012-04-02
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr23.dol
+-added very basic DML r52+ support (no boot.bin will be written to sd card anymore)
+-added option to disable new DML support, dml_r51_minus, you can enable it if needed
+-added filter for gamecube games, if you enable it only gamecube games will be displayed
+
 release = 70r22 (beta)
 size = 1793888
 date = 2012-03-06

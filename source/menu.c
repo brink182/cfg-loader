@@ -3232,7 +3232,7 @@ void Menu_Install(void)
 	}
 
 	// get confirmation
-	retry:
+	//retry:
 	if (!way_out) {
 		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
 		printf("\n");
@@ -3886,45 +3886,35 @@ L_repaint:
 		header->magic = DML_MAGIC;
 	}
 	
-	if (header->magic == DML_MAGIC)
+	if (gc || header->magic == DML_MAGIC)
 	{
-		FILE *f;
-		const char* filepath = "sd:/games/boot.bin";
-		f = fopen(filepath, "wb");
-		fwrite(header->folder, 1, strlen(header->folder), f);
-		fclose(f);
-		
-		if (CFG.game.language > 1 && CFG.game.language < 8)
-			set_language(CFG.game.language-1);
-		else
-			set_language(0);
-		
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
 		get_time(&TIME.playstat2);
-		
-		//Tell DML to boot the game from sd card
-		*(vu32*)0x80001800 = 0xB002D105;
-		DCFlushRange((void *)(0x80001800), 4);
-		ICInvalidateRange((void *)(0x80001800), 4);		
-		
-		memcpy((char *)0x80000000, (char *)header->id, 6);
-		
-		*(vu32*)0xCC003024 |= 7;
-		
+
+		if(header->magic == DML_MAGIC)
+		{
+			if(CFG.dml_r51_minus)
+				DML_Old_SetOptions(header->folder, NULL, NULL, false);
+			else
+				DML_New_SetOptions(header->folder, NULL, NULL, false, false, 0, 0);
+		}
+
+		memcpy((char *)0x80000000, header->id, 6);
 		if(header->id[3] == 'P')
-			set_video_mode(1);
+			GC_SetVideoMode(1);
 		else
-			set_video_mode(0);
-		VIDEO_SetBlack(TRUE);
-		VIDEO_Flush();
-		VIDEO_WaitVSync();
-		
+			GC_SetVideoMode(0);
+		if (CFG.game.language > 1 && CFG.game.language < 8)
+			GC_SetLanguage(CFG.game.language-1);
+		else
+			GC_SetLanguage(0);
+
 		UnmountAll(NULL);
 		Services_Close();
 		Subsystem_Close();
 		Wpad_Disconnect();
-		
+
 		WII_Initialize();
 		WII_LaunchTitle(0x0000000100000100ULL);
 		return;
@@ -4022,43 +4012,25 @@ L_repaint:
 		}
 	}
 
-	if (gc) {
-		set_language(0);
-		if(header->id[3] == 'P')
-			set_video_mode(1);
-		else
-			set_video_mode(0);
-		VIDEO_SetBlack(TRUE);
-		VIDEO_Flush();
-		VIDEO_WaitVSync();
-		
-		UnmountAll(NULL);
-		Services_Close();
-		Subsystem_Close();
-		Wpad_Disconnect();
-		
-		WII_Initialize();
-		ret = WII_LaunchTitle(0x0000000100000100ULL);
-	} else {
-		switch(CFG.game.language)
-				{
-						// 0 = CFG_LANG_CONSOLE
-						case 0: configbytes[0] = 0xCD; break; 
-						case 1: configbytes[0] = 0x00; break; 
-						case 2: configbytes[0] = 0x01; break; 
-						case 3: configbytes[0] = 0x02; break; 
-						case 4: configbytes[0] = 0x03; break; 
-						case 5: configbytes[0] = 0x04; break; 
-						case 6: configbytes[0] = 0x05; break; 
-						case 7: configbytes[0] = 0x06; break; 
-						case 8: configbytes[0] = 0x07; break; 
-						case 9: configbytes[0] = 0x08; break; 
-						case 10: configbytes[0] = 0x09; break;
-				}
-
-		/* Boot Wii disc */
-		ret = Disc_WiiBoot(disc);
+	switch(CFG.game.language)
+	{
+		// 0 = CFG_LANG_CONSOLE
+		case 0: configbytes[0] = 0xCD; break; 
+		case 1: configbytes[0] = 0x00; break; 
+		case 2: configbytes[0] = 0x01; break; 
+		case 3: configbytes[0] = 0x02; break; 
+		case 4: configbytes[0] = 0x03; break; 
+		case 5: configbytes[0] = 0x04; break; 
+		case 6: configbytes[0] = 0x05; break; 
+		case 7: configbytes[0] = 0x06; break; 
+		case 8: configbytes[0] = 0x07; break; 
+		case 9: configbytes[0] = 0x08; break; 
+		case 10: configbytes[0] = 0x09; break;
 	}
+
+	/* Boot Wii disc */
+	ret = Disc_WiiBoot(disc);
+
 	printf_(gt("Returned! (ret = %d)"), ret);
 	printf("\n");
 

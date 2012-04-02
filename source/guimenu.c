@@ -1483,7 +1483,8 @@ void action_filter(Widget *ww)
 			break;
 		case 3:
 			if (i == 0) t = FILTER_ALL;
-			else t = FILTER_UNPLAYED;
+			else if(i == 1) t = FILTER_UNPLAYED;
+			else t = FILTER_GAMECUBE;
 			break;
 	}
 	filter_games_set(t, i);
@@ -1500,6 +1501,8 @@ char *get_filter_name(int type, int index)
 			return gt("Online Play");
 		case FILTER_UNPLAYED:
 			return gt("Unplayed");
+		case FILTER_GAMECUBE:
+			return gt("GameCube");
 		case FILTER_GENRE:
 			return genreTypes[index][1];
 		case FILTER_CONTROLLER:
@@ -1564,9 +1567,9 @@ void action_OpenFilter(Widget *a_ww)
 	pos_margin(dd, PAD3);
 	pos_newline(dd);
 
-	// all, unplayed
-	pos_columns(dd, 3, SIZE_FULL);
-	r_filter[3] = rr = wgui_auto_radio_a(dd, 2, 2, gt("Show All"), gt("Unplayed"));
+	// all, unplayed, gamecube
+	pos_columns(dd, 4, SIZE_FULL);
+	r_filter[3] = rr = wgui_auto_radio_a(dd, 3, 3, gt("Show All"), gt("Unplayed"), gt("GameCube"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
@@ -1579,12 +1582,13 @@ void action_OpenFilter(Widget *a_ww)
 	int r = -1;
 	i = filter_index;
 	switch (filter_type) {
-		case FILTER_GENRE:      r = 0; break;
-		case FILTER_CONTROLLER: r = 1; break;
-		case FILTER_ONLINE:     r = 2; i = 0; break;
-		case FILTER_FEATURES:   r = 2; i = filter_index + 1; break;
-		case FILTER_ALL:        r = 3; i = 0; break;
-		case FILTER_UNPLAYED:   r = 3; i = 1; break;
+		case FILTER_GENRE:		r = 0;	break;
+		case FILTER_CONTROLLER:	r = 1;	break;
+		case FILTER_ONLINE:		r = 2;	i = 0;	break;
+		case FILTER_FEATURES:	r = 2;	i = filter_index + 1;	break;
+		case FILTER_ALL:		r = 3;	i = 0;	break;
+		case FILTER_UNPLAYED:	r = 3;	i = 1;	break;
+		case FILTER_GAMECUBE:	r = 3;	i = 2;	break;
 	}
 	if (r >= 0) {
 		if (r < 3) wgui_set_value(r_filter_group, r);

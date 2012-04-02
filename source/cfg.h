@@ -482,6 +482,7 @@ struct CFG
 	int disable_pop_patch;
 	int disable_bca;
 	int disable_wip;
+	int dml_r51_minus;
 	// int write_playlog;
 	// order of the following options (until specified point) is important
 	int button_M;

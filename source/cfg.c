@@ -2463,6 +2463,8 @@ void cfg_set(char *name, char *val)
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
+	cfg_bool("dml_r51_or_older", &CFG.dml_r51_minus);
+
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	cfg_id_list("pref_game", CFG.pref_game, &CFG.num_pref_game, MAX_PREF_GAME);
 	cfg_id_list("favorite_game", CFG.favorite_game,

@@ -15,6 +15,9 @@
 #include "wpad.h"
 #include "gettext.h"
 
+#define DML_MAGIC 0x444D4C00
+#define DML_MAGIC_HDD DML_MAGIC + 1
+
 extern struct discHdr *all_gameList;
 extern struct discHdr *gameList;
 extern struct discHdr *filter_gameList;
@@ -281,6 +284,24 @@ int filter_genre(struct discHdr *list, int cnt, char *genre, bool notused)
 	return cnt;
 }
 
+int filter_gamecube(struct discHdr *list, int cnt, char *ignore, bool notused)
+{
+	int i;
+	for (i=0; i<cnt;) 
+	{
+		if (list[i].magic == DML_MAGIC || list[i].magic == DML_MAGIC_HDD) 
+		{
+			i++;
+		} 
+		else 
+		{
+			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
+			cnt--;
+		}
+	}
+	return cnt;
+}
+
 int filter_play_count(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
@@ -385,11 +406,14 @@ int filter_games_set(int type, int index)
 		case FILTER_GENRE:
 			ret = filter_games(filter_genre, genreTypes[index][0], 0);
 			break;
+		case FILTER_FEATURES:
+			ret = filter_games(filter_features, featureTypes[index][0], 0);
+			break;
 		case FILTER_CONTROLLER:
 			ret = filter_games(filter_controller, accessoryTypes[index][0], 0);
 			break;
-		case FILTER_FEATURES:
-			ret = filter_games(filter_features, featureTypes[index][0], 0);
+		case FILTER_GAMECUBE:
+			ret = filter_games(filter_gamecube, "", 0);
 			break;
 	}
 	if (ret > -1) {
@@ -708,6 +732,8 @@ int Menu_Filter()
 		printf("%s %s\n", mark_filter(FILTER_ONLINE,-1), gt("Online Play"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_UNPLAYED,-1), gt("Unplayed Games"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
 		menu_window_begin(&menu, size, genreCnt);
 		for (n=0;n<genreCnt;n++) {
 			if (menu_window_mark(&menu))
@@ -751,7 +777,11 @@ int Menu_Filter()
 				redraw_cover = 1;
 				filter_games_set(FILTER_UNPLAYED, -1);
 			}
-			n = menu.current - 5;
+			else if (5 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_GAMECUBE, -1);
+			}
+			n = menu.current - 6;
 			if (n >= 0 && n < genreCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_GENRE, n);
@@ -796,6 +826,8 @@ int Menu_Filter2()
 		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
 		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
 			if (menu_window_mark(&menu))
@@ -833,7 +865,11 @@ int Menu_Filter2()
 				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			}
-			n = menu.current - 3;
+			else if (3 == menu.current) {
+				filter_games_set(FILTER_GAMECUBE, -1);
+				redraw_cover = 1;
+			}
+			n = menu.current - 4;
 			if (n >= 0 && n < accessoryCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_CONTROLLER, n);
@@ -879,6 +915,8 @@ int Menu_Filter3()
 		printf("<%s>\n", gt("Filter by Controller"));		
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
 		menu_window_begin(&menu, size, featureCnt);
 		for (n=0;n<featureCnt;n++) {
 			if (menu_window_mark(&menu))
@@ -916,7 +954,11 @@ int Menu_Filter3()
 				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			}
-			n = menu.current - 3;
+			else if (3 == menu.current) {
+				filter_games_set(FILTER_GAMECUBE, -1);
+				redraw_cover = 1;
+			}
+			n = menu.current - 4;
 			if (n >= 0 && n < featureCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_FEATURES, n);

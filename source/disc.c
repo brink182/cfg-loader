@@ -397,8 +397,9 @@ void __Dump_Spinner(s32 x, s32 max)
 
 s32 Disc_ReadHeader(void *outbuf)
 {
+	struct discHdr disc;
 	/* Read disc header */
-	return WDVD_UnencryptedRead(outbuf, sizeof(struct discHdr), 0);
+	return WDVD_UnencryptedRead(outbuf, sizeof(struct discHdr)-sizeof(disc.folder), 0);
 }
 
 s32 Disc_ReadGCHeader(void *outbuf)

@@ -3904,7 +3904,7 @@ L_repaint:
 		if(header->id[3] == 'P')
 			GC_SetVideoMode(1);
 		else
-			GC_SetVideoMode(0);
+			GC_SetVideoMode(2);
 		if (CFG.game.language > 1 && CFG.game.language < 8)
 			GC_SetLanguage(CFG.game.language-1);
 		else

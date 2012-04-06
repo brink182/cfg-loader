@@ -876,6 +876,77 @@ void InitGameOptionsPage(Widget *pp, int bh)
 		wgame.gcfg = NULL;
 		if (!wgame.gcfg2) {
 			wgui_add_text(op, pos_auto, gt("ERROR game opt"));
+		} else if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) {
+			wgame.gcfg = &wgame.gcfg2->curr;
+
+			int num_ios = map_get_num(map_ios);
+			char *names_ios[num_ios];
+			num_ios = map_to_list(map_ios, num_ios, names_ios);
+
+			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
+			BIND_OPT(language);
+
+			ww = wgui_add_game_opt(op, gt("Video:"), CFG_VIDEO_NUM, videos);
+			BIND_OPT(video);
+
+			ww = wgui_add_game_opt(op, gt("NoDisc:"), 2, NULL);
+			BIND_OPT(vidtv);
+
+			ww = wgui_add_game_opt(op, gt("NMM:"), 2, NULL);
+			BIND_OPT(country_patch);
+			
+			ww = wgui_add_game_opt(op, gt("Ocarina (cheats):"), 2, NULL);
+			BIND_OPT(ocarina);
+
+			ww = wgui_add_game_opt(op, gt("Write Playlog:"), 4, playlog_name);
+			BIND_OPT(write_playlog);
+
+			ww = wgui_add_game_opt(op, gt("Clear Patches:"), 3, names_vpatch);
+			BIND_OPT(clean);
+
+			/////////////////
+			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
+			op->render = NULL;
+
+			ww = wgui_add_game_opt(op, gt("Alt dol:"), 0, NULL);
+			BIND_OPT(alt_dol);
+			ww->val_ptr = NULL;
+			ww->update = init_alt_dol_if_parent_enabled;
+
+			ww = wgui_add_game_opt(op, gt("Anti 002 Fix:"), 2, NULL);
+			BIND_OPT(fix_002);
+
+			ww = wgui_add_game_opt(op, gt("Hook Type:"), NUM_HOOK, hook_name);
+			BIND_OPT(hooktype);
+			
+			ww = wgui_add_game_opt(op, "IOS:", num_ios, names_ios);
+			BIND_OPT(ios_idx);
+
+			char *str_block[3] = { gt("Off"), gt("On"), gt("Auto") };
+			ww = wgui_add_game_opt(op, gt("Block IOS Reload:"), 3, str_block);
+			BIND_OPT(block_ios_reload);
+			
+			ww = wgui_add_game_opt(op, gt("Video Patch:"), CFG_VIDEO_PATCH_NUM, names_vpatch);
+			BIND_OPT(video_patch);
+
+			pos_move_to(pp, PAD0, -bh);
+			pos_pad(pp, PAD0);
+			pos_columns(pp, 4, SIZE_FULL);
+			Pos p = pos_auto;
+			p.h = bh;
+			ww = wgui_add_button(pp, p, gt("reset"));
+			ww->action = action_reset_gamecfg;
+			wgame.discard = ww;
+
+			ww = wgui_add_button(pp, p, gt("save"));
+			ww->action = action_save_gamecfg;
+			wgame.save = ww;
+
+			//pos_columns(pp, 0, SIZE_FULL);
+			//p.w = -PAD0;
+			//ww = wgui_add_pgswitchx(pp, w_opt_page, p, NULL, 0, "%d/%d", 2);
+
+			update_gameopt_state();
 		} else {
 			wgame.gcfg = &wgame.gcfg2->curr;
 
@@ -2091,9 +2162,14 @@ void Init_System_Dialog(Widget *dd)
 	ww->val_ptr = &CFG.admin_mode_locked;
 	ww->action = action_AdminLock;
 	
+	// DML r52+
+	ww = wgui_add_opt(dd, gt("DML r51-:"), 2, NULL);
+	ww->val_ptr = &CFG.dml_r51_minus;
+	ww->action = action_write_val_ptr_int;
+	
 
 	// Save Settings
-	pos_newline(dd);
+	//pos_newline(dd);
 	pos_columns(dd, 2, SIZE_FULL);
 	ww = wgui_add_button(dd, pos_x(POS_CENTER), gt("Save Settings"));
 	ww->action = action_SaveSettings;

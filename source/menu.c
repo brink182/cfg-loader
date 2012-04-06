@@ -1456,7 +1456,29 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	if (disc) {
 		printf(" (%.6s)\n", header->id);
 	} else {
-		WBFS_GameSize(header->id, &size);
+		if (header->magic == DML_MAGIC) {
+			char filepath[0xFF];
+			sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
+			
+			FILE *fp = fopen(filepath, "r");
+			if (fp) {
+				fseek(fp, 0, SEEK_END);
+				size = (float) ftell(fp) / 1024.0 / 1024.0 / 1024.0;
+				fclose(fp);
+			}
+		} else if (header->magic == DML_MAGIC_HDD) {
+			char filepath[0xFF];
+			sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
+			
+			FILE *fp = fopen(filepath, "r");
+			if (fp) {
+				fseek(fp, 0, SEEK_END);
+				size = (float) ftell(fp) / 1024.0 / 1024.0 / 1024.0;
+				fclose(fp);
+			}
+		} else {
+			WBFS_GameSize(header->id, &size);
+		}
 		printf(" (%.6s) (%.2f%s)\n", header->id, size, gt("GB"));
 	}
 	DefaultColor();
@@ -1474,7 +1496,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	game_cfg = &game_cfg2->curr;
 
 	struct Menu menu;
-	const int NUM_OPT = 17;
+	int NUM_OPT = 17;
+	if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) NUM_OPT = 11;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -1589,48 +1612,75 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 		#define PRINT_OPT_B(N,V) \
 			PRINT_OPT_S(N,(V?gt("On"):gt("Off"))) 
-
-		menu_window_begin(&menu, win_size, NUM_OPT);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Language:"), gt(languages[opt_language]));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Video Patch:"), gt(names_vpatch[opt_video_patch]));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_B("VIDTV:", opt_vidtv);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Country Fix:"), opt_country_patch);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Anti 002 Fix:"), opt_anti_002);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
-		if (menu_window_mark(&menu)) {
-			if (game_cfg->block_ios_reload == 2) {
-				PRINT_OPT_S(gt("Block IOS Reload:"), gt("Auto"));
-			} else {
-				PRINT_OPT_B(gt("Block IOS Reload:"), game_cfg->block_ios_reload);
+			
+		if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) {	
+			menu_window_begin(&menu, win_size, NUM_OPT);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Language:"), gt(languages[opt_language]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("NoDisc:"), opt_vidtv);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("NMM:"), opt_country_patch);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Ocarina (cheats):"), opt_ocarina);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_A(gt("Cheat Codes:"), gt("Manage"));
+			if (menu_window_mark(&menu))
+				printf("%s%s\n", con_align(gt("Cover Image:"), 18), 
+					imageNotFound ? gt("< DOWNLOAD >") : gt("[ FOUND ]"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
+		} else {
+			menu_window_begin(&menu, win_size, NUM_OPT);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Language:"), gt(languages[opt_language]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Video Patch:"), gt(names_vpatch[opt_video_patch]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B("VIDTV:", opt_vidtv);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Country Fix:"), opt_country_patch);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Anti 002 Fix:"), opt_anti_002);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
+			if (menu_window_mark(&menu)) {
+				if (game_cfg->block_ios_reload == 2) {
+					PRINT_OPT_S(gt("Block IOS Reload:"), gt("Auto"));
+				} else {
+					PRINT_OPT_B(gt("Block IOS Reload:"), game_cfg->block_ios_reload);
+				}
 			}
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Ocarina (cheats):"), opt_ocarina);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Hook Type:"), hook_name[game_cfg->hooktype]);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_A(gt("Cheat Codes:"), gt("Manage"));
+			if (menu_window_mark(&menu))
+				printf("%s%s\n", con_align(gt("Cover Image:"), 18), 
+					imageNotFound ? gt("< DOWNLOAD >") : gt("[ FOUND ]"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 		}
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_B(gt("Ocarina (cheats):"), opt_ocarina);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Hook Type:"), hook_name[game_cfg->hooktype]);
-		if (menu_window_mark(&menu))
-			PRINT_OPT_A(gt("Cheat Codes:"), gt("Manage"));
-		if (menu_window_mark(&menu))
-			printf("%s%s\n", con_align(gt("Cover Image:"), 18), 
-				imageNotFound ? gt("< DOWNLOAD >") : gt("[ FOUND ]"));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
-		if (menu_window_mark(&menu))
-			PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 		DefaultColor();
 		menu_window_end(&menu, cols);
 
@@ -1659,7 +1709,67 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
 		if (buttons & WPAD_BUTTON_RIGHT) change = +1;
 
-		if (change) {
+		if (change && (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD)) {
+			switch (menu.current) {
+			case 0:
+				printf("\n\n");
+				printf_x(gt("Saving Settings... "));
+				__console_flush(0);
+				if (set_favorite(header->id, change > 0)) {
+					printf(gt("OK"));
+				} else {
+					printf(gt("ERROR"));
+					sleep(1);
+				}
+				__console_flush(0);
+				Gui_DrawCover(header->id);
+				break;
+			case 1:
+				CHANGE(game_cfg->language, CFG_LANG_MAX);
+				break;
+			case 2:
+				CHANGE(game_cfg->video, CFG_VIDEO_MAX);
+				break;
+			case 3:
+				CHANGE(game_cfg->vidtv, 1);
+				break;
+			case 4:
+				CHANGE(game_cfg->country_patch, 1);
+				break;
+			case 5:
+				CHANGE(game_cfg->ocarina, 1);
+				break;
+			case 6:
+				Menu_Cheats(header);
+				break;
+			case 7:
+				printf("\n\n");
+				Download_Cover((char*)header->id, change > 0, true);
+				Cache_Invalidate();
+				Gui_DrawCover(header->id);
+				Menu_PrintWait();
+				break;
+			case 8: // hide game
+				printf("\n\n");
+				printf_x(gt("Saving Settings... "));
+				__console_flush(0);
+				if (set_hide_game(header->id, change > 0)) {
+					printf(gt("OK"));
+				} else {
+					printf(gt("ERROR"));
+					sleep(1);
+				}
+				__console_flush(0);
+				Gui_DrawCover(header->id);
+				break;
+			case 9:
+				CHANGE(game_cfg->write_playlog, 3);
+				break;
+			case 10:
+				CHANGE(game_cfg->clean, 2);
+				break;
+			}
+		} else if (change) {
 			switch (menu.current) {
 			case 0:
 				printf("\n\n");
@@ -3902,7 +4012,7 @@ L_repaint:
 			if(CFG.dml_r51_minus)
 				DML_Old_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina);
 			else
-				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, 0, 0);
+				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.vidtv);
 		}
 
 		memcpy((char *)0x80000000, header->id, 6);

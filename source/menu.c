@@ -3878,8 +3878,8 @@ L_repaint:
 		{
 			fsop_MakeFolder ("sd:/games");
 		}
-		char source[64];
-		char target[64];
+		char source[255];
+		char target[255];
 		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
 		sprintf(target, "sd:/games/%s", header->folder);
 		fsop_CopyFolder(source, target);
@@ -3894,10 +3894,15 @@ L_repaint:
 
 		if(header->magic == DML_MAGIC)
 		{
+			char cheatPath[255];
+			sprintf(cheatPath, "%s/codes/%.6s.gct", USBLOADER_PATH, header->id);
+			char newCheatPath[255];
+			sprintf(newCheatPath, "sd:/games/%s/%.6s.gct", header->folder, header->id);
+			
 			if(CFG.dml_r51_minus)
-				DML_Old_SetOptions(header->folder, NULL, NULL, false);
+				DML_Old_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina);
 			else
-				DML_New_SetOptions(header->folder, NULL, NULL, false, false, 0, 0);
+				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, 0, 0);
 		}
 
 		memcpy((char *)0x80000000, header->id, 6);

@@ -13,8 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r26 (beta)
+size = 1794624
+date = 2012-04-06
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr26.dol
+-added basic gc cheat support
+
 release = 70r25 (beta)
-size = 1778688 
+size = 1778688
 date = 2012-04-03
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr25.dol
 -fixed ntsc gamecube game launching (sorry)

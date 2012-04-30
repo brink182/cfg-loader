@@ -30,6 +30,8 @@ enum dmlconfig
 	DML_CFG_ACTIVITY_LED= (1<<7),
 	DML_CFG_PADHOOK		= (1<<8),
 	DML_CFG_NODISC		= (1<<9),
+	DML_CFG_BOOT_DISC	= (1<<10),
+	DML_CFG_BOOT_DOL	= (1<<11),
 };
 
 enum dmlvideomode

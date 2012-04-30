@@ -220,6 +220,9 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 
 	//Write options into memory
 	memcpy((void *)0xC0001700, DMLCfg, sizeof(DML_CFG));
+	
+	// For new DML v1.2+
+	memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
 	free(DMLCfg);
 }
 

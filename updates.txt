@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r28 (beta)
+size = 1785856
+date = 2012-04-30
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr28.dol
+- compile with devkitppc r26 and libogc 1.8.11
+- support new DML v1.2+ (load a game disc if it's stuck on "GCloader screen")
+- support ocarina cheats up to 512 (was 256)
+
 release = 70r27 (beta)
 size = 1796736
 date = 2012-04-06

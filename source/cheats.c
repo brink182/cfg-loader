@@ -74,9 +74,9 @@ bool get_line_buf(char **buf, char *line, int linesize)
 
 #define CHEAT_MAX_TITLE 40
 #define CHEAT_MAX_NOTES 3
-#define CHEAT_MAX_LINES 1000
+#define CHEAT_MAX_LINES 3000
 #define CODE_LINE_LEN 18
-#define CHEAT_MAX 256
+#define CHEAT_MAX 512
 
 struct Cheat
 {

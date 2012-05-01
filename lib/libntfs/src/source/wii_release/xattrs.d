@@ -1,4 +1,4 @@
-xattrs.o: c:/progging/cfg/Source/lib/libntfs/src/source/xattrs.c \
- c:/progging/cfg/Source/lib/libntfs/src/source/config.h
+xattrs.o: c:/progging/cfgMod/lib/libntfs/src/source/xattrs.c \
+ c:/progging/cfgMod/lib/libntfs/src/source/config.h
 
-c:/progging/cfg/Source/lib/libntfs/src/source/config.h:
+c:/progging/cfgMod/lib/libntfs/src/source/config.h:

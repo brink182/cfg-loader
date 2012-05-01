@@ -127,6 +127,13 @@ char *str_wiird[3] =
 	gts("Paused Start")
 };
 
+char *str_dml[3] =
+{
+	gts("r51-"),
+	gts("r52+"),
+	gts("1.2+")
+};
+
 int Menu_Global_Options();
 int Menu_Game_Options();
 void Switch_Favorites(bool enable);
@@ -2027,7 +2034,7 @@ int Menu_Global_Options()
 	int redraw_cover = 0;
 
 	struct Menu menu;
-	const int num_opt = 13;
+	const int num_opt = 14;
 	char active[num_opt];
 	menu_init(&menu, num_opt);
 	menu_init_active(&menu, active, sizeof(active));
@@ -2066,6 +2073,8 @@ int Menu_Global_Options()
 			printf("%s< %s >\n", con_align(gt("Partition:"),13), CFG.partition);
 		if (menu_window_mark(&menu))
 			printf("%s< %s >\n", con_align("WiiRD:",13), gt(str_wiird[CFG.wiird]));
+		if (menu_window_mark(&menu))
+			printf("%s< %s >\n", con_align("DML version:",13), gt(str_dml[CFG.dml]));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Download All Missing Covers"));
 		if (menu_window_mark(&menu))
@@ -2132,29 +2141,32 @@ int Menu_Global_Options()
 				CHANGE(CFG.wiird, 2);
 				break;
 			case 6:
+				CHANGE(CFG.dml, 2);
+				break;
+			case 7:
 				Download_All_Covers(change > 0);
 				Cache_Invalidate();
 				if (header) Gui_DrawCover(header->id);
 				Menu_PrintWait();
 				break;
-			case 7:
+			case 8:
 				Download_XML();
 				break;
-			case 8:
+			case 9:
 				Download_Titles();
 				break;
-			case 9:
+			case 10:
 				Theme_Update();
 				break;
-			case 10:
+			case 11:
 				Online_Update();
 				break;
-			case 11:
+			case 12:
 				Save_Debug();
 				Save_IOS_Hash();
 				sleep(2);
 				break;
-			case 12:
+			case 13:
 				Menu_All_IOS_Info();
 				break;
 			}
@@ -4009,7 +4021,7 @@ L_repaint:
 			char newCheatPath[255];
 			sprintf(newCheatPath, "sd:/games/%s/%.6s.gct", header->folder, header->id);
 			
-			if(CFG.dml_r51_minus)
+			if (CFG.dml == CFG_DML_R51)
 				DML_Old_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina);
 			else
 				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.vidtv);

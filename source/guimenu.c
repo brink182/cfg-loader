@@ -2162,9 +2162,11 @@ void Init_System_Dialog(Widget *dd)
 	ww->val_ptr = &CFG.admin_mode_locked;
 	ww->action = action_AdminLock;
 	
-	// DML r52+
-	ww = wgui_add_opt(dd, gt("DML r51-:"), 2, NULL);
-	ww->val_ptr = &CFG.dml_r51_minus;
+	// DML version
+	char *dml_val[3];
+	translate_array(3, str_dml, dml_val);
+	ww = wgui_add_opt(dd, "DML version:", 3, dml_val);
+	ww->val_ptr = &CFG.dml;
 	ww->action = action_write_val_ptr_int;
 	
 

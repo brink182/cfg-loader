@@ -37,6 +37,10 @@ typedef struct RectCoords
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
+#define CFG_DML_R51      0
+#define CFG_DML_R52      1
+#define CFG_DML_1_2      2
+
 #include "version.h"
 
 #define MAX_THEME 300
@@ -482,7 +486,7 @@ struct CFG
 	int disable_pop_patch;
 	int disable_bca;
 	int disable_wip;
-	int dml_r51_minus;
+	int dml;
 	// int write_playlog;
 	// order of the following options (until specified point) is important
 	int button_M;

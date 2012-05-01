@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "disc.h"
 #include "fileOps.h"
+#include "cfg.h"
 
 #define MAX_FAT_PATH 1024
 
@@ -217,12 +218,15 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 	else
 		DMLCfg->VideoMode |= DML_VID_FORCE_PROG;
 	*/
-
-	//Write options into memory
-	memcpy((void *)0xC0001700, DMLCfg, sizeof(DML_CFG));
 	
-	// For new DML v1.2+
-	memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
+	//Write options into memory
+	if (CFG.dml == CFG_DML_R52) {
+		memcpy((void *)0xC0001700, DMLCfg, sizeof(DML_CFG));
+	} else if (CFG.dml == CFG_DML_1_2) {
+		// For new DML v1.2+
+		memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
+	}
+	
 	free(DMLCfg);
 }
 

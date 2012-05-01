@@ -1206,6 +1206,7 @@ void CFG_Default()
 	// dvd slot check is handled properly now by all cios
 	// so the patch is disabled by default
 	CFG.disable_dvd_patch = 1;
+	CFG.dml = CFG_DML_1_2;
 }
 
 bool map_auto_token(char *name, char *name2, char *val, struct TextMap *map, struct MenuButton *var)
@@ -2245,6 +2246,7 @@ bool cfg_set_gbl(char *name, char *val)
 	CFG_STR("partition", CFG.partition);
 
 	if (cfg_map_auto("gui_style", map_gui_style, &CFG.gui_style)) return true;
+	if (cfg_int_max("dml", &CFG.dml, 2)) return true;
 
 	int rows = 0;
 	if (cfg_int_max("gui_rows", &rows, 4)) {
@@ -2463,7 +2465,7 @@ void cfg_set(char *name, char *val)
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
-	cfg_bool("dml_r51_or_older", &CFG.dml_r51_minus);
+	cfg_int_max("dml", &CFG.dml, 2);
 
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	cfg_id_list("pref_game", CFG.pref_game, &CFG.num_pref_game, MAX_PREF_GAME);
@@ -2835,6 +2837,7 @@ bool CFG_Save_Settings(int verbose)
 		if (CFG.saved_gui_rows > 0 && CFG.saved_gui_rows <= 4 ) {
 			SAVE_OPT("gui_rows = %d\n", CFG.saved_gui_rows);
 		}
+		SAVE_OPT("dml = %d\n", CFG.dml);
 	}
 
 	fprintf(f, "\n# Profiles: %d\n", CFG.num_profiles);

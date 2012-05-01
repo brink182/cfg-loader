@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r30 (beta)
+size = 1797984
+date = 2012-05-01
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr30.dol
+- libs compiled with devkitppc r26 and libogc 1.8.11
+- extended global option for DML version
+- fixed issue 42 for DML version
+
 release = 70r28 (beta)
 size = 1781888
 date = 2012-04-30

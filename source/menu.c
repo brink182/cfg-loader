@@ -97,6 +97,16 @@ char *videos[CFG_VIDEO_NUM] =
 	gts("Force NTSC")
 };
 
+char *DML_videos[6] = 
+{
+	gts("Game Default"),
+	gts("Force PAL"),
+	gts("Force NTSC"),
+	gts("Force PAL60"),
+	gts("Force NTSC 480p"),
+	gts("Force PAL 480p")
+};
+
 char *languages[CFG_LANG_NUM] =
 {
 	gts("Console Def."),
@@ -209,6 +219,16 @@ s32 get_DML_game_list_cnt()
 					}
 					fclose(fp);
 				}
+				else
+				{
+					sprintf(name_buffer, "sd:/games/%s/sys/boot.bin", entry->d_name);
+					fp = fopen(name_buffer, "rb");
+					if (fp)
+					{
+						DML_GameCount++;
+						fclose(fp);
+					}
+				}
 				closedir(s2dir);
 			}
 		}
@@ -234,18 +254,26 @@ s32 get_DML_game_list_cnt()
 				continue;
  			}
 			s2dir =  opendir(name_buffer);
-			if (s2dir)
+			if(s2dir)
 			{
 				sprintf(name_buffer, "%s/games/%s/game.iso", wbfs_fs_drive, entry->d_name);
 				fp = fopen(name_buffer, "rb");
-				if (fp)
+				if(fp)
 				{
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) > 1000000)
+						DML_GameCount++;
+					fclose(fp);
+				}
+				else
+				{
+					sprintf(name_buffer, "%s/games/%s/sys/boot.bin", wbfs_fs_drive, entry->d_name);
+					fp = fopen(name_buffer, "rb");
+					if(fp)
 					{
 						DML_GameCount++;
+						fclose(fp);
 					}
-					fclose(fp);
 				}
 				closedir(s2dir);
 			}
@@ -302,6 +330,26 @@ s32 get_DML_game_list(void *outbuf)
 					}
 					fclose(fp);
 				}
+				else
+				{
+					snprintf(name_buffer, sizeof(name_buffer), "sd:/games/%s/sys/boot.bin", entry->d_name);
+					fp = fopen(name_buffer, "rb");
+					if(fp)
+					{
+						dbg_printf("Found DML game %s\n", entry->d_name);
+						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+						struct discHdr *dmlGame = (struct discHdr *)ptr;
+						memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+						memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
+						dmlGame->magic = DML_MAGIC;
+						fseek(fp, 0, SEEK_SET);
+						fread(dmlGame->id, 1, 6, fp);
+						fseek(fp, 0x20, SEEK_SET);
+						fread(dmlGame->title, 1, 0x40, fp);
+						DML_GameCount++;
+						fclose(fp);
+					}
+				}
 				closedir(s2dir);
 			}
 		}
@@ -355,6 +403,32 @@ s32 get_DML_game_list(void *outbuf)
 						}
 					}
 					fclose(fp);
+				}
+				else
+				{
+					sprintf(name_buffer, "%s/games/%s/sys/boot.bin", wbfs_fs_drive, entry->d_name);
+					fp = fopen(name_buffer, "rb");
+					if (fp)
+					{
+						u8 id[6];
+						fseek(fp, 0, SEEK_SET);
+						fread(id, 1, 6, fp);
+						if (!getHeaderById(outbuf, DML_GameCount, id))
+						{
+							dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
+							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+							struct discHdr *dmlGame = (struct discHdr *)ptr;
+							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
+							dmlGame->magic = DML_MAGIC_HDD;
+							fseek(fp, 0, SEEK_SET);
+							fread(dmlGame->id, 1, 6, fp);
+							fseek(fp, 0x20, SEEK_SET);
+							fread(dmlGame->title, 1, 0x40, fp);
+							DML_GameCount++;
+						}
+						fclose(fp);
+					}
 				}
 				closedir(s2dir);
 			}
@@ -675,29 +749,50 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	*comp_size = 0;
 	*real_size = 0;
 	
-	if (header->magic == DML_MAGIC) {
+	if(header->magic == DML_MAGIC)
+	{
 		char filepath[0xFF];
-		sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
-		
+		snprintf(filepath, sizeof(filepath), "sd:/games/%s/game.iso", header->folder);
 		FILE *fp = fopen(filepath, "r");
-		if (!fp) {
-			return;
+		if (!fp)
+		{
+			snprintf(filepath, sizeof(filepath), "sd:/games/%s/sys/boot.bin", header->folder);
+			FILE *fp = fopen(filepath, "r");
+			if (!fp)
+				return;
+			fclose(fp);
+			snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
+			*comp_size = *real_size = fsop_GetFolderBytes(filepath);
 		}
-		fseek(fp, 0, SEEK_END);
-		*comp_size = *real_size = ftell(fp);
-		fclose(fp);
+		else
+		{
+			fseek(fp, 0, SEEK_END);
+			*comp_size = *real_size = ftell(fp);
+			fclose(fp);
+		}
 		return;
-	} else if (header->magic == DML_MAGIC_HDD) {
+	}
+	else if(header->magic == DML_MAGIC_HDD) 
+	{
 		char filepath[0xFF];
 		sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
-		
 		FILE *fp = fopen(filepath, "r");
-		if (!fp) {
-			return;
+		if (!fp)
+		{
+			snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, header->folder);
+			FILE *fp = fopen(filepath, "r");
+			if (!fp)
+				return;
+			fclose(fp);
+			snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
+			*comp_size = *real_size = fsop_GetFolderBytes(filepath);
 		}
-		fseek(fp, 0, SEEK_END);
-		*comp_size = *real_size = ftell(fp);
-		fclose(fp);
+		else
+		{
+			fseek(fp, 0, SEEK_END);
+			*comp_size = *real_size = ftell(fp);
+			fclose(fp);
+		}
 		return;
 	}
 
@@ -1463,27 +1558,54 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	if (disc) {
 		printf(" (%.6s)\n", header->id);
 	} else {
-		if (header->magic == DML_MAGIC) {
+		if (header->magic == DML_MAGIC)
+		{
 			char filepath[0xFF];
-			sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
-			
+			snprintf(filepath, sizeof(filepath), "sd:/games/%s/game.iso", header->folder);
 			FILE *fp = fopen(filepath, "r");
-			if (fp) {
+			if (fp)
+			{
 				fseek(fp, 0, SEEK_END);
 				size = (float) ftell(fp) / 1024.0 / 1024.0 / 1024.0;
 				fclose(fp);
 			}
-		} else if (header->magic == DML_MAGIC_HDD) {
+			else
+			{
+				snprintf(filepath, sizeof(filepath), "sd:/games/%s/sys/boot.bin", header->folder);
+				FILE *fp = fopen(filepath, "r");
+				if (fp)
+				{
+					fclose(fp);
+					snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
+					size = (float)fsop_GetFolderBytes(filepath) / 1024.0 / 1024.0 / 1024.0;
+				}
+			}
+		}
+		else if (header->magic == DML_MAGIC_HDD)
+		{
 			char filepath[0xFF];
 			sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
-			
 			FILE *fp = fopen(filepath, "r");
-			if (fp) {
+			if (fp) 
+			{
 				fseek(fp, 0, SEEK_END);
 				size = (float) ftell(fp) / 1024.0 / 1024.0 / 1024.0;
 				fclose(fp);
 			}
-		} else {
+			else
+			{
+				snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, header->folder);
+				FILE *fp = fopen(filepath, "r");
+				if (fp)
+				{
+					fclose(fp);
+					snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
+					size = (float)fsop_GetFolderBytes(filepath) / 1024.0 / 1024.0 / 1024.0;
+				}
+			}
+		} 
+		else 
+		{
 			WBFS_GameSize(header->id, &size);
 		}
 		printf(" (%.6s) (%.2f%s)\n", header->id, size, gt("GB"));
@@ -1627,7 +1749,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Language:"), gt(languages[opt_language]));
 			if (menu_window_mark(&menu))
-				PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
+				PRINT_OPT_S(gt("Video:"), gt(DML_videos[opt_video]));
 			if (menu_window_mark(&menu))
 				PRINT_OPT_B(gt("NoDisc:"), opt_vidtv);
 			if (menu_window_mark(&menu))
@@ -4024,14 +4146,23 @@ L_repaint:
 			if (CFG.dml == CFG_DML_R51)
 				DML_Old_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina);
 			else
-				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.vidtv);
+				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.vidtv, CFG.game.video);
 		}
+		else if(CFG.dml == CFG_DML_1_2)
+			DML_New_SetBootDiscOption();
 
 		memcpy((char *)0x80000000, header->id, 6);
+
+		if(CFG.game.video == 0)
+		{
 		if(header->id[3] == 'P')
 			GC_SetVideoMode(1);
 		else
 			GC_SetVideoMode(2);
+		}
+		else
+			GC_SetVideoMode(CFG.game.video);
+
 		if (CFG.game.language > 1 && CFG.game.language < 8)
 			GC_SetLanguage(CFG.game.language-1);
 		else

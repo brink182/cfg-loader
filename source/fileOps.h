@@ -7,8 +7,8 @@ bool fsop_DirExist (char *path);
 bool fsop_CopyFile (char *source, char *target);
 bool fsop_MakeFolder (char *path);
 bool fsop_CopyFolder (char *source, char *target);
-bool fsop_KillFolderTree (char *source);
 bool fsop_CreateFolderTree (char *path);
+void fsop_deleteFolder(char *source);
 
 u32 fsop_GetFolderKb (char *source);
 u64 fsop_GetFolderBytes (char *source);

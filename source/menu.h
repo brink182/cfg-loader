@@ -5,6 +5,7 @@
 #include "cfg.h"
 
 extern char *videos[CFG_VIDEO_NUM];
+extern char *DML_videos[6];
 extern char *languages[CFG_LANG_NUM];
 extern char *playlog_name[4];
 extern char *str_wiird[3];

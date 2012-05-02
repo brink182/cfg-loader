@@ -68,7 +68,7 @@ void GC_SetVideoMode(u8 videomode)
 		rmode = &TVNtsc480Prog;
 	else if(videomode == 5)
 	{
-		rmode = &TVNtsc480Prog; //TVEurgb60Hz480Prog codedumps
+		rmode = &TVEurgb60Hz480Prog;
 		memflag = 5;
 	}
 
@@ -130,41 +130,40 @@ void GC_SetLanguage(u8 lang)
 s32 DML_RemoveGame(struct discHdr header)
 {
 	char fname[MAX_FAT_PATH];
-	snprintf(fname, sizeof(fname), "sd:/games/%s/game.iso", header.folder);
-	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/boot.bin", header.folder);
-	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/bi2.bin", header.folder);
-	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys/apploader.img", header.folder);
-	remove(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s/sys", header.folder);
-	unlink(fname);
-	snprintf(fname, sizeof(fname), "sd:/games/%s", header.folder);
-	unlink(fname);
-	
+	snprintf(fname, sizeof(fname), "sd:/games/%s/", header.folder);
+	fsop_deleteFolder(fname);
 	return 0;
 }
 
-bool DML_GameIsInstalled(u8 *discid) {
-	char filepath[64];
-	sprintf(filepath, "sd:/games/%s/game.iso", (char*)discid);
+int DML_GameIsInstalled(u8 *discid)
+{
+	char source[300];
+	snprintf(source, sizeof(source), "sd:/games/%s/game.iso", discid);
 	
-	dbg_printf("Filepath on SD: %s\n", filepath);
-	
-	FILE *fp = fopen(filepath, "r");
-	if (fp) {
-		fclose(fp);
-		return true;
+	FILE *f = fopen(source, "rb");
+	if(f) 
+	{
+		dbg_printf("Found on SD: %s\n", discid);
+		fclose(f);
+		return 1;
 	}
-	dbg_printf("Not found\n");
-	return false;
+	else
+	{
+		snprintf(source, sizeof(source), "sd:/games/%s/sys/boot.bin", discid);
+		f = fopen(source, "rb");
+		if(f) 
+		{
+			dbg_printf("Found on SD: %s\n", discid);
+			fclose(f);
+			return 2;
+		}
+	}
+	return 0;
 }
 
-
-void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc) //, u8 DMLvideoMode)
+void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode)
 {
-	dbg_printf("Wiiflow DML: Launch game 'sd:/games/%s/game.iso' through memory (new method)\n", GamePath);
+	dbg_printf("DML: Launch game 'sd:/games/%s/game.iso' through memory (new method)\n", GamePath);
 
 	DML_CFG *DMLCfg = (DML_CFG*)memalign(32, sizeof(DML_CFG));
 	memset(DMLCfg, 0, sizeof(DML_CFG));
@@ -179,7 +178,10 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 
 	if(GamePath != NULL)
 	{
-		snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/game.iso", GamePath);
+		if(DML_GameIsInstalled((u8*)GamePath) == 2)
+			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/", GamePath);
+		else
+			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/game.iso", GamePath);
 		DMLCfg->Config |= DML_CFG_GAME_PATH;
 	}
 
@@ -208,21 +210,17 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 	if(nodisc > 0)
 		DMLCfg->Config |= DML_CFG_NODISC;
 
-	/*
-	if(DMLvideoMode == 1)
-		DMLCfg->VideoMode |= DML_VID_FORCE_PAL50;
-	else if(DMLvideoMode == 2)
-		DMLCfg->VideoMode |= DML_VID_FORCE_NTSC;
-	else if(DMLvideoMode == 3)
-		DMLCfg->VideoMode |= DML_VID_FORCE_PAL60;
-	else
-		DMLCfg->VideoMode |= DML_VID_FORCE_PROG;
-	*/
-	
+	if(DMLvideoMode > 3)
+		DMLCfg->VideoMode |= DML_VID_PROG_PATCH;
+
+
 	//Write options into memory
-	if (CFG.dml == CFG_DML_R52) {
+	if (CFG.dml == CFG_DML_R52)
+	{
 		memcpy((void *)0xC0001700, DMLCfg, sizeof(DML_CFG));
-	} else if (CFG.dml == CFG_DML_1_2) {
+	} 
+	else if (CFG.dml == CFG_DML_1_2)
+	{
 		// For new DML v1.2+
 		memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
 	}
@@ -232,7 +230,7 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats)
 {
-	dbg_printf("Wiiflow DML: Launch game 'sd:/games/%s/game.iso' through boot.bin (old method)\n", GamePath);
+	dbg_printf("DML: Launch game 'sd:/games/%s/game.iso' through boot.bin (old method)\n", GamePath);
 	FILE *f;
 	f = fopen("sd:/games/boot.bin", "wb");
 	fwrite(GamePath, 1, strlen(GamePath) + 1, f);
@@ -247,4 +245,22 @@ void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 	ICInvalidateRange((void *)(0x80001800), 4);
 
 	*(vu32*)0xCC003024 |= 7;
+}
+
+void DML_New_SetBootDiscOption()
+{
+	dbg_printf("Booting GC game\n");
+
+	DML_CFG *DMLCfg = (DML_CFG*)malloc(sizeof(DML_CFG));
+	memset(DMLCfg, 0, sizeof(DML_CFG));
+
+	DMLCfg->Magicbytes = 0xD1050CF6;
+	DMLCfg->CfgVersion = 0x00000001;
+
+	DMLCfg->Config |= DML_CFG_BOOT_DISC;
+
+	//DML v1.2+
+	memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
+
+	free(DMLCfg);
 }

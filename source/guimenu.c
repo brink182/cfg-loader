@@ -886,7 +886,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
 			BIND_OPT(language);
 
-			ww = wgui_add_game_opt(op, gt("Video:"), CFG_VIDEO_NUM, videos);
+			ww = wgui_add_game_opt(op, gt("Video:"), 6, DML_videos);
 			BIND_OPT(video);
 
 			ww = wgui_add_game_opt(op, gt("NoDisc:"), 2, NULL);

@@ -383,44 +383,6 @@ bool fsop_CopyFolder (char *source, char *target)
 
 	return doCopyFolder (source, target);
 }
-	
-/*
-Recursive copyfolder
-*/
-bool fsop_KillFolderTree (char *source)
-{
-	DIR *pdir;
-	struct dirent *pent;
-	char newSource[300];
-	
-	pdir=opendir(source);
-	
-	while ((pent=readdir(pdir)) != NULL) 
-	{
-		// Skip it
-		if (strcmp (pent->d_name, ".") == 0 || strcmp (pent->d_name, "..") == 0)
-			continue;
-			
-		sprintf (newSource, "%s/%s", source, pent->d_name);
-		
-		// If it is a folder... recurse...
-		if (fsop_DirExist (newSource))
-		{
-			fsop_KillFolderTree (newSource);
-		}
-		else	// It is a file !
-		{
-			unlink (newSource);
-		}
-	}
-	
-	closedir(pdir);
-	
-	unlink (source);
-	
-	return true;
-}
-	
 
 // Pass  <mount>://<folder1>/<folder2>.../<folderN> or <mount>:/<folder1>/<folder2>.../<folderN>
 bool fsop_CreateFolderTree (char *path)
@@ -460,4 +422,36 @@ bool fsop_CreateFolderTree (char *path)
 	
 	// Check if the tree has been created
 	return fsop_DirExist (path);
+}
+
+void fsop_deleteFolder(char *source)
+{
+	DIR *pdir;
+	struct dirent *pent;
+	char newSource[300];
+
+	pdir = opendir(source);
+
+	while ((pent=readdir(pdir)) != NULL) 
+	{
+		// Skip it
+		if (strcmp (pent->d_name, ".") == 0 || strcmp (pent->d_name, "..") == 0)
+			continue;
+
+		sprintf (newSource, "%s/%s", source, pent->d_name);
+
+		// If it is a folder... recurse...
+		if (fsop_DirExist(newSource))
+		{
+			fsop_deleteFolder(newSource);
+		}
+		else	// It is a file !
+		{
+			dbg_printf("Deleting file: %s\n",newSource);
+			remove(newSource);
+		}
+	}
+	closedir(pdir);
+	dbg_printf("Deleting directory: %s\n",source);
+	unlink(source);
 }

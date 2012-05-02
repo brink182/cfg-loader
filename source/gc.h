@@ -44,15 +44,16 @@ enum dmlvideomode
 	DML_VID_FORCE_PAL60	= (1<<1),
 	DML_VID_FORCE_NTSC	= (1<<2),
 	DML_VID_FORCE_PROG	= (1<<3),
+	DML_VID_PROG_PATCH	= (1<<4),
 };
 
 void GC_SetVideoMode(u8 videomode);
 void GC_SetLanguage(u8 lang);
 s32 DML_RemoveGame(struct discHdr header);
-bool DML_GameIsInstalled(u8 *discid);
-void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc); //, u8 DMLvideoMode);
+int DML_GameIsInstalled(u8 *discid);
+void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
-
+void DML_New_SetBootDiscOption();
 #endif //GC_H_
 
 #ifdef __cplusplus

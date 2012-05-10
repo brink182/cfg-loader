@@ -13,6 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r32 (beta)
+size = 1783648
+date = 2012-05-10
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr32.dol
+-change dml default video mode from "FORCE PAL" to "Game Default"
+-skip file size check for new GcReEx format(load game faster) 
+-fixed the first 4 characters(game title) missing issue of 
+ ripping GC disc to SD card.
+-fixed invalid characters in the GC disc title when it's ripping
+   to SD card (Thanks R2-D2199)
+-change folder name of GC games in SD card to uppercase 
+   (for GC disc ripping)
+-compile with libogc 1.8.12
+
 release = 70r31 (beta)
 size = 1800352
 date = 2012-05-02

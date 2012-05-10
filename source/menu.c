@@ -90,8 +90,8 @@ extern char wbfs_fs_drive[16];
 
 char *videos[CFG_VIDEO_NUM] = 
 {
-	gts("System Def."),
 	gts("Game Default"),
+	gts("System Def."),
 	gts("Force PAL50"),
 	gts("Force PAL60"),
 	gts("Force NTSC")
@@ -761,8 +761,8 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 			if (!fp)
 				return;
 			fclose(fp);
-			snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
-			*comp_size = *real_size = fsop_GetFolderBytes(filepath);
+			//snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
+			//*comp_size = *real_size = fsop_GetFolderBytes(filepath);
 		}
 		else
 		{
@@ -784,8 +784,8 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 			if (!fp)
 				return;
 			fclose(fp);
-			snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
-			*comp_size = *real_size = fsop_GetFolderBytes(filepath);
+			//snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
+			//*comp_size = *real_size = fsop_GetFolderBytes(filepath);
 		}
 		else
 		{

@@ -74,9 +74,9 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_LAYOUT_ULTIMATE3 9 // Ultimate3: (WiiShizza)
 #define CFG_LAYOUT_KOSAIC   10 // Kosaic
 
-#define CFG_VIDEO_SYS   0  // system default
-#define CFG_VIDEO_AUTO  1
-#define CFG_VIDEO_GAME  1  // game default
+#define CFG_VIDEO_GAME  0  // game default
+#define CFG_VIDEO_SYS   0
+#define CFG_VIDEO_AUTO  0  
 #define CFG_VIDEO_PAL50	2  // force PAL
 #define CFG_VIDEO_PAL60	3  // force PAL60
 #define CFG_VIDEO_NTSC	4  // force NTSC

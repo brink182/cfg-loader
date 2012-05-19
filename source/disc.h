@@ -41,7 +41,7 @@ struct discHdr
 struct gc_discHdr
 {
 	/* Game ID */
-	u8 id[6];
+	char id[6];
 
 	/* Game version */
 	u16 version;

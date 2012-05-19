@@ -17,5 +17,6 @@ s32  WBFS_FAT_RemoveGame(u8 *discid);
 s32  WBFS_FAT_AddGame(void);
 s32  WBFS_FAT_DVD_Size(u64 *comp_size, u64 *real_size);
 int  WBFS_FAT_find_fname(u8 *id, char *fname, int len);
+void title_filename(char *title);
 
 #endif

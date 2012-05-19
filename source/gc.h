@@ -8,6 +8,9 @@ extern "C"
 
 #include "disc.h"
 
+#define DML_MAGIC 0x444D4C00
+#define DML_MAGIC_HDD DML_MAGIC + 1
+
 typedef struct DML_CFG
 {
 	u32 Magicbytes;			//0xD1050CF6
@@ -49,11 +52,14 @@ enum dmlvideomode
 
 void GC_SetVideoMode(u8 videomode);
 void GC_SetLanguage(u8 lang);
-s32 DML_RemoveGame(struct discHdr header);
+s32 DML_RemoveGame(struct discHdr header, bool onlySD);
 int DML_GameIsInstalled(u8 *discid);
 void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
 void DML_New_SetBootDiscOption();
+u64 getDMLGameSize(struct discHdr *header);
+s32 copy_DML_Game_to_SD(struct discHdr *header);
+s32 delete_Old_Copied_DML_Game();
 #endif //GC_H_
 
 #ifdef __cplusplus

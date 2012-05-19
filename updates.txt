@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r34 (beta)
+size = 1800928
+date = 2012-05-19
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr34.dol
+-readded file size check for new GcReEx format
+-automatic deletion of copied games before 
+copying a new game to sd
+
 release = 70r33 (beta)
 size = 1783904
 date = 2012-05-19

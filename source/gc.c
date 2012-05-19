@@ -30,6 +30,8 @@ syssram* __SYS_LockSram();
 u32 __SYS_UnlockSram(u32 write);
 u32 __SYS_SyncSram(void);
 
+extern char wbfs_fs_drive[16];
+
 void GC_SetVideoMode(u8 videomode)
 {
 	syssram *sram;
@@ -127,10 +129,15 @@ void GC_SetLanguage(u8 lang)
 	while(!__SYS_SyncSram());
 }
 
-s32 DML_RemoveGame(struct discHdr header)
+s32 DML_RemoveGame(struct discHdr header, bool onlySD)
 {
 	char fname[MAX_FAT_PATH];
-	snprintf(fname, sizeof(fname), "sd:/games/%s/", header.folder);
+	
+	if (header.magic == DML_MAGIC)
+		snprintf(fname, sizeof(fname), "sd:/games/%s/", header.folder);
+	else if (header.magic == DML_MAGIC_HDD && !onlySD)
+		snprintf(fname, sizeof(fname), "%s/games/%s/", wbfs_fs_drive, header.folder);
+	
 	fsop_deleteFolder(fname);
 	return 0;
 }
@@ -263,4 +270,128 @@ void DML_New_SetBootDiscOption()
 	memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
 
 	free(DMLCfg);
+}
+
+s32 DML_write_size_info_file(struct discHdr *header, u64 size) {
+	char filepath[0xFF];
+	FILE *infoFile = NULL;
+	
+	if (header->magic == DML_MAGIC) {
+		snprintf(filepath, sizeof(filepath), "sd:/games/%s/size.bin", header->folder);
+	} else if (header->magic == DML_MAGIC_HDD) {
+		snprintf(filepath, sizeof(filepath), "%s/games/%s/size.bin", wbfs_fs_drive, header->folder);
+	}
+	
+	infoFile = fopen(filepath, "wb");
+	fwrite(&size, 1, sizeof(u64), infoFile);
+	fclose(infoFile);
+	return 0;
+}
+
+u64 DML_read_size_info_file(struct discHdr *header) {
+	char filepath[0xFF];
+	FILE *infoFile = NULL;
+	u64 result = 0;
+	
+	if (header->magic == DML_MAGIC) {
+		snprintf(filepath, sizeof(filepath), "sd:/games/%s/size.bin", header->folder);
+	} else if (header->magic == DML_MAGIC_HDD) {
+		snprintf(filepath, sizeof(filepath), "%s/games/%s/size.bin", wbfs_fs_drive, header->folder);
+	}
+	
+	infoFile = fopen(filepath, "rb");
+	if (infoFile) {
+		fread(&result, 1, sizeof(u64), infoFile);
+		fclose(infoFile);
+	}
+	return result;
+}
+
+u64 getDMLGameSize(struct discHdr *header) {
+	u64 result = 0;
+	if (header->magic == DML_MAGIC)
+	{
+		char filepath[0xFF];
+		snprintf(filepath, sizeof(filepath), "sd:/games/%s/game.iso", header->folder);
+		FILE *fp = fopen(filepath, "r");
+		if (!fp)
+		{
+			snprintf(filepath, sizeof(filepath), "sd:/games/%s/sys/boot.bin", header->folder);
+			FILE *fp = fopen(filepath, "r");
+			if (!fp)
+				return result;
+			fclose(fp);
+			result = DML_read_size_info_file(header);
+			if (result > 0)
+				return result;
+			snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
+			result = fsop_GetFolderBytes(filepath);
+			if (result > 0)
+				DML_write_size_info_file(header, result);
+		}
+		else
+		{
+			fseek(fp, 0, SEEK_END);
+			result = ftell(fp);
+			fclose(fp);
+		}
+		return result;
+	}
+	else if (header->magic == DML_MAGIC_HDD) 
+	{
+		char filepath[0xFF];
+		sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
+		FILE *fp = fopen(filepath, "r");
+		if (!fp)
+		{
+			snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, header->folder);
+			FILE *fp = fopen(filepath, "r");
+			if (!fp)
+				return result;
+			fclose(fp);
+			result = DML_read_size_info_file(header);
+			if (result > 0)
+				return result;
+			snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
+			result = fsop_GetFolderBytes(filepath);
+			if (result > 0)
+				DML_write_size_info_file(header, result);
+		}
+		else
+		{
+			fseek(fp, 0, SEEK_END);
+			result = ftell(fp);
+			fclose(fp);
+		}
+		return result;
+	}
+	return result;
+}
+
+s32 delete_Old_Copied_DML_Game() {
+	FILE *infoFile = NULL;
+	struct discHdr header;
+	infoFile = fopen("sd:/games/lastCopied.bin", "rb");
+	if (infoFile) {
+		fread(&header, 1, sizeof(struct discHdr), infoFile);
+		fclose(infoFile);
+		DML_RemoveGame(header, true);
+		return 0;
+	}
+	return -1;
+}
+
+s32 copy_DML_Game_to_SD(struct discHdr *header) {
+	char source[255];
+	char target[255];
+	sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
+	sprintf(target, "sd:/games/%s", header->folder);
+	fsop_CopyFolder(source, target);
+	header->magic = DML_MAGIC;
+	
+	FILE *infoFile = NULL;
+	infoFile = fopen("sd:/games/lastCopied.bin", "wb");
+	fwrite((u8*)header, 1, sizeof(struct discHdr), infoFile);
+	fclose(infoFile);
+	return 0;
 }

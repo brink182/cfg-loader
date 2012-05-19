@@ -53,8 +53,6 @@
 #include "sdhc.h"
 
 #define CHANGE(V,M) {V+=change; if(V>(M)) V=(M); if(V<0) V=0;}
-#define DML_MAGIC 0x444D4C00
-#define DML_MAGIC_HDD DML_MAGIC + 1
 
 char CFG_VERSION[] = CFG_VERSION_STR;
 
@@ -749,52 +747,8 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	*comp_size = 0;
 	*real_size = 0;
 	
-	if(header->magic == DML_MAGIC)
-	{
-		char filepath[0xFF];
-		snprintf(filepath, sizeof(filepath), "sd:/games/%s/game.iso", header->folder);
-		FILE *fp = fopen(filepath, "r");
-		if (!fp)
-		{
-			snprintf(filepath, sizeof(filepath), "sd:/games/%s/sys/boot.bin", header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (!fp)
-				return;
-			fclose(fp);
-			//snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
-			//*comp_size = *real_size = fsop_GetFolderBytes(filepath);
-		}
-		else
-		{
-			fseek(fp, 0, SEEK_END);
-			*comp_size = *real_size = ftell(fp);
-			fclose(fp);
-		}
-		return;
-	}
-	else if(header->magic == DML_MAGIC_HDD) 
-	{
-		char filepath[0xFF];
-		sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
-		FILE *fp = fopen(filepath, "r");
-		if (!fp)
-		{
-			snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (!fp)
-				return;
-			fclose(fp);
-			//snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
-			//*comp_size = *real_size = fsop_GetFolderBytes(filepath);
-		}
-		else
-		{
-			fseek(fp, 0, SEEK_END);
-			*comp_size = *real_size = ftell(fp);
-			fclose(fp);
-		}
-		return;
-	}
+	*comp_size = *real_size = getDMLGameSize(header);
+	if (*comp_size > 0) return;
 
 	/* Get game size */
 	if (strncmp((char*)last_id, (char*)header->id, 6) == 0 && last_comp && last_real) {
@@ -1558,52 +1512,13 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	if (disc) {
 		printf(" (%.6s)\n", header->id);
 	} else {
-		if (header->magic == DML_MAGIC)
+		if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD)
 		{
-			char filepath[0xFF];
-			snprintf(filepath, sizeof(filepath), "sd:/games/%s/game.iso", header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (fp)
-			{
-				fseek(fp, 0, SEEK_END);
-				size = (float) ftell(fp) / 1024.0 / 1024.0 / 1024.0;
-				fclose(fp);
-			}
-			else
-			{
-				snprintf(filepath, sizeof(filepath), "sd:/games/%s/sys/boot.bin", header->folder);
-				FILE *fp = fopen(filepath, "r");
-				if (fp)
-				{
-					fclose(fp);
-					snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
-					size = (float)fsop_GetFolderBytes(filepath) / 1024.0 / 1024.0 / 1024.0;
-				}
+			u64 tempSize = getDMLGameSize(header);
+			if (tempSize > 0) {
+				size = (float)tempSize / 1024.0 / 1024.0 / 1024.0;
 			}
 		}
-		else if (header->magic == DML_MAGIC_HDD)
-		{
-			char filepath[0xFF];
-			sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (fp) 
-			{
-				fseek(fp, 0, SEEK_END);
-				size = (float) ftell(fp) / 1024.0 / 1024.0 / 1024.0;
-				fclose(fp);
-			}
-			else
-			{
-				snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, header->folder);
-				FILE *fp = fopen(filepath, "r");
-				if (fp)
-				{
-					fclose(fp);
-					snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
-					size = (float)fsop_GetFolderBytes(filepath) / 1024.0 / 1024.0 / 1024.0;
-				}
-			}
-		} 
 		else 
 		{
 			WBFS_GameSize(header->id, &size);
@@ -3379,8 +3294,7 @@ void Menu_Install(void)
 		if ((f32)GC_GAME_SIZE + (f32)128*1024 >= free * GB_SIZE) {
 			printf_x(gt("ERROR: not enough free space!!"));
 			printf("\n\n");
-			// Does not work perfectly
-			//goto out;
+			goto out;
 		}
 		
 		Disc_ReadHeader(&header);
@@ -3476,13 +3390,13 @@ void Menu_Install(void)
 	}
 
 	// get confirmation
-	//retry:
+	retry:
 	if (!way_out) {
 		printf_h(gt("Press %s button to continue."), (button_names[CFG.button_confirm.num]));
 		printf("\n");
 	}
-	//printf_h(gt("Press %s button to dump BCA."), (button_names[CFG.button_other.num]));
-	//printf("\n");
+	printf_h(gt("Press %s button to dump BCA."), (button_names[CFG.button_other.num]));
+	printf("\n");
 	printf_h(gt("Press %s button to go back."), (button_names[CFG.button_cancel.num]));
 	printf("\n");
 	DefaultColor();
@@ -3493,7 +3407,7 @@ void Menu_Install(void)
 		if (buttons & CFG.button_cancel.mask) {
 			goto out2;
 		}
-		/*if (buttons & CFG.button_other.mask) {
+		if (buttons & CFG.button_other.mask) {
 			Menu_DumpBCA(header.id);
 			if (way_out) {
 				goto out2;
@@ -3505,7 +3419,7 @@ void Menu_Install(void)
 			printf_x(gt("WBFS: %.1fGB free of %.1fGB"), free, total);
 			printf("\n\n");
 			goto retry;
-		}*/
+		}
 	}
 
 	printf_x(gt("Installing game, please wait..."));
@@ -3613,7 +3527,7 @@ void Menu_Remove(void)
 
 	/* Remove game */
 	if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) {
-		ret = DML_RemoveGame(*header);
+		ret = DML_RemoveGame(*header, false);
 	} else {
 		ret = WBFS_RemoveGame(header->id);
 		if (ret < 0) {
@@ -4122,12 +4036,27 @@ L_repaint:
 		{
 			fsop_MakeFolder ("sd:/games");
 		}
-		char source[255];
-		char target[255];
-		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
-		sprintf(target, "sd:/games/%s", header->folder);
-		fsop_CopyFolder(source, target);
-		header->magic = DML_MAGIC;
+		
+		s32 del = delete_Old_Copied_DML_Game();
+		
+		f32 free, used, total;
+		SD_DiskSpace(&used, &free);
+		total = used + free;
+		printf_x("sd: ");
+		printf(gt("%.1fGB free of %.1fGB"), free, total);
+		printf("\n\n");
+
+		bench_io();
+
+		// require +128kb for operating safety
+		if ((f32)GC_GAME_SIZE + (f32)128*1024 >= free * GB_SIZE) {
+			printf_x(gt("ERROR: not enough free space!!"));
+			printf("\n\n");
+			if (del >= 0) __Menu_GetEntries();
+			goto out;
+		}
+		
+		copy_DML_Game_to_SD(header);
 	}
 	
 	if (gc || header->magic == DML_MAGIC)

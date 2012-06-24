@@ -2,6 +2,8 @@
 #define _DISC_H_
 
 #define GC_GAME_SIZE 0x57058000
+#define WII_MAGIC	0x5D1C9EA3
+#define GC_MAGIC	0xC2339F3D
 
 /* Disc header structure */
 struct discHdr

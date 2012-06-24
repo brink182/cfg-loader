@@ -33,8 +33,6 @@
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000
-#define WII_MAGIC	0x5D1C9EA3
-#define GC_MAGIC	0xC2339F3D
 
 /* Disc pointers */
 static u32 *buffer = (u32 *)0x93000000;

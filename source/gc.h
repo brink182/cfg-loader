@@ -53,7 +53,7 @@ enum dmlvideomode
 void GC_SetVideoMode(u8 videomode);
 void GC_SetLanguage(u8 lang);
 s32 DML_RemoveGame(struct discHdr header, bool onlySD);
-int DML_GameIsInstalled(u8 *discid);
+int DML_GameIsInstalled(char *folder);
 void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
 void DML_New_SetBootDiscOption();

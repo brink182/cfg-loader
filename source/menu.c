@@ -88,8 +88,8 @@ extern char wbfs_fs_drive[16];
 
 char *videos[CFG_VIDEO_NUM] = 
 {
-	gts("Game Default"),
 	gts("System Def."),
+	gts("Game Default"),
 	gts("Force PAL50"),
 	gts("Force PAL60"),
 	gts("Force NTSC")
@@ -97,7 +97,7 @@ char *videos[CFG_VIDEO_NUM] =
 
 char *DML_videos[6] = 
 {
-	gts("Game Default"),
+	gts("Auto"),
 	gts("Force PAL"),
 	gts("Force NTSC"),
 	gts("Force PAL60"),
@@ -135,11 +135,12 @@ char *str_wiird[3] =
 	gts("Paused Start")
 };
 
-char *str_dml[3] =
+char *str_dml[4] =
 {
 	gts("r51-"),
 	gts("r52+"),
-	gts("1.2+")
+	gts("1.2+"),
+	gts("DM")
 };
 
 int Menu_Global_Options();
@@ -213,7 +214,11 @@ s32 get_DML_game_list_cnt()
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) > 1000000)
 					{
-						DML_GameCount++;
+						u32 magic = 0;
+						fseek(fp, 0x1C, SEEK_SET);
+						fread(&magic, 1, sizeof(u32), fp);
+						if (magic == GC_MAGIC)
+							DML_GameCount++;
 					}
 					fclose(fp);
 				}
@@ -223,7 +228,11 @@ s32 get_DML_game_list_cnt()
 					fp = fopen(name_buffer, "rb");
 					if (fp)
 					{
-						DML_GameCount++;
+						u32 magic = 0;
+						fseek(fp, 0x1C, SEEK_SET);
+						fread(&magic, 1, sizeof(u32), fp);
+						if (magic == GC_MAGIC)
+							DML_GameCount++;
 						fclose(fp);
 					}
 				}
@@ -259,8 +268,13 @@ s32 get_DML_game_list_cnt()
 				if(fp)
 				{
 					fseek(fp, 0, SEEK_END);
-					if (ftell(fp) > 1000000)
-						DML_GameCount++;
+					if (ftell(fp) > 1000000) {
+						u32 magic = 0;
+						fseek(fp, 0x1C, SEEK_SET);
+						fread(&magic, 1, sizeof(u32), fp);
+						if (magic == GC_MAGIC)
+							DML_GameCount++;
+					}
 					fclose(fp);
 				}
 				else
@@ -269,7 +283,11 @@ s32 get_DML_game_list_cnt()
 					fp = fopen(name_buffer, "rb");
 					if(fp)
 					{
-						DML_GameCount++;
+						u32 magic = 0;
+						fseek(fp, 0x1C, SEEK_SET);
+						fread(&magic, 1, sizeof(u32), fp);
+						if (magic == GC_MAGIC)
+							DML_GameCount++;
 						fclose(fp);
 					}
 				}
@@ -314,17 +332,22 @@ s32 get_DML_game_list(void *outbuf)
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) > 1000000)
 					{
-						dbg_printf("Found DML game %s\n", entry->d_name);
-						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-						struct discHdr *dmlGame = (struct discHdr *)ptr;
-						memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-						memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-						dmlGame->magic = DML_MAGIC;
-						fseek(fp, 0, SEEK_SET);
-						fread(dmlGame->id, 1, 6, fp);
-						fseek(fp, 0x20, SEEK_SET);
-						fread(dmlGame->title, 1, 0x40, fp);
-						DML_GameCount++;
+						u32 magic = 0;
+						fseek(fp, 0x1C, SEEK_SET);
+						fread(&magic, 1, sizeof(u32), fp);
+						if (magic == GC_MAGIC) {
+							dbg_printf("Found DML game %s\n", entry->d_name);
+							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+							struct discHdr *dmlGame = (struct discHdr *)ptr;
+							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
+							dmlGame->magic = DML_MAGIC;
+							fseek(fp, 0, SEEK_SET);
+							fread(dmlGame->id, 1, 6, fp);
+							fseek(fp, 0x20, SEEK_SET);
+							fread(dmlGame->title, 1, 0x40, fp);
+							DML_GameCount++;
+						}
 					}
 					fclose(fp);
 				}
@@ -334,17 +357,22 @@ s32 get_DML_game_list(void *outbuf)
 					fp = fopen(name_buffer, "rb");
 					if(fp)
 					{
-						dbg_printf("Found DML game %s\n", entry->d_name);
-						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-						struct discHdr *dmlGame = (struct discHdr *)ptr;
-						memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-						memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-						dmlGame->magic = DML_MAGIC;
-						fseek(fp, 0, SEEK_SET);
-						fread(dmlGame->id, 1, 6, fp);
-						fseek(fp, 0x20, SEEK_SET);
-						fread(dmlGame->title, 1, 0x40, fp);
-						DML_GameCount++;
+						u32 magic = 0;
+						fseek(fp, 0x1C, SEEK_SET);
+						fread(&magic, 1, sizeof(u32), fp);
+						if (magic == GC_MAGIC) {
+							dbg_printf("Found DML game %s\n", entry->d_name);
+							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+							struct discHdr *dmlGame = (struct discHdr *)ptr;
+							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
+							dmlGame->magic = DML_MAGIC;
+							fseek(fp, 0, SEEK_SET);
+							fread(dmlGame->id, 1, 6, fp);
+							fseek(fp, 0x20, SEEK_SET);
+							fread(dmlGame->title, 1, 0x40, fp);
+							DML_GameCount++;
+						}
 						fclose(fp);
 					}
 				}
@@ -387,17 +415,22 @@ s32 get_DML_game_list(void *outbuf)
 						fread(id, 1, 6, fp);
 						
 						if (!getHeaderById(outbuf, DML_GameCount, id)) {
-							dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
-							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-							struct discHdr *dmlGame = (struct discHdr *)ptr;
-							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-							dmlGame->magic = DML_MAGIC_HDD;
-							fseek(fp, 0, SEEK_SET);
-							fread(dmlGame->id, 1, 6, fp);
-							fseek(fp, 0x20, SEEK_SET);
-							fread(dmlGame->title, 1, 0x40, fp);
-							DML_GameCount++;
+							u32 magic = 0;
+							fseek(fp, 0x1C, SEEK_SET);
+							fread(&magic, 1, sizeof(u32), fp);
+							if (magic == GC_MAGIC) {
+								dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
+								u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+								struct discHdr *dmlGame = (struct discHdr *)ptr;
+								memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+								memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
+								dmlGame->magic = DML_MAGIC_HDD;
+								fseek(fp, 0, SEEK_SET);
+								fread(dmlGame->id, 1, 6, fp);
+								fseek(fp, 0x20, SEEK_SET);
+								fread(dmlGame->title, 1, 0x40, fp);
+								DML_GameCount++;
+							}
 						}
 					}
 					fclose(fp);
@@ -413,17 +446,22 @@ s32 get_DML_game_list(void *outbuf)
 						fread(id, 1, 6, fp);
 						if (!getHeaderById(outbuf, DML_GameCount, id))
 						{
-							dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
-							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-							struct discHdr *dmlGame = (struct discHdr *)ptr;
-							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-							dmlGame->magic = DML_MAGIC_HDD;
-							fseek(fp, 0, SEEK_SET);
-							fread(dmlGame->id, 1, 6, fp);
-							fseek(fp, 0x20, SEEK_SET);
-							fread(dmlGame->title, 1, 0x40, fp);
-							DML_GameCount++;
+							u32 magic = 0;
+							fseek(fp, 0x1C, SEEK_SET);
+							fread(&magic, 1, sizeof(u32), fp);
+							if (magic == GC_MAGIC) {
+								dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
+								u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+								struct discHdr *dmlGame = (struct discHdr *)ptr;
+								memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
+								memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
+								dmlGame->magic = DML_MAGIC_HDD;
+								fseek(fp, 0, SEEK_SET);
+								fread(dmlGame->id, 1, 6, fp);
+								fseek(fp, 0x20, SEEK_SET);
+								fread(dmlGame->title, 1, 0x40, fp);
+								DML_GameCount++;
+							}
 						}
 						fclose(fp);
 					}
@@ -2178,7 +2216,7 @@ int Menu_Global_Options()
 				CHANGE(CFG.wiird, 2);
 				break;
 			case 6:
-				CHANGE(CFG.dml, 2);
+				CHANGE(CFG.dml, 3);
 				break;
 			case 7:
 				Download_All_Covers(change > 0);
@@ -4030,8 +4068,7 @@ L_repaint:
 	printf("\n");
 	printf_x(gt("Booting Wii game, please wait..."));
 	printf("\n\n");
-	
-	if (header->magic == DML_MAGIC_HDD) {
+	if (header->magic == DML_MAGIC_HDD && CFG.dml != CFG_DML_DM_2_0) {
 		if (!fsop_DirExist ("sd:/games"))
 		{
 			fsop_MakeFolder ("sd:/games");
@@ -4049,7 +4086,7 @@ L_repaint:
 		bench_io();
 
 		// require +128kb for operating safety
-		if ((f32)GC_GAME_SIZE + (f32)128*1024 >= free * GB_SIZE) {
+		if ((f32)getDMLGameSize(header) + (f32)128*1024 >= free * GB_SIZE) {
 			printf_x(gt("ERROR: not enough free space!!"));
 			printf("\n\n");
 			if (del >= 0) __Menu_GetEntries();
@@ -4059,13 +4096,13 @@ L_repaint:
 		copy_DML_Game_to_SD(header);
 	}
 	
-	if (gc || header->magic == DML_MAGIC)
+	if (gc || header->magic == DML_MAGIC || DML_GameIsInstalled(header->folder))
 	{
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
 		get_time(&TIME.playstat2);
 
-		if(header->magic == DML_MAGIC)
+		if(header->magic == DML_MAGIC || DML_GameIsInstalled(header->folder))
 		{
 			char cheatPath[255];
 			sprintf(cheatPath, "%s/codes/%.6s.gct", USBLOADER_PATH, header->id);
@@ -4077,7 +4114,7 @@ L_repaint:
 			else
 				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.vidtv, CFG.game.video);
 		}
-		else if(CFG.dml == CFG_DML_1_2)
+		else if(CFG.dml >= CFG_DML_1_2)
 			DML_New_SetBootDiscOption();
 
 		memcpy((char *)0x80000000, header->id, 6);

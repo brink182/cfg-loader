@@ -36,7 +36,7 @@ void GC_SetVideoMode(u8 videomode)
 {
 	syssram *sram;
 	sram = __SYS_LockSram();
-	void *m_frameBuf;
+	//void *m_frameBuf;
 	static GXRModeObj *rmode;
 	int memflag = 0;
 
@@ -80,13 +80,15 @@ void GC_SetVideoMode(u8 videomode)
 	/* Set video mode to PAL or NTSC */
 	*(vu32*)0x800000CC = memflag;
 	DCFlushRange((void *)(0x800000CC), 4);
-	ICInvalidateRange((void *)(0x800000CC), 4);
+	//ICInvalidateRange((void *)(0x800000CC), 4);
 
-	VIDEO_Configure(rmode);
-	m_frameBuf = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
+	if (rmode != 0)
+		VIDEO_Configure(rmode);
+	
+	//m_frameBuf = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
 
-	VIDEO_ClearFrameBuffer(rmode, m_frameBuf, COLOR_BLACK);
-	VIDEO_SetNextFramebuffer(m_frameBuf);
+	//VIDEO_ClearFrameBuffer(rmode, m_frameBuf, COLOR_BLACK);
+	//VIDEO_SetNextFramebuffer(m_frameBuf);
 
 	VIDEO_SetBlack(TRUE);
 	VIDEO_Flush();
@@ -142,30 +144,54 @@ s32 DML_RemoveGame(struct discHdr header, bool onlySD)
 	return 0;
 }
 
-int DML_GameIsInstalled(u8 *discid)
+int DML_GameIsInstalled(char *folder)
 {
+	int ret = 0;
 	char source[300];
-	snprintf(source, sizeof(source), "sd:/games/%s/game.iso", discid);
+	snprintf(source, sizeof(source), "sd:/games/%s/game.iso", folder);
 	
 	FILE *f = fopen(source, "rb");
 	if(f) 
 	{
-		dbg_printf("Found on SD: %s\n", discid);
+		dbg_printf("Found on SD: %s\n", folder);
 		fclose(f);
-		return 1;
+		ret = 1;
 	}
 	else
 	{
-		snprintf(source, sizeof(source), "sd:/games/%s/sys/boot.bin", discid);
+		snprintf(source, sizeof(source), "sd:/games/%s/sys/boot.bin", folder);
 		f = fopen(source, "rb");
 		if(f) 
 		{
-			dbg_printf("Found on SD: %s\n", discid);
+			dbg_printf("Found on SD: %s\n", folder);
 			fclose(f);
-			return 2;
+			ret = 2;
 		}
 	}
-	return 0;
+	
+	if (ret == 0) {
+		snprintf(source, sizeof(source), "%s/games/%s/game.iso", wbfs_fs_drive, folder);
+	
+		FILE *f = fopen(source, "rb");
+		if(f) 
+		{
+			dbg_printf("Found on HDD: %s\n", folder);
+			fclose(f);
+			ret = 1;
+		}
+		else
+		{
+			snprintf(source, sizeof(source), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, folder);
+			f = fopen(source, "rb");
+			if(f) 
+			{
+				dbg_printf("Found on HDD: %s\n", folder);
+				fclose(f);
+				ret = 2;
+			}
+		}
+	}
+	return ret;
 }
 
 void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode)
@@ -178,14 +204,14 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 	DMLCfg->Magicbytes = 0xD1050CF6;
 	DMLCfg->CfgVersion = 0x00000001;
 	//DMLCfg->VideoMode |= DML_VID_FORCE;
-	DMLCfg->VideoMode |= DML_VID_NONE;
+	DMLCfg->VideoMode |= DML_VID_DML_AUTO;
 
 	DMLCfg->Config |= DML_CFG_ACTIVITY_LED; //Sorry but I like it lol, option will may follow
 	DMLCfg->Config |= DML_CFG_PADHOOK; //Makes life easier, l+z+b+digital down...
 
 	if(GamePath != NULL)
 	{
-		if(DML_GameIsInstalled((u8*)GamePath) == 2)
+		if(DML_GameIsInstalled(GamePath) == 2)
 			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/", GamePath);
 		else
 			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/game.iso", GamePath);
@@ -225,8 +251,8 @@ void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 	if (CFG.dml == CFG_DML_R52)
 	{
 		memcpy((void *)0xC0001700, DMLCfg, sizeof(DML_CFG));
-	} 
-	else if (CFG.dml == CFG_DML_1_2)
+	}
+	else if (CFG.dml >= CFG_DML_1_2)
 	{
 		// For new DML v1.2+
 		memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));

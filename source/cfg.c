@@ -2246,7 +2246,7 @@ bool cfg_set_gbl(char *name, char *val)
 	CFG_STR("partition", CFG.partition);
 
 	if (cfg_map_auto("gui_style", map_gui_style, &CFG.gui_style)) return true;
-	if (cfg_int_max("dml", &CFG.dml, 2)) return true;
+	if (cfg_int_max("dml", &CFG.dml, 3)) return true;
 
 	int rows = 0;
 	if (cfg_int_max("gui_rows", &rows, 4)) {
@@ -2465,7 +2465,7 @@ void cfg_set(char *name, char *val)
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
-	cfg_int_max("dml", &CFG.dml, 2);
+	cfg_int_max("dml", &CFG.dml, 3);
 
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	cfg_id_list("pref_game", CFG.pref_game, &CFG.num_pref_game, MAX_PREF_GAME);

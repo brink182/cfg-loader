@@ -13,6 +13,13 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r36 (beta)
+size = 1801856
+date = 2012-06-27
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr36.dol
+-fixed problem pointer moves around without
+moving the controller sticks
+
 release = 70r35 (beta)
 size = 1801728
 date = 2012-06-24

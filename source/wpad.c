@@ -121,10 +121,18 @@ void Wpad_getIRx(int n, struct ir_t *ir)
 	if (ir->smooth_valid == 0) {
 		s8 padX = PAD_StickX(n);
 		s8 padY = PAD_StickY(n);
+		// GC Controller deadzone
+		if(padX > -16 && padX < 16) padX = 0;
+		if(padY > -16 && padY < 16) padY = 0;
+
 		int wpadX;
 		int wpadY;
 		float pm, pa;
 		Wpad_Stick(n, 0.08, &pm, &pa, &wpadX, &wpadY);
+		// Wii Classic Controller deadzone
+		if(wpadX > -16 && wpadX < 16) wpadX = 0;
+		if(wpadY > -16 && wpadY < 16) wpadY = 0;
+
 		float mX = (float)(padX+wpadX) / 8;
 		float mY = (float)(padY+wpadY) / 8;
 		//dbg_printf("%d,%d %d,%d %.2f,%.2f  %d  %.2f,%.2f  %.2f,%.2f\n",

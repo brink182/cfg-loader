@@ -37,6 +37,8 @@
 #include "net.h"
 #include "menu.h"
 #include "gettext.h"
+#define DML_MAGIC 0x444D4C00
+#define DML_MAGIC_HDD DML_MAGIC + 1
 
 ////////////////////////////////////////
 //
@@ -282,7 +284,7 @@ int Load_Cheats_TXT(char *id)
 	return 0; // ok
 }
 
-int Save_Cheats_GCT(char *id)
+int Save_Cheats_GCT(char *id,char *folder, u32 *magic)
 {
 	char filepath[200];
 	char gct_head[] = { 0x00, 0xD0, 0xC0, 0xDE, 0x00, 0xD0, 0xC0, 0xDE };
@@ -296,8 +298,18 @@ int Save_Cheats_GCT(char *id)
 		if (cheats.cheat[i].enabled) count++;
 	}
 	if (count == 0) return -1;
-
-	snprintf(D_S(filepath), "%s/codes/%.6s.gct", USBLOADER_PATH, id);
+		
+	if (memcmp("G",id,1)==0)	
+    {
+	   	if ( magic == (u32*)DML_MAGIC )
+    	snprintf(D_S(filepath), "sd:/games/%s/%.6s.gct", folder, id);
+    	else
+     	snprintf(D_S(filepath), "usb:/games/%s/%.6s.gct", folder, id);
+    }
+ else
+ 	{
+    	snprintf(D_S(filepath), "%s/codes/%.6s.gct", USBLOADER_PATH, id);
+	}
 	printf("\n");
 	printf_(gt("Saving: %s"), filepath);
 	printf("\n");
@@ -363,28 +375,24 @@ bool Download_Cheats_TXT(char *id)
 	extern bool Init_Net();
 	if (!Init_Net()) goto err;
 
-	// 6 letters ID
-	//snprintf(D_S(url), "%s/%c/%.6s.txt", url_base, id[0], id);
-	snprintf(D_S(url), "%s/R/%.6s.txt", url_base, id);
+	if (strncmp("G",id,1)==0) {
+	snprintf(D_S(url), "%s/G/%.6s.txt", url_base, id);
 	dbg_printf("url: %s\n", url);
 	file = downloadfile(url);
+  }
+  else {
+  snprintf(D_S(url), "%s/R/%.6s.txt", url_base, id);
+	dbg_printf("url: %s\n", url);
+	file = downloadfile(url);
+  }
+
 	if (file.data == NULL || file.size == 0) {
-	
-		snprintf(D_S(url), "%s/G/%.6s.txt", url_base, id);
-		dbg_printf("url: %s\n", url);
-		file = downloadfile(url);
-		if (file.data == NULL || file.size == 0) {
-			// 4 letters ID
-			snprintf(D_S(url), "%s/%c/%.4s.txt", url_base, id[0], id);
-			dbg_printf("url: %s\n", url);
-			file = downloadfile(url);
-			if (file.data == NULL || file.size == 0) {
-				printf_(gt("Error downloading."));
+				printf_(gt("No Cheats Found !!"));
 				printf("\n");
 				goto err;
 			}
-		}
-	}
+		
+	
 
 	printf_(gt("Saving cheats..."));
 	printf("\n");
@@ -600,7 +608,7 @@ void Menu_Cheats(struct discHdr *header)
 				cheat_state = 3;
 				continue;
 			case 1:
-				Save_Cheats_GCT((char*)header->id);
+				Save_Cheats_GCT((char*)header->id,(char*)header->folder,(u32*)header->magic);
 				break;
 			case 2:
 				for (i=0; i<cheats.num_cheats; i++) {

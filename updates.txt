@@ -13,6 +13,12 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r37 
+size = 1801856
+date = 2012-08-08
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr37.dol
+-convert mod r37 beta10 to r37
+
 release = 70r36 (beta)
 size = 1801856
 date = 2012-06-27

@@ -2198,8 +2198,8 @@ void font_color_multiply(FontColor *src, FontColor *dest, u32 color)
 	FC_MUL(color);
 	// AA^4 for outline and shadow
 	// because they are drawn 4 times
-	color = color_multiply(color, color | 0xFFFFFF00);
-	color = color_multiply(color, color | 0xFFFFFF00);
+	color = color_multiply(color, color | 0x0000FFFF);
+	color = color_multiply(color, color | 0x0000FFFF);
 	FC_MUL(outline);
 	FC_MUL(shadow);
 #undef FC_MUL
@@ -2213,7 +2213,7 @@ void Gui_PrintExx(float x, float y, GRRLIB_texImg *font, FontColor fc,
 
 void Gui_PrintEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, const char *str)
 {
-	Gui_PrintExx(x, y, font, font_color, 1.0, str);
+	Gui_PrintExx(x, y, font, font_color, 1.3, str);
 }
 
 void Gui_PrintfEx(int x, int y, GRRLIB_texImg *font, FontColor font_color, char *fmt, ...)
@@ -2237,8 +2237,8 @@ void Gui_PrintAlignZ(float x, float y, int alignx, int aligny,
 	len = con_len(str);
 	w = len * font->tilew;
 	h = font->tileh;
-	w *= zoom;
-	h *= zoom;
+	w *= zoom*1.1;
+	h *= zoom*1.1;
 	if (alignx == 0) xx = x - w/2.0;
 	else if (alignx > 0) xx = x - w;
 	if (aligny == 0) yy = y - h/2.0;
@@ -2246,7 +2246,7 @@ void Gui_PrintAlignZ(float x, float y, int alignx, int aligny,
 	// align to pixel for sharper text
 	xx = (int)xx;
 	yy = (int)yy;
-	Gui_PrintExx(xx, yy, font, font_color, zoom, str);
+	Gui_PrintExx(xx, yy, font, font_color, zoom*1.1, str);
 }
 
 void Gui_PrintAlign(int x, int y, int alignx, int aligny,

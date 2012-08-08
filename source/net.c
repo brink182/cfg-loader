@@ -251,10 +251,12 @@ char *gameid_to_cc(char *gameid)
 	char *ES = "ES";
 	char *ZH = "ZH";
 	char *PAL = "PAL";
+	char *OTHER = "OTHER";
 	// gameid regions:
 	switch (gameid[3]) {
 		// channel regions:
 		case 'A': return PAL;// All regions. System channels like the Mii channel use it.
+		case 'C': return US;
 		case 'D': return DE; // German-speaking regions.
 		case 'E': return US; // USA and other NTSC regions except Japan
 		case 'F': return FR; // French-speaking regions.
@@ -274,7 +276,7 @@ char *gameid_to_cc(char *gameid)
 		case 'Y': return PAL;
 		case 'W': return ZH; // Taiwan
 	}
-	return PAL;
+	return OTHER;
 }
 
 char *lang_to_cc()

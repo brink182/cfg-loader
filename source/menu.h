@@ -1,6 +1,7 @@
 #ifndef _MENU_H_
 #define _MENU_H_
 
+#include <gccore.h>
 #include "disc.h" // discHdr
 #include "cfg.h"
 
@@ -9,11 +10,18 @@ extern char *DML_videos[6];
 extern char *languages[CFG_LANG_NUM];
 extern char *playlog_name[4];
 extern char *str_wiird[3];
-extern char *str_dml[4];
+extern char *str_dml[5];
 extern bool go_gui;
+
+typedef struct _dirent
+{
+	char fname[ISFS_MAXPATH + 1];
+	int type;
+} dirent_t;
 
 /* Prototypes */
 void Menu_Device(void);
+void Menu_Channel(void);
 void Menu_Format(void);
 void Menu_Install(void);
 void Menu_Remove(void);

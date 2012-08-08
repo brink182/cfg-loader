@@ -201,6 +201,7 @@ struct TextMap map_button[] =
 	{ "sort",       CFG_BTN_SORT },
 	{ "filter",     CFG_BTN_FILTER },
 	{ "priiloader", CFG_BTN_PRIILOADER },
+	{ "channel",    CFG_BTN_CHANNEL },
 	{ "wii_menu",   CFG_BTN_WII_MENU },
 	{ "random",     CFG_BTN_RANDOM },
 	{ NULL, -1 }
@@ -1180,6 +1181,8 @@ void CFG_Default()
 	// default game settings
 	CFG.game.video    = CFG_VIDEO_AUTO;
 	CFG.game.hooktype = 1; // VBI
+	CFG.game.wide_screen = 0; // WIDE IS OFF
+	CFG.game.nodisc = 0;
 	CFG.game.block_ios_reload = 2; // 2=auto
 	cfg_ios_set_idx(DEFAULT_IOS_IDX);
 	// all other game settings are 0 (memset(0) above)
@@ -1206,7 +1209,7 @@ void CFG_Default()
 	// dvd slot check is handled properly now by all cios
 	// so the patch is disabled by default
 	CFG.disable_dvd_patch = 1;
-	CFG.dml = CFG_DML_1_2;
+	CFG.dml = CFG_DML_2_2;
 }
 
 bool map_auto_token(char *name, char *name2, char *val, struct TextMap *map, struct MenuButton *var)
@@ -1294,7 +1297,11 @@ char *cfg_get_title(u8 *id)
 char *get_title(struct discHdr *header)
 {
 	// titles.txt or wiitdb
-	char *title = cfg_get_title(header->id);
+	char *title;
+	if ((memcmp("G",(char*)header->id,1)==0) && (strlen((char*)header->id)>6))
+     title = header->title;
+  else
+	 title = cfg_get_title(header->id);
 	if (title) return title;
 	// disc header
 	return header->title;
@@ -1684,6 +1691,9 @@ void theme_set_base(char *name, char *val)
 		} else if (strcmp(val, "priiloader")==0) {
 			CFG.button_H = CFG_BTN_PRIILOADER;
 			CFG.home = CFG_HOME_PRIILOADER;
+			} else if (strcmp(val, "channel")==0) {
+			CFG.button_H = CFG_BTN_CHANNEL;
+			CFG.home = CFG_HOME_CHANNEL;
 		} else if (strcmp(val, "wii_menu")==0) {
 			CFG.button_H = CFG_BTN_WII_MENU;
 			CFG.home = CFG_HOME_WII_MENU;
@@ -2193,7 +2203,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	cfg_val = val;
 
 	cfg_map_auto("language", map_language, &game_cfg->language);
-
+	
 	cfg_map_auto("video", map_video, &game_cfg->video);
 	if (strcmp("video", name) == 0 && strcmp("vidtv", val) == 0)
 	{
@@ -2213,6 +2223,8 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	cfg_bool("clear_patches", &game_cfg->clean);
 	cfg_map("clear_patches", "all", &game_cfg->clean, CFG_CLEAN_ALL);
 	cfg_bool("fix_002", &game_cfg->fix_002);
+	cfg_bool("wide_screen", &game_cfg->wide_screen);
+	cfg_bool("nodisc", &game_cfg->nodisc);
 	cfg_ios_idx(name, val, &game_cfg->ios_idx);
 	cfg_bool("block_ios_reload", &game_cfg->block_ios_reload);
 	cfg_map("block_ios_reload", "auto", &game_cfg->block_ios_reload, 2);
@@ -2246,7 +2258,7 @@ bool cfg_set_gbl(char *name, char *val)
 	CFG_STR("partition", CFG.partition);
 
 	if (cfg_map_auto("gui_style", map_gui_style, &CFG.gui_style)) return true;
-	if (cfg_int_max("dml", &CFG.dml, 3)) return true;
+	if (cfg_int_max("dml", &CFG.dml, 4)) return true;
 
 	int rows = 0;
 	if (cfg_int_max("gui_rows", &rows, 4)) {
@@ -2465,7 +2477,7 @@ void cfg_set(char *name, char *val)
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
-	cfg_int_max("dml", &CFG.dml, 3);
+	cfg_int_max("dml", &CFG.dml,4);
 
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	cfg_id_list("pref_game", CFG.pref_game, &CFG.num_pref_game, MAX_PREF_GAME);
@@ -2882,6 +2894,8 @@ bool CFG_Save_Settings(int verbose)
 		s = map_get_name(map_video_patch, game_cfg->video_patch);
 		SAVE_STR("video_patch", s);
 		SAVE_BOOL(vidtv);
+		SAVE_BOOL(wide_screen);
+		SAVE_BOOL(nodisc);
 		SAVE_BOOL(country_patch);
 		SAVE_BOOL(fix_002);
 		s = ios_str(game_cfg->ios_idx);

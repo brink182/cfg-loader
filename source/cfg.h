@@ -40,7 +40,8 @@ extern int CURR_IOS_IDX;
 #define CFG_DML_R51      0
 #define CFG_DML_R52      1
 #define CFG_DML_1_2      2
-#define CFG_DML_DM_2_0	 3
+#define CFG_DML_2_2      3
+#define CFG_DML_DEVO     4
 
 #include "version.h"
 
@@ -75,9 +76,9 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_LAYOUT_ULTIMATE3 9 // Ultimate3: (WiiShizza)
 #define CFG_LAYOUT_KOSAIC   10 // Kosaic
 
-#define CFG_VIDEO_SYS   0  // system default
+#define CFG_VIDEO_SYS   0 
 #define CFG_VIDEO_AUTO  0
-#define CFG_VIDEO_GAME  1  // game default
+#define CFG_VIDEO_GAME  1   // game default
 #define CFG_VIDEO_PAL50	2  // force PAL
 #define CFG_VIDEO_PAL60	3  // force PAL60
 #define CFG_VIDEO_NTSC	4  // force NTSC
@@ -101,6 +102,7 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_HOME_EXIT       1
 #define CFG_HOME_HBC        2
 #define CFG_HOME_SCRSHOT    3
+#define CFG_HOME_CHANNEL    4
 #define CFG_HOME_PRIILOADER 0x4461636F
 #define CFG_HOME_WII_MENU   0x50756E65
 
@@ -198,6 +200,7 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_BTN_SORT       17
 #define CFG_BTN_FILTER     18
 #define CFG_BTN_RANDOM     19
+#define CFG_BTN_CHANNEL    20
 /* Warning by Clipper: if the CFG_BTN_* list ever grows longer than 48 actions
  * (bloody hell, if so), then start using 1 << 8, 2 << 8 and so on.  Any number
  * in the alpha range could get confused with the channels and/or magic words,
@@ -235,6 +238,8 @@ struct Game_CFG
 	int video;
 	int video_patch;
 	int vidtv;
+	int wide_screen;
+	int nodisc;
 	int country_patch;
 	int fix_002;
 	int ios_idx;

@@ -153,6 +153,7 @@ void Sys_Exit()
 
 void Sys_HBC()
 {
+	if (CFG.disable_options == 1) return;
 	//int ret = 0;
 	//dbg_printf("prep_exit\n");
 	prep_exit();

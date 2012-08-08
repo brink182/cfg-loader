@@ -37,7 +37,7 @@ struct discHdr
 	/* Padding */
 	u8 unused3[30];
 	
-	char folder[0xFF];
+	char folder[255];
 } ATTRIBUTE_PACKED;
 
 struct gc_discHdr
@@ -68,7 +68,7 @@ struct gc_discHdr
 struct dml_Game
 {
 	/* Game ID */
-	u8 id[6];
+	char id[6];
 
 	/* Game version */
 	u8 disc;
@@ -76,7 +76,7 @@ struct dml_Game
 	/* Game title */
 	char title[64];
 
-	char folder[0xFF];
+	char folder[255];
 };
 
 /* Prototypes */
@@ -85,6 +85,7 @@ s32  Disc_Open(void);
 s32  Disc_Wait(void);
 s32  Disc_SetWBFS(u32, u8 *);
 s32  Disc_ReadHeader(void *);
+s32  Disc_ReadGCHeader(void *);
 s32  Disc_IsWii(void);
 s32  Disc_IsGC(void);
 s32  Disc_BootPartition(u64, bool dvd);

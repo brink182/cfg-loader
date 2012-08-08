@@ -14,10 +14,12 @@ metaxml=</long_description>
 metaxml=</app>
 
 release = 70r37 
-size = 1801856
-date = 2012-08-08
+size = 1799328
+date = 2012-08-09
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr37.dol
--convert mod r37 beta10 to r37
+-improved compatibility with DM(Lite)2.2 and devolution
+-improved multi-disc dumping of GC games 
+-supported multi-disc loading of GC games with devolution
 
 release = 70r36 (beta)
 size = 1801856

@@ -45,5 +45,8 @@ void print_all_ios_info(FILE *f);
 char* get_ios_tmd_hash_str(char *str);
 char* get_ios_info_from_tmd();
 void fill_base_array();
+s32 read_file_from_nand(char *filepath, u8 **buffer, u32 *filesize);
+
+u16 get_miosinfo();
 
 #endif

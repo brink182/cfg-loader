@@ -8,14 +8,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-07 23:40+0200\n"
-"PO-Revision-Date: 2010-07-01 18:40+GMT+8\n"
+"POT-Creation-Date: 2012-05-22 23:40+0200\n"
+"PO-Revision-Date: 2012-08-08 15:40+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
 "Language: Simplified Chinese\n"
 "MIME-Version: 2.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#, c-format
+msgid " Copying files from USB to SD card...(%c)"
+msgstr "正在把文件从USB设备中复制到SD卡中...(%c)"
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
@@ -58,6 +62,9 @@ msgstr "(可能会花一些时间)"
 
 msgid ".dol too small"
 msgstr ".dol文件太小"
+
+msgid "1.2+"
+msgstr "1.2以上版本"
 
 msgid "3D cover"
 msgstr "3D封面"
@@ -167,6 +174,9 @@ msgstr "运行光盘"
 
 msgid "Booting Wii game, please wait..."
 msgstr "正在启动Wii游戏，请稍候......"
+
+msgid "Can't install Wii games!"
+msgstr "无法安装Wii游戏！"
 
 #, c-format
 msgid "CFG base: %s"
@@ -281,6 +291,14 @@ msgstr "cIOS有错误请重新安装cIOS"
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "cIOS %s加载成功！"
+
+#, c-format
+msgid "DISK1:%s[%s]\n"
+msgstr "磁盘1：%s[%s]\n"
+
+#, c-format
+msgid "DISK2:%s[%s]2\n"
+msgstr "磁盘2：%s[%s]2\n"
 
 msgid "DISC cover"
 msgstr "光盘封面"
@@ -433,7 +451,7 @@ msgid "ERROR: Apploader %d"
 msgstr "错误：Apploader %d"
 
 msgid "ERROR: CIOS222/223 v4 required for BCA"
-msgstr "错误：BCA功能需要安装cIOS222/223 v4版"
+msgstr "错误：BCA功能需要安装cIOS222/223 v4以上版本"
 
 msgid "ERROR: Cache Close"
 msgstr "错误：缓存关闭"
@@ -493,6 +511,9 @@ msgstr "错误：选择WBFS: %d"
 msgid "ERROR: Setting SD mode"
 msgstr "错误：设置SD模式"
 
+msgid "ERROR: WBFS not mounted!"
+msgstr "错误：WBFS没有被加载！"
+
 #, c-format
 msgid "ERROR: USB init! (%d)"
 msgstr "错误：USB初始化！(%d)"
@@ -503,8 +524,8 @@ msgid ""
 "for starting games from a FAT partition!\n"
 "Upgrade IOS249 or choose a different IOS."
 msgstr ""
-"错误：cIOS249 REV18，cIOS222V4,\n"
-"cIOS223V4，cIOS224V5或更高要求从FAT分区开始游戏更新cIOS249或选择其它cIOS。"
+"错误：从FAT或者NTFS分区运行游戏,\n"
+"需更新cIOS249 REV18，cIOS222V4，cIOS223V4，cIOS224V5或d2x更高版本。"
 
 msgid "ERROR: cache: out of memory"
 msgstr "错误：缓存：内存溢出"
@@ -523,7 +544,7 @@ msgstr "错误：内存重叠！"
 msgid ""
 "ERROR: multiple wbfs partitions\n"
 "supported only with IOS222/223-mload"
-msgstr "支持WBFS多分区错误：仅支持cIOS222/223-mload\n"
+msgstr "支持WBFS多分区错误：仅cIOS222/223-mload支持此功能\n"
 
 msgid "ERROR: not enough free space!!"
 msgstr "错误：剩余容量不足！！"
@@ -557,7 +578,7 @@ msgid "English"
 msgstr "英语"
 
 msgid "English Title"
-msgstr "英语标题"
+msgstr "英文标题"
 
 msgid "Enter Code: "
 msgstr "输入代码："
@@ -715,6 +736,15 @@ msgstr "按游戏类型筛选"
 msgid "Filter by Online Features"
 msgstr "按网络特性筛选"
 
+msgid "Force NTSC 480p"
+msgstr "强制NTSC 480P"
+	
+msgid "Force PAL"
+msgstr "强制 PAL"
+
+msgid "Force PAL 480p"
+msgstr "强制 PAL 480P"
+
 msgid "Filter:"
 msgstr "过滤器："
 
@@ -745,6 +775,9 @@ msgstr "全封面"
 
 msgid "GB"
 msgstr "GB"
+
+msgid "GameCube"
+msgstr "GameCube游戏"
 
 msgid "Game Default"
 msgstr "游戏缺省"
@@ -948,6 +981,9 @@ msgstr "背景音乐：禁用"
 msgid "Music: Enabled"
 msgstr "背景音乐：开启"
 
+msgid "NMM:"
+msgstr "免用记忆卡"
+
 #, c-format
 msgid "Music: Looking for %s files in: %s"
 msgstr "背景音乐：正在寻找%s文件位置在: %s"
@@ -967,7 +1003,7 @@ msgid ""
 "NOTE: CIOS249 before rev10:\n"
 "Loading games from SDHC not supported!"
 msgstr ""
-"注意：cIOS249 REV10之前的版本:\n"
+"注意：cIOS249 REV10早期的版本:\n"
 "不支持从SDHC存储卡读取游戏！"
 
 msgid ""
@@ -1030,6 +1066,9 @@ msgstr "不支持NTFS加密！！！"
 
 msgid "Network connection established."
 msgstr "网络连接已建立"
+
+msgid "NoDisc:"
+msgstr "免检光盘："
 
 msgid "Network error. Can't update gamercards."
 msgstr "网络错误。无法更新游戏卡。"
@@ -1280,6 +1319,9 @@ msgstr "按%s键下载，%s键返回"
 msgid "Press %s to return"
 msgstr "按%s键返回"
 
+msgid "Press 1 to skip WBFS mounting"
+msgstr "按1键取消WBFS分区挂载"
+
 #, c-format
 msgid "Press %s to save global settings"
 msgstr "按%s键保存全局设置"
@@ -1314,6 +1356,9 @@ msgstr "按%s/%s键选择设备"
 
 msgid "Press 2 to reload IOS"
 msgstr "按2键重新读取IOS"
+
+msgid "Press A to continue without config.txt"
+msgstr "按 A 继续无config.txt文件"
 
 msgid "Press A to select device"
 msgstr "按A键选择设备"
@@ -1789,6 +1834,12 @@ msgstr "单人游戏"
 
 msgid "format"
 msgstr "格式化"
+
+msgid "r51-"
+msgstr "r51早期版本"
+
+msgid "r52+"
+msgstr "r52以上版本"
 
 msgid "free"
 msgstr "剩余"

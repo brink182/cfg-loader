@@ -37,11 +37,12 @@ typedef struct RectCoords
 extern int CFG_IOS_MAX;
 extern int CURR_IOS_IDX;
 
-#define CFG_DML_R51      0
-#define CFG_DML_R52      1
-#define CFG_DML_1_2      2
-#define CFG_DML_2_2      3
-#define CFG_DML_DEVO     4
+#define CFG_MIOS	 	 0
+#define CFG_DML_R51      1
+#define CFG_DML_R52      2
+#define CFG_DML_1_2      3
+#define CFG_DM_2_0	 	 4
+#define CFG_DM_2_2       5
 
 #include "version.h"
 
@@ -76,9 +77,9 @@ extern int COVER_HEIGHT_FRONT;
 #define CFG_LAYOUT_ULTIMATE3 9 // Ultimate3: (WiiShizza)
 #define CFG_LAYOUT_KOSAIC   10 // Kosaic
 
-#define CFG_VIDEO_SYS   0 
+#define CFG_VIDEO_SYS   0  // system default
 #define CFG_VIDEO_AUTO  0
-#define CFG_VIDEO_GAME  1   // game default
+#define CFG_VIDEO_GAME  1  // game default
 #define CFG_VIDEO_PAL50	2  // force PAL
 #define CFG_VIDEO_PAL60	3  // force PAL60
 #define CFG_VIDEO_NTSC	4  // force NTSC
@@ -239,6 +240,7 @@ struct Game_CFG
 	int video_patch;
 	int vidtv;
 	int wide_screen;
+	int ntsc_j_patch;
 	int nodisc;
 	int country_patch;
 	int fix_002;
@@ -656,6 +658,7 @@ bool CFG_Load_Settings();
 bool CFG_Save_Settings(int verbose);
 bool CFG_Save_Global_Settings();
 void cfg_parsearg_early(int argc, char **argv);
+int  CFG_MountUSB();
 
 char *cfg_get_title(u8 *id);
 char *get_title(struct discHdr *header);

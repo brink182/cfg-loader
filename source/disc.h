@@ -11,8 +11,11 @@ struct discHdr
 	/* Game ID */
 	u8 id[6];
 
+	/* Disk number */
+	u8 disc;
+	
 	/* Game version */
-	u16 version;
+	u8 version;
 
 	/* Audio streaming */
 	u8 streaming;
@@ -45,8 +48,11 @@ struct gc_discHdr
 	/* Game ID */
 	char id[6];
 
+	/* Disk number */
+	u8 disc;
+	
 	/* Game version */
-	u16 version;
+	u8 version;
 
 	/* Audio streaming */
 	u8 streaming;
@@ -90,7 +96,7 @@ s32  Disc_IsWii(void);
 s32  Disc_IsGC(void);
 s32  Disc_BootPartition(u64, bool dvd);
 s32  Disc_WiiBoot(bool dvd);
-s32  Disc_DumpGCGame();
+s32  Disc_DumpGCGame(bool sd);
 
 u32 appentrypoint;
 #endif

@@ -24,6 +24,8 @@
 #include "gettext.h"
 #include "fat.h"
 #include "cache.h"
+#include "unzip/unzip.h"
+#include "unzip/miniunz.h"
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
@@ -852,6 +854,124 @@ void Download_XML()
 	dl_err:
 	sleep(4);
 } /* end download zipped xml */
+
+/* download zipped Devolution - Lustar */
+/* based on Download_Cover by Forsaeken, modified by oggzee */
+void Download_DEVO()
+{
+
+	printf("\n");
+	if(!Init_Net()) goto dl_err;
+
+	struct stat st;
+	char drive_root[8];
+	snprintf(drive_root, sizeof(drive_root), "%s/", FAT_DRIVE);
+	if (stat(drive_root, &st)) {
+		printf_(gt("ERROR: %s is not accessible"), drive_root);
+		printf("\n");
+		goto dl_err;
+	}
+
+	char zippath[200];
+	snprintf(zippath, sizeof(zippath), "%s/%s", USBLOADER_PATH, "devolution.zip");
+	remove(zippath);
+	char zipurl[100];
+	strcopy(zipurl, "http://www.tueidj.net/gc_devo_src.zip", sizeof(zipurl));
+	if (zipurl[0] == 0) {
+		printf_(gt("Error: no URL."));
+		printf("\n");
+		goto dl_err;	
+	}
+	
+	printf_x(gt("Downloading devolution."));
+	printf("\n");
+	printf_("%s\n", zipurl);
+
+	printf_("[.");
+	struct block file = downloadfile_progress(zipurl, 64);
+	printf("]\n");
+	
+	if (file.data == NULL) {
+		printf_(gt("Error: no data."));
+		printf("\n");
+		goto dl_err;
+	}
+	printf_(gt("Size: %d bytes"), file.size);
+	printf("\n");
+	
+	FILE *f;
+	f = fopen(zippath, "wb");
+	if (!f) {
+		printf("\n");
+		printf_(gt("Error opening: %s"), zippath);
+		printf("\n");
+		goto dl_err;
+	}
+	fwrite(file.data,1,file.size,f);
+	fclose (f);
+	SAFE_FREE(file.data);
+	printf_(gt("Download complete."));
+	printf("\n");
+
+	/* try to open newly downloaded zipped XML */
+	printf_x(gt("Updating devolution"));
+	printf("\n");
+
+	////////////////////////
+	unzFile unzfile = unzOpen(zippath);
+	if (unzfile == NULL) {
+		printf_(gt("Error opening: %s"), zippath);
+		printf("\n");
+		goto dl_err;
+	}
+	
+	u8 *buffer = NULL;
+	//unzOpenCurrentFile(unzfile);
+	unz_file_info zipfileinfo;
+	unzLocateFile(unzfile, "gc_devo/data/loader.bin", 0);
+	unzOpenCurrentFile(unzfile);
+	unzGetCurrentFileInfo(unzfile, &zipfileinfo, NULL, 0, NULL, 0, NULL, 0);	
+	int zipfilebuffersize = zipfileinfo.uncompressed_size;
+	printf_(gt("loader.bin size: %d"), zipfilebuffersize);
+	printf("\n");
+
+	buffer = mem_calloc(zipfilebuffersize);
+	if (buffer == NULL) {
+		unzCloseCurrentFile(unzfile);
+		unzClose(unzfile);
+		printf_(gt("Error allocating buffer: %d"), zipfilebuffersize);
+		printf("\n");
+		goto dl_err;
+	}
+	
+	unzReadCurrentFile(unzfile, buffer, zipfilebuffersize);
+	unzCloseCurrentFile(unzfile);
+	unzClose(unzfile);
+	
+	char devopath[200];
+	snprintf(devopath, sizeof(zippath), "%s/%s", USBLOADER_PATH, "loader.bin");
+	remove(devopath);
+	
+	f = fopen(devopath, "wb");
+	if (!f) {
+		printf("\n");
+		printf_(gt("Error opening: %s"), devopath);
+		printf("\n");
+		goto dl_err;
+	}
+	
+	fwrite(buffer,1,zipfilebuffersize,f);
+	fclose(f);
+	SAFE_FREE(buffer);
+	
+	///////////////////////
+	__console_flush(0);
+	sleep(2);
+	return;
+	
+	dl_err:
+	sleep(4);
+} /* end download zipped devolution */
 
 int gamercard_enabled = 1;
 

@@ -10,7 +10,7 @@ extern char *DML_videos[6];
 extern char *languages[CFG_LANG_NUM];
 extern char *playlog_name[4];
 extern char *str_wiird[3];
-extern char *str_dml[5];
+extern char *str_dml[6];
 extern bool go_gui;
 
 typedef struct _dirent

@@ -406,38 +406,34 @@ s32 Disc_ReadGCHeader(void *outbuf)
 	return WDVD_UnencryptedRead(outbuf, sizeof(struct gc_discHdr), 0);
 }
 
-s32 Disc_DumpGCGame() {
+s32 Disc_DumpGCGame(bool sd) {
 	struct gc_discHdr *header = (struct gc_discHdr *)buffer;
-s32 ret = Disc_ReadGCHeader(header);
-//u8 *bootBin = memalign(32, 0x440);
-//	u8 *bi2Bin = memalign(32, 0x2000);
-//	u8 *apploaderImg = memalign(32, 0x1C720);
-//ret = WDVD_UnencryptedRead(bootBin, 0x440, 0);
+	s32 ret = Disc_ReadGCHeader(header);
+	u8 *bootBin = memalign(32, 0x440);
+	u8 *bi2Bin = memalign(32, 0x2000);
+	u8 *apploaderImg = memalign(32, 0x1C720);
+	ret = WDVD_UnencryptedRead(bootBin, 0x440, 0);
 	
 	title_filename(header->title);
-	
-	char id1[7];
-	strlcpy(id1,header->id,7);
 		
-	if (strlen(header->id)>6)
-		printf(gt("DISK2:%s[%s]2\n"),strupr(header->title),id1);
+	if (header->disc == 0)
+		printf(gt("DISK1:%s[%s]\n"), strupr(header->title), header->id);
     else
-		printf(gt("DISK1:%s[%s]\n"),strupr(header->title),id1);
+		printf(gt("DISK2:%s[%s]2\n"), strupr(header->title), header->id);
 	
 	char sysFolder[0xff];
+	if (header->disc == 0) 
+		sprintf(sysFolder, "%s:/games/%s [%s]/sys", (sd?"sd":"usb"), strupr(header->title), header->id);
+	else
+		sprintf(sysFolder, "%s:/games/%s [%s]2/sys", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
-	if (strlen(header->id)>6) 
-		sprintf(sysFolder, "usb:/games/%s [%s]2",strupr(header->title),id1);
-   else
-	  sprintf(sysFolder, "usb:/games/%s [%s]",strupr(header->title),id1);
-			
 	mkpath(sysFolder, 0777);
- /*
+	
 	char filepath1[0xff];
-	if (strlen(header->id)>6) 
-		sprintf(filepath1, "usb:/games/%s [%s]2/sys/boot.bin",strupr(header->title),id1);
-	 else
-	  sprintf(filepath1, "usb:/games/%s [%s]/sys/boot.bin",strupr(header->title),id1);
+	if (header->disc == 0) 
+		sprintf(filepath1, "%s:/games/%s [%s]/sys/boot2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
+	else
+		sprintf(filepath1, "%s:/games/%s [%s]2/sys/boot.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	FILE *out = fopen( filepath1, "wb" );
 	if( out == NULL )
@@ -447,14 +443,14 @@ s32 ret = Disc_ReadGCHeader(header);
 	fwrite(bootBin, 1, 0x440, out);
 	fclose(out);
 	free(bootBin);
-	*/
-	//ret = WDVD_UnencryptedRead(bi2Bin, 0x2000, 0x440);
-	/*
+	
+	ret = WDVD_UnencryptedRead(bi2Bin, 0x2000, 0x440);
+	
 	char filepath2[0xff];
-	if (strlen(header->id)>6) 
-		sprintf(filepath2, "usb:/games/%s [%s]2/sys/bi2.bin", strupr(header->title),id1);
+	if (header->disc == 0) 
+		sprintf(filepath2, "%s:/games/%s [%s]/sys/bi2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
 	else
-	  sprintf(filepath2, "usb:/games/%s [%s]/sys/bi2.bin", strupr(header->title),id1);
+		sprintf(filepath2, "%s:/games/%s [%s]2/sys/bi2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	out = fopen( filepath2, "wb" );
 	if( out == NULL )
@@ -464,14 +460,14 @@ s32 ret = Disc_ReadGCHeader(header);
 	fwrite(bi2Bin, 1, 0x2000, out);
 	fclose(out);
 	free(bi2Bin);
-	*/
-	//ret = WDVD_UnencryptedRead(apploaderImg, 0x1C720, 0x2440);
-	/*
+	
+	ret = WDVD_UnencryptedRead(apploaderImg, 0x1C720, 0x2440);
+	
 	char filepath3[0xff];
-	if (strlen(header->id)>6)
-		sprintf(filepath3, "usb:/games/%s [%s]2/sys/apploader.img", strupr(header->title),id1);
+	if (header->disc == 0)
+		sprintf(filepath3, "%s:/games/%s [%s]/sys/apploader.img", (sd?"sd":"usb"), strupr(header->title), header->id);
 	else
-	  sprintf(filepath3, "usb:/games/%s [%s]/sys/apploader.img", strupr(header->title),id1);
+		sprintf(filepath3, "%s:/games/%s [%s]2/sys/apploader.img", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	out = fopen( filepath3, "wb" );
 	if( out == NULL )
@@ -481,31 +477,27 @@ s32 ret = Disc_ReadGCHeader(header);
 	fwrite(apploaderImg, 1, 0x1C704, out);
 	fclose(out);
 	free(apploaderImg);
-	*/
+	
 	char filepath4[0xff];
-	if (strlen(header->id)>6)
-		sprintf(filepath4, "usb:/games/%s [%s]2/game.iso", strupr(header->title),id1);
+	if (header->disc == 0)
+		sprintf(filepath4, "%s:/games/%s [%s]/game.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
 	else
-	  sprintf(filepath4, "usb:/games/%s [%s]/game.iso", strupr(header->title),id1);
+		sprintf(filepath4, "%s:/games/%s [%s]2/game2.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
 	
-	FILE *out = fopen(filepath4, "wb" );
-	
+	out = fopen( filepath4, "wb" );
 	if( out == NULL )
-		{
-	printf("file is not found\n");
-	return -1;
-   }
-	
+	{
+		return -1;
+	}
 	u8 *buf = memalign(32, 0x28000);
 	u64 offset = 0;
 	int i = 0;
 	
-// initialize Spinner
+	// initialize Spinner
 	Music_Pause();
-
-	__Dump_Spinner(0, 0x22CF);	
+	__Dump_Spinner(0, 0x22CF);
 	
-		for (i = 0; i < 0x22CF; i++) {
+	for (i = 0; i < 0x22CF; i++) {
 		ret = WDVD_UnencryptedRead(buf, 0x28000, offset);
 		if (ret < 0) {
 			break;
@@ -514,7 +506,6 @@ s32 ret = Disc_ReadGCHeader(header);
 		offset += 0x28000;
 		__Dump_Spinner(i+1, 0x22CF);
 	}
-	
 	fclose(out);
 	free(buf);
 	Music_UnPause();

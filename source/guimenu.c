@@ -27,11 +27,9 @@
 #include "gc_wav.h"
 #include "cfg.h"
 #include "dol.h"
+#include "gc.h"
 
 typedef void (*entrypoint) (void);
-
-#define DML_MAGIC 0x444D4C00
-#define DML_MAGIC_HDD DML_MAGIC + 1
 
 #if 1
 
@@ -449,6 +447,7 @@ struct W_GameCfg
 	Widget *block_ios_reload;
 	Widget *fix_002;
 	Widget *wide_screen;
+	Widget *ntsc_j_patch;
 	Widget *nodisc;
 	Widget *alt_dol;
 	Widget *ocarina;
@@ -720,38 +719,39 @@ void update_gameopt_state()
 {
 	int cond;
     struct discHdr *header = wgame.header;
-   if (memcmp("G",header->id,1)==0)
-  	{
-	wgui_update(wgame.clean);
-	cond = (wgame.clean->value == CFG_CLEAN_ALL);
-  gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
-	gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
-	gameopt_inactive(cond, wgame.vidtv, 0);
-	gameopt_inactive(cond, wgame.country_patch, 0);
-	gameopt_inactive(cond, wgame.fix_002, 0);
-	gameopt_inactive(cond, wgame.ocarina, 0);
-	gameopt_inactive(cond, wgame.wide_screen, 0);		
-  gameopt_inactive(cond, wgame.nodisc, 0);
-  gameopt_inactive(cond, wgame.hooktype, 1);
-  }
-else
+	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX)
 	{
-	// clear
-	wgui_update(wgame.clean);
-	cond = (wgame.clean->value == CFG_CLEAN_ALL);
-	gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
-	gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
-	gameopt_inactive(cond, wgame.video_patch, CFG_VIDEO_PATCH_OFF);	
-	gameopt_inactive(cond, wgame.vidtv, 0);
-	gameopt_inactive(cond, wgame.country_patch, 0);
-	gameopt_inactive(cond, wgame.fix_002, 0);
-	gameopt_inactive(cond, wgame.ocarina, 0);
-	gameopt_inactive(cond, wgame.wide_screen, 0);
-			
-	// ocarina hook type
-	wgui_update(wgame.ocarina);
-	cond = (cond || (!wgame.ocarina->value && !CFG.wiird));
-	gameopt_inactive(cond, wgame.hooktype, 0);
+		wgui_update(wgame.clean);
+		cond = (wgame.clean->value == CFG_CLEAN_ALL);
+		gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
+		gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
+		gameopt_inactive(cond, wgame.vidtv, 0);
+		gameopt_inactive(cond, wgame.country_patch, 0);
+		gameopt_inactive(CFG.dml != CFG_MIOS, wgame.fix_002, 0);
+		gameopt_inactive(cond, wgame.ocarina, 0);
+		gameopt_inactive(cond, wgame.wide_screen, 0);		
+		gameopt_inactive(cond, wgame.nodisc, 0);
+		gameopt_inactive(cond, wgame.hooktype, 1);
+		gameopt_inactive(cond, wgame.ntsc_j_patch, 0);
+	}
+	else
+	{
+		// clear
+		wgui_update(wgame.clean);
+		cond = (wgame.clean->value == CFG_CLEAN_ALL);
+		gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
+		gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
+		gameopt_inactive(cond, wgame.video_patch, CFG_VIDEO_PATCH_OFF);	
+		gameopt_inactive(cond, wgame.vidtv, 0);
+		gameopt_inactive(cond, wgame.country_patch, 0);
+		gameopt_inactive(cond, wgame.fix_002, 0);
+		gameopt_inactive(cond, wgame.ocarina, 0);
+		gameopt_inactive(cond, wgame.wide_screen, 0);
+				
+		// ocarina hook type
+		wgui_update(wgame.ocarina);
+		cond = (cond || (!wgame.ocarina->value && !CFG.wiird));
+		gameopt_inactive(cond, wgame.hooktype, 0);
 	}
 	// update values from val_ptr
 	traverse1(wgame.dialog, wgui_update);
@@ -819,14 +819,14 @@ void action_reset_gamecfg(Widget *ww)
 		// XXX on error open info dialog
 		//if (!ret) printf(gt("Error discarding options!")); 
 	}
-	if (memcmp("G",wgame.header->id,1)!= 0)
+	if (wgame.header->magic < GC_GAME_ON_DM_DRIVE || wgame.header->magic > GC_GAME_DM_MAGIC_MAX)
+	{
+		if (wgame.alt_dol->update == NULL)
 		{
-	if (wgame.alt_dol->update == NULL)
-			{
-		// if update == NULL, alt_dol and dol_info_list was initialized
-		wgui_set_value(wgame.alt_dol, get_alt_dol_list_index(&wgame.dol_info_list, wgame.gcfg));
+			// if update == NULL, alt_dol and dol_info_list was initialized
+			wgui_set_value(wgame.alt_dol, get_alt_dol_list_index(&wgame.dol_info_list, wgame.gcfg));
+		}
 	}
-}
 	traverse1(ww->parent, wgui_update);
 	update_gameopt_state();
 }
@@ -924,12 +924,12 @@ void InitGameOptionsPage(Widget *pp, int bh)
 		wgame.gcfg = NULL;
 		if (!wgame.gcfg2) {
 			wgui_add_text(op, pos_auto, gt("ERROR game opt"));
-		} else if (header->magic == DML_MAGIC || header->magic == DML_MAGIC_HDD) {
+		} else if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) {
 			wgame.gcfg = &wgame.gcfg2->curr;
 
-			int num_ios = map_get_num(map_ios);
-			char *names_ios[num_ios];
-			num_ios = map_to_list(map_ios, num_ios, names_ios);
+			//int num_ios = map_get_num(map_ios);
+			//char *names_ios[num_ios];
+			//num_ios = map_to_list(map_ios, num_ios, names_ios);
 
 			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
 			BIND_OPT(language);
@@ -944,19 +944,16 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			ww = wgui_add_game_opt(op, gt("NMM:"), 2, NULL);
 			BIND_OPT(country_patch);
 			     
-     	ww = wgui_add_game_opt(op, gt("Wide Screen:"), 2, NULL);
+     		ww = wgui_add_game_opt(op, gt("Wide Screen:"), 2, NULL);
 			BIND_OPT(wide_screen);
 
 			ww = wgui_add_game_opt(op, gt("Ocarina (cheats):"), 2, NULL);
 			BIND_OPT(ocarina);
 					
-       if (!(CFG.dml==CFG_DML_DEVO))
-      	{     
 			ww = wgui_add_game_opt(op, gt("Devolution:"), 2, NULL);
 			BIND_OPT(fix_002);
-			}
 			
-					/////////////////
+			/////////////////
 					
 			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
 			op->render = NULL;
@@ -964,37 +961,17 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			ww = wgui_add_game_opt(op, gt("PAD HOOK"), 2, NULL);
 			BIND_OPT(hooktype);
 			
-      ww = wgui_add_game_opt(op, gt("NO DISC+(DM2.2):"), 2, NULL);
+     		ww = wgui_add_game_opt(op, gt("NoDisc:"), 2, NULL);
 			BIND_OPT(nodisc);		
 			      		
 			ww = wgui_add_game_opt(op, gt("LED:"), 2, NULL);
 			BIND_OPT(vidtv);
-					
-						
-			//ww = wgui_add_game_opt(op, gt("Write Playlog:"), 4, playlog_name);
-			//BIND_OPT(write_playlog);
 			
 			ww = wgui_add_game_opt(op, gt("Clear Patches:"), 3, names_vpatch);
 			BIND_OPT(clean);
 			
-      	/*
-			ww = wgui_add_game_opt(op, gt("Alt dol:"), 0, NULL);
-			BIND_OPT(alt_dol);
-			ww->val_ptr = NULL;
-			ww->update = init_alt_dol_if_parent_enabled;
-		  		
-			ww = wgui_add_game_opt(op, "IOS:", num_ios, names_ios);
-			BIND_OPT(ios_idx);
-       */
-		
-			//ww = wgui_add_game_opt(op, gt("NO DISC+:"), 2, NULL);
-			//BIND_OPT(nodisc);	
-			
-			//ww = wgui_add_game_opt(op, gt("Hook Type:"), NUM_HOOK, hook_name);
-			//BIND_OPT(hooktype);
-       
-			//ww = wgui_add_game_opt(op, gt("Video Patch:"), CFG_VIDEO_PATCH_NUM, names_vpatch);
-			//BIND_OPT(video_patch);
+			ww = wgui_add_game_opt(op, gt("NTSC-J patch:"), 2, NULL);
+			BIND_OPT(ntsc_j_patch);
 			
 			pos_move_to(pp, PAD0, -bh);
 			pos_pad(pp, PAD0);
@@ -1141,7 +1118,7 @@ void banner_parse(struct discHdr *header)
 	memset(&banner.snd, 0, sizeof(banner.snd));
 	memset(&banner.title, 0, sizeof(banner.title));
 	banner.parsed = false;
-	if (wgame.header->magic == DML_MAGIC || wgame.header->magic == DML_MAGIC_HDD) {
+	if (wgame.header->magic >= GC_GAME_ON_DM_DRIVE || wgame.header->magic <= GC_GAME_DM_MAGIC_MAX) {
 		parse_riff(&gc_wav, &banner.snd);
 	} else {
 		WBFS_Banner(header->id, &banner.snd, banner.title, true, true);
@@ -1304,6 +1281,7 @@ void banner_end(bool mute)
 // bind selected game info and options to GameDialog
 void BindGameDialog()
 {
+	dbg_printf("BindGameDialog()\n");
 	static char game_desc[XML_MAX_SYNOPSIS * 2] = "";
 	struct discHdr *header;
 	gameSelected = game_select;
@@ -1315,25 +1293,31 @@ void BindGameDialog()
 	//wgame.dialog->name=header->title;
 //	else
 	wgame.dialog->name = get_title(header);
+	dbg_printf("get_title(header)\n");
 	text_scale_fit_dialog(wgame.dialog);
-	
-	
+	dbg_printf("text_scale_fit_dialog(wgame.dialog)\n");
 	// info
 	int rows, cols;
 	wgui_textbox_coords(wgame.info, NULL, NULL, &rows, &cols);
+	dbg_printf("wgui_textbox_coords()\n");
 	Menu_GameInfoStr(header, game_desc);
+	dbg_printf("Menu_GameInfoStr(header, game_desc)\n");
 	int len = strlen(game_desc);
 	FmtGameInfoLong(header->id, cols, game_desc + len, sizeof(game_desc) - len);
+	dbg_printf("FmtGameInfoLong()\n");
 	wgui_textbox_wordwrap(wgame.info, game_desc, sizeof(game_desc));
+	dbg_printf("wgui_textbox_wordwrap()\n");
 	// favorite, hide
 	wgui_set_value(wgame.favorite, is_favorite(header->id) ? 1 : 0);
 	wgui_set_value(wgame.hide, is_hide_game(header->id) ? 1 : 0);
+	dbg_printf("favorite, hide\n");
 	// options
 	InitGameOptionsPage(wgame.options, H_NORMAL);
+	dbg_printf("InitGameOptionsPage()\n");
 	// banner
 	banner_thread_play(header);
-	
-	}
+	dbg_printf("banner_thread_play(header)\n");
+}
 
 void ReleaseGameDialog()
 {
@@ -1365,6 +1349,7 @@ void action_prev_game(Widget *ww)
 
 void OpenGameDialog()
 {
+	dbg_printf("OpenGameDialog()\n");
 	static int last_game_page = 0;
 	Widget *dd;
 	Widget *ww;
@@ -1386,7 +1371,7 @@ void OpenGameDialog()
 	Pos pb = pos_auto;
 	pb.x = POS_EDGE;
 	pb.h = bh + PAD0;
-  
+
 	Widget *w_start = wgui_add_button(dd, pb, gt("Start"));
 	w_start->handle = handle_game_start;
 	wgame.start = w_start;
@@ -1398,7 +1383,6 @@ void OpenGameDialog()
 			w_start->ay + w_start->h / 2);
 	
 	// page radio
-	
 	pos_move_to(dd, pos_get(w_start).x, POS_AUTO);
 	Widget *w_info_radio = wgui_auto_radio_a(dd, 1, 4,
 			gt("Cover"), gt("Info"), gt("Manage"), gt("Options"));
@@ -1485,7 +1469,7 @@ void OpenGameDialog()
 	//wgui_set_value(w_info_radio, last_game_page);
 	
 	BindGameDialog();
-  
+
 	while (1) {
 		wgui_input_get();
 		
@@ -1493,7 +1477,8 @@ void OpenGameDialog()
 		wgui_input_steal();
 		traverse1(&wgui_desk, wgui_update);
 		wgui_input_restore(winput.w_ir, winput.p_buttons);
-    ww = wgui_handle(dd);
+
+		ww = wgui_handle(dd);
 		wgui_input_restore(winput.w_ir, winput.p_buttons);
 
 		if (winput.w_buttons & WPAD_BUTTON_HOME) {
@@ -1911,6 +1896,7 @@ void action_AllCovers(Widget *ww)
 void action_DownloadWIITDB(Widget *ww)
 {
 	Switch_WGui_To_Console();
+	Download_Titles();
 	Download_XML();
 	Menu_PrintWait();
 	Switch_Console_To_WGui();
@@ -1920,6 +1906,13 @@ void action_DownloadTitles(Widget *ww)
 {
 	Switch_WGui_To_Console();
 	Download_Titles();
+	Switch_Console_To_WGui();
+}
+
+void action_DownloadDevolution(Widget *ww)
+{
+	Switch_WGui_To_Console();
+	Download_DEVO();
 	Switch_Console_To_WGui();
 }
 
@@ -1958,13 +1951,13 @@ void Init_Online_Dialog(Widget *dd, bool back)
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, gt("WiiTDB Game Database"));
+	ww = wgui_add_button(dd, p, gt("Download game information"));
 	ww->action = action_DownloadWIITDB;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, gt("Download titles.txt"));
-	ww->action = action_DownloadTitles;
+	ww = wgui_add_button(dd, p, gt("Download Devolution"));
+	ww->action = action_DownloadDevolution;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
@@ -2240,9 +2233,9 @@ void Init_System_Dialog(Widget *dd)
 	ww->action = action_AdminLock;
 	
 	// DML version
-	char *dml_val[5];
-	translate_array(5, str_dml, dml_val);
-	ww = wgui_add_opt(dd, "DML version:", 5, dml_val);
+	char *dml_val[6];
+	translate_array(6, str_dml, dml_val);
+	ww = wgui_add_opt(dd, "DML version:", 6, dml_val);
 	ww->val_ptr = &CFG.dml;
 	ww->action = action_write_val_ptr_int;
 	
@@ -2498,7 +2491,6 @@ char about_str2[] =
 "Waninkoko Kwiirk Hermes WiiGator Spaceman Spiff WiiPower "
 "davebaol tueidj FIX94 Narolez dimok giantpune Hibern r-win "
 "Miigotu fishears pccfatman fig2k4 wiimm Xflak lustar"
-"   http://www.tvgzone.com/"
 "\n\n"
 "TRANSLATORS: "
 "FIX94 Fox888 TyRaNtM JABE xxdimixx Cambo Hosigumayuugi "

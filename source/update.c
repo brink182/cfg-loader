@@ -402,13 +402,11 @@ void Download_Update(int n, char *app_path, int update_meta)
 		goto err;
 	}
 
-   /*
 	if (u->size && u->size != file.size) {
 		printf_(gt("Wrong Size: %d (%d)"), file.size, u->size);
 		printf("\n");
 		goto err;
 	}
-	*/
 
 	printf_(gt("Complete. Size: %d"), file.size);
 	printf("\n");

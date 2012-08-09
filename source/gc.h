@@ -8,8 +8,10 @@ extern "C"
 
 #include "disc.h"
 
-#define DML_MAGIC 0x444D4C00
-#define DML_MAGIC_HDD DML_MAGIC + 1
+#define GC_GAME_ON_DM_DRIVE 0x444D4C00
+#define GC_GAME_ON_GAME_DRIVE GC_GAME_ON_DM_DRIVE + 1
+#define GC_GAME_ON_SD_DRIVE GC_GAME_ON_GAME_DRIVE + 1
+#define GC_GAME_DM_MAGIC_MAX GC_GAME_ON_SD_DRIVE
 
 typedef struct DML_CFG
 {
@@ -19,7 +21,7 @@ typedef struct DML_CFG
 	u32 Config;
 	char GamePath[255];
 	char CheatPath[255];
-	} DML_CFG;
+} DML_CFG;
 
 enum dmlconfig
 {
@@ -32,10 +34,10 @@ enum dmlconfig
 	DML_CFG_CHEAT_PATH	= (1<<6),
 	DML_CFG_ACTIVITY_LED= (1<<7),
 	DML_CFG_PADHOOK		= (1<<8),
-	DML_CFG_FORCE_WIDE		= (1<<9),
+	DML_CFG_FORCE_WIDE	= (1<<9),
 	DML_CFG_BOOT_DISC	= (1<<10),
 	DML_CFG_BOOT_DISC2	= (1<<11),
-	DML_CFG_NODISC	= (1<<12)
+	DML_CFG_NODISC		= (1<<12),
 };
 
 enum dmlvideomode
@@ -68,9 +70,9 @@ void GC_SetVideoMode(u8 videomode);
 void GC_SetLanguage(u8 lang);
 s32 DML_RemoveGame(struct discHdr header, bool onlySD);
 int DML_GameIsInstalled(char *folder);
-void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 LED, u8 DMLvideoMode , u8 W_SCREEN ,u8 NODISC ,u8 PHOOK ,u8 V_PATCH);
+void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode, u8 LED, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
-void DML_New_SetBootDiscOption(char *NewCheatPath, bool cheats,u8 NMM, u8 LED, u8 DMLvideoMode);
+void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats, u8 NMM, u8 LED, u8 DMLvideoMode);
 u64 getDMLGameSize(struct discHdr *header);
 s32 copy_DML_Game_to_SD(struct discHdr *header);
 s32 delete_Old_Copied_DML_Game();

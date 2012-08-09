@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "sys.h"
 #include "subsystem.h"
@@ -40,6 +41,8 @@ typedef struct _iosinfo_t {
 
 bool get_iosinfo(int ios, signed_blob *TMD, iosinfo_t *iosinfo);
 char* get_ios_info_from_tmd();
+
+extern char dm_boot_drive[16];
 
 /* Variables */
 static const char certs_fs[] ATTRIBUTE_ALIGN(32) = "/sys/cert.sys";
@@ -1813,3 +1816,102 @@ bool shadow_mload()
 	return false;
 }
 
+u16 get_miosinfo()
+{
+	dbg_printf("\nCreating DMLr52 timestamp\n");
+	// Timestamp of DML r52
+	struct tm r52_tm;
+	r52_tm.tm_sec = 6;
+	r52_tm.tm_min = 36;
+	r52_tm.tm_hour = 19;
+	r52_tm.tm_year = 112; // 2012
+	r52_tm.tm_mday = 7;
+	r52_tm.tm_mon = 2; // March
+	time_t dml_r52_time = mktime(&r52_tm);
+	
+	dbg_printf("Creating DML 1.2 timestamp\n");
+	// Timestamp of DML 1.2
+	struct tm dml_1_2_tm;
+	dml_1_2_tm.tm_sec = 8;
+	dml_1_2_tm.tm_min = 44;
+	dml_1_2_tm.tm_hour = 19;
+	dml_1_2_tm.tm_year = 112; // 2012
+	dml_1_2_tm.tm_mday = 24;
+	dml_1_2_tm.tm_mon = 3; // Apr
+	time_t dml_1_2_time = mktime(&dml_1_2_tm);
+	
+	u32 size = 0;
+	u32 i = 0;
+	s32 ret = 0;
+	u8 *appfile = NULL;
+
+	//ISFS_Initialize();
+	
+	dbg_printf("Reading 0000000c.app from MIOS\n");
+	ret = read_file_from_nand("/title/00000001/00000101/content/0000000c.app", &appfile, &size);
+	if(ret >= 0 && appfile)
+	{
+		dbg_printf("Scanning 0000000c.app from MIOS\n");
+		for(i = 0; i < size; ++i) 
+		{
+			if((*(vu32*)(appfile+i)) == 0x44494F53 && (*(vu32*)(appfile+i+5)) == 0x4D494F53) //DIOS MIOS
+			{
+				if(*(vu32*)(appfile+i+10) == 0x4C697465) //Lite
+				{
+					while (*(vu32*)(appfile+i) != 0x4275696c && i < size) i++;
+					// TODO welche Version bei (char*)(appfile+i+20) hinterlegt ist
+					// Dementsprechend ret setzen
+					// char* built = (char*)(appfile+i);
+					struct tm time;
+					//strptime("Jun 30 2012 23:59:30", "%b %d %Y %H:%M:%S", &time);
+					dbg_printf("Getting timestamp from 0000000c.app\n");
+					strptime((char*)(appfile+i+20+7), "%b %d %Y %H:%M:%S", &time);
+					dbg_printf("\ntime.tm_sec = %d", time.tm_sec);
+					dbg_printf("\ntime.tm_min = %d", time.tm_min);
+					dbg_printf("\ntime.tm_hour = %d", time.tm_hour);
+					dbg_printf("\ntime.tm_year = %d", time.tm_year);
+					dbg_printf("\ntime.tm_mday = %d", time.tm_mday);
+					dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
+					// Built: Jun 23 2013 13:00:10
+					time_t unixTime = mktime(&time);
+					sprintf(dm_boot_drive, "sd:");
+					free(appfile);
+					if(difftime(unixTime, dml_1_2_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+");
+						return CFG_DML_1_2;
+					} else if (difftime(unixTime, dml_r52_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS Lite r52+");
+						return CFG_DML_R52;
+					} else {
+						dbg_printf("\nMIOS is DIOS MIOS Lite r51-");
+						return CFG_DML_R51;
+					}
+					return CFG_MIOS;
+				}
+				// TODO welche Version bei (char*)(appfile+i+20) hinterlegt ist
+				// Dementsprechend ret setzen
+				/*char* built = (char*)(appfile+i+20);
+				int len = strlen(built)-1;
+				char info[len];
+				memcpy(info, (appfile+i+20), len);
+				dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", info);*/
+				struct tm time;
+				dbg_printf("\n%s\n", (char*)(appfile+i+20+7));
+				dbg_printf("Getting timestamp from 0000000c.app\n");
+				strptime((char*)(appfile+i+20+7), "%b %d %Y %H:%M:%S", &time);
+				dbg_printf("\ntime.tm_sec = %d", time.tm_sec);
+				dbg_printf("\ntime.tm_min = %d", time.tm_min);
+				dbg_printf("\ntime.tm_hour = %d", time.tm_hour);
+				dbg_printf("\ntime.tm_year = %d", time.tm_year);
+				dbg_printf("\ntime.tm_mday = %d", time.tm_mday);
+				dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
+				time_t unixTime = mktime(&time);
+				sprintf(dm_boot_drive, "usb:");
+				free(appfile);
+				return CFG_DM_2_0;
+			}
+		}
+		free(appfile);
+	}
+	return CFG_MIOS;
+}

@@ -150,6 +150,10 @@ int main(int argc, char **argv)
 
 	dbg_printf("Mount SD\n");
 	MountSDHC();
+	
+	dbg_printf("Mount USB\n");
+	CFG_MountUSB();
+	mount_find(USB_DRIVE);
 
 	//save_dip();
 

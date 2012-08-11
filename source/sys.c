@@ -16,6 +16,7 @@
 #include "usbstorage.h"
 #include "wpad.h"
 #include "apploader.h"
+#include "mem.h"
 
 typedef struct {
 	u32 block_size;
@@ -1840,6 +1841,28 @@ u16 get_miosinfo()
 	dml_1_2_tm.tm_mon = 3; // Apr
 	time_t dml_1_2_time = mktime(&dml_1_2_tm);
 	
+	dbg_printf("Creating DM 2.1 timestamp\n");
+	// Timestamp of DM 2.1
+	struct tm dm_2_1_tm;
+	dm_2_1_tm.tm_sec = 0;
+	dm_2_1_tm.tm_min = 0;
+	dm_2_1_tm.tm_hour = 0;
+	dm_2_1_tm.tm_year = 112; // 2012
+	dm_2_1_tm.tm_mday = 16;
+	dm_2_1_tm.tm_mon = 6; // Jul
+	time_t dm_2_1_time = mktime(&dm_2_1_tm);
+	
+	dbg_printf("Creating DML 2.2 timestamp\n");
+	// Timestamp of DM 2.2
+	struct tm dml_2_2_tm;
+	dml_2_2_tm.tm_sec = 0;
+	dml_2_2_tm.tm_min = 0;
+	dml_2_2_tm.tm_hour = 0;
+	dml_2_2_tm.tm_year = 112; // 2012
+	dml_2_2_tm.tm_mday = 5;
+	dml_2_2_tm.tm_mon = 7; // Aug
+	time_t dml_2_2_time = mktime(&dml_2_2_tm);
+	
 	u32 size = 0;
 	u32 i = 0;
 	s32 ret = 0;
@@ -1875,28 +1898,26 @@ u16 get_miosinfo()
 					// Built: Jun 23 2013 13:00:10
 					time_t unixTime = mktime(&time);
 					sprintf(dm_boot_drive, "sd:");
-					free(appfile);
-					if(difftime(unixTime, dml_1_2_time) >= 0) {
-						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+");
+					SAFE_FREE(appfile);
+					if(difftime(unixTime, dml_2_2_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");
+						return CFG_DM_2_1;
+					} else if(difftime(unixTime, dml_1_2_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+\n");
 						return CFG_DML_1_2;
 					} else if (difftime(unixTime, dml_r52_time) >= 0) {
-						dbg_printf("\nMIOS is DIOS MIOS Lite r52+");
+						dbg_printf("\nMIOS is DIOS MIOS Lite r52+\n");
 						return CFG_DML_R52;
 					} else {
-						dbg_printf("\nMIOS is DIOS MIOS Lite r51-");
+						dbg_printf("\nMIOS is DIOS MIOS Lite r51-\n");
 						return CFG_DML_R51;
 					}
-					return CFG_MIOS;
+					return CFG_DML_R52;
 				}
-				// TODO welche Version bei (char*)(appfile+i+20) hinterlegt ist
-				// Dementsprechend ret setzen
-				/*char* built = (char*)(appfile+i+20);
-				int len = strlen(built)-1;
-				char info[len];
-				memcpy(info, (appfile+i+20), len);
-				dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", info);*/
+				
+				sprintf(dm_boot_drive, "usb:");
+				dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", (char*)(appfile+i+20+7));
 				struct tm time;
-				dbg_printf("\n%s\n", (char*)(appfile+i+20+7));
 				dbg_printf("Getting timestamp from 0000000c.app\n");
 				strptime((char*)(appfile+i+20+7), "%b %d %Y %H:%M:%S", &time);
 				dbg_printf("\ntime.tm_sec = %d", time.tm_sec);
@@ -1906,12 +1927,19 @@ u16 get_miosinfo()
 				dbg_printf("\ntime.tm_mday = %d", time.tm_mday);
 				dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
 				time_t unixTime = mktime(&time);
-				sprintf(dm_boot_drive, "usb:");
-				free(appfile);
+				SAFE_FREE(appfile);
+				if (difftime(unixTime, dm_2_1_time) >= 0) {
+					dbg_printf("\nMIOS is DIOS MIOS 2.1+\n");
+					return CFG_DM_2_1;
+				} else {
+					dbg_printf("\nMIOS is DIOS MIOS 2.0+\n");
+					return CFG_DM_2_0;
+				}
 				return CFG_DM_2_0;
 			}
 		}
-		free(appfile);
+		SAFE_FREE(appfile);
 	}
+	sprintf(dm_boot_drive, "usb:");
 	return CFG_MIOS;
 }

@@ -42,7 +42,7 @@ extern int CURR_IOS_IDX;
 #define CFG_DML_R52      2
 #define CFG_DML_1_2      3
 #define CFG_DM_2_0	 	 4
-#define CFG_DM_2_2       5
+#define CFG_DM_2_1       5
 
 #include "version.h"
 

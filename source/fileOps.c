@@ -40,20 +40,53 @@ static u64 folderSize = 0;
 
 void __Copy_Spinner(s32 x, s32 max)
 {
+	static time_t start;
+	static u32 expected;
+
+	f32 percent, size;
+	u32 d, h, m, s;
+
+	/* First time */
+	if (!x) {
+		start    = time(0);
+		expected = 300;
+	}
+
+	/* Elapsed time */
+	d = time(0) - start;
+
+	if (x != max) {
+		/* Expected time */
+		if (d && x)
+			expected = (expected * 3 + d * max / x) / 4;
+
+		/* Remaining time */
+		d = (expected > d) ? (expected - d) : 1;
+	}
+
+	/* Calculate time values */
+	h =  d / 3600;
+	m = (d / 60) % 60;
+	s =  d % 60;
+
+	/* Calculate percentage/size */
+	percent = (x * 100.0) / max;
+	size = (max / GB_SIZE);
 
 	Con_ClearLine();
-	
-		/* Show progress */
+
+	/* Show progress */
 	if (x != max) {
-		printf(gt(" Copying files from USB to SD card...(%c)"),"/-\\|"[(x / 10) % 4]);
-					
-		//printf("\r");
-		//fflush(stdout);
+		printf_(gt("%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"),
+				percent, size, "/-\\|"[(x / 10) % 4], h, m, s);
+		printf("\r");
+		fflush(stdout);
 	} else {
+		printf_(gt("%.2fGB copied in %d:%02d:%02d"), size, h, m, s);
 		printf("  \n");
 	}
 
-	//__console_flush(1);
+	__console_flush(1);
 }
 
 // return false if the file doesn't exist

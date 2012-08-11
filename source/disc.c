@@ -347,7 +347,7 @@ void __Dump_Spinner(s32 x, s32 max)
 	static time_t start;
 	static u32 expected;
 
-	f32 percent,size;
+	f32 percent, size;
 	u32 d, h, m, s;
 
 	/* First time */
@@ -365,7 +365,7 @@ void __Dump_Spinner(s32 x, s32 max)
 			expected = (expected * 3 + d * max / x) / 4;
 
 		/* Remaining time */
-		d = (expected > d) ? (expected - d) : 0;
+		d = (expected > d) ? (expected - d) : 1;
 	}
 
 	/* Calculate time values */
@@ -374,7 +374,7 @@ void __Dump_Spinner(s32 x, s32 max)
 	s =  d % 60;
 
 	/* Calculate percentage/size */
-	percent = (x * 100.01) / max;
+	percent = (x * 100.0) / max;
 	size = (GC_GAME_SIZE / GB_SIZE);
 
 	Con_ClearLine();
@@ -388,7 +388,7 @@ void __Dump_Spinner(s32 x, s32 max)
 	} else {
 		printf_(gt("%.2fGB copied in %d:%02d:%02d"), size, h, m, s);
 		printf("  \n");
-			}
+	}
 
 	__console_flush(1);
 }

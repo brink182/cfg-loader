@@ -211,7 +211,7 @@ void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool
 	memset(DMLCfg, 0, sizeof(DML_CFG));
 
 	DMLCfg->Magicbytes = 0xD1050CF6;
-	if (CFG.dml == CFG_DM_2_2)
+	if (CFG.dml >= CFG_DM_2_1)
 		DMLCfg->Version = 0x00000002;
 	else
 		DMLCfg->Version = 0x00000001;	
@@ -262,7 +262,7 @@ void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool
 		DMLCfg->Config |= DML_CFG_NMM;
 	if(NMM > 1)
 		DMLCfg->Config |= DML_CFG_NMM_DEBUG;
-	if(nodisc > 0 && CFG.dml >= CFG_DM_2_2)
+	if(nodisc > 0 && CFG.dml >= CFG_DM_2_1)
 		DMLCfg->Config |= DML_CFG_NODISC;
 	else if (nodisc > 0)
 		DMLCfg->Config |= DML_CFG_FORCE_WIDE;
@@ -502,7 +502,7 @@ s32 delete_Old_Copied_DML_Game() {
 	FILE *infoFile = NULL;
 	struct discHdr header;
 	char infoFilePath[255];
-	sprintf(infoFilePath, "%s/game/lastCopied.bin", dm_boot_drive);
+	sprintf(infoFilePath, "%s/games/lastCopied.bin", dm_boot_drive);
 	infoFile = fopen(infoFilePath, "rb");
 	if (infoFile) {
 		fread(&header, 1, sizeof(struct discHdr), infoFile);
@@ -528,7 +528,7 @@ s32 copy_DML_Game_to_SD(struct discHdr *header) {
 	
 	FILE *infoFile = NULL;
 	char infoFilePath[255];
-	sprintf(infoFilePath, "%s/game/lastCopied.bin", dm_boot_drive);
+	sprintf(infoFilePath, "%s/games/lastCopied.bin", dm_boot_drive);
 	infoFile = fopen(infoFilePath, "wb");
 	fwrite((u8*)header, 1, sizeof(struct discHdr), infoFile);
 	fclose(infoFile);
@@ -548,9 +548,9 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 	u8 *lowmem = (u8*)0x80000000;
 	FILE *iso_file = fopen(path, "rb");
 	if(iso_file)
-		{
+	{
 		printf("path=%s, iso found !!\n",path);
-		}
+	}
 	fread(lowmem, 1, 32, iso_file);
 	fclose(iso_file);
 
@@ -590,7 +590,7 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 	// find or create a 16MB memcard file for emulation
 	// this file can be located anywhere since it's passed by cluster, not name
 	// it must be at least 16MB though
-	snprintf(full_path, sizeof(full_path), "%s/memcard.bin",USBLOADER_PATH);
+	snprintf(full_path, sizeof(full_path), "%s/memcard.bin", USBLOADER_PATH);
 
 	// check if file doesn't exist or is less than 16MB
 	if(stat(full_path, &st) == -1 || st.st_size < 16<<20)

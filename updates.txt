@@ -13,6 +13,16 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r42
+size = 1828448
+date = 2012-08-11
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr42.dol
+-added DIOS MIOS detection, removed setting
+-fixed DIOS MIOS videomode selection
+-added NTSC-J patch to console menu
+-fixed devolution launch
+-fixed banner sounds on wii games
+
 release = 70r41
 size = 1822176
 date = 2012-08-09

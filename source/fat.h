@@ -77,6 +77,6 @@ void RemountNTFS();
 void MountPrint_str(char *str, int size);
 void MountPrint();
 
-
+s32 FAT_DiskSpace(f32 *used, f32 *free);
 #endif
 

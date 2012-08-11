@@ -727,7 +727,7 @@ void update_gameopt_state()
 		gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
 		gameopt_inactive(cond, wgame.vidtv, 0);
 		gameopt_inactive(cond, wgame.country_patch, 0);
-		gameopt_inactive(CFG.dml != CFG_MIOS, wgame.fix_002, 0);
+		gameopt_inactive(cond, wgame.fix_002, 0);
 		gameopt_inactive(cond, wgame.ocarina, 0);
 		gameopt_inactive(cond, wgame.wide_screen, 0);		
 		gameopt_inactive(cond, wgame.nodisc, 0);
@@ -1118,7 +1118,7 @@ void banner_parse(struct discHdr *header)
 	memset(&banner.snd, 0, sizeof(banner.snd));
 	memset(&banner.title, 0, sizeof(banner.title));
 	banner.parsed = false;
-	if (wgame.header->magic >= GC_GAME_ON_DM_DRIVE || wgame.header->magic <= GC_GAME_DM_MAGIC_MAX) {
+	if (wgame.header->magic >= GC_GAME_ON_DM_DRIVE && wgame.header->magic <= GC_GAME_DM_MAGIC_MAX) {
 		parse_riff(&gc_wav, &banner.snd);
 	} else {
 		WBFS_Banner(header->id, &banner.snd, banner.title, true, true);

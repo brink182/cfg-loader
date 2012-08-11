@@ -11,6 +11,7 @@
 #include <string.h>
 #include <locale.h>
 #include <errno.h>
+#include <sys/statvfs.h>
 
 #include <fat.h>
 #include "ntfs.h"
@@ -27,6 +28,9 @@
 #include "sys.h"
 #include "partition.h"
 #include "fat.h"
+#include "video.h"
+
+#define GB_SIZE         1073741824.0
 
 extern void ntfsInit();
 void fat_Unmount(const char* name);
@@ -721,3 +725,27 @@ void MountPrint()
 	printf_("%s", str);
 }
 
+s32 FAT_DiskSpace(f32 *used, f32 *free)
+{
+	f32 size;
+	int ret;
+	struct statvfs vfs;
+
+	*used = 0;
+	*free = 0;
+	
+	extern void printf_(const char *fmt, ...);
+	printf("\r");
+	printf_(gt("calculating space, please wait..."));
+	printf("\r");
+	ret = statvfs("usb:", &vfs);
+	Con_ClearLine();
+	if (ret) return 0;
+
+	/* FS size in GB */
+	size = (f32)vfs.f_frsize * (f32)vfs.f_blocks / GB_SIZE;
+	*free = (f32)vfs.f_frsize * (f32)vfs.f_bfree / GB_SIZE;
+	*used = size - *free;
+
+	return 0;
+}

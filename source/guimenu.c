@@ -2233,9 +2233,9 @@ void Init_System_Dialog(Widget *dd)
 	ww->action = action_AdminLock;
 	
 	// DML version
-	char *dml_val[6];
-	translate_array(6, str_dml, dml_val);
-	ww = wgui_add_opt(dd, "DML version:", 6, dml_val);
+	char *dml_val[7];
+	translate_array(7, str_dml, dml_val);
+	ww = wgui_add_opt(dd, "DML version:", 7, dml_val);
 	ww->val_ptr = &CFG.dml;
 	ww->action = action_write_val_ptr_int;
 	

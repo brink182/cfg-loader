@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r44
+size = 1888224
+date = 2012-08-12
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr44.dol
+-updated libntfs to r13
+-readded DIOS MIOS 2.2+ setting
+-some fixes
+
 release = 70r43
 size = 1828896
 date = 2012-08-12

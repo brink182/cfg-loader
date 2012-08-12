@@ -211,7 +211,7 @@ void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool
 	memset(DMLCfg, 0, sizeof(DML_CFG));
 
 	DMLCfg->Magicbytes = 0xD1050CF6;
-	if (CFG.dml >= CFG_DM_2_1)
+	if (CFG.dml >= CFG_DM_2_2)
 		DMLCfg->Version = 0x00000002;
 	else
 		DMLCfg->Version = 0x00000001;	
@@ -287,9 +287,14 @@ void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool
 		DMLCfg->VideoMode |= DML_VID_PROG_PATCH;
 
 
-	memcpy((void *)0xC0001700, DMLCfg, sizeof(DML_CFG));
-	// For new DML v1.2+
-	memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
+	//Write options into memory
+	memcpy((void *)0x80001700, DMLCfg, sizeof(DML_CFG));
+	DCFlushRange((void *)(0x80001700), sizeof(DML_CFG));
+
+	//DML v1.2+
+	memcpy((void *)0x81200000, DMLCfg, sizeof(DML_CFG));
+	DCFlushRange((void *)(0x81200000), sizeof(DML_CFG));
+
 	
 	free(DMLCfg);
 }
@@ -322,7 +327,7 @@ void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats,
 
 	DMLCfg->Magicbytes = 0xD1050CF6;
 	
-	if (CFG.dml >= CFG_DM_2_1)
+	if (CFG.dml >= CFG_DM_2_2)
 		DMLCfg->Version = 0x00000002;
 	else
 		DMLCfg->Version = 0x00000001;	
@@ -363,9 +368,10 @@ void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats,
 
 	if(DMLvideoMode > 3)
 		DMLCfg->VideoMode |= DML_VID_PROG_PATCH;
- 
+
 	//DML v1.2+
-	memcpy((void *)0xC1200000, DMLCfg, sizeof(DML_CFG));
+	memcpy((void *)0x81200000, DMLCfg, sizeof(DML_CFG));
+	DCFlushRange((void *)(0x81200000), sizeof(DML_CFG));
 
 	free(DMLCfg);
 }

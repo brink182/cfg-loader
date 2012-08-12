@@ -1,6 +1,6 @@
-lock.o: c:/progging/cfg/Source/lib/libfat/src/libogc/../source/lock.c \
- c:/progging/cfg/Source/lib/libfat/src/libogc/../source/common.h \
- c:/progging/cfg/Source/lib/libfat/src/libogc/../include/fat.h \
+lock.o: c:/progging/cfgMod/lib/libfat/src/libogc/../source/lock.c \
+ c:/progging/cfgMod/lib/libfat/src/libogc/../source/common.h \
+ c:/progging/cfgMod/lib/libfat/src/libogc/../include/fat.h \
  c:/devkitPro/libogc/include/ogc/disc_io.h \
  c:/devkitPro/libogc/include/gctypes.h \
  c:/devkitPro/libogc/include/gccore.h \
@@ -53,9 +53,9 @@ lock.o: c:/progging/cfg/Source/lib/libfat/src/libogc/../source/lock.c \
  c:/devkitPro/libogc/include/ogc/system.h \
  c:/devkitPro/libogc/include/ogc/wiilaunch.h
 
-c:/progging/cfg/Source/lib/libfat/src/libogc/../source/common.h:
+c:/progging/cfgMod/lib/libfat/src/libogc/../source/common.h:
 
-c:/progging/cfg/Source/lib/libfat/src/libogc/../include/fat.h:
+c:/progging/cfgMod/lib/libfat/src/libogc/../include/fat.h:
 
 c:/devkitPro/libogc/include/ogc/disc_io.h:
 

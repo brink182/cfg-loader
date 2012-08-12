@@ -314,7 +314,6 @@ void ntfs_log_set_handler(ntfs_log_handler *handler)
  *            0  Message wasn't logged
  *          num  Number of output characters
  */
-#ifndef ntfs_log_redirect
 int ntfs_log_redirect(const char *function, const char *file,
 	int line, u32 level, void *data, const char *format, ...)
 {
@@ -333,7 +332,7 @@ int ntfs_log_redirect(const char *function, const char *file,
 	errno = olderr;
 	return ret;
 }
-#endif
+
 
 /**
  * ntfs_log_handler_syslog - syslog logging handler

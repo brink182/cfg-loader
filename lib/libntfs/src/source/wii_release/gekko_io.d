@@ -1,6 +1,6 @@
-gekko_io.o: c:/progging/cfg/Source/lib/libntfs/src/source/gekko_io.c \
- c:/progging/cfg/Source/lib/libntfs/src/source/config.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/../include/ntfs.h \
+gekko_io.o: c:/progging/cfgMod/lib/libntfs/src/source/gekko_io.c \
+ c:/progging/cfgMod/lib/libntfs/src/source/config.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/../include/ntfs.h \
  c:/devkitPro/libogc/include/gctypes.h \
  c:/devkitPro/libogc/include/gccore.h \
  c:/devkitPro/libogc/include/ogc/dsp.h \
@@ -52,33 +52,33 @@ gekko_io.o: c:/progging/cfg/Source/lib/libntfs/src/source/gekko_io.c \
  c:/devkitPro/libogc/include/ogc/mutex.h \
  c:/devkitPro/libogc/include/ogc/system.h \
  c:/devkitPro/libogc/include/ogc/wiilaunch.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/types.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/compat.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/mem_allocate.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/logging.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/device_io.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/gekko_io.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/cache2.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/cache.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/volume.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/param.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/support.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/device.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/inode.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/layout.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/endians.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/ntfstime.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/attrib.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/unistr.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/runlist.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/debug.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/index.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/mft.h \
- c:/progging/cfg/Source/lib/libntfs/src/source/bootsect.h
+ c:/progging/cfgMod/lib/libntfs/src/source/types.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/compat.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/mem_allocate.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/logging.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/device_io.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/gekko_io.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/cache2.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/cache.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/volume.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/param.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/support.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/device.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/inode.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/layout.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/endians.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/ntfstime.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/attrib.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/unistr.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/runlist.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/debug.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/index.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/mft.h \
+ c:/progging/cfgMod/lib/libntfs/src/source/bootsect.h
 
-c:/progging/cfg/Source/lib/libntfs/src/source/config.h:
+c:/progging/cfgMod/lib/libntfs/src/source/config.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/../include/ntfs.h:
+c:/progging/cfgMod/lib/libntfs/src/source/../include/ntfs.h:
 
 c:/devkitPro/libogc/include/gctypes.h:
 
@@ -182,48 +182,48 @@ c:/devkitPro/libogc/include/ogc/system.h:
 
 c:/devkitPro/libogc/include/ogc/wiilaunch.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/types.h:
+c:/progging/cfgMod/lib/libntfs/src/source/types.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/compat.h:
+c:/progging/cfgMod/lib/libntfs/src/source/compat.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/mem_allocate.h:
+c:/progging/cfgMod/lib/libntfs/src/source/mem_allocate.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/logging.h:
+c:/progging/cfgMod/lib/libntfs/src/source/logging.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/device_io.h:
+c:/progging/cfgMod/lib/libntfs/src/source/device_io.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/gekko_io.h:
+c:/progging/cfgMod/lib/libntfs/src/source/gekko_io.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/cache2.h:
+c:/progging/cfgMod/lib/libntfs/src/source/cache2.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/cache.h:
+c:/progging/cfgMod/lib/libntfs/src/source/cache.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/volume.h:
+c:/progging/cfgMod/lib/libntfs/src/source/volume.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/param.h:
+c:/progging/cfgMod/lib/libntfs/src/source/param.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/support.h:
+c:/progging/cfgMod/lib/libntfs/src/source/support.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/device.h:
+c:/progging/cfgMod/lib/libntfs/src/source/device.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/inode.h:
+c:/progging/cfgMod/lib/libntfs/src/source/inode.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/layout.h:
+c:/progging/cfgMod/lib/libntfs/src/source/layout.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/endians.h:
+c:/progging/cfgMod/lib/libntfs/src/source/endians.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/ntfstime.h:
+c:/progging/cfgMod/lib/libntfs/src/source/ntfstime.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/attrib.h:
+c:/progging/cfgMod/lib/libntfs/src/source/attrib.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/unistr.h:
+c:/progging/cfgMod/lib/libntfs/src/source/unistr.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/runlist.h:
+c:/progging/cfgMod/lib/libntfs/src/source/runlist.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/debug.h:
+c:/progging/cfgMod/lib/libntfs/src/source/debug.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/index.h:
+c:/progging/cfgMod/lib/libntfs/src/source/index.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/mft.h:
+c:/progging/cfgMod/lib/libntfs/src/source/mft.h:
 
-c:/progging/cfg/Source/lib/libntfs/src/source/bootsect.h:
+c:/progging/cfgMod/lib/libntfs/src/source/bootsect.h:

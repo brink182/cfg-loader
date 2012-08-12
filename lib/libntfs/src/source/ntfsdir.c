@@ -511,8 +511,7 @@ DIR_ITER *ntfs_diropen_r (struct _reent *r, DIR_ITER *dirState, const char *path
         dir->nextOpenDir = NULL;
     }
     dir->prevOpenDir = NULL;
-    //dir->vd->cwd_ni = dir->ni;
-    // ^ is this an implicit chdir? how does recursive tree walk work then?
+    dir->vd->cwd_ni = dir->ni;
     dir->vd->firstOpenDir = dir;
     dir->vd->openDirCount++;
 
@@ -583,12 +582,7 @@ int ntfs_dirnext_r (struct _reent *r, DIR_ITER *dirState, char *filename, struct
         }
         else
         {
-            // ntfsOpenEntry requires full path, or path relative to cwd
-            // so we set cwd temporarily
-            ntfs_inode *tmp_cwd_ni = dir->vd->cwd_ni;
-            dir->vd->cwd_ni = dir->ni;
             ni = ntfsOpenEntry(dir->vd, dir->current->name);
-            dir->vd->cwd_ni = tmp_cwd_ni; // and restore it back
             if (ni) {
                 ntfsStat(dir->vd, ni, filestat);
                 ntfsCloseEntry(dir->vd, ni);

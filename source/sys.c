@@ -1848,9 +1848,20 @@ u16 get_miosinfo()
 	dm_2_1_tm.tm_min = 0;
 	dm_2_1_tm.tm_hour = 0;
 	dm_2_1_tm.tm_year = 112; // 2012
-	dm_2_1_tm.tm_mday = 16;
+	dm_2_1_tm.tm_mday = 17;
 	dm_2_1_tm.tm_mon = 6; // Jul
 	time_t dm_2_1_time = mktime(&dm_2_1_tm);
+	
+	dbg_printf("Creating DM 2.2 timestamp\n");
+	// Timestamp of DM 2.1
+	struct tm dm_2_2_tm;
+	dm_2_2_tm.tm_sec = 0;
+	dm_2_2_tm.tm_min = 0;
+	dm_2_2_tm.tm_hour = 0;
+	dm_2_2_tm.tm_year = 112; // 2012
+	dm_2_2_tm.tm_mday = 18;
+	dm_2_2_tm.tm_mon = 6; // Jul
+	time_t dm_2_2_time = mktime(&dm_2_2_tm);
 	
 	dbg_printf("Creating DML 2.2 timestamp\n");
 	// Timestamp of DM 2.2
@@ -1859,7 +1870,7 @@ u16 get_miosinfo()
 	dml_2_2_tm.tm_min = 0;
 	dml_2_2_tm.tm_hour = 0;
 	dml_2_2_tm.tm_year = 112; // 2012
-	dml_2_2_tm.tm_mday = 5;
+	dml_2_2_tm.tm_mday = 6;
 	dml_2_2_tm.tm_mon = 7; // Aug
 	time_t dml_2_2_time = mktime(&dml_2_2_tm);
 	
@@ -1902,7 +1913,7 @@ u16 get_miosinfo()
 					SAFE_FREE(appfile);
 					if(difftime(unixTime, dml_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");
-						return CFG_DM_2_1;
+						return CFG_DM_2_2;
 					} else if(difftime(unixTime, dml_1_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+\n");
 						return CFG_DML_1_2;
@@ -1929,8 +1940,11 @@ u16 get_miosinfo()
 				dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
 				time_t unixTime = mktime(&time);
 				SAFE_FREE(appfile);
-				if (difftime(unixTime, dm_2_1_time) >= 0) {
-					dbg_printf("\nMIOS is DIOS MIOS 2.1+\n");
+				if (difftime(unixTime, dm_2_2_time) >= 0) {
+					dbg_printf("\nMIOS is DIOS MIOS 2.2+\n");
+					return CFG_DM_2_2;
+				} else if (difftime(unixTime, dm_2_1_time) >= 0) {
+					dbg_printf("\nMIOS is DIOS MIOS 2.1\n");
 					return CFG_DM_2_1;
 				} else {
 					dbg_printf("\nMIOS is DIOS MIOS 2.0+\n");

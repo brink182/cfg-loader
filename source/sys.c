@@ -1888,7 +1888,7 @@ u16 get_miosinfo()
 					struct tm time;
 					//strptime("Jun 30 2012 23:59:30", "%b %d %Y %H:%M:%S", &time);
 					dbg_printf("Getting timestamp from 0000000c.app\n");
-					strptime((char*)(appfile+i+20+7), "%b %d %Y %H:%M:%S", &time);
+					strptime((char*)(appfile+i+7), "%b %d %Y %H:%M:%S", &time);
 					dbg_printf("\ntime.tm_sec = %d", time.tm_sec);
 					dbg_printf("\ntime.tm_min = %d", time.tm_min);
 					dbg_printf("\ntime.tm_hour = %d", time.tm_hour);
@@ -1898,6 +1898,7 @@ u16 get_miosinfo()
 					// Built: Jun 23 2013 13:00:10
 					time_t unixTime = mktime(&time);
 					sprintf(dm_boot_drive, "sd:");
+					dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", (char*)(appfile+i+7));
 					SAFE_FREE(appfile);
 					if(difftime(unixTime, dml_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");

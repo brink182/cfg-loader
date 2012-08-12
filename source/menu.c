@@ -645,7 +645,7 @@ s32 get_DML_game_list_cnt()
 		if (entry)
 		{
 			sprintf(name_buffer, "%s/games/%s", dm_boot_drive, entry->d_name);
-			dbg_printf("\nFound entry %s\n", entry->d_name);
+			dbg_printf("\nFound entry %s", entry->d_name);
 			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
  			{
 				continue;
@@ -701,7 +701,7 @@ s32 get_DML_game_list_cnt()
 			entry = readdir(sdir);
 			if (entry)
 			{
-				dbg_printf("\nFound entry %s\n", entry->d_name);
+				dbg_printf("\nFound entry %s", entry->d_name);
 				sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
 				if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
 				{
@@ -758,7 +758,7 @@ s32 get_DML_game_list_cnt()
 			entry = readdir(sdir);
 			if (entry)
 			{
-				dbg_printf("\nFound entry %s\n", entry->d_name);
+				dbg_printf("\nFound entry %s", entry->d_name);
 				sprintf(name_buffer, "sd:/games/%s", entry->d_name);
 				if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
 				{
@@ -5100,6 +5100,7 @@ L_repaint:
 	}
 
 	get_time(&TIME.playlog1);
+	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) memcpy(banner_title, header->title, sizeof(header->title));
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
@@ -5123,6 +5124,15 @@ L_repaint:
 	if (header->magic == GC_GAME_ON_GAME_DRIVE || header->magic == GC_GAME_ON_SD_DRIVE) {
 		if (CFG.game.fix_002 <= 0 || (CFG.game.fix_002 > 0 && header->magic != GC_GAME_ON_SD_DRIVE && (strncmp("sd:", wbfs_fs_drive, 3) && strncmp("usb:", wbfs_fs_drive, 4)))) {
 			char gamePath[255];
+			char drive[255];
+			
+			sprintf(drive, "%s/", dm_boot_drive);
+			if (!fsop_DirExist(drive)) {
+				printf_x(gt("ERROR: the drive or partition %s/ is not connected!!"), dm_boot_drive);
+				printf("\n\n");
+				goto out;
+			}
+			
 			sprintf(gamePath, "%s/games", dm_boot_drive);
 			if (!fsop_DirExist(gamePath))
 			{
@@ -5184,7 +5194,7 @@ L_repaint:
 		char newCheatPath[255];
 		sprintf(newCheatPath, "%s/games/%s/%.6s.gct", dm_boot_drive, header->folder, header->id);
 		
-		if (CFG.game.fix_002 > 0)
+		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS)
 		{
 			char devoPath[255];	
 			char loaderPath[255];	
@@ -5227,7 +5237,7 @@ L_repaint:
 			} else {
 				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.nodisc, CFG.game.vidtv, CFG.game.video, CFG.game.wide_screen, CFG.game.hooktype, CFG.game.block_ios_reload);
 			}
-		} else if(CFG.dml >= CFG_DML_1_2) {
+		} else if (CFG.dml >= CFG_DML_1_2) {
 			DML_New_SetBootDiscOption(cheatPath, newCheatPath, CFG.game.ocarina, CFG.game.country_patch, CFG.game.vidtv, CFG.game.video);
 		}
 
@@ -5235,12 +5245,18 @@ L_repaint:
 			*HW_PPCSPEED = 0x0002A9E0;
 
 		UnmountAll(NULL);
+		dbg_printf("UnmountAll(NULL)\n");
 		Services_Close();
+		dbg_printf("Services_Close()\n");
 		Subsystem_Close();
+		dbg_printf("Subsystem_Close()\n");
 		Wpad_Disconnect();
+		dbg_printf("Wpad_Disconnect()\n");
 
 		WII_Initialize();
+		dbg_printf("WII_Initialize()");
 		WII_LaunchTitle(0x0000000100000100ULL);
+		dbg_printf("WII_LaunchTitle(0x0000000100000100ULL)");
 		return;
 	}
 
@@ -5441,6 +5457,8 @@ void Direct_Launch()
 void Menu_Loop(void)
 {
 	fill_base_array();
+	// Get MIOS info
+	CFG.dml = get_miosinfo();
 
 	// enable the console if starting with console mode
 	if (!CFG.gui_start) {

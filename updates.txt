@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r43
+size = 1828896
+date = 2012-08-12
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr43.dol
+-fixed DIOS MIOS Lite detection
+-aborts copying when destination
+drive/partition is not connected
+
 release = 70r42
 size = 1828448
 date = 2012-08-11

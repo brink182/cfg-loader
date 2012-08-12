@@ -81,9 +81,6 @@ void ntfsInit (void)
         #else
         ntfs_log_set_handler(ntfs_log_handler_null);
         #endif
-        // Set our current local
-        ntfs_set_locale();
-
     }
 
     return;

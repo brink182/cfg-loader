@@ -162,14 +162,15 @@ char *str_wiird[3] =
 	gts("Paused Start")
 };
 
-char *str_dml[6] =
+char *str_dml[7] =
 {
 	gts("DEVO"),
     gts("r51-"),
 	gts("r52+"),
 	gts("1.2+"),
 	gts("2.0+"),
-	gts("2.1+")
+	gts("2.1+"),
+	gts("2.2+")
 };
 
 int Menu_Global_Options();
@@ -202,11 +203,11 @@ char *skip_sort_ignore(char *s)
 	return s;
 }
 
-struct discHdr *getHeaderById(struct discHdr *list, int cnt, u8 *id) {
+struct discHdr *getHeaderById(struct discHdr *list, int cnt, u8 *id, u8 disc) {
 	u32 i = 0;
 	for (i=0; i < cnt; i++) {
 		struct discHdr *header = list+i;
-		if (!memcmp(header->id, id, 7)) return header;
+		if (!memcmp(header->id, id, 6) && header->disc == disc) return header;
 	}
 	return NULL;
 }
@@ -632,15 +633,19 @@ s32 get_DML_game_list_cnt()
     DIR *sdir;
     DIR *s2dir;
     struct dirent *entry;
+	bool debug_flag = true;
 
 	// 1st count the number of games on SD
 	char gamePath[255];
 	sprintf(gamePath, "%s/games", dm_boot_drive);
 	dbg_printf("\nSearching GC games in %s ...\n", gamePath);
 	sdir = opendir(gamePath);
-	dbg_printf("\nOpened folder %s\n", gamePath);
 	if (sdir) do
 	{
+		if (debug_flag) {
+			dbg_printf("\nOpened folder %s\n", gamePath);
+			debug_flag = false;
+		}
 		entry = readdir(sdir);
 		if (entry)
 		{
@@ -688,16 +693,20 @@ s32 get_DML_game_list_cnt()
 	} while (entry);
 	if (sdir) closedir(sdir);
 	sdir = NULL;
+	debug_flag = true;
 	
 	if (strncmp(wbfs_fs_drive, dm_boot_drive, strlen(dm_boot_drive))) {
-		// 2st count the number of games on hdd
+		// 2st count the number of games on hdd+
 		char filepath[0xFF];
 		sprintf(filepath, "%s/games", wbfs_fs_drive);
-		dbg_printf(filepath);
+		dbg_printf("\nSearching GC games in %s ...\n", filepath);
 		sdir = opendir(filepath);
-		dbg_printf("\nOpened folder %s\n", filepath);
 		if (sdir) do
 		{
+			if (debug_flag) {
+				dbg_printf("\nOpened folder %s\n", filepath);
+				debug_flag = false;
+			}
 			entry = readdir(sdir);
 			if (entry)
 			{
@@ -744,17 +753,21 @@ s32 get_DML_game_list_cnt()
 		} while (entry);
 		if (sdir) closedir(sdir);
 		sdir = NULL;
+		debug_flag = true;
 	}
 	
 	if (strncmp(dm_boot_drive, "sd:", 3) && strncmp(wbfs_fs_drive, "sd:", 3)) {
 		// 3th count the number of games on hdd
 		char filepath[0xFF];
 		sprintf(filepath, "sd:/games");
-		dbg_printf(filepath);
+		dbg_printf("\nSearching GC games in %s ...\n", filepath);
 		sdir = opendir(filepath);
-		dbg_printf("\nOpened folder %s\n", filepath);
 		if (sdir) do
 		{
+			if (debug_flag) {
+				dbg_printf("\nOpened folder %s\n", filepath);
+				debug_flag = false;
+			}
 			entry = readdir(sdir);
 			if (entry)
 			{
@@ -924,10 +937,13 @@ s32 get_DML_game_list(void *outbuf)
 						if (ftell(fp) > 1000000)
 						{
 							u8 id[6];
+							u8 disc;
 							fseek(fp, 0, SEEK_SET);
 							fread(id, 1, 6, fp);
+							fseek(fp, 6, SEEK_SET);
+							fread(&disc, 1, 1, fp);
 							
-							if (!getHeaderById(outbuf, DML_GameCount, id)) {
+							if (!getHeaderById(outbuf, DML_GameCount, id, disc)) {
 								u32 magic = 0;
 								fseek(fp, 0x1C, SEEK_SET);
 								fread(&magic, 1, sizeof(u32), fp);
@@ -940,8 +956,7 @@ s32 get_DML_game_list(void *outbuf)
 									dmlGame->magic = GC_GAME_ON_GAME_DRIVE;
 									fseek(fp, 0, SEEK_SET);
 									fread(dmlGame->id, 1, 6, fp);
-									fseek(fp, 6, SEEK_SET);
-									fread(&dmlGame->disc, 1, 1, fp);
+									dmlGame->disc = disc;
 									fseek(fp, 0x20, SEEK_SET);
 									fread(dmlGame->title, 1, 0x40, fp);
 									DML_GameCount++;
@@ -957,9 +972,13 @@ s32 get_DML_game_list(void *outbuf)
 						if (fp)
 						{
 							u8 id[6];
+							u8 disc;
 							fseek(fp, 0, SEEK_SET);
 							fread(id, 1, 6, fp);
-							if (!getHeaderById(outbuf, DML_GameCount, id))
+							fseek(fp, 6, SEEK_SET);
+							fread(&disc, 1, 1, fp);
+							
+							if (!getHeaderById(outbuf, DML_GameCount, id, disc))
 							{
 								u32 magic = 0;
 								fseek(fp, 0x1C, SEEK_SET);
@@ -973,8 +992,7 @@ s32 get_DML_game_list(void *outbuf)
 									dmlGame->magic = GC_GAME_ON_GAME_DRIVE;
 									fseek(fp, 0, SEEK_SET);
 									fread(dmlGame->id, 1, 6, fp);
-									fseek(fp, 6, SEEK_SET);
-									fread(&dmlGame->disc, 1, 1, fp);
+									dmlGame->disc = disc;
 									fseek(fp, 0x20, SEEK_SET);
 									fread(dmlGame->title, 1, 0x40, fp);
 									DML_GameCount++;
@@ -1018,10 +1036,13 @@ s32 get_DML_game_list(void *outbuf)
 						if (ftell(fp) > 1000000)
 						{
 							u8 id[6];
+							u8 disc;
 							fseek(fp, 0, SEEK_SET);
 							fread(id, 1, 6, fp);
+							fseek(fp, 6, SEEK_SET);
+							fread(&disc, 1, 1, fp);
 							
-							if (!getHeaderById(outbuf, DML_GameCount, id)) {
+							if (!getHeaderById(outbuf, DML_GameCount, id, disc)) {
 								u32 magic = 0;
 								fseek(fp, 0x1C, SEEK_SET);
 								fread(&magic, 1, sizeof(u32), fp);
@@ -1034,8 +1055,7 @@ s32 get_DML_game_list(void *outbuf)
 									dmlGame->magic = GC_GAME_ON_SD_DRIVE;
 									fseek(fp, 0, SEEK_SET);
 									fread(dmlGame->id, 1, 6, fp);
-									fseek(fp, 6, SEEK_SET);
-									fread(&dmlGame->disc, 1, 1, fp);
+									dmlGame->disc = disc;
 									fseek(fp, 0x20, SEEK_SET);
 									fread(dmlGame->title, 1, 0x40, fp);
 									DML_GameCount++;
@@ -1051,9 +1071,13 @@ s32 get_DML_game_list(void *outbuf)
 						if (fp)
 						{
 							u8 id[6];
+							u8 disc;
 							fseek(fp, 0, SEEK_SET);
 							fread(id, 1, 6, fp);
-							if (!getHeaderById(outbuf, DML_GameCount, id))
+							fseek(fp, 6, SEEK_SET);
+							fread(&disc, 1, 1, fp);
+							
+							if (!getHeaderById(outbuf, DML_GameCount, id, disc))
 							{
 								u32 magic = 0;
 								fseek(fp, 0x1C, SEEK_SET);
@@ -1067,8 +1091,7 @@ s32 get_DML_game_list(void *outbuf)
 									dmlGame->magic = GC_GAME_ON_SD_DRIVE;
 									fseek(fp, 0, SEEK_SET);
 									fread(dmlGame->id, 1, 6, fp);
-									fseek(fp, 6, SEEK_SET);
-									fread(&dmlGame->disc, 1, 1, fp);
+									dmlGame->disc = disc;
 									fseek(fp, 0x20, SEEK_SET);
 									fread(dmlGame->title, 1, 0x40, fp);
 									DML_GameCount++;
@@ -2926,7 +2949,7 @@ int Menu_Global_Options()
 				CHANGE(CFG.wiird, 2);
 				break;
 			case 6:
-				CHANGE(CFG.dml, 5);
+				CHANGE(CFG.dml, 6);
 				break;
 			case 7:
 				Download_All_Covers(change > 0);
@@ -4308,7 +4331,7 @@ void Menu_Install(void)
 
 		Gui_DrawCover(header.id);
 		
-		if (getHeaderById(gameList, gameCnt, header.id)) {
+		if (getHeaderById(gameList, gameCnt, header.id, header.disc)) {
 			FgColor(CFG.color_footer);
 			__Menu_PrintInfo2(&header, GC_GAME_SIZE, real_size);
 			DefaultColor();
@@ -5100,7 +5123,7 @@ L_repaint:
 	}
 
 	get_time(&TIME.playlog1);
-	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) memcpy(banner_title, header->title, sizeof(header->title));
+	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) CFG.game.write_playlog = 0;
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");

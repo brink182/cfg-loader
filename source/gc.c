@@ -322,10 +322,10 @@ void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats,
 
 	DMLCfg->Magicbytes = 0xD1050CF6;
 	
-	if (CFG.dml == CFG_DML_1_2)
-	DMLCfg->Version = 0x00000001;
+	if (CFG.dml >= CFG_DM_2_1)
+		DMLCfg->Version = 0x00000002;
 	else
-	DMLCfg->Version = 0x00000002;	
+		DMLCfg->Version = 0x00000001;	
 	
 	DMLCfg->VideoMode |= DML_VID_DML_AUTO;
 	DMLCfg->Config |= DML_CFG_PADHOOK;
@@ -516,6 +516,7 @@ s32 delete_Old_Copied_DML_Game() {
 s32 copy_DML_Game_to_SD(struct discHdr *header) {
 	char source[255];
 	char target[255];
+	
 	if (header->magic == GC_GAME_ON_GAME_DRIVE) {
 		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
 	} else if (header->magic == GC_GAME_ON_SD_DRIVE) {

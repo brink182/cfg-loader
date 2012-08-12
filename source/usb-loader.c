@@ -145,9 +145,6 @@ int main(int argc, char **argv)
 	Wpad_Init();
 	#endif
 
-	// Get MIOS info
-	CFG.dml = get_miosinfo();
-
 	// Initial usb init, no retry at this point
 	USBStorage_Init();
 

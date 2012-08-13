@@ -563,7 +563,7 @@ void bootTitle(u64 titleid)
 		memset((void *)0x817FE000, 0, 0x2000); // Clearing BI2, or should this be read from somewhere?
 		DCFlushRange((void*)0x817FE000, 0x2000);		
 
-			*(u32 *)0x80003180 = 0;		// No comment required here
+		*(u32 *)0x80003180 = 0;		// No comment required here
 		
 		
 		*(u32 *)0x80003184 = 0x81000000;	// Game id address, while there's all 0s at 0x81000000 when using the apploader...
@@ -634,6 +634,19 @@ s32 get_DML_game_list_cnt()
     DIR *s2dir;
     struct dirent *entry;
 	bool debug_flag = true;
+	
+	/*dbg_printf("\n");
+	sdir = opendir("ntfs:/");
+	if (sdir) do
+	{
+		entry = readdir(sdir);
+		if (entry) {
+			dbg_printf("Found entry ntfs:/%s\n", entry->d_name);
+		}
+	} while (entry);
+	if (sdir) closedir(sdir);
+	sdir = NULL;
+	dbg_printf("\n");*/
 
 	// 1st count the number of games on SD
 	char gamePath[255];
@@ -5480,8 +5493,6 @@ void Direct_Launch()
 void Menu_Loop(void)
 {
 	fill_base_array();
-	// Get MIOS info
-	CFG.dml = get_miosinfo();
 
 	// enable the console if starting with console mode
 	if (!CFG.gui_start) {

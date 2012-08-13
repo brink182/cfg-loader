@@ -14,9 +14,7 @@
 #include "sort.h"
 #include "wpad.h"
 #include "gettext.h"
-
-#define DML_MAGIC 0x444D4C00
-#define DML_MAGIC_HDD DML_MAGIC + 1
+#include "gc.h"
 
 extern struct discHdr *all_gameList;
 extern struct discHdr *gameList;
@@ -289,7 +287,7 @@ int filter_gamecube(struct discHdr *list, int cnt, char *ignore, bool notused)
 	int i;
 	for (i=0; i<cnt;) 
 	{
-		if (list[i].magic == DML_MAGIC || list[i].magic == DML_MAGIC_HDD) 
+		if (list[i].magic >= GC_GAME_ON_DM_DRIVE && list[i].magic <= GC_GAME_DM_MAGIC_MAX) 
 		{
 			i++;
 		} 

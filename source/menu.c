@@ -59,6 +59,7 @@
 #include "sdhc.h"
 #include "nand.h"
 #include "dol.h"
+#include "savegame.h"
 
 void _unstub_start();
 
@@ -162,8 +163,9 @@ char *str_wiird[3] =
 	gts("Paused Start")
 };
 
-char *str_dml[7] =
+char *str_dml[8] =
 {
+	gts("Auto"),
 	gts("DEVO"),
     gts("r51-"),
 	gts("r52+"),
@@ -171,6 +173,13 @@ char *str_dml[7] =
 	gts("2.0+"),
 	gts("2.1+"),
 	gts("2.2+")
+};
+
+char *str_nand_emu[3] =
+{
+	gts("Off"),
+	gts("Partitial"),
+	gts("Full")
 };
 
 int Menu_Global_Options();
@@ -618,7 +627,38 @@ __exception_closeall();
   			 else
 			 	 _unstub_start();
 			
+}
+	
+void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
+{
+	if(NandEmuMode && strchr(NandEmuPath, '/'))
+	{
+		if (!strncmp(NandEmuPath, "usb", 3) || !strncmp(NandEmuPath, "sd", 2)) 
+		{
+			int partition = 0;
+
+			dbg_printf("Enabling Nand Emulation on: %s\n", NandEmuPath);
+			Set_FullMode(NandEmuMode == 2);
+			Set_Path(strchr(NandEmuPath, '/'));
+
+			//! Unmount devices to flush data before activating NAND Emu
+			if(strncmp(NandEmuPath, "usb", 3) == 0)
+			{
+				//! Set which partition to use (USB only)
+				partition = atoi(NandEmuPath+3)-1;
+				Set_Partition(partition);
+			}
+
+			Enable_Emu(strncmp(NandEmuPath, "usb", 3) == 0 ? EMU_USB : EMU_SD);
+
+			//! Mount USB to start game, SD is not required
+			if(strncmp(NandEmuPath, "usb", 3) == 0) {
+				CFG_MountUSB();
+				mount_find(USB_DRIVE);
+			}
+		}
 	}
+}
 
 s32 get_DML_game_list_cnt()
 {
@@ -681,8 +721,10 @@ s32 get_DML_game_list_cnt()
 						u32 magic = 0;
 						fseek(fp, 0x1C, SEEK_SET);
 						fread(&magic, 1, sizeof(u32), fp);
-						if (magic == GC_MAGIC)
+						if (magic == GC_MAGIC) {
 							DML_GameCount++;
+							dbg_printf(" --> GC_MAGIC OK!");
+						}
 					}
 					fclose(fp);
 				}
@@ -695,8 +737,10 @@ s32 get_DML_game_list_cnt()
 						u32 magic = 0;
 						fseek(fp, 0x1C, SEEK_SET);
 						fread(&magic, 1, sizeof(u32), fp);
-						if (magic == GC_MAGIC)
+						if (magic == GC_MAGIC) {
 							DML_GameCount++;
+							dbg_printf(" --> GC_MAGIC OK!");
+						}
 						fclose(fp);
 					}
 				}
@@ -741,8 +785,10 @@ s32 get_DML_game_list_cnt()
 							u32 magic = 0;
 							fseek(fp, 0x1C, SEEK_SET);
 							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC)
+							if (magic == GC_MAGIC) {
 								DML_GameCount++;
+								dbg_printf(" --> GC_MAGIC OK!");
+							}
 						}
 						fclose(fp);
 					}
@@ -755,8 +801,10 @@ s32 get_DML_game_list_cnt()
 							u32 magic = 0;
 							fseek(fp, 0x1C, SEEK_SET);
 							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC)
+							if (magic == GC_MAGIC) {
 								DML_GameCount++;
+								dbg_printf(" --> GC_MAGIC OK!");
+							}
 							fclose(fp);
 						}
 					}
@@ -802,8 +850,10 @@ s32 get_DML_game_list_cnt()
 							u32 magic = 0;
 							fseek(fp, 0x1C, SEEK_SET);
 							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC)
+							if (magic == GC_MAGIC) {
 								DML_GameCount++;
+								dbg_printf(" --> GC_MAGIC OK!");
+							}
 						}
 						fclose(fp);
 					}
@@ -816,8 +866,10 @@ s32 get_DML_game_list_cnt()
 							u32 magic = 0;
 							fseek(fp, 0x1C, SEEK_SET);
 							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC)
+							if (magic == GC_MAGIC) {
 								DML_GameCount++;
+								dbg_printf(" --> GC_MAGIC OK!");
+							}
 							fclose(fp);
 						}
 					}
@@ -1885,6 +1937,41 @@ void Print_SYS_Info_str(char *str, int size)
 	MountPrint_str(str, size);
 	str_seek_end(&str, &size);
 	Print_IOS_Info_str(str, size);
+	
+	char devopath[200];
+	snprintf(devopath, sizeof(devopath), "%s/%s", USBLOADER_PATH, "loader.bin");
+	
+	snprintf(str, size, "\n");
+		str_seek_end(&str, &size);
+	
+	FILE *f = NULL;
+	f = fopen(devopath, "rb");
+	if (f) {
+		char buffer[72];
+		u32 i = 0;
+		fseek(f, 4, SEEK_SET);
+		fread(&buffer, 1, sizeof(buffer), f);
+		fclose(f);
+		for (i = 0; i < sizeof(buffer); i++) {
+			if (buffer[i] == '/' && i-5 > 0) {
+				buffer[i-5] = '\n';
+				break;
+			}
+		}
+		snprintf(str, size, buffer);
+		str_seek_end(&str, &size);
+		snprintf(str, size, "\n");
+		str_seek_end(&str, &size);
+	}
+	if (CFG.dml > 0) {
+		snprintf(str, size, DIOS_MIOS_INFO);
+		str_seek_end(&str, &size);
+		snprintf(str, size, "\n");
+		str_seek_end(&str, &size);
+	}
+	
+	snprintf(str, size, "NAND Emu Path:\n%s\n", CFG.nand_emu_path);
+	str_seek_end(&str, &size);
 }
 
 void Print_SYS_Info()
@@ -2257,7 +2344,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	struct Game_CFG *game_cfg = NULL;
 	int opt_saved;
 	//int opt_ios_reload;
-	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_padhook;
+	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_padhook, opt_nand_emu;
 	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
@@ -2301,7 +2388,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	game_cfg = &game_cfg2->curr;
 
 	struct Menu menu;
-	int NUM_OPT = 17;
+	int NUM_OPT = 19;
 	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) NUM_OPT = 14;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
@@ -2340,6 +2427,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		opt_padhook = game_cfg->hooktype;
 	 	opt_ocarina = game_cfg->ocarina;
 		opt_ntsc_j_patch = game_cfg->ntsc_j_patch;
+		opt_nand_emu = game_cfg->nand_emu;
 
 		if (game_cfg->clean == CFG_CLEAN_ALL) {
 			opt_language = CFG_LANG_CONSOLE;
@@ -2350,6 +2438,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			opt_anti_002 = 0;
 			opt_ocarina = 0;
 			opt_ntsc_j_patch = 0;
+			opt_nand_emu = 0;
 			active[1] = 0; // language
 			active[2] = 0; // video
 			active[3] = 0; // video_patch
@@ -2467,6 +2556,10 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 				*/
 		} else {
+			int num_nand_emu = map_get_num(map_nand_emu);
+			char *names_nand_emu[num_nand_emu];
+			num_nand_emu = map_to_list(map_nand_emu, num_nand_emu, names_nand_emu);
+			
 			menu_window_begin(&menu, win_size, NUM_OPT);
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
@@ -2508,6 +2601,10 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("NAND Emu:"), gt(names_nand_emu[opt_nand_emu]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_A(gt("Savegame:"), gt("Dump savegame"));
 		}
 		DefaultColor();
 		menu_window_end(&menu, cols);
@@ -2673,6 +2770,12 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			case 16:
 				CHANGE(game_cfg->clean, 2);
 				break;
+			case 17:
+				CHANGE(game_cfg->nand_emu, 2);
+				break;
+			case 18:
+				Menu_dump_savegame(header);
+				break;
 			}
 		}
 		if (buttons & CFG.button_confirm.mask) {
@@ -2828,6 +2931,8 @@ void Menu_Save_Settings()
 	}
 	printf("\n");
 	//sleep(2);
+	printf_(gt("NOTE: may loader restart is required\nfor the settings to take effect."));
+	printf("\n\n");
 	Menu_PrintWait();
 }
 
@@ -2895,7 +3000,7 @@ int Menu_Global_Options()
 		if (menu_window_mark(&menu))
 			printf("%s< %s >\n", con_align("WiiRD:",13), gt(str_wiird[CFG.wiird]));
 		if (menu_window_mark(&menu))
-			printf("%s< %s >\n", con_align("DML version:",13), gt(str_dml[CFG.dml]));
+			printf("%s< %s >\n", con_align("Force Devo:",13), CFG.devo ? gt("Yes") : gt("No"));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Download All Missing Covers"));
 		if (menu_window_mark(&menu))
@@ -2962,17 +3067,18 @@ int Menu_Global_Options()
 				CHANGE(CFG.wiird, 2);
 				break;
 			case 6:
-				CHANGE(CFG.dml, 6);
+				CHANGE(CFG.devo, 1);
 				break;
 			case 7:
+				cache_wait_idle();
 				Download_All_Covers(change > 0);
 				Cache_Invalidate();
 				if (header) Gui_DrawCover(header->id);
 				Menu_PrintWait();
 				break;
 			case 8:
-				Download_Titles();
 				Download_XML();
+				Download_Titles();
 				break;
 			case 9:
 				Download_DEVO();
@@ -5202,7 +5308,7 @@ L_repaint:
 		}
 	}
 	
-	if (gc || header->magic == GC_GAME_ON_DM_DRIVE || (CFG.game.fix_002 > 0 && (header->magic == GC_GAME_ON_GAME_DRIVE || header->magic == GC_GAME_ON_SD_DRIVE)))
+	if (gc || header->magic == GC_GAME_ON_DM_DRIVE || ((CFG.game.fix_002 > 0 || CFG.devo > 0) && (header->magic == GC_GAME_ON_GAME_DRIVE || header->magic == GC_GAME_ON_SD_DRIVE)))
 	{
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
@@ -5230,14 +5336,14 @@ L_repaint:
 		char newCheatPath[255];
 		sprintf(newCheatPath, "%s/games/%s/%.6s.gct", dm_boot_drive, header->folder, header->id);
 		
-		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS)
+		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0)
 		{
 			char devoPath[255];	
 			char loaderPath[255];	
 			
-			if(header->magic == GC_GAME_ON_DM_DRIVE)
-				snprintf(devoPath, sizeof(devoPath), "usb:/games/%s/game.iso", header->folder);
-			else
+			if (header->magic == GC_GAME_ON_DM_DRIVE)
+				snprintf(devoPath, sizeof(devoPath), "%s/games/%s/game.iso", dm_boot_drive, header->folder);
+			else if (header->magic == GC_GAME_ON_SD_DRIVE)
 				snprintf(devoPath, sizeof(devoPath), "sd:/games/%s/game.iso", header->folder);	
 			
 			DEVO_SetOptions(devoPath, CFG.game.country_patch);
@@ -5341,6 +5447,11 @@ L_repaint:
 	setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
 	get_time(&TIME.playstat2);
 	
+	if (CFG.game.nand_emu > 0) {
+		//! Create save game path and title.tmd for not existing saves and nand emulation is activated
+		CreateSavePath(header);
+	}
+	
 	if (CFG.game.alt_dol != 1) {
 		// unless we're loading alt.dol from sd
 		// unmount everything
@@ -5373,6 +5484,8 @@ L_repaint:
 			printf("\n");
 	 		goto out;
 	 	}
+		
+		Setup_NandEmu(CFG.game.nand_emu, CFG.nand_emu_path);
 		
 		/* Open disc */
 		ret = Disc_Open();
@@ -5492,8 +5605,6 @@ void Direct_Launch()
 
 void Menu_Loop(void)
 {
-	fill_base_array();
-
 	// enable the console if starting with console mode
 	if (!CFG.gui_start) {
 		if (!(CFG.direct_launch && !CFG.intro)) {

@@ -415,8 +415,9 @@ bool fsop_CreateFolderTree (char *path)
 		{
 			strcpy (buff, path);
 			buff[i] = 0;
-
-			fsop_MakeFolder(buff);
+			
+			if (!fsop_DirExist(buff))
+				fsop_MakeFolder(buff);
 		}
 	}
 	

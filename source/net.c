@@ -959,14 +959,15 @@ void Download_DEVO()
 		printf("\n");
 		goto dl_err;
 	}
-	
+	printf_((char*)buffer+4);
 	fwrite(buffer,1,zipfilebuffersize,f);
 	fclose(f);
 	SAFE_FREE(buffer);
 	
 	///////////////////////
 	__console_flush(0);
-	sleep(2);
+	printf_x(gt("Press any button.\n")); 
+	Wpad_WaitButtons();
 	return;
 	
 	dl_err:

@@ -231,6 +231,7 @@ extern char USBLOADER_PATH[];
 extern char APPS_DIR[];
 extern char CFG_VERSION[];
 extern char LAST_CFG_PATH[];
+extern char DIOS_MIOS_INFO[];
 
 typedef char GAMEID_t[8];
 
@@ -253,6 +254,7 @@ struct Game_CFG
 	int write_playlog;
 	int hooktype;
 	int clean;
+	int nand_emu;
 };
 
 struct Game_CFG_2
@@ -496,6 +498,7 @@ struct CFG
 	int disable_bca;
 	int disable_wip;
 	int dml;
+	int devo;
 	// int write_playlog;
 	// order of the following options (until specified point) is important
 	int button_M;
@@ -528,6 +531,7 @@ struct CFG
 	//themes
 	char theme[32];
 	char theme_path[200];
+	char nand_emu_path[200];
 	int adult_themes;
 	int theme_previews;
 	int theme_previewX;
@@ -695,7 +699,7 @@ int CFG_filter_favorite(struct discHdr *list, int cnt);
 
 char *get_clock_str(time_t t);
 
-void set_recommended_cIOS_idx(int ios);
+void set_recommended_cIOS_idx(u8 ios);
 
 int readPlayStats(void);
 u32 getPlayCount(u8 *id);
@@ -707,8 +711,9 @@ char *cfg_get_covers_path(int style);
 extern struct TextMap map_video_patch[];
 extern struct TextMap map_gui_style[];
 extern struct TextMap map_ios[];
+extern struct TextMap map_nand_emu[];
 extern char *names_vpatch[CFG_VIDEO_PATCH_NUM];
-extern u8	  cIOS_base[10];
+extern u8	  cIOS_base[];
 
 #define NUM_HOOK 8
 extern char *hook_name[NUM_HOOK];

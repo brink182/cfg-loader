@@ -66,7 +66,7 @@ struct timestats
 };
 
 extern struct timestats TIME;
-#define DBG_LOG_SIZE 10240 // 10k
+#define DBG_LOG_SIZE 30720 // 10k
 #define DBG_LOG_CUT  1024 // cut from end
 extern char dbg_log_buf[DBG_LOG_SIZE];
 

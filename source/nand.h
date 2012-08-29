@@ -31,5 +31,8 @@ void Set_Partition(int);
 void Set_Path(const char*);
 void Set_FullMode(int);
 const char* Get_Path(void);
+bool dumpfolder(char source[1024], char destination[1024]);
+s32 dumpfile(char source[1024], char destination[1024]);
+int isdir(char *path);
 
 #endif

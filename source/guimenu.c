@@ -28,6 +28,7 @@
 #include "cfg.h"
 #include "dol.h"
 #include "gc.h"
+#include "savegame.h"
 
 typedef void (*entrypoint) (void);
 
@@ -454,6 +455,7 @@ struct W_GameCfg
 	Widget *hooktype;
 	Widget *write_playlog;
 	Widget *clean;
+	Widget *nand_emu;
 } wgame;
 
 
@@ -747,6 +749,7 @@ void update_gameopt_state()
 		gameopt_inactive(cond, wgame.fix_002, 0);
 		gameopt_inactive(cond, wgame.ocarina, 0);
 		gameopt_inactive(cond, wgame.wide_screen, 0);
+		gameopt_inactive(cond, wgame.nand_emu, 0);
 				
 		// ocarina hook type
 		wgui_update(wgame.ocarina);
@@ -998,6 +1001,10 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			int num_ios = map_get_num(map_ios);
 			char *names_ios[num_ios];
 			num_ios = map_to_list(map_ios, num_ios, names_ios);
+			
+			int num_nand_emu = map_get_num(map_nand_emu);
+			char *names_nand_emu[num_nand_emu];
+			num_nand_emu = map_to_list(map_nand_emu, num_nand_emu, names_nand_emu);
 
 			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
 			BIND_OPT(language);
@@ -1020,7 +1027,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			ww = wgui_add_game_opt(op, "IOS:", num_ios, names_ios);
 			BIND_OPT(ios_idx);
 
-					/////////////////
+			/////////////////
 			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
 			op->render = NULL;
 			
@@ -1047,6 +1054,13 @@ void InitGameOptionsPage(Widget *pp, int bh)
 
 			ww = wgui_add_game_opt(op, gt("Clear Patches:"), 3, names_vpatch);
 			BIND_OPT(clean);
+			
+			/////////////////
+			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
+			op->render = NULL;
+			
+			ww = wgui_add_game_opt(op, gt("NAND Emu:"), num_nand_emu, names_nand_emu);
+			BIND_OPT(nand_emu);
 
 			pos_move_to(pp, PAD0, -bh);
 			pos_pad(pp, PAD0);
@@ -1073,6 +1087,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 void action_game_missing_covers(Widget *ww)
 {
 	Switch_WGui_To_Console();
+	//cache_wait_idle();
 	Download_Cover((char*)wgame.header->id, true, true);
 	Cache_Invalidate();
 	Menu_PrintWait();
@@ -1082,6 +1097,7 @@ void action_game_missing_covers(Widget *ww)
 void action_game_all_covers(Widget *ww)
 {
 	Switch_WGui_To_Console();
+	//cache_wait_idle();
 	Download_Cover((char*)wgame.header->id, false, true);
 	Cache_Invalidate();
 	Menu_PrintWait();
@@ -1092,6 +1108,13 @@ void action_game_manage_cheats(Widget *ww)
 {
 	Switch_WGui_To_Console();
 	Menu_Cheats(wgame.header);
+	Switch_Console_To_WGui();
+}
+
+void action_game_dump_savegame(Widget *ww) 
+{
+	Switch_WGui_To_Console();
+	Menu_dump_savegame(wgame.header);
 	Switch_Console_To_WGui();
 }
 
@@ -1430,8 +1453,8 @@ void OpenGameDialog()
 	
 	// page manage
 	pp = wgui_add_page(dd, w_game_page, pos_auto, "manage");
-	pos_margin(pp, PAD3);
-	pos_prefsize(pp, pp->w - PAD3 * 2, H_NORMAL);
+	pos_margin(pp, PAD0);
+	pos_prefsize(pp, pp->w - PAD0 * 2, H_NORMAL);
 
 	ww = wgui_add_checkbox(pp, pos_auto, gt("Favorite"), true);
 	ww->action = action_game_favorite;
@@ -1453,6 +1476,10 @@ void OpenGameDialog()
 	ww = wgui_add_button(pp, pos_auto, gt("Delete Game"));
 	Widget *w_delete_game = ww;
 	wgui_set_inactive(ww, CFG.disable_remove);
+	pos_newline(pp);
+	
+	ww = wgui_add_button(pp, pos_auto, gt("Dump savegame"));
+	ww->action = action_game_dump_savegame;
 	pos_newline(pp);
 
 	ww = wgui_add_checkbox(pp, pos_auto, gt("Hide"), true);
@@ -1896,8 +1923,8 @@ void action_AllCovers(Widget *ww)
 void action_DownloadWIITDB(Widget *ww)
 {
 	Switch_WGui_To_Console();
-	Download_Titles();
 	Download_XML();
+	Download_Titles();
 	Menu_PrintWait();
 	Switch_Console_To_WGui();
 }
@@ -2232,11 +2259,9 @@ void Init_System_Dialog(Widget *dd)
 	ww->val_ptr = &CFG.admin_mode_locked;
 	ww->action = action_AdminLock;
 	
-	// DML version
-	char *dml_val[7];
-	translate_array(7, str_dml, dml_val);
-	ww = wgui_add_opt(dd, "DML version:", 7, dml_val);
-	ww->val_ptr = &CFG.dml;
+	// Force devo
+	ww = wgui_add_opt(dd, gt("Force Devolution:"), 2, NULL);
+	ww->val_ptr = &CFG.devo;
 	ww->action = action_write_val_ptr_int;
 	
 

@@ -34,6 +34,7 @@ char USBLOADER_PATH[200] = "sd:/usb-loader";
 char APPS_DIR[200] = "";
 char LAST_CFG_PATH[200];
 char direct_start_id_buf[] = "#GAMEID\0\0\0\0\0CFGUSB0000000000";
+char DIOS_MIOS_INFO[200] = "";
 
 /* configurable fields */
 
@@ -83,7 +84,7 @@ struct TextMap map_video[] =
 	{ "pal50",  CFG_VIDEO_PAL50 },
 	{ "pal60",  CFG_VIDEO_PAL60 },
 	{ "ntsc",   CFG_VIDEO_NTSC },
-	//{ "patch",  CFG_VIDEO_PATCH },
+	{ "pal480p",CFG_VIDEO_NUM },
 	{ NULL, -1 }
 };
 
@@ -250,6 +251,14 @@ char *hook_name[NUM_HOOK] =
 	"GXFlush",
 	"OSSleepThread",
 	"AXNextFrame"
+};
+
+struct TextMap map_nand_emu[] =
+{
+	{ "off", 0 },
+	{ "partitial", 1  },
+	{ "full", 2 },
+	{ NULL, -1 }
 };
 
 struct playStat {
@@ -1211,6 +1220,8 @@ void CFG_Default()
 	// so the patch is disabled by default
 	CFG.disable_dvd_patch = 1;
 	//CFG.dml = CFG_DM_2_2;
+	STRCOPY(CFG.nand_emu_path, "usb:/nand");
+	CFG.game.nand_emu = 0;
 }
 
 bool map_auto_token(char *name, char *name2, char *val, struct TextMap *map, struct MenuButton *var)
@@ -2038,7 +2049,7 @@ char *ios_str(int idx)
 	return map_ios[idx].name;
 }
 
-void set_recommended_cIOS_idx(int ios) {
+void set_recommended_cIOS_idx(u8 ios) {
 	if (ios == cIOS_base[0]) {
 		cfg_ios_set_idx(CFG_IOS_245);
 	} else if (ios == cIOS_base[1]) {
@@ -2064,11 +2075,10 @@ void set_recommended_cIOS_idx(int ios) {
 		for (i = 0; i < 9; i++) {
 			if (cIOS_base[i] == 56) {
 				cfg_ios_set_idx(i);
-				break;
-			} else {
-				cfg_ios_set_idx(CFG_IOS_249);
+				return;
 			}
 		}
+		cfg_ios_set_idx(CFG_IOS_249);
 	}
 }
 
@@ -2218,6 +2228,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	}
 
 	cfg_map_auto("video_patch", map_video_patch, &game_cfg->video_patch);
+	cfg_map_auto("nand_emu", map_nand_emu, &game_cfg->nand_emu);
 
 	cfg_bool("vidtv", &game_cfg->vidtv);
 	cfg_bool("country_patch", &game_cfg->country_patch);
@@ -2225,7 +2236,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	cfg_map("clear_patches", "all", &game_cfg->clean, CFG_CLEAN_ALL);
 	cfg_bool("fix_002", &game_cfg->fix_002);
 	cfg_bool("wide_screen", &game_cfg->wide_screen);
-	cfg_bool("ntsc_j", &game_cfg->ntsc_j_patch);
+	cfg_bool("ntsc_j_patch", &game_cfg->ntsc_j_patch);
 	cfg_bool("nodisc", &game_cfg->nodisc);
 	cfg_ios_idx(name, val, &game_cfg->ios_idx);
 	cfg_bool("block_ios_reload", &game_cfg->block_ios_reload);
@@ -2260,7 +2271,8 @@ bool cfg_set_gbl(char *name, char *val)
 	CFG_STR("partition", CFG.partition);
 
 	if (cfg_map_auto("gui_style", map_gui_style, &CFG.gui_style)) return true;
-	//if (cfg_int_max("dml", &CFG.dml, 5)) return true;
+	//if (cfg_int_max("dml", &CFG.dml, 6)) return true;
+	cfg_bool("devo", &CFG.devo);
 
 	int rows = 0;
 	if (cfg_int_max("gui_rows", &rows, 4)) {
@@ -2387,6 +2399,7 @@ void cfg_set(char *name, char *val)
 
 	// urls
 	CFG_STR("titles_url", CFG.titles_url);
+	CFG_STR("nand_emu_path", CFG.nand_emu_path);
 	CFG_STR_LIST("cover_url", CFG.cover_url_2d);
 	CFG_STR_LIST("cover_url_3d", CFG.cover_url_3d);
 	CFG_STR_LIST("cover_url_disc", CFG.cover_url_disc);
@@ -2479,7 +2492,8 @@ void cfg_set(char *name, char *val)
 	cfg_bool("disable_wip", &CFG.disable_wip);
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
-	//cfg_int_max("dml", &CFG.dml, 5);
+	//cfg_int_max("dml", &CFG.dml, 6);
+	cfg_bool("devo", &CFG.devo);
 
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	cfg_id_list("pref_game", CFG.pref_game, &CFG.num_pref_game, MAX_PREF_GAME);
@@ -2852,6 +2866,7 @@ bool CFG_Save_Settings(int verbose)
 			SAVE_OPT("gui_rows = %d\n", CFG.saved_gui_rows);
 		}
 		//SAVE_OPT("dml = %d\n", CFG.dml);
+		SAVE_OPT("devo = %d\n", CFG.devo);
 	}
 
 	fprintf(f, "\n# Profiles: %d\n", CFG.num_profiles);
@@ -2895,6 +2910,8 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_STR("video", s);
 		s = map_get_name(map_video_patch, game_cfg->video_patch);
 		SAVE_STR("video_patch", s);
+		s = map_get_name(map_nand_emu, game_cfg->nand_emu);
+		SAVE_STR("nand_emu", s);
 		SAVE_BOOL(vidtv);
 		SAVE_BOOL(wide_screen);
 		SAVE_BOOL(ntsc_j_patch);

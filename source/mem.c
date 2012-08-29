@@ -506,14 +506,17 @@ void *mem1_realloc(void *ptr, int size)
 
 void mem_free(void *ptr)
 {
+	//dbg_printf("\nmem_free(%p)\n", ptr);
 	if (ptr == NULL) return;
 	// mem2
 	if (heap_ptr_inside(&mem2, ptr)) {
+		//dbg_printf("\nheap_free(&mem2, %p)\n", ptr);
 		heap_free(&mem2, ptr);
 		return;
 	}
 	// mem1
 	if (heap_ptr_inside(&mem1, ptr)) {
+		//dbg_printf("\nheap_free(&mem1, %p)\n", ptr);
 		heap_free(&mem1, ptr);
 		return;
 	}

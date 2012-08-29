@@ -1512,6 +1512,126 @@ bool get_iosinfo(int ios, signed_blob *TMD, iosinfo_t *iosinfo)
 	return retval;
 }
 
+u8 get_base_ios_from_tmd(int ios_slot, u32 *version) {
+	u8 retValue = 0;
+	signed_blob *TMD = NULL;
+	tmd *t = NULL;
+	u32 TMD_size = 0;
+	u64 title_id = TITLE_ID(1, ios_slot);
+	u32 i;
+	int retry_count = 0;
+	sha1 hash;
+	int ret;
+	int is_modmii = 0;
+
+	//static char default_info[32];
+	//sprintf(default_info, "IOS%u (Rev %u)", IOS_GetVersion(), IOS_GetRevision());
+	//info = (char *)default_info;
+
+	ret = GetTMD(title_id, &TMD, &TMD_size);
+	if (ret != 0) goto out;
+
+	t = (tmd*)SIGNATURE_PAYLOAD(TMD);
+
+	dbg_printf("\ntmd id: %llx %x-%x t: %x v: %d",
+			t->title_id, TITLE_HIGH(t->title_id), TITLE_LOW(t->title_id),
+			t->title_type, t->title_version);
+	if (version) *version = t->title_version;
+
+	// safety check
+	if (t->title_id != title_id) goto out;
+
+	iosinfo_t iosinfo;
+	if (get_iosinfo(ios_slot, TMD, &iosinfo)) {
+		//sprintf(info, "%s%uv%u%s (%u)", iosinfo->name, iosinfo->baseios, iosinfo->version, iosinfo->versionstring, CIOS_VERSION);				
+		// Example: "d2x56v5beta2 (249)"
+		// "56 r21-d2x-v4"
+		retValue = iosinfo.baseios;			
+		goto out;
+	}
+
+	// modmii check
+	// brute match?
+	signed_blob *TMD_copy = malloc(TMD_size);
+	memcpy(TMD_copy, TMD, TMD_size);
+	tmd *tt = (tmd*)SIGNATURE_PAYLOAD(TMD_copy);
+	brute_tmd(tt);
+	int match = memcmp(TMD, TMD_copy, TMD_size) == 0;
+	if (!match) dbg_printf("\nbrute match: %d %u %u\n", match, t->fill3, tt->fill3);
+	SAFE_FREE(TMD_copy);
+	SHA1((u8 *)TMD, TMD_size, hash);
+	if (!match && hash[0] == 0) {
+		is_modmii = 1;
+	}
+
+retry:;
+	if (retry_count) {
+		if (retry_count > 100) goto out;
+		brute_tmd(t);
+	}
+	retry_count++;
+
+	SHA1((u8 *)TMD, TMD_size, hash);
+
+	int mm;
+	for (mm = 0; mm < 2; mm++) {
+		for (i = 0; i < ios_info_number; i++)
+		{
+			if (ios_info[i].slot != TITLE_LOW(t->title_id)) continue;
+			if (memcmp((void *)hash, &ios_info[i].hash, sizeof(sha1)) == 0)
+			{
+				retValue = atoi(ios_info[i].info);
+				break;
+			}
+		}
+		if (retValue == 0 && is_modmii) {
+			// use alternative brute hash
+			// to search for modmii hashes in table
+			brute_modmii(TMD, TMD_size, hash);
+		} else {
+			break;
+		}
+	}
+
+	if (retValue == 0) {
+		if (is_modmii == 1) {
+			is_modmii++;
+			// if modmii, first do the brute_tmd
+			goto retry;
+		}
+		// patch title id, so hash matches
+		if (ios_slot >= 245 && ios_slot <= 251) {
+			if (t->title_id != TITLE_ID(1, 249)) {
+				t->title_id = TITLE_ID(1, 249);
+				goto retry;
+			}
+			if (ios_slot == 250) {
+				// ios 250 has a fixed version of 65535 patch to a lower one
+				if (t->title_version > 13) {
+					if (t->title_version > 21) {
+						t->title_version = 21;
+					} else {
+						t->title_version--;
+					}
+					goto retry;
+				}
+			}
+		}
+		if (t->title_id == TITLE_ID(1, 224)) {
+			t->title_id = TITLE_ID(1, 223);
+			goto retry;
+		}
+		if (t->title_id == TITLE_ID(1, 223)) {
+			t->title_id = TITLE_ID(1, 222);
+			goto retry;
+		}
+	}
+
+out:
+	SAFE_FREE(TMD);
+    return retValue;
+}
+
 char* get_iosx_info_from_tmd(int ios_slot, u32 *version)
 {
 	signed_blob *TMD = NULL;
@@ -1645,82 +1765,23 @@ retry:;
 
 void fill_base_array() {
 	int i = 0;
+
+	ISFS_Initialize();
 	
 	for (i = 0; i < 10; i++) {
 		cIOS_base[i] = 0;
 	}
-	char *temp;
-	char baseBuf[2];
 	
-	temp = get_iosx_info_from_tmd(245, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[0] = atoi(temp);// CFG_IOS_245
-	}
-	
-	temp = get_iosx_info_from_tmd(246, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[1] = atoi(temp);// CFG_IOS_246
-	}
-	
-	temp = get_iosx_info_from_tmd(247, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[2] = atoi(temp);// CFG_IOS_247
-	}
-	
-	temp = get_iosx_info_from_tmd(248, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[3] = atoi(temp);// CFG_IOS_248
-	}
-	
-	temp = get_iosx_info_from_tmd(249, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[4] = atoi(temp);// CFG_IOS_249
-	}
-	
-	temp = get_iosx_info_from_tmd(250, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[5] = atoi(temp);// CFG_IOS_250
-	}
-	
-	temp = get_iosx_info_from_tmd(251, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[6] = atoi(temp);// CFG_IOS_251
-	}
-	
-	temp = get_iosx_info_from_tmd(222, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[7] = atoi(temp);// CFG_IOS_222
-	}
-	
-	temp = get_iosx_info_from_tmd(223, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[8] = atoi(temp);// CFG_IOS_223
-	}
-	
-	temp = get_iosx_info_from_tmd(224, NULL);
-	if (temp) {
-		strncpy(baseBuf, temp, 2);
-		if (strcmp(baseBuf, "??") != 0)
-			cIOS_base[9] = atoi(temp);// CFG_IOS_224
-	}
+	cIOS_base[0] = get_base_ios_from_tmd(245, NULL);// CFG_IOS_245
+	cIOS_base[1] = get_base_ios_from_tmd(246, NULL);// CFG_IOS_246
+	cIOS_base[2] = get_base_ios_from_tmd(247, NULL);// CFG_IOS_247
+	cIOS_base[3] = get_base_ios_from_tmd(248, NULL);// CFG_IOS_248
+	cIOS_base[4] = get_base_ios_from_tmd(249, NULL);// CFG_IOS_249
+	cIOS_base[5] = get_base_ios_from_tmd(250, NULL);// CFG_IOS_250
+	cIOS_base[6] = get_base_ios_from_tmd(251, NULL);// CFG_IOS_251
+	cIOS_base[7] = get_base_ios_from_tmd(222, NULL);// CFG_IOS_222
+	cIOS_base[8] = get_base_ios_from_tmd(223, NULL);// CFG_IOS_223
+	cIOS_base[9] = get_base_ios_from_tmd(224, NULL);// CFG_IOS_224
 }
 
 char* get_ios_info_from_tmd()
@@ -1879,7 +1940,7 @@ u16 get_miosinfo()
 	s32 ret = 0;
 	u8 *appfile = NULL;
 
-	//ISFS_Initialize();
+	ISFS_Initialize();
 	
 	dbg_printf("Reading 0000000c.app from MIOS\n");
 	ret = read_file_from_nand("/title/00000001/00000101/content/0000000c.app", &appfile, &size);
@@ -1910,20 +1971,29 @@ u16 get_miosinfo()
 					time_t unixTime = mktime(&time);
 					sprintf(dm_boot_drive, "sd:");
 					dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", (char*)(appfile+i+7));
-					SAFE_FREE(appfile);
 					if(difftime(unixTime, dml_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 2.2+\n%s", (char*)(appfile+i+7));
+						SAFE_FREE(appfile);
 						return CFG_DM_2_2;
 					} else if(difftime(unixTime, dml_1_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 1.2+\n%s", (char*)(appfile+i+7));
+						SAFE_FREE(appfile);
 						return CFG_DML_1_2;
 					} else if (difftime(unixTime, dml_r52_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite r52+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite r52+\n%s", (char*)(appfile+i+7));
+						SAFE_FREE(appfile);
 						return CFG_DML_R52;
 					} else {
 						dbg_printf("\nMIOS is DIOS MIOS Lite r51-\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite r51-\n%s", (char*)(appfile+i+7));
+						SAFE_FREE(appfile);
 						return CFG_DML_R51;
 					}
+					sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite\n%s", (char*)(appfile+i+7));
+					SAFE_FREE(appfile);
 					return CFG_DML_R52;
 				}
 				
@@ -1939,22 +2009,29 @@ u16 get_miosinfo()
 				dbg_printf("\ntime.tm_mday = %d", time.tm_mday);
 				dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
 				time_t unixTime = mktime(&time);
-				SAFE_FREE(appfile);
 				if (difftime(unixTime, dm_2_2_time) >= 0) {
 					dbg_printf("\nMIOS is DIOS MIOS 2.2+\n");
+					sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.2+\n%s", (char*)(appfile+i+20+7));
+					SAFE_FREE(appfile);
 					return CFG_DM_2_2;
 				} else if (difftime(unixTime, dm_2_1_time) >= 0) {
 					dbg_printf("\nMIOS is DIOS MIOS 2.1\n");
+					sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.1\n%s", (char*)(appfile+i+20+7));
+					SAFE_FREE(appfile);
 					return CFG_DM_2_1;
 				} else {
 					dbg_printf("\nMIOS is DIOS MIOS 2.0+\n");
+					sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.0+\n%s", (char*)(appfile+i+20+7));
+					SAFE_FREE(appfile);
 					return CFG_DM_2_0;
 				}
+				sprintf(DIOS_MIOS_INFO, "DIOS MIOS\n%s", (char*)(appfile+i+20+7));
+				SAFE_FREE(appfile);
 				return CFG_DM_2_0;
 			}
 		}
-		SAFE_FREE(appfile);
 	}
+	SAFE_FREE(appfile);
 	sprintf(dm_boot_drive, "usb:");
 	return CFG_MIOS;
 }

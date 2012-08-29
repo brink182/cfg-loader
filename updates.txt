@@ -13,6 +13,18 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r46
+size = 1896928
+date = 2012-08-29
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr46.dol
+-added savegame emulation
+-added savegame dumping
+-added force devolution option
+-added devolution, DIOS MIOS
+and emu nand info to
+info menu
+-some fixes
+
 release = 70r45
 size = 1888224
 date = 2012-08-13

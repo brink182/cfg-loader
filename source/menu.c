@@ -99,7 +99,7 @@ extern s32 filter_index;
 
 bool MountWBFS = true;
 
-s32 gameCnt = 0, gameSelected = 0, gameStart = 0 ,chanSelected = 0 , chanStart = 0 , mycount = 0;
+s32 gameCnt = 0, gameSelected = 0, gameStart = 0, chanSelected = 0, chanStart = 0, mycount = 0;
 
 bool imageNotFound = false;
 
@@ -194,6 +194,76 @@ char action_string[40] = "";
 #define WBFS_GetCount dbg_WBFS_GetCount
 #define WBFS_GetHeaders dbg_WBFS_GetHeaders
 #endif
+
+char *__Menu_PrintTitle(char *name)
+{
+	//static char buffer[MAX_CHARACTERS + 4];
+	static char buffer[400];
+	int len = con_len(name);
+
+	/* Clear buffer */
+	memset(buffer, 0, sizeof(buffer));
+
+	/* Check string length */
+	if (len >= MAX_CHARACTERS) {
+		//strncpy(buffer, name,  MAX_CHARACTERS - 4);
+		STRCOPY(buffer, name);
+		con_trunc(buffer, MAX_CHARACTERS - 4);
+		strcat(buffer, "..");
+		return buffer;
+	}
+
+	return name;
+}
+
+void __Chan_MoveList(s8 delta)
+{
+	/* No channellist */
+	if (!mycount)
+		return;
+
+	#if 0
+	/* Select next entry */
+	chanSelected += delta;
+
+	/* Out of the list? */
+	if (chanSelected <= -1)
+		chanSelected = (mycount - 1);
+	if (chanSelected >= mycount)
+		chanSelected = 0;
+	#endif
+
+	if(delta>0) {
+		if(chanSelected == mycount - 1) {
+			chanSelected = 0;
+		}
+		else {
+			chanSelected +=delta;
+			if(chanSelected >= mycount) {
+				chanSelected = (mycount - 1);
+			}
+		}
+	}
+	else {
+		if(!chanSelected) {
+			chanSelected = mycount - 1;
+		}
+		else {
+			chanSelected +=delta;
+			if(chanSelected < 0) {
+				chanSelected = 0;
+			}
+		}
+	}
+
+	/* List scrolling */
+	s32 index = (chanSelected - chanStart);
+
+	if (index >= ENTRIES_PER_PAGE)
+		chanStart += index - (ENTRIES_PER_PAGE - 1);
+	if (index <= -1)
+		chanStart += index;
+}
 
 char *skip_sort_ignore(char *s)
 {
@@ -526,7 +596,6 @@ s32 search_and_read_dol(u64 titleid, u8 **contentBuf, u32 *contentSize, u8 *tmdB
 
 void bootTitle(u64 titleid)
 {
-	
 	u32 entryPoint;
 	entrypoint appJump;
 	int ret;
@@ -534,12 +603,12 @@ void bootTitle(u64 titleid)
 	u8 *dolbuffer;
 	u32 dolsize;
 	//u32 bootcontentloaded;
-	
+
 	u8 *tmdBuffer = NULL;
 	//u32 tmdSize;
-	
+
 	ret = search_and_read_dol(titleid, &dolbuffer, &dolsize, tmdBuffer);
-		
+
 	if (ret < 0)
 	{
 		printf(".dol loading failed\n");
@@ -558,7 +627,7 @@ void bootTitle(u64 titleid)
 
 	*(u32 *)0x80000000 = TITLE_LOWER(titleid);
 	DCFlushRange((void*)0x80000000,32);
-	
+
 	// Memory setup when booting the main.dol
 	if (entryPoint != 0x3400)
 	{
@@ -568,20 +637,20 @@ void bootTitle(u64 titleid)
 		*(u32 *)0x800000FC = 0x2B73A840;	// cpu speed
 
 		DCFlushRange((void*)0x80000000, 0x100);
-		
+
 		memset((void *)0x817FE000, 0, 0x2000); // Clearing BI2, or should this be read from somewhere?
 		DCFlushRange((void*)0x817FE000, 0x2000);		
 
 		*(u32 *)0x80003180 = 0;		// No comment required here
-		
-		
+
+
 		*(u32 *)0x80003184 = 0x81000000;	// Game id address, while there's all 0s at 0x81000000 when using the apploader...
 
 		DCFlushRange((void*)0x80003180, 32);
 
-  appJump = (entrypoint)entryPoint;
-	
-	
+		appJump = (entrypoint)entryPoint;
+
+
 		if (ret < 0)
 		{
 			return;
@@ -589,44 +658,40 @@ void bootTitle(u64 titleid)
 
 		printf(".\n");
 	}
-  
-		Disable_Emu();
-		ISFS_Deinitialize();
-		//IOS_ReloadIOS(CFG.ios);
-		ISFS_Initialize();
-		
-		ret = Enable_Emu(EMU_USB);
-		
-		printf("EMU=%d\n",ret);
-		sleep(5);
-		
+
+	Disable_Emu();
+	ISFS_Deinitialize();
+	//IOS_ReloadIOS(CFG.ios);
+	ISFS_Initialize();
+
+	ret = Enable_Emu(EMU_USB);
+
+	printf("EMU=%d\n",ret);
+	sleep(5);
+
 	*(u16 *)0x80003140 = CFG.ios;
 	*(u16 *)0x80003142 = 0xffff;
 	*(u16 *)0x80003188 = CFG.ios;
 	*(u16 *)0x8000318A = 0xffff;
-		
+
 	DCFlushRange((void*)0x80003140,32);
 	DCFlushRange((void*)0x80003188,32);
-	
+
 	d2x_return_to_channel();
-	
+
 	printf("Preparations complete, booting...\n");
 	sleep(5);
 
-	
-
 	IRQ_Disable();
 	__IOS_ShutdownSubsystems();
-__exception_closeall();
-
+	__exception_closeall();
 
 	SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
 
 	if (entryPoint != 0x3400)
-			appJump();
-  			 else
-			 	 _unstub_start();
-			
+		appJump();
+	else
+		_unstub_start();	
 }
 	
 void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
@@ -660,230 +725,129 @@ void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
 	}
 }
 
-s32 get_DML_game_list_cnt()
+s32 get_channel_list(void *outbuf, u64 channels[], u32 size) 
 {
-	/*if (CFG.dml >= CFG_DM_2_0)
-		sprintf(dm_boot_drive, "usb:");
-	else
-		sprintf(dm_boot_drive, "sd:");*/
-	FILE *fp;
-	u32 DML_GameCount = 0;
+	u8 chan_title_id[5];
+	s32 ret = 0, Fd = 0;
+	u32 i, lower;
+	char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
 	
-	static char name_buffer[64] ATTRIBUTE_ALIGN(32);;
-    DIR *sdir;
-    DIR *s2dir;
-    struct dirent *entry;
-	bool debug_flag = true;
-	
-	/*dbg_printf("\n");
-	sdir = opendir("ntfs:/");
-	if (sdir) do
-	{
-		entry = readdir(sdir);
-		if (entry) {
-			dbg_printf("Found entry ntfs:/%s\n", entry->d_name);
-		}
-	} while (entry);
-	if (sdir) closedir(sdir);
-	sdir = NULL;
-	dbg_printf("\n");*/
+	for (i = 0; i < size; i++) {
+		lower = channels[i] & 0xFFFFFFFF;	
 
-	// 1st count the number of games on SD
-	char gamePath[255];
-	sprintf(gamePath, "%s/games", dm_boot_drive);
-	dbg_printf("\nSearching GC games in %s ...\n", gamePath);
-	sdir = opendir(gamePath);
-	if (sdir) do
-	{
-		if (debug_flag) {
-			dbg_printf("\nOpened folder %s\n", gamePath);
-			debug_flag = false;
-		}
-		entry = readdir(sdir);
-		if (entry)
+		memcpy(chan_title_id, &lower, 4);
+		chan_title_id[4]='\0';
+		char *title = __Menu_PrintTitle(cfg_get_title(chan_title_id));
+
+		sprintf(path, "/title/00010001/%08x/content/title.tmd",lower);
+		Fd = ISFS_Open(path, ISFS_OPEN_READ);
+		u8 *tmdBuffer = memalign(32, 1024);
+		u32 ios;
+		ISFS_Read(Fd, tmdBuffer, 1024);
+		ios = (u32)(tmdBuffer[0x18b]);
+
+		free(tmdBuffer);
+		ISFS_Close(Fd);
+
+		if (title==NULL) 
 		{
-			sprintf(name_buffer, "%s/games/%s", dm_boot_drive, entry->d_name);
-			dbg_printf("\nFound entry %s", entry->d_name);
-			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
- 			{
-				continue;
- 			}
-			s2dir =  opendir(name_buffer);
-			if (s2dir)
+			dbg_printf("title==NULL\n");
+			sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
+			Fd= ISFS_Open(path, ISFS_OPEN_READ);
+			ISFS_Seek(Fd, 0x9C, 0);
+
+			u8 *data = memalign(32, 256);
+			ISFS_Read(Fd, data, 256);
+
+			wchar_t name[0x2B] __attribute__ ((aligned (32)));
+
+			name[0x2A] = 0;
+
+			HexToStr(name, data , 0x2A);
+
+			ISFS_Close(Fd);
+			free(data);
+		}
+		else 
+		{
+			if (strlen(title)>31)
 			{
-				sprintf(name_buffer, "%s/games/%s/game.iso", dm_boot_drive, entry->d_name);
-				fp = fopen(name_buffer, "rb");
-				if (fp)
-				{
-					fseek(fp, 0, SEEK_END);
-					if (ftell(fp) > 1000000)
-					{
-						u32 magic = 0;
-						fseek(fp, 0x1C, SEEK_SET);
-						fread(&magic, 1, sizeof(u32), fp);
-						if (magic == GC_MAGIC) {
-							DML_GameCount++;
-							dbg_printf(" --> GC_MAGIC OK!");
-						}
-					}
-					fclose(fp);
-				}
-				else
-				{
-					sprintf(name_buffer, "%s/games/%s/sys/boot.bin", dm_boot_drive, entry->d_name);
-					fp = fopen(name_buffer, "rb");
-					if (fp)
-					{
-						u32 magic = 0;
-						fseek(fp, 0x1C, SEEK_SET);
-						fread(&magic, 1, sizeof(u32), fp);
-						if (magic == GC_MAGIC) {
-							DML_GameCount++;
-							dbg_printf(" --> GC_MAGIC OK!");
-						}
-						fclose(fp);
-					}
-				}
-				closedir(s2dir);
+				char titletemp[31];
+
+				strncpy(titletemp, title, sizeof(titletemp));
+				titletemp[sizeof(titletemp)-1]='\0';
+				printf("%s",titletemp);
+			}
+			else 
+			{
+				printf("%s",title);
 			}
 		}
-	} while (entry);
-	if (sdir) closedir(sdir);
-	sdir = NULL;
-	debug_flag = true;
+		printf("[%s:%d]\n",chan_title_id,ios);
+		u8 *ptr = ((u8 *)outbuf) + (i * sizeof(struct discHdr));
+		struct discHdr *channel = (struct discHdr *)ptr;
+		memcpy(channel->id, chan_title_id, sizeof(chan_title_id));
+		memcpy(channel->title, title, strlen(title));
+	}
+
+	Disable_Emu();
+	return ret;
+}
+
+s32 get_channel_list_cnt(u64 channels[])
+{
+	ISFS_Initialize();		
+
+	s32 ret = 0;
+
+	Setup_NandEmu(2, CFG.nand_emu_path);
 	
-	if (strncmp(wbfs_fs_drive, dm_boot_drive, strlen(dm_boot_drive))) {
-		// 2st count the number of games on hdd+
-		char filepath[0xFF];
-		sprintf(filepath, "%s/games", wbfs_fs_drive);
-		dbg_printf("\nSearching GC games in %s ...\n", filepath);
-		sdir = opendir(filepath);
-		if (sdir) do
+	u32 count;
+
+	ret = ES_GetNumTitles(&count);
+	if (ret < 0 ) {
+		printf("error !! ret=%d\n",ret);
+		return ret;
+	}
+
+	static u64 title_list[1024] ATTRIBUTE_ALIGN(32);
+
+	ret = ES_GetTitles(title_list, count);
+	if (ret < 0 ) { 
+		printf("error !! ret=%d",ret);
+		return ret;
+	}
+
+	u32 i,upper,lower;
+	char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
+	mycount = 0;
+
+	s32 Fd;
+
+	for (i = 0; i < count; i++) {
+		upper = title_list[i] >> 32 ;
+		lower = title_list[i] & 0xFFFFFFFF;
+
+		if ((upper-0x10001==0)  &&  (lower-0x48414141 !=0) && (lower-0xaf1bf516 !=0) && (lower-0x4a4f4449 !=0) && (lower-0x48415858 !=0))
 		{
-			if (debug_flag) {
-				dbg_printf("\nOpened folder %s\n", filepath);
-				debug_flag = false;
-			}
-			entry = readdir(sdir);
-			if (entry)
+			sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
+			Fd= ISFS_Open(path, ISFS_OPEN_READ);
+			if (Fd >= -102)
 			{
-				dbg_printf("\nFound entry %s", entry->d_name);
-				sprintf(name_buffer, "%s/games/%s", wbfs_fs_drive, entry->d_name);
-				if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
-				{
-					continue;
-				}
-				s2dir =  opendir(name_buffer);
-				if(s2dir)
-				{
-					sprintf(name_buffer, "%s/games/%s/game.iso", wbfs_fs_drive, entry->d_name);
-					fp = fopen(name_buffer, "rb");
-					if(fp)
-					{
-						fseek(fp, 0, SEEK_END);
-						if (ftell(fp) > 1000000) {
-							u32 magic = 0;
-							fseek(fp, 0x1C, SEEK_SET);
-							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC) {
-								DML_GameCount++;
-								dbg_printf(" --> GC_MAGIC OK!");
-							}
-						}
-						fclose(fp);
-					}
-					else
-					{
-						sprintf(name_buffer, "%s/games/%s/sys/boot.bin", wbfs_fs_drive, entry->d_name);
-						fp = fopen(name_buffer, "rb");
-						if(fp)
-						{
-							u32 magic = 0;
-							fseek(fp, 0x1C, SEEK_SET);
-							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC) {
-								DML_GameCount++;
-								dbg_printf(" --> GC_MAGIC OK!");
-							}
-							fclose(fp);
-						}
-					}
-					closedir(s2dir);
-				}
+				channels[mycount++]=title_list[i];
 			}
-		} while (entry);
-		if (sdir) closedir(sdir);
-		sdir = NULL;
-		debug_flag = true;
+			sprintf(path, "/title/00010001/%08x/content/00000008.app",lower);
+			Fd= ISFS_Open(path, ISFS_OPEN_READ);
+			if (Fd >= -102)
+			{
+				channels[mycount++]=title_list[i];
+			}
+
+			ISFS_Close(Fd);
+		}
 	}
 	
-	if (strncmp(dm_boot_drive, "sd:", 3) && strncmp(wbfs_fs_drive, "sd:", 3)) {
-		// 3th count the number of games on hdd
-		char filepath[0xFF];
-		sprintf(filepath, "sd:/games");
-		dbg_printf("\nSearching GC games in %s ...\n", filepath);
-		sdir = opendir(filepath);
-		if (sdir) do
-		{
-			if (debug_flag) {
-				dbg_printf("\nOpened folder %s\n", filepath);
-				debug_flag = false;
-			}
-			entry = readdir(sdir);
-			if (entry)
-			{
-				dbg_printf("\nFound entry %s", entry->d_name);
-				sprintf(name_buffer, "sd:/games/%s", entry->d_name);
-				if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2))
-				{
-					continue;
-				}
-				s2dir =  opendir(name_buffer);
-				if(s2dir)
-				{
-					sprintf(name_buffer, "sd:/games/%s/game.iso", entry->d_name);
-					fp = fopen(name_buffer, "rb");
-					if(fp)
-					{
-						fseek(fp, 0, SEEK_END);
-						if (ftell(fp) > 1000000) {
-							u32 magic = 0;
-							fseek(fp, 0x1C, SEEK_SET);
-							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC) {
-								DML_GameCount++;
-								dbg_printf(" --> GC_MAGIC OK!");
-							}
-						}
-						fclose(fp);
-					}
-					else
-					{
-						sprintf(name_buffer, "sd:/games/%s/sys/boot.bin", entry->d_name);
-						fp = fopen(name_buffer, "rb");
-						if(fp)
-						{
-							u32 magic = 0;
-							fseek(fp, 0x1C, SEEK_SET);
-							fread(&magic, 1, sizeof(u32), fp);
-							if (magic == GC_MAGIC) {
-								DML_GameCount++;
-								dbg_printf(" --> GC_MAGIC OK!");
-							}
-							fclose(fp);
-						}
-					}
-					closedir(s2dir);
-				}
-			}
-		} while (entry);
-		dbg_printf("Closing dir\n");
-		if (sdir) closedir(sdir);
-		dbg_printf("Dir closed\n");
-		sdir = NULL;
-	}
-	
-	return DML_GameCount;
+	return mycount;
 }
 
 s32 get_DML_game_list(void *outbuf)
@@ -899,6 +863,7 @@ s32 get_DML_game_list(void *outbuf)
 	// 1st count the number of games on SD
 	char gamePath[255];
 	sprintf(gamePath, "%s/games", dm_boot_drive);
+	dbg_printf("\nSearching GC games in %s ...\n", gamePath);
 	sdir = opendir(gamePath);
 	if (sdir) do
 	{
@@ -920,22 +885,22 @@ s32 get_DML_game_list(void *outbuf)
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) > 1000000)
 					{
-						u32 magic = 0;
-						fseek(fp, 0x1C, SEEK_SET);
-						fread(&magic, 1, sizeof(u32), fp);
-						if (magic == GC_MAGIC) {
-							dbg_printf("Found DML game %s\n", entry->d_name);
-							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-							struct discHdr *dmlGame = (struct discHdr *)ptr;
-							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-							dmlGame->magic = GC_GAME_ON_DM_DRIVE;
-							fseek(fp, 0, SEEK_SET);
-							fread(dmlGame->id, 1, 6, fp);
-							fseek(fp, 6, SEEK_SET);
-							fread(&dmlGame->disc, 1, 1, fp);
-							fseek(fp, 0x20, SEEK_SET);
-							fread(dmlGame->title, 1, 0x40, fp);
+						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+						struct discHdr *dmlGame = (struct discHdr *)ptr;
+						
+						struct gc_discHdr header;
+						fseek(fp, 0, SEEK_SET);
+						fread(&header, 1, sizeof(struct gc_discHdr), fp);
+						fclose(fp);
+						
+						if (header.magic == GC_MAGIC && !getHeaderById(outbuf, DML_GameCount, header.id, header.disc)) {
+							memcpy(dmlGame->id, header.id, 6);
+							dmlGame->disc = header.disc;
+							memcpy(dmlGame->title, header.title, sizeof(dmlGame->title));
+							
+							sprintf(dmlGame->path, "%s/games/%s", dm_boot_drive, entry->d_name);
+							dmlGame->magic = GC_GAME_ON_DRIVE;
+
 							DML_GameCount++;
 						}
 					}
@@ -943,29 +908,28 @@ s32 get_DML_game_list(void *outbuf)
 				}
 				else
 				{
-					snprintf(name_buffer, sizeof(name_buffer), "%s/games/%s/sys/boot.bin", dm_boot_drive, entry->d_name);
+					sprintf(name_buffer, "%s/games/%s/sys/boot.bin", dm_boot_drive, entry->d_name);
 					fp = fopen(name_buffer, "rb");
-					if(fp)
+					if (fp)
 					{
-						u32 magic = 0;
-						fseek(fp, 0x1C, SEEK_SET);
-						fread(&magic, 1, sizeof(u32), fp);
-						if (magic == GC_MAGIC) {
-							dbg_printf("Found DML game %s\n", entry->d_name);
-							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-							struct discHdr *dmlGame = (struct discHdr *)ptr;
-							memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-							memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-							dmlGame->magic = GC_GAME_ON_DM_DRIVE;
-							fseek(fp, 0, SEEK_SET);
-							fread(dmlGame->id, 1, 6, fp);
-							fseek(fp, 6, SEEK_SET);
-							fread(&dmlGame->disc, 1, 1, fp);
-							fseek(fp, 0x20, SEEK_SET);
-							fread(dmlGame->title, 1, 0x40, fp);
+						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+						struct discHdr *dmlGame = (struct discHdr *)ptr;
+						
+						struct gc_discHdr header;
+						fseek(fp, 0, SEEK_SET);
+						fread(&header, 1, sizeof(struct gc_discHdr), fp);
+						fclose(fp);
+						
+						if (header.magic == GC_MAGIC && !getHeaderById(outbuf, DML_GameCount, header.id, header.disc)) {
+							memcpy(dmlGame->id, header.id, 6);
+							dmlGame->disc = header.disc;
+							memcpy(dmlGame->title, header.title, sizeof(dmlGame->title));
+							
+							sprintf(dmlGame->path, "%s/games/%s", dm_boot_drive, entry->d_name);
+							dmlGame->magic = GC_GAME_ON_DRIVE;
+
 							DML_GameCount++;
 						}
-						fclose(fp);
 					}
 				}
 				closedir(s2dir);
@@ -976,10 +940,10 @@ s32 get_DML_game_list(void *outbuf)
 	sdir = NULL;
 	
 	if (strncmp(wbfs_fs_drive, dm_boot_drive, strlen(dm_boot_drive))) {
-		// 2st count the number of games on hdd
+		// 2st count the number of games on hdd+
 		char filepath[0xFF];
 		sprintf(filepath, "%s/games", wbfs_fs_drive);
-		dbg_printf(filepath);
+		dbg_printf("\nSearching GC games in %s ...\n", filepath);
 		sdir = opendir(filepath);
 		if (sdir) do
 		{
@@ -992,78 +956,55 @@ s32 get_DML_game_list(void *outbuf)
 					continue;
 				}
 				s2dir =  opendir(name_buffer);
-				if (s2dir)
+				if(s2dir)
 				{
 					sprintf(name_buffer, "%s/games/%s/game.iso", wbfs_fs_drive, entry->d_name);
 					fp = fopen(name_buffer, "rb");
-					if (fp)
+					if(fp)
 					{
-						fseek(fp, 0, SEEK_END);
-						if (ftell(fp) > 1000000)
-						{
-							u8 id[6];
-							u8 disc;
-							fseek(fp, 0, SEEK_SET);
-							fread(id, 1, 6, fp);
-							fseek(fp, 6, SEEK_SET);
-							fread(&disc, 1, 1, fp);
-							
-							if (!getHeaderById(outbuf, DML_GameCount, id, disc)) {
-								u32 magic = 0;
-								fseek(fp, 0x1C, SEEK_SET);
-								fread(&magic, 1, sizeof(u32), fp);
-								if (magic == GC_MAGIC) {
-									dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
-									u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-									struct discHdr *dmlGame = (struct discHdr *)ptr;
-									memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-									memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-									dmlGame->magic = GC_GAME_ON_GAME_DRIVE;
-									fseek(fp, 0, SEEK_SET);
-									fread(dmlGame->id, 1, 6, fp);
-									dmlGame->disc = disc;
-									fseek(fp, 0x20, SEEK_SET);
-									fread(dmlGame->title, 1, 0x40, fp);
-									DML_GameCount++;
-								}
-							}
-						}
+						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+						struct discHdr *dmlGame = (struct discHdr *)ptr;
+						
+						struct gc_discHdr header;
+						fseek(fp, 0, SEEK_SET);
+						fread(&header, 1, sizeof(struct gc_discHdr), fp);
 						fclose(fp);
+						
+						if (header.magic == GC_MAGIC && !getHeaderById(outbuf, DML_GameCount, header.id, header.disc)) {
+							memcpy(dmlGame->id, header.id, 6);
+							dmlGame->disc = header.disc;
+							memcpy(dmlGame->title, header.title, sizeof(dmlGame->title));
+							
+							sprintf(dmlGame->path, "%s/games/%s", wbfs_fs_drive, entry->d_name);
+							dmlGame->magic = GC_GAME_ON_DRIVE;
+
+							DML_GameCount++;
+						}
 					}
 					else
 					{
 						sprintf(name_buffer, "%s/games/%s/sys/boot.bin", wbfs_fs_drive, entry->d_name);
 						fp = fopen(name_buffer, "rb");
-						if (fp)
+						if(fp)
 						{
-							u8 id[6];
-							u8 disc;
-							fseek(fp, 0, SEEK_SET);
-							fread(id, 1, 6, fp);
-							fseek(fp, 6, SEEK_SET);
-							fread(&disc, 1, 1, fp);
+							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+							struct discHdr *dmlGame = (struct discHdr *)ptr;
 							
-							if (!getHeaderById(outbuf, DML_GameCount, id, disc))
-							{
-								u32 magic = 0;
-								fseek(fp, 0x1C, SEEK_SET);
-								fread(&magic, 1, sizeof(u32), fp);
-								if (magic == GC_MAGIC) {
-									dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
-									u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-									struct discHdr *dmlGame = (struct discHdr *)ptr;
-									memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-									memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-									dmlGame->magic = GC_GAME_ON_GAME_DRIVE;
-									fseek(fp, 0, SEEK_SET);
-									fread(dmlGame->id, 1, 6, fp);
-									dmlGame->disc = disc;
-									fseek(fp, 0x20, SEEK_SET);
-									fread(dmlGame->title, 1, 0x40, fp);
-									DML_GameCount++;
-								}
-							}
+							struct gc_discHdr header;
+							fseek(fp, 0, SEEK_SET);
+							fread(&header, 1, sizeof(struct gc_discHdr), fp);
 							fclose(fp);
+							
+							if (header.magic == GC_MAGIC && !getHeaderById(outbuf, DML_GameCount, header.id, header.disc)) {
+								memcpy(dmlGame->id, header.id, 6);
+								dmlGame->disc = header.disc;
+								memcpy(dmlGame->title, header.title, sizeof(dmlGame->title));
+								
+								sprintf(dmlGame->path, "%s/games/%s", wbfs_fs_drive, entry->d_name);
+								dmlGame->magic = GC_GAME_ON_DRIVE;
+
+								DML_GameCount++;
+							}
 						}
 					}
 					closedir(s2dir);
@@ -1075,10 +1016,10 @@ s32 get_DML_game_list(void *outbuf)
 	}
 	
 	if (strncmp(dm_boot_drive, "sd:", 3) && strncmp(wbfs_fs_drive, "sd:", 3)) {
-		// 3th count the number of games on sd
+		// 3th count the number of games on hdd
 		char filepath[0xFF];
 		sprintf(filepath, "sd:/games");
-		dbg_printf(filepath);
+		dbg_printf("\nSearching GC games in %s ...\n", filepath);
 		sdir = opendir(filepath);
 		if (sdir) do
 		{
@@ -1091,90 +1032,69 @@ s32 get_DML_game_list(void *outbuf)
 					continue;
 				}
 				s2dir =  opendir(name_buffer);
-				if (s2dir)
+				if(s2dir)
 				{
 					sprintf(name_buffer, "sd:/games/%s/game.iso", entry->d_name);
 					fp = fopen(name_buffer, "rb");
-					if (fp)
+					if(fp)
 					{
-						fseek(fp, 0, SEEK_END);
-						if (ftell(fp) > 1000000)
-						{
-							u8 id[6];
-							u8 disc;
-							fseek(fp, 0, SEEK_SET);
-							fread(id, 1, 6, fp);
-							fseek(fp, 6, SEEK_SET);
-							fread(&disc, 1, 1, fp);
-							
-							if (!getHeaderById(outbuf, DML_GameCount, id, disc)) {
-								u32 magic = 0;
-								fseek(fp, 0x1C, SEEK_SET);
-								fread(&magic, 1, sizeof(u32), fp);
-								if (magic == GC_MAGIC) {
-									dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
-									u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-									struct discHdr *dmlGame = (struct discHdr *)ptr;
-									memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-									memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-									dmlGame->magic = GC_GAME_ON_SD_DRIVE;
-									fseek(fp, 0, SEEK_SET);
-									fread(dmlGame->id, 1, 6, fp);
-									dmlGame->disc = disc;
-									fseek(fp, 0x20, SEEK_SET);
-									fread(dmlGame->title, 1, 0x40, fp);
-									DML_GameCount++;
-								}
-							}
-						}
+						u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+						struct discHdr *dmlGame = (struct discHdr *)ptr;
+						
+						struct gc_discHdr header;
+						fseek(fp, 0, SEEK_SET);
+						fread(&header, 1, sizeof(struct gc_discHdr), fp);
 						fclose(fp);
+						
+						if (header.magic == GC_MAGIC && !getHeaderById(outbuf, DML_GameCount, header.id, header.disc)) {
+							memcpy(dmlGame->id, header.id, 6);
+							dmlGame->disc = header.disc;
+							memcpy(dmlGame->title, header.title, sizeof(dmlGame->title));
+							
+							sprintf(dmlGame->path, "sd:/games/%s", entry->d_name);
+							dmlGame->magic = GC_GAME_ON_DRIVE;
+
+							DML_GameCount++;
+						}
 					}
 					else
 					{
 						sprintf(name_buffer, "sd:/games/%s/sys/boot.bin", entry->d_name);
 						fp = fopen(name_buffer, "rb");
-						if (fp)
+						if(fp)
 						{
-							u8 id[6];
-							u8 disc;
-							fseek(fp, 0, SEEK_SET);
-							fread(id, 1, 6, fp);
-							fseek(fp, 6, SEEK_SET);
-							fread(&disc, 1, 1, fp);
+							u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
+							struct discHdr *dmlGame = (struct discHdr *)ptr;
 							
-							if (!getHeaderById(outbuf, DML_GameCount, id, disc))
-							{
-								u32 magic = 0;
-								fseek(fp, 0x1C, SEEK_SET);
-								fread(&magic, 1, sizeof(u32), fp);
-								if (magic == GC_MAGIC) {
-									dbg_printf("\nFound DML game %s on hdd\n", entry->d_name);
-									u8 *ptr = ((u8 *)outbuf) + (DML_GameCount * sizeof(struct discHdr));
-									struct discHdr *dmlGame = (struct discHdr *)ptr;
-									memset(dmlGame->folder, 0, sizeof(dmlGame->folder));
-									memcpy(dmlGame->folder, entry->d_name, strlen(entry->d_name));
-									dmlGame->magic = GC_GAME_ON_SD_DRIVE;
-									fseek(fp, 0, SEEK_SET);
-									fread(dmlGame->id, 1, 6, fp);
-									dmlGame->disc = disc;
-									fseek(fp, 0x20, SEEK_SET);
-									fread(dmlGame->title, 1, 0x40, fp);
-									DML_GameCount++;
-								}
-							}
+							struct gc_discHdr header;
+							fseek(fp, 0, SEEK_SET);
+							fread(&header, 1, sizeof(struct gc_discHdr), fp);
 							fclose(fp);
+							
+							if (header.magic == GC_MAGIC && !getHeaderById(outbuf, DML_GameCount, header.id, header.disc)) {
+								memcpy(dmlGame->id, header.id, 6);
+								dmlGame->disc = header.disc;
+								memcpy(dmlGame->title, header.title, sizeof(dmlGame->title));
+								
+								sprintf(dmlGame->path, "sd:/games/%s", entry->d_name);
+								dmlGame->magic = GC_GAME_ON_DRIVE;
+
+								DML_GameCount++;
+							}
 						}
 					}
 					closedir(s2dir);
 				}
 			}
 		} while (entry);
+		dbg_printf("Closing dir\n");
 		if (sdir) closedir(sdir);
+		dbg_printf("Dir closed\n");
 		sdir = NULL;
 	}
+	
 	return DML_GameCount;
 }
-
 
 s32 __Menu_GetEntries(void)
 {
@@ -1183,56 +1103,43 @@ s32 __Menu_GetEntries(void)
 
 	u32 cnt, len = 0;
 	s32 ret = 0;
-	s32 dml = get_DML_game_list_cnt();
-	dbg_printf("DM games calculated\n");
+	
+	s32 dml = 0;
 
 	Cache_Invalidate();
-	dbg_printf("Cache_Invalidate()\n");
 
-	dbg_printf("Switch_Favorites(false)\n");
 	Switch_Favorites(false);
-	dbg_printf("SAFE_FREE(fav_gameList) %d\n", fav_gameList);
 	SAFE_FREE(fav_gameList);
 	fav_gameCnt = 0;
 	
-	dbg_printf("SAFE_FREE(filter_gameList)\n");
 	SAFE_FREE(filter_gameList);
 	filter_gameCnt = 0;
 
 	if (MountWBFS) {
 		/* Get list length */
-		dbg_printf("ret = WBFS_GetCount(&cnt)\n");
 		ret = WBFS_GetCount(&cnt);
 		if (ret < 0)
 			return ret;
 	}
 		
 	/* Allocate memory */
-	dbg_printf("Allocate memory for GC game headers\n");
-	dmlBuffer = (struct discHdr *)memalign(32, sizeof(struct discHdr)*dml);
+	dmlBuffer = (struct discHdr *)memalign(32, sizeof(struct discHdr)*1000);
 	if (!dmlBuffer)
 		return -1;
-	
-	/* Clear buffer */
-	dbg_printf("Clear GC game header buffer\n");
-	memset(dmlBuffer, 0, sizeof(struct discHdr)*dml);
 	
 	dml = get_DML_game_list(dmlBuffer);
 
 	/* Buffer length */
 	len = sizeof(struct discHdr) * (cnt+dml);
-	dbg_printf("Game buffer length: %d\n", len);
 	
 	dbg_printf("Found %d games (%d wii games and %d gc games)\n", len/sizeof(struct discHdr), cnt, dml);
 
 	/* Allocate memory */
-	dbg_printf("Allocate memory for Wii game headers\n");
 	buffer = (struct discHdr *)memalign(32, len);
 	if (!buffer)
 		return -1;
 
 	/* Clear buffer */
-	dbg_printf("Clear Wii game header buffer\n");
 	memset(buffer, 0, len);
 	
 	memcpy(buffer, dmlBuffer, sizeof(struct discHdr) * dml);
@@ -1327,27 +1234,6 @@ void Switch_Favorites(bool enable)
 	}
 	// scroll start list
 	__Menu_ScrollStartList();
-}
-
-char *__Menu_PrintTitle(char *name)
-{
-	//static char buffer[MAX_CHARACTERS + 4];
-	static char buffer[400];
-	int len = con_len(name);
-
-	/* Clear buffer */
-	memset(buffer, 0, sizeof(buffer));
-
-	/* Check string length */
-	if (len >= MAX_CHARACTERS) {
-		//strncpy(buffer, name,  MAX_CHARACTERS - 4);
-		STRCOPY(buffer, name);
-		con_trunc(buffer, MAX_CHARACTERS - 4);
-		strcat(buffer, "..");
-		return buffer;
-	}
-
-	return name;
 }
 
 char *__Menu_WrapTitle(char *title, int len)
@@ -1622,55 +1508,6 @@ void __Menu_MoveList(s8 delta)
 
 	/* List scrolling */
 	__Menu_ScrollStartList();
-}
-
-void __Chan_MoveList(s8 delta)
-{
-	/* No channellist */
-	if (!mycount)
-		return;
-
-	#if 0
-	/* Select next entry */
-	chanSelected += delta;
-
-	/* Out of the list? */
-	if (chanSelected <= -1)
-		chanSelected = (mycount - 1);
-	if (chanSelected >= mycount)
-		chanSelected = 0;
-	#endif
-
-	if(delta>0) {
-		if(chanSelected == mycount - 1) {
-			chanSelected = 0;
-		}
-		else {
-			chanSelected +=delta;
-			if(chanSelected >= mycount) {
-				chanSelected = (mycount - 1);
-			}
-		}
-	}
-	else {
-		if(!chanSelected) {
-			chanSelected = mycount - 1;
-		}
-		else {
-			chanSelected +=delta;
-			if(chanSelected < 0) {
-				chanSelected = 0;
-			}
-		}
-	}
-
-	/* List scrolling */
-	s32 index = (chanSelected - chanStart);
-
-	if (index >= ENTRIES_PER_PAGE)
-		chanStart += index - (ENTRIES_PER_PAGE - 1);
-	if (index <= -1)
-		chanStart += index;
 }
 
 void __Menu_ScrollStartList()
@@ -2360,7 +2197,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	if (disc) {
 		printf(" (%.6s)\n", header->id);
 	} else {
-		if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX)
+		if (header->magic == GC_GAME_ON_DRIVE)
 		{
 			u64 tempSize = getDMLGameSize(header);
 			if (tempSize > 0) {
@@ -2389,7 +2226,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	struct Menu menu;
 	int NUM_OPT = 19;
-	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) NUM_OPT = 14;
+	if (header->magic == GC_GAME_ON_DRIVE) NUM_OPT = 14;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -2513,7 +2350,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		#define PRINT_OPT_B(N,V) \
 			PRINT_OPT_S(N,(V?gt("On"):gt("Off"))) 
 			
-		if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) {
+		if (header->magic == GC_GAME_ON_DRIVE) {
 			menu_window_begin(&menu, win_size, NUM_OPT);
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
@@ -2634,7 +2471,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		if (buttons & WPAD_BUTTON_LEFT) change = -1;
 		if (buttons & WPAD_BUTTON_RIGHT) change = +1;
 
-		if (change && ((header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) || header->magic == GC_MAGIC)) {
+		if (change && ((header->magic == GC_GAME_ON_DRIVE) || header->magic == GC_MAGIC)) {
 			switch (menu.current) {
 			case 0:
 				printf("\n\n");
@@ -4116,260 +3953,243 @@ void print_ntfs_write_error()
 }
 
 void Menu_Channel(void)
-{
-		 
- ISFS_Initialize();		
-		
+{	 
+	ISFS_Initialize();		
+
 	s32 ret;
-	
-	//ret=Enable_Emu(EMU_USB);
-	//if (ret<0) Disable_Emu();
-	//printf("EMU = %d\n",ret);
-	
-  u32 count;
-   
-  ret = ES_GetNumTitles(&count);
- if (ret < 0 ) printf("error !! ret=%d",ret);
-  
- static u64 title_list[1024] ATTRIBUTE_ALIGN(32);
-   
-  ret = ES_GetTitles(title_list, count);
-  if (ret < 0 ) printf("error !! ret=%d",ret);
-  	
-  	//printf("Owned titles:%d\n\n",count);
-  	
-    u64 channels[count];
-    u32 i,upper,lower;
-	  char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-	  mycount=0;
-	  
-	  s32 Fd;
-	 	   
-    for ( i=0; i < count; i++) {
-   
-     upper = title_list[i] >> 32 ;
-     lower = title_list[i] & 0xFFFFFFFF;
-      
-   if ((upper-0x10001==0)  &&  (lower-0x48414141 !=0)
-   	 && (lower-0xaf1bf516 !=0) && (lower-0x4a4f4449 !=0) && (lower-0x48415858 !=0))
-     
-     {
-     	
-  
-     sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
-      Fd= ISFS_Open(path, ISFS_OPEN_READ);
-      if (Fd >= -102)
-      	{
-        channels[mycount]=title_list[i];
-        mycount++;
-          }
-     sprintf(path, "/title/00010001/%08x/content/00000008.app",lower);
-      Fd= ISFS_Open(path, ISFS_OPEN_READ);
-      if (Fd >= -102)
-      	{
-        channels[mycount]=title_list[i];
-        mycount++;
-          }
-                       
-	   ISFS_Close(Fd);
-    }
-	    }
-	    // Wpad_WaitButtonsRpt();
-	
-		for (;;) {
- 	//go_gui = false;
-  Con_Clear();
-	DefaultColor();
-		if (!CFG.hide_header) {
-	printf_x(gt("Channels and Wiiware/VC games"));
-	printf("\n");
-}
-	//DefaultColor();
-	if (CFG.console_mark_page && chanStart > 0) {
-		printf(" %s +", CFG.cursor_space);
+
+	Setup_NandEmu(2, CFG.nand_emu_path);
+
+	u32 count;
+
+	ret = ES_GetNumTitles(&count);
+	if (ret < 0 ) printf("error !! ret=%d",ret);
+
+	static u64 title_list[1024] ATTRIBUTE_ALIGN(32);
+
+	ret = ES_GetTitles(title_list, count);
+	if (ret < 0 ) printf("error !! ret=%d",ret);
+
+	//printf("Owned titles:%d\n\n",count);
+
+	u64 channels[count];
+	u32 i,upper,lower;
+	char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
+	mycount=0;
+
+	s32 Fd;
+
+	for ( i=0; i < count; i++) {
+		upper = title_list[i] >> 32 ;
+		lower = title_list[i] & 0xFFFFFFFF;
+
+		if ((upper-0x10001==0)  &&  (lower-0x48414141 !=0) && (lower-0xaf1bf516 !=0) && (lower-0x4a4f4449 !=0) && (lower-0x48415858 !=0))
+		{
+			sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
+			Fd= ISFS_Open(path, ISFS_OPEN_READ);
+			if (Fd >= -102)
+			{
+				channels[mycount]=title_list[i];
+				mycount++;
+			}
+			sprintf(path, "/title/00010001/%08x/content/00000008.app",lower);
+			Fd= ISFS_Open(path, ISFS_OPEN_READ);
+			if (Fd >= -102)
+			{
+				channels[mycount]=title_list[i];
+				mycount++;
+			}
+
+			ISFS_Close(Fd);
+		}
 	}
-	printf("\n");
-	
-    
-    
-      u8 chan_title_id[5];
- 	
-  for ( i=0; i < mycount; i++) {
-     if ((i - chanStart) >= ENTRIES_PER_PAGE)
+	// Wpad_WaitButtonsRpt();
+
+	for (;;) {
+		//go_gui = false;
+		Con_Clear();
+		DefaultColor();
+		if (!CFG.hide_header) {
+			printf_x(gt("Channels and Wiiware/VC games"));
+			printf("\n");
+		}
+		//DefaultColor();
+		if (CFG.console_mark_page && chanStart > 0) {
+			printf(" %s +", CFG.cursor_space);
+		}
+		printf("\n");
+
+
+
+		u8 chan_title_id[5];
+
+		for ( i=0; i < mycount; i++) {
+			if ((i - chanStart) >= ENTRIES_PER_PAGE)
 				break;   
-  	
-  lower = channels[i] & 0xFFFFFFFF;	
-    
-   memcpy(chan_title_id, &lower, 4);
-  chan_title_id[4]='\0';
-  
-  if (chanSelected == i) {
+
+			lower = channels[i] & 0xFFFFFFFF;	
+
+			memcpy(chan_title_id, &lower, 4);
+			chan_title_id[4]='\0';
+
+			if (chanSelected == i) {
 				FgColor(CFG.color_selected_fg);
 				BgColor(CFG.color_selected_bg);
 				Con_ClearLine();
 			} else {
 				DefaultColor();
 			}
-	char *title = __Menu_PrintTitle(cfg_get_title(chan_title_id));
-	 
-    sprintf(path, "/title/00010001/%08x/content/title.tmd",lower);
-     Fd= ISFS_Open(path, ISFS_OPEN_READ);
-     u8 *tmdBuffer = memalign(32, 1024);
-  	  u32 ios;
-   ISFS_Read(Fd, tmdBuffer, 1024);
-	 ios = (u32)(tmdBuffer[0x18b]);
-	
-   free(tmdBuffer);
-   ISFS_Close(Fd);
-	
+			char *title = __Menu_PrintTitle(cfg_get_title(chan_title_id));
+
+			sprintf(path, "/title/00010001/%08x/content/title.tmd",lower);
+			Fd= ISFS_Open(path, ISFS_OPEN_READ);
+			u8 *tmdBuffer = memalign(32, 1024);
+			u32 ios;
+			ISFS_Read(Fd, tmdBuffer, 1024);
+			ios = (u32)(tmdBuffer[0x18b]);
+
+			free(tmdBuffer);
+			ISFS_Close(Fd);
+
 			printf(" %s", (chanSelected == i) ? CFG.cursor : CFG.cursor_space);
-  if (title==NULL) 
-  	{
-  	  		
-  	 sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
-  	  Fd= ISFS_Open(path, ISFS_OPEN_READ);
-  	  ISFS_Seek(Fd, 0x9C, 0);
-  	  
-  	  u8 *data = memalign(32, 256);
-  	 // ISFS_Read(Fd, data, 0x22 * 0x2B);
-  	 ISFS_Read(Fd, data, 256);
-  	  
-  	//char str[0x22][0x2B];
-  	 wchar_t name[0x2B] __attribute__ ((aligned (32)));
-    
-    name[0x2A] = 0;
-   // char name[256];
-    
-  		
-  	HexToStr(name, data , 0x2A);
-  	
-  	/*
-  	int k;
-  	
-  	for (k=0;k<0x2B;k++)
-  	{
-  			u16 *chr = (u16*)data[k];
-  	  	name1[k]=*chr;
-  	  	
-  	  	   }
-     sprintf(name, "%s", name1);
-   */
-    ISFS_Close(Fd);
-    free(data);
-    FgColor(CFG.color_footer);
-  	if(wcslen(name)<=5) printf ("No Title..");
-  	printf("%ls",name);	
-  	//free(buffer);
-    
-   }
-  else 
-  	{
-  	if (strlen(title)>31)
-  	{
-  		char titletemp[31];
-  	
-  		strncpy(titletemp,title,sizeof(titletemp));
-  			titletemp[sizeof(titletemp)-1]='\0';
-		printf("%s",titletemp);
-		  }
-		  else 
-		  	{
-		  		printf("%s",title);
-		  	}
-		  }
-     FgColor(CFG.color_selected_fg);
-     printf("[%s:%d]\n",chan_title_id,ios);
-   DefaultColor();
-     
-   
-     }
- 
-  lower = channels[chanSelected] & 0xFFFFFFFF;	
-   memcpy(chan_title_id, &lower, 4);
-  chan_title_id[4]='\0';
-  Gui_DrawCover(chan_title_id);
-  DefaultColor();
+			if (title==NULL) 
+			{
+				sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
+				Fd= ISFS_Open(path, ISFS_OPEN_READ);
+				ISFS_Seek(Fd, 0x9C, 0);
+
+				u8 *data = memalign(32, 256);
+				// ISFS_Read(Fd, data, 0x22 * 0x2B);
+				ISFS_Read(Fd, data, 256);
+
+				//char str[0x22][0x2B];
+				wchar_t name[0x2B] __attribute__ ((aligned (32)));
+
+				name[0x2A] = 0;
+				// char name[256];
+
+
+				HexToStr(name, data , 0x2A);
+
+				/*
+				int k;
+
+				for (k=0;k<0x2B;k++)
+				{
+				u16 *chr = (u16*)data[k];
+				name1[k]=*chr;
+
+				}
+				sprintf(name, "%s", name1);
+				*/
+				ISFS_Close(Fd);
+				free(data);
+				FgColor(CFG.color_footer);
+				if(wcslen(name)<=5) printf ("No Title..");
+				printf("%ls",name);	
+				//free(buffer);
+			}
+			else 
+			{
+				if (strlen(title)>31)
+				{
+					char titletemp[31];
+
+					strncpy(titletemp,title,sizeof(titletemp));
+					titletemp[sizeof(titletemp)-1]='\0';
+					printf("%s",titletemp);
+				}
+				else 
+				{
+					printf("%s",title);
+				}
+			}
+			FgColor(CFG.color_selected_fg);
+			printf("[%s:%d]\n",chan_title_id,ios);
+			DefaultColor();
+		}
+
+		lower = channels[chanSelected] & 0xFFFFFFFF;	
+		memcpy(chan_title_id, &lower, 4);
+		chan_title_id[4]='\0';
+		Gui_DrawCover(chan_title_id);
+		DefaultColor();
 		if (CFG.console_mark_page && i < mycount) {
 			printf(" %s +", CFG.cursor_space);
 		} else {
 			printf(" %s  ", CFG.cursor_space);
 		}
-   FgColor(CFG.color_footer);
+		FgColor(CFG.color_footer);
 		BgColor(CONSOLE_BG_COLOR);
 		int num_page = 1 + (mycount - 1) / ENTRIES_PER_PAGE;
 		int cur_page = 1 + chanSelected / ENTRIES_PER_PAGE;
 		printf(" %-*.*s %d/%d", MAX_CHARACTERS - 8, MAX_CHARACTERS - 8, action_string, cur_page, num_page);
-    action_string[0] = 0;
-  if (!CFG.hide_footer) {
-		printf("\n");
-					
-		printf_x(gt(" Press [A]:Launch Channel"));
-		printf("\n");
-		printf_x(gt(" Press [B]:GUI Menu"));
-		printf("\n");
-		printf_x(gt(" Press [1]:Download Covers"));
-		printf("\n");		
-	}
-__console_flush(0);  
+		action_string[0] = 0;
+		if (!CFG.hide_footer) {
+			printf("\n");
 
-u32 buttons = Wpad_WaitButtonsRpt();
+			printf_x(gt(" Press [A]:Launch Channel"));
+			printf("\n");
+			printf_x(gt(" Press [B]:GUI Menu"));
+			printf("\n");
+			printf_x(gt(" Press [1]:Download Covers"));
+			printf("\n");		
+		}
+		__console_flush(0);  
 
-if (buttons & WPAD_BUTTON_A){
-	  Music_Pause();
-	//bootTitle(channels[chanSelected]);
-		
-  WII_LaunchTitle(channels[chanSelected]);
-	}
+		u32 buttons = Wpad_WaitButtonsRpt();
+
+		if (buttons & WPAD_BUTTON_A) {
+			Music_Pause();
+			//bootTitle(channels[chanSelected]);
+
+			WII_LaunchTitle(channels[chanSelected]);
+		}
 
 
 
-if (buttons & WPAD_BUTTON_B){	  
-	  	//go_gui = true;
+		if (buttons & WPAD_BUTTON_B) {	  
+			//go_gui = true;
 			Gui_Mode();
 		}	
-if (buttons & WPAD_BUTTON_1){	 
-	 DefaultColor(); 
-	 
-	  Download_Cover((char*)chan_title_id, true, true);
-				Cache_Invalidate();
-				Gui_DrawCover(chan_title_id);
-				Menu_PrintWait();
-		
-	}
+		if (buttons & WPAD_BUTTON_1) {	 
+			DefaultColor(); 
 
-	/* UP/DOWN buttons */
-	if (buttons & WPAD_BUTTON_UP)
-		__Chan_MoveList(-1);
-
-	if (buttons & WPAD_BUTTON_DOWN)
-		__Chan_MoveList(1);
-
-	/* LEFT/RIGHT buttons */
-	if (buttons & WPAD_BUTTON_LEFT) {
-		//__Menu_MoveList(-ENTRIES_PER_PAGE);
-		if (CFG.cursor_jump) {
-			__Chan_MoveList(-CFG.cursor_jump);
-		} else {
-			__Chan_MoveList((chanSelected-chanStart == 0) ? -ENTRIES_PER_PAGE : -(chanSelected-chanStart));
+			Download_Cover((char*)chan_title_id, true, true);
+			Cache_Invalidate();
+			Gui_DrawCover(chan_title_id);
+			Menu_PrintWait();
 		}
-	}
 
-	if (buttons & WPAD_BUTTON_RIGHT) {
-		//__Menu_MoveList(ENTRIES_PER_PAGE);
-		if (CFG.cursor_jump) {
-			__Chan_MoveList(CFG.cursor_jump);
-		} else {
-			__Chan_MoveList((chanSelected-chanStart == (ENTRIES_PER_PAGE - 1)) ? ENTRIES_PER_PAGE : ENTRIES_PER_PAGE - (chanSelected-chanStart) - 1);
+		/* UP/DOWN buttons */
+		if (buttons & WPAD_BUTTON_UP)
+			__Chan_MoveList(-1);
+
+		if (buttons & WPAD_BUTTON_DOWN)
+			__Chan_MoveList(1);
+
+		/* LEFT/RIGHT buttons */
+		if (buttons & WPAD_BUTTON_LEFT) {
+			//__Menu_MoveList(-ENTRIES_PER_PAGE);
+			if (CFG.cursor_jump) {
+				__Chan_MoveList(-CFG.cursor_jump);
+			} else {
+				__Chan_MoveList((chanSelected-chanStart == 0) ? -ENTRIES_PER_PAGE : -(chanSelected-chanStart));
+			}
 		}
-	}
+
+		if (buttons & WPAD_BUTTON_RIGHT) {
+			//__Menu_MoveList(ENTRIES_PER_PAGE);
+			if (CFG.cursor_jump) {
+				__Chan_MoveList(CFG.cursor_jump);
+			} else {
+				__Chan_MoveList((chanSelected-chanStart == (ENTRIES_PER_PAGE - 1)) ? ENTRIES_PER_PAGE : ENTRIES_PER_PAGE - (chanSelected-chanStart) - 1);
+			}
+		}
 		__console_flush(0);
-	
+
+	}
 }
-
-
-}
-
-  
 
 void Menu_Install(void)
 {
@@ -4759,8 +4579,8 @@ void Menu_Remove(void)
 	fflush(stdout);
 
 	/* Remove game */
-	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) {
-		ret = DML_RemoveGame(*header, false);
+	if (header->magic == GC_GAME_ON_DRIVE) {
+		ret = DML_RemoveGame(*header);
 	} else {
 		ret = WBFS_RemoveGame(header->id);
 		if (ret < 0) {
@@ -5012,7 +4832,7 @@ restart_menu_boot:;
 	game_cfg = CFG_find_game(header->id);
 
 	// Get game size
-	if (!disc && (header->magic < GC_GAME_ON_DM_DRIVE || header->magic > GC_GAME_DM_MAGIC_MAX)) WBFS_GameSize2(header->id, &comp_size, &real_size);
+	if (!disc && header->magic != GC_GAME_ON_DRIVE) WBFS_GameSize2(header->id, &comp_size, &real_size);
 	bool dl_warn = check_dual_layer(real_size, game_cfg);
 	bool can_skip = !CFG.confirm_start && !dl_warn && check_device(game_cfg, false);
 	bool do_skip = (disc && !CFG.confirm_start) || (!disc && can_skip);
@@ -5080,7 +4900,7 @@ L_repaint:
 	DefaultColor();
 
 	//Does DL warning apply to launching discs too? Not sure
-	if (!disc && (header->magic < GC_GAME_ON_DM_DRIVE || header->magic > GC_GAME_DM_MAGIC_MAX)) {
+	if (!disc && header->magic != GC_GAME_ON_DRIVE) {
 		check_device(game_cfg, true);
 		if (dl_warn) print_dual_layer_note();
 	}
@@ -5242,7 +5062,7 @@ L_repaint:
 	}
 
 	get_time(&TIME.playlog1);
-	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) CFG.game.write_playlog = 0;
+	if (header->magic == GC_GAME_ON_DRIVE) CFG.game.write_playlog = 0;
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
@@ -5263,8 +5083,8 @@ L_repaint:
 	printf("\n");
 	printf_x(gt("Booting Wii game, please wait..."));
 	printf("\n\n");
-	if (header->magic == GC_GAME_ON_GAME_DRIVE || header->magic == GC_GAME_ON_SD_DRIVE) {
-		if (CFG.game.fix_002 <= 0 || (CFG.game.fix_002 > 0 && header->magic != GC_GAME_ON_SD_DRIVE && (strncmp("sd:", wbfs_fs_drive, 3) && strncmp("usb:", wbfs_fs_drive, 4)))) {
+	if ((strstr(header->path, wbfs_fs_drive) && !strstr(wbfs_fs_drive, dm_boot_drive)) || (strstr(header->path, "sd:") && !strstr(dm_boot_drive, "sd:"))) {
+		if (CFG.game.fix_002 <= 0 || (CFG.game.fix_002 > 0 && !strstr(header->path, "sd:") && (strncmp("sd:", wbfs_fs_drive, 3) && strncmp("usb:", wbfs_fs_drive, 4)))) {
 			char gamePath[255];
 			char drive[255];
 			
@@ -5308,7 +5128,7 @@ L_repaint:
 		}
 	}
 	
-	if (gc || header->magic == GC_GAME_ON_DM_DRIVE || ((CFG.game.fix_002 > 0 || CFG.devo > 0) && (header->magic == GC_GAME_ON_GAME_DRIVE || header->magic == GC_GAME_ON_SD_DRIVE)))
+	if (gc || header->magic == GC_GAME_ON_DRIVE || ((CFG.game.fix_002 > 0 || CFG.devo > 0) && (strstr(header->path, wbfs_fs_drive) || strstr(header->path, "sd:"))))
 	{
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
@@ -5334,17 +5154,14 @@ L_repaint:
 		char cheatPath[255];
 		sprintf(cheatPath, "%s/codes/%.6s.gct", USBLOADER_PATH, header->id);
 		char newCheatPath[255];
-		sprintf(newCheatPath, "%s/games/%s/%.6s.gct", dm_boot_drive, header->folder, header->id);
+		sprintf(newCheatPath, "%s/%.6s.gct", header->path, header->id);
 		
 		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0)
 		{
 			char devoPath[255];	
 			char loaderPath[255];	
 			
-			if (header->magic == GC_GAME_ON_DM_DRIVE)
-				snprintf(devoPath, sizeof(devoPath), "%s/games/%s/game.iso", dm_boot_drive, header->folder);
-			else if (header->magic == GC_GAME_ON_SD_DRIVE)
-				snprintf(devoPath, sizeof(devoPath), "sd:/games/%s/game.iso", header->folder);	
+			snprintf(devoPath, sizeof(devoPath), "%s/game.iso", header->path);	
 			
 			DEVO_SetOptions(devoPath, CFG.game.country_patch);
 			
@@ -5372,12 +5189,12 @@ L_repaint:
 			LAUNCH();
 		} 
 		
-		if(header->magic == GC_GAME_ON_DM_DRIVE)
+		if(header->magic == GC_GAME_ON_DRIVE)
 		{
 			if (CFG.dml == CFG_DML_R51) {
-				DML_Old_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina);
+				DML_Old_SetOptions(header->path, cheatPath, newCheatPath, CFG.game.ocarina);
 			} else {
-				DML_New_SetOptions(header->folder, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.nodisc, CFG.game.vidtv, CFG.game.video, CFG.game.wide_screen, CFG.game.hooktype, CFG.game.block_ios_reload);
+				DML_New_SetOptions(header->path, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.nodisc, CFG.game.vidtv, CFG.game.video, CFG.game.wide_screen, CFG.game.hooktype, CFG.game.block_ios_reload);
 			}
 		} else if (CFG.dml >= CFG_DML_1_2) {
 			DML_New_SetBootDiscOption(cheatPath, newCheatPath, CFG.game.ocarina, CFG.game.country_patch, CFG.game.vidtv, CFG.game.video);
@@ -5611,6 +5428,11 @@ void Menu_Loop(void)
 			Gui_Console_Enable();
 		}
 	}
+	
+	// Get MIOS info
+	CFG.dml = get_miosinfo();
+	
+	fill_base_array();
 
 	/* Device menu */
 	Menu_Device();
@@ -5989,11 +5811,17 @@ int Menu_PrintWait()
 	printf_h("%s\n", msg);
 	gecko_printf("%s\n", msg);
 	// clear button states
+	gecko_printf("WPAD_Flush(WPAD_CHAN_ALL)\n");
 	WPAD_Flush(WPAD_CHAN_ALL);
 	// wait for button press
+	gecko_printf("Wpad_WaitButtonsCommon()\n");
 	int button = Wpad_WaitButtonsCommon();
 	// wait for button release
-	while (Wpad_HeldButtons()) VIDEO_WaitVSync();
+	while (Wpad_HeldButtons()) {
+		gecko_printf(".");
+		usleep(10000);
+		VIDEO_WaitVSync();
+	}
 	return button;
 }
 

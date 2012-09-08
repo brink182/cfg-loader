@@ -13,6 +13,19 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r47
+size = 1891744
+date = 2012-09-08
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr47.dol
+-fixed memory allocation
+when reading files from NAND
+(this caused the cover problem)
+-increased max number of mem 
+allocations in mem1/mem2 heaps
+(thanks oggzee)
+-changed GC game detection
+(now much faster)
+
 release = 70r46
 size = 1896928
 date = 2012-08-29

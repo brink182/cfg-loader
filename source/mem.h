@@ -5,7 +5,7 @@
 #include <ogcsys.h>
 
 // max number of mem allocations in mem1/mem2 heaps
-#define MAX_MEM_BLK 1024
+#define MAX_MEM_BLK 2048
 
 typedef struct
 {

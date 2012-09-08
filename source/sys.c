@@ -1454,7 +1454,7 @@ s32 read_file_from_nand(char *filepath, u8 **buffer, u32 *filesize)
 		return -1;
 	}
 	
-	*buffer = memalign(32, status->file_length);
+	*buffer = memalign(32, (status->file_length+31)&(~31));
 	if (*buffer == NULL)
 	{
 		//printf("Out of memory for buffer\n");
@@ -1880,65 +1880,42 @@ bool shadow_mload()
 
 u16 get_miosinfo()
 {
-	dbg_printf("\nCreating DMLr52 timestamp\n");
-	// Timestamp of DML r52
-	struct tm r52_tm;
-	r52_tm.tm_sec = 6;
-	r52_tm.tm_min = 36;
-	r52_tm.tm_hour = 19;
-	r52_tm.tm_year = 112; // 2012
-	r52_tm.tm_mday = 7;
-	r52_tm.tm_mon = 2; // March
-	time_t dml_r52_time = mktime(&r52_tm);
-	
-	dbg_printf("Creating DML 1.2 timestamp\n");
-	// Timestamp of DML 1.2
-	struct tm dml_1_2_tm;
-	dml_1_2_tm.tm_sec = 8;
-	dml_1_2_tm.tm_min = 44;
-	dml_1_2_tm.tm_hour = 19;
-	dml_1_2_tm.tm_year = 112; // 2012
-	dml_1_2_tm.tm_mday = 24;
-	dml_1_2_tm.tm_mon = 3; // Apr
-	time_t dml_1_2_time = mktime(&dml_1_2_tm);
-	
-	dbg_printf("Creating DM 2.1 timestamp\n");
-	// Timestamp of DM 2.1
-	struct tm dm_2_1_tm;
-	dm_2_1_tm.tm_sec = 0;
-	dm_2_1_tm.tm_min = 0;
-	dm_2_1_tm.tm_hour = 0;
-	dm_2_1_tm.tm_year = 112; // 2012
-	dm_2_1_tm.tm_mday = 17;
-	dm_2_1_tm.tm_mon = 6; // Jul
-	time_t dm_2_1_time = mktime(&dm_2_1_tm);
-	
-	dbg_printf("Creating DM 2.2 timestamp\n");
-	// Timestamp of DM 2.1
-	struct tm dm_2_2_tm;
-	dm_2_2_tm.tm_sec = 0;
-	dm_2_2_tm.tm_min = 0;
-	dm_2_2_tm.tm_hour = 0;
-	dm_2_2_tm.tm_year = 112; // 2012
-	dm_2_2_tm.tm_mday = 18;
-	dm_2_2_tm.tm_mon = 6; // Jul
-	time_t dm_2_2_time = mktime(&dm_2_2_tm);
-	
-	dbg_printf("Creating DML 2.2 timestamp\n");
-	// Timestamp of DM 2.2
-	struct tm dml_2_2_tm;
-	dml_2_2_tm.tm_sec = 0;
-	dml_2_2_tm.tm_min = 0;
-	dml_2_2_tm.tm_hour = 0;
-	dml_2_2_tm.tm_year = 112; // 2012
-	dml_2_2_tm.tm_mday = 6;
-	dml_2_2_tm.tm_mon = 7; // Aug
-	time_t dml_2_2_time = mktime(&dml_2_2_tm);
+	u16 mios = CFG_MIOS;
+	// Timestamp of DML r52 (Mar 7 2012 19:36:06)
+	const time_t dml_r52_time = 1331148966;
+
+	// Timestamp of DML 1.2 (Apr 24 2012 19:44:08)
+	const time_t dml_1_2_time = 1335289448;
+
+	// Timestamp of DML 1.4b (May  7 2012 21:12:47)
+	//const time_t dml_1_4b_time = 1336417967;
+
+	// Timestamp of DML 1.5 (Jun 14 2012 00:05:09)
+	//const time_t dml_1_5_time = 1339625109;
+
+	// Timestamp of DM 2.0 (Jun 23 2012 19:43:21)
+	//const time_t dm_2_0_time = 1340473401;
+
+	// Timestamp of DM 2.1 (Jul 17 2012 11:25:35)
+	const time_t dm_2_1_time = 1342517135;
+
+	// Timestamp of DM 2.2 initial release (Jul 18 2012 16:57:47)
+	const time_t dm_2_2_time = 1342623467;
+
+	// Timestamp of DM 2.2 update2 (Jul 20 2012 14:49:47)
+	//const time_t dm_2_2_2_time = 1342788587;
+
+	// Timestamp of DML 2.2 initial release (Aug  6 2012 15:19:17)
+	const time_t dml_2_2_time = 1344259157;
+
+	// Timestamp of DML 2.2 update1 (Aug 13 2012 00:12:46)
+	//const time_t dml_2_2_1_time = 1344809566;
 	
 	u32 size = 0;
 	u32 i = 0;
 	s32 ret = 0;
 	u8 *appfile = NULL;
+	struct tm time;
 
 	ISFS_Initialize();
 	
@@ -1953,85 +1930,67 @@ u16 get_miosinfo()
 			{
 				if(*(vu32*)(appfile+i+10) == 0x4C697465) //Lite
 				{
-					while (*(vu32*)(appfile+i) != 0x4275696c && i < size) i++;
-					// TODO welche Version bei (char*)(appfile+i+20) hinterlegt ist
-					// Dementsprechend ret setzen
-					// char* built = (char*)(appfile+i);
-					struct tm time;
-					//strptime("Jun 30 2012 23:59:30", "%b %d %Y %H:%M:%S", &time);
-					dbg_printf("Getting timestamp from 0000000c.app\n");
-					strptime((char*)(appfile+i+7), "%b %d %Y %H:%M:%S", &time);
-					dbg_printf("\ntime.tm_sec = %d", time.tm_sec);
-					dbg_printf("\ntime.tm_min = %d", time.tm_min);
-					dbg_printf("\ntime.tm_hour = %d", time.tm_hour);
-					dbg_printf("\ntime.tm_year = %d", time.tm_year);
-					dbg_printf("\ntime.tm_mday = %d", time.tm_mday);
-					dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
-					// Built: Jun 23 2013 13:00:10
+					char *buffer = (char*)(appfile+i+31);
+					
+					strptime(buffer, "%b %d %Y %H:%M:%S", &time);
 					time_t unixTime = mktime(&time);
-					sprintf(dm_boot_drive, "sd:");
-					dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", (char*)(appfile+i+7));
+					
+					strcpy(dm_boot_drive, "sd:");
+					mios = CFG_DML_R52;
+					sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite\n%s", buffer);
+					dbg_printf("\nMIOS is %s", DIOS_MIOS_INFO);
+					
 					if(difftime(unixTime, dml_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");
-						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 2.2+\n%s", (char*)(appfile+i+7));
-						SAFE_FREE(appfile);
-						return CFG_DM_2_2;
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 2.2+\n%s\n", buffer);
+						mios = CFG_DM_2_2;
 					} else if(difftime(unixTime, dml_1_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+\n");
-						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 1.2+\n%s", (char*)(appfile+i+7));
-						SAFE_FREE(appfile);
-						return CFG_DML_1_2;
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 1.2+\n%s\n", buffer);
+						mios = CFG_DML_1_2;
 					} else if (difftime(unixTime, dml_r52_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite r52+\n");
-						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite r52+\n%s", (char*)(appfile+i+7));
-						SAFE_FREE(appfile);
-						return CFG_DML_R52;
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite r52+\n%s\n", buffer);
+						mios = CFG_DML_R52;
 					} else {
 						dbg_printf("\nMIOS is DIOS MIOS Lite r51-\n");
-						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite r51-\n%s", (char*)(appfile+i+7));
-						SAFE_FREE(appfile);
-						return CFG_DML_R51;
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite r51-\n%s\n", buffer);
+						mios = CFG_DML_R51;
 					}
-					sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite\n%s", (char*)(appfile+i+7));
-					SAFE_FREE(appfile);
-					return CFG_DML_R52;
-				}
-				
-				sprintf(dm_boot_drive, "usb:");
-				dbg_printf("\nMIOS is DIOS MIOS \"%s\"\n", (char*)(appfile+i+20+7));
-				struct tm time;
-				dbg_printf("Getting timestamp from 0000000c.app\n");
-				strptime((char*)(appfile+i+20+7), "%b %d %Y %H:%M:%S", &time);
-				dbg_printf("\ntime.tm_sec = %d", time.tm_sec);
-				dbg_printf("\ntime.tm_min = %d", time.tm_min);
-				dbg_printf("\ntime.tm_hour = %d", time.tm_hour);
-				dbg_printf("\ntime.tm_year = %d", time.tm_year);
-				dbg_printf("\ntime.tm_mday = %d", time.tm_mday);
-				dbg_printf("\ntime.tm_mon = %d\n", time.tm_mon);
-				time_t unixTime = mktime(&time);
-				if (difftime(unixTime, dm_2_2_time) >= 0) {
-					dbg_printf("\nMIOS is DIOS MIOS 2.2+\n");
-					sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.2+\n%s", (char*)(appfile+i+20+7));
-					SAFE_FREE(appfile);
-					return CFG_DM_2_2;
-				} else if (difftime(unixTime, dm_2_1_time) >= 0) {
-					dbg_printf("\nMIOS is DIOS MIOS 2.1\n");
-					sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.1\n%s", (char*)(appfile+i+20+7));
-					SAFE_FREE(appfile);
-					return CFG_DM_2_1;
+					
+					break;
 				} else {
-					dbg_printf("\nMIOS is DIOS MIOS 2.0+\n");
-					sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.0+\n%s", (char*)(appfile+i+20+7));
-					SAFE_FREE(appfile);
-					return CFG_DM_2_0;
+					char *buffer = (char*)(appfile+i+27);
+					
+					strcpy(dm_boot_drive, "usb:");
+					mios = CFG_DM_2_0;
+					sprintf(DIOS_MIOS_INFO, "DIOS MIOS\n%s", buffer);
+					dbg_printf("\nMIOS is %s", DIOS_MIOS_INFO);
+					
+					strptime(buffer, "%b %d %Y %H:%M:%S", &time);
+					time_t unixTime = mktime(&time);
+					
+					if (difftime(unixTime, dm_2_2_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS 2.2+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.2+\n%s\n", buffer);
+						mios = CFG_DM_2_2;
+					} else if (difftime(unixTime, dm_2_1_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS 2.1\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.1\n%s\n", buffer);
+						mios = CFG_DM_2_1;
+					} else {
+						dbg_printf("\nMIOS is DIOS MIOS 2.0+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.0+\n%s\n", buffer);
+						mios = CFG_DM_2_0;
+					}
+					
+					break;
 				}
-				sprintf(DIOS_MIOS_INFO, "DIOS MIOS\n%s", (char*)(appfile+i+20+7));
-				SAFE_FREE(appfile);
-				return CFG_DM_2_0;
 			}
 		}
+		SAFE_FREE(appfile);
 	}
-	SAFE_FREE(appfile);
-	sprintf(dm_boot_drive, "usb:");
-	return CFG_MIOS;
+	if (mios == CFG_MIOS)
+		strcpy(dm_boot_drive, "usb:");
+	return mios;
 }

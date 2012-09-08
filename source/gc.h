@@ -8,10 +8,7 @@ extern "C"
 
 #include "disc.h"
 
-#define GC_GAME_ON_DM_DRIVE 0x444D4C00
-#define GC_GAME_ON_GAME_DRIVE GC_GAME_ON_DM_DRIVE + 1
-#define GC_GAME_ON_SD_DRIVE GC_GAME_ON_GAME_DRIVE + 1
-#define GC_GAME_DM_MAGIC_MAX GC_GAME_ON_SD_DRIVE
+#define GC_GAME_ON_DRIVE 0x444D4C00
 
 typedef struct DML_CFG
 {
@@ -68,7 +65,7 @@ void DEVO_SetOptions(const char* path,u8 NMM);
 
 void GC_SetVideoMode(u8 videomode);
 void GC_SetLanguage(u8 lang);
-s32 DML_RemoveGame(struct discHdr header, bool onlySD);
+s32 DML_RemoveGame(struct discHdr header);
 int DML_GameIsInstalled(char *folder);
 void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode, u8 LED, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
@@ -76,6 +73,7 @@ void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats,
 u64 getDMLGameSize(struct discHdr *header);
 s32 copy_DML_Game_to_SD(struct discHdr *header);
 s32 delete_Old_Copied_DML_Game();
+char *get_DM_Game_Folder(char *path);
 #endif //GC_H_
 
 #ifdef __cplusplus

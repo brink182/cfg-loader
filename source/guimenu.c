@@ -721,7 +721,7 @@ void update_gameopt_state()
 {
 	int cond;
     struct discHdr *header = wgame.header;
-	if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX)
+	if (header->magic == GC_GAME_ON_DRIVE)
 	{
 		wgui_update(wgame.clean);
 		cond = (wgame.clean->value == CFG_CLEAN_ALL);
@@ -822,7 +822,7 @@ void action_reset_gamecfg(Widget *ww)
 		// XXX on error open info dialog
 		//if (!ret) printf(gt("Error discarding options!")); 
 	}
-	if (wgame.header->magic < GC_GAME_ON_DM_DRIVE || wgame.header->magic > GC_GAME_DM_MAGIC_MAX)
+	if (wgame.header->magic != GC_GAME_ON_DRIVE)
 	{
 		if (wgame.alt_dol->update == NULL)
 		{
@@ -927,7 +927,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 		wgame.gcfg = NULL;
 		if (!wgame.gcfg2) {
 			wgui_add_text(op, pos_auto, gt("ERROR game opt"));
-		} else if (header->magic >= GC_GAME_ON_DM_DRIVE && header->magic <= GC_GAME_DM_MAGIC_MAX) {
+		} else if (header->magic == GC_GAME_ON_DRIVE) {
 			wgame.gcfg = &wgame.gcfg2->curr;
 
 			//int num_ios = map_get_num(map_ios);
@@ -1141,7 +1141,7 @@ void banner_parse(struct discHdr *header)
 	memset(&banner.snd, 0, sizeof(banner.snd));
 	memset(&banner.title, 0, sizeof(banner.title));
 	banner.parsed = false;
-	if (wgame.header->magic >= GC_GAME_ON_DM_DRIVE && wgame.header->magic <= GC_GAME_DM_MAGIC_MAX) {
+	if (wgame.header->magic == GC_GAME_ON_DRIVE) {
 		parse_riff(&gc_wav, &banner.snd);
 	} else {
 		WBFS_Banner(header->id, &banner.snd, banner.title, true, true);
@@ -1304,7 +1304,6 @@ void banner_end(bool mute)
 // bind selected game info and options to GameDialog
 void BindGameDialog()
 {
-	dbg_printf("BindGameDialog()\n");
 	static char game_desc[XML_MAX_SYNOPSIS * 2] = "";
 	struct discHdr *header;
 	gameSelected = game_select;
@@ -1316,30 +1315,21 @@ void BindGameDialog()
 	//wgame.dialog->name=header->title;
 //	else
 	wgame.dialog->name = get_title(header);
-	dbg_printf("get_title(header)\n");
 	text_scale_fit_dialog(wgame.dialog);
-	dbg_printf("text_scale_fit_dialog(wgame.dialog)\n");
 	// info
 	int rows, cols;
 	wgui_textbox_coords(wgame.info, NULL, NULL, &rows, &cols);
-	dbg_printf("wgui_textbox_coords()\n");
 	Menu_GameInfoStr(header, game_desc);
-	dbg_printf("Menu_GameInfoStr(header, game_desc)\n");
 	int len = strlen(game_desc);
 	FmtGameInfoLong(header->id, cols, game_desc + len, sizeof(game_desc) - len);
-	dbg_printf("FmtGameInfoLong()\n");
 	wgui_textbox_wordwrap(wgame.info, game_desc, sizeof(game_desc));
-	dbg_printf("wgui_textbox_wordwrap()\n");
 	// favorite, hide
 	wgui_set_value(wgame.favorite, is_favorite(header->id) ? 1 : 0);
 	wgui_set_value(wgame.hide, is_hide_game(header->id) ? 1 : 0);
-	dbg_printf("favorite, hide\n");
 	// options
 	InitGameOptionsPage(wgame.options, H_NORMAL);
-	dbg_printf("InitGameOptionsPage()\n");
 	// banner
 	banner_thread_play(header);
-	dbg_printf("banner_thread_play(header)\n");
 }
 
 void ReleaseGameDialog()
@@ -1372,7 +1362,6 @@ void action_prev_game(Widget *ww)
 
 void OpenGameDialog()
 {
-	dbg_printf("OpenGameDialog()\n");
 	static int last_game_page = 0;
 	Widget *dd;
 	Widget *ww;

@@ -962,6 +962,7 @@ void Download_DEVO()
 	printf_((char*)buffer+4);
 	fwrite(buffer,1,zipfilebuffersize,f);
 	fclose(f);
+	memset(buffer, 0, zipfilebuffersize);
 	SAFE_FREE(buffer);
 	
 	///////////////////////

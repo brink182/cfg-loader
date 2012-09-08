@@ -397,7 +397,7 @@ s32 Disc_ReadHeader(void *outbuf)
 {
 	struct discHdr disc;
 	/* Read disc header */
-	return WDVD_UnencryptedRead(outbuf, sizeof(struct discHdr)-sizeof(disc.folder), 0);
+	return WDVD_UnencryptedRead(outbuf, sizeof(struct discHdr)-sizeof(disc.path), 0);
 }
 
 s32 Disc_ReadGCHeader(void *outbuf)

@@ -138,7 +138,7 @@ void CreateSavePath(struct discHdr *hdr)
 
 void Menu_dump_savegame(struct discHdr *hdr)
 {
-	if (hdr->magic >= GC_GAME_ON_DM_DRIVE && hdr->magic <= GC_GAME_DM_MAGIC_MAX) {
+	if (hdr->magic == GC_GAME_ON_DRIVE) {
 		printf_x(gt("Can not dump GC savegames.\n")); 
 		printf_x(gt("Press any button.\n")); 
 		Wpad_WaitButtons();

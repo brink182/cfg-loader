@@ -138,18 +138,9 @@ void GC_SetLanguage(u8 lang)
 	while(!__SYS_SyncSram());
 }
 
-s32 DML_RemoveGame(struct discHdr header, bool onlyBootDrive)
+s32 DML_RemoveGame(struct discHdr header)
 {
-	char fname[MAX_FAT_PATH];
-	
-	if (header.magic == GC_GAME_ON_DM_DRIVE)
-		snprintf(fname, sizeof(fname), "%s/games/%s/", dm_boot_drive, header.folder);
-	else if (header.magic == GC_GAME_ON_GAME_DRIVE && !onlyBootDrive)
-		snprintf(fname, sizeof(fname), "%s/games/%s/", wbfs_fs_drive, header.folder);
-	else if (header.magic == GC_GAME_ON_SD_DRIVE && !onlyBootDrive)
-		snprintf(fname, sizeof(fname), "sd:/games/%s/", header.folder);
-	
-	fsop_deleteFolder(fname);
+	fsop_deleteFolder(header.path);
 	return 0;
 }
 
@@ -157,55 +148,33 @@ int DML_GameIsInstalled(char *folder)
 {
 	int ret = 0;
 	char source[300];
-	snprintf(source, sizeof(source), "%s/games/%s/game.iso", dm_boot_drive, folder);
+	snprintf(source, sizeof(source), "%s/game.iso", folder);
 	
 	FILE *f = fopen(source, "rb");
 	if(f) 
 	{
-		dbg_printf("Found on SD: %s\n", folder);
+		dbg_printf("Found on: %s\n", folder);
 		fclose(f);
 		ret = 1;
 	}
 	else
 	{
-		snprintf(source, sizeof(source), "%s/games/%s/sys/boot.bin", dm_boot_drive, folder);
+		snprintf(source, sizeof(source), "%s/sys/boot.bin", folder);
 		f = fopen(source, "rb");
 		if(f) 
 		{
-			dbg_printf("Found on SD: %s\n", folder);
+			dbg_printf("Found on: %s\n", folder);
 			fclose(f);
 			ret = 2;
 		}
 	}
 	
-	if (ret == 0) {
-		snprintf(source, sizeof(source), "%s/games/%s/game.iso", wbfs_fs_drive, folder);
-	
-		FILE *f = fopen(source, "rb");
-		if(f) 
-		{
-			dbg_printf("Found on HDD: %s\n", folder);
-			fclose(f);
-			ret = 1;
-		}
-		else
-		{
-			snprintf(source, sizeof(source), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, folder);
-			f = fopen(source, "rb");
-			if(f) 
-			{
-				dbg_printf("Found on HDD: %s\n", folder);
-				fclose(f);
-				ret = 2;
-			}
-		}
-	}
 	return ret;
 }
 
 void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 LED, u8 DMLvideoMode, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH)
 {
-	dbg_printf("DML: Launch game 'sd:/games/%s/game.iso' through memory (new method)\n", GamePath);
+	dbg_printf("DML: Launch game '%s/game.iso' through memory (new method)\n", GamePath);
 
 	DML_CFG *DMLCfg = (DML_CFG*)memalign(32, sizeof(DML_CFG));
 	memset(DMLCfg, 0, sizeof(DML_CFG));
@@ -229,9 +198,9 @@ void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool
 	if(GamePath != NULL)
 	{
 		if(DML_GameIsInstalled(GamePath) == 2)
-			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/", GamePath);
+			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/", get_DM_Game_Folder(GamePath));
 		else
-			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/game.iso", GamePath);
+			snprintf(DMLCfg->GamePath, sizeof(DMLCfg->GamePath), "/games/%s/game.iso", get_DM_Game_Folder(GamePath));
 		DMLCfg->Config |= DML_CFG_GAME_PATH;
 	}
 
@@ -304,7 +273,7 @@ void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, boo
 	dbg_printf("DML: Launch game 'sd:/games/%s/game.iso' through boot.bin (old method)\n", GamePath);
 	FILE *f;
 	f = fopen("sd:/games/boot.bin", "wb");
-	fwrite(GamePath, 1, strlen(GamePath) + 1, f);
+	fwrite(get_DM_Game_Folder(GamePath), 1, strlen(get_DM_Game_Folder(GamePath)) + 1, f);
 	fclose(f);
 
 	if(cheats && strstr(CheatPath, NewCheatPath) == NULL)
@@ -380,13 +349,7 @@ s32 DML_write_size_info_file(struct discHdr *header, u64 size) {
 	char filepath[0xFF];
 	FILE *infoFile = NULL;
 	
-	if (header->magic == GC_GAME_ON_DM_DRIVE) {
-		snprintf(filepath, sizeof(filepath), "%s/games/%s/size.bin", dm_boot_drive, header->folder);
-	} else if (header->magic == GC_GAME_ON_GAME_DRIVE) {
-		snprintf(filepath, sizeof(filepath), "%s/games/%s/size.bin", wbfs_fs_drive, header->folder);
-	} else if (header->magic == GC_GAME_ON_SD_DRIVE) {
-		snprintf(filepath, sizeof(filepath), "sd:/games/%s/size.bin", header->folder);
-	}
+	snprintf(filepath, sizeof(filepath), "%s/size.bin", header->path);
 	
 	infoFile = fopen(filepath, "wb");
 	fwrite(&size, 1, sizeof(u64), infoFile);
@@ -399,13 +362,7 @@ u64 DML_read_size_info_file(struct discHdr *header) {
 	FILE *infoFile = NULL;
 	u64 result = 0;
 	
-	if (header->magic == GC_GAME_ON_DM_DRIVE) {
-		snprintf(filepath, sizeof(filepath), "%s/games/%s/size.bin", dm_boot_drive, header->folder);
-	} else if (header->magic == GC_GAME_ON_GAME_DRIVE) {
-		snprintf(filepath, sizeof(filepath), "%s/games/%s/size.bin", wbfs_fs_drive, header->folder);
-	} else if (header->magic == GC_GAME_ON_SD_DRIVE) {
-		snprintf(filepath, sizeof(filepath), "sd:/games/%s/size.bin", header->folder);
-	}
+	snprintf(filepath, sizeof(filepath), "%s/size.bin", header->path);
 	
 	infoFile = fopen(filepath, "rb");
 	if (infoFile) {
@@ -417,89 +374,29 @@ u64 DML_read_size_info_file(struct discHdr *header) {
 
 u64 getDMLGameSize(struct discHdr *header) {
 	u64 result = 0;
-	if (header->magic == GC_GAME_ON_DM_DRIVE)
+	char filepath[0xFF];
+	snprintf(filepath, sizeof(filepath), "%s/game.iso", header->path);
+	FILE *fp = fopen(filepath, "r");
+	if (!fp)
 	{
-		char filepath[0xFF];
-		snprintf(filepath, sizeof(filepath), "%s/games/%s/game.iso", dm_boot_drive, header->folder);
+		snprintf(filepath, sizeof(filepath), "%s/sys/boot.bin", header->path);
 		FILE *fp = fopen(filepath, "r");
 		if (!fp)
-		{
-			snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", dm_boot_drive, header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (!fp)
-				return result;
-			fclose(fp);
-			result = DML_read_size_info_file(header);
-			if (result > 0)
-				return result;
-			snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", dm_boot_drive, header->folder);
-			result = fsop_GetFolderBytes(filepath);
-			if (result > 0)
-				DML_write_size_info_file(header, result);
-		}
-		else
-		{
-			fseek(fp, 0, SEEK_END);
-			result = ftell(fp);
-			fclose(fp);
-		}
-		return result;
+			return result;
+		fclose(fp);
+		result = DML_read_size_info_file(header);
+		if (result > 0)
+			return result;
+		snprintf(filepath, sizeof(filepath), "%s/root/", header->path);
+		result = fsop_GetFolderBytes(filepath);
+		if (result > 0)
+			DML_write_size_info_file(header, result);
 	}
-	else if (header->magic == GC_GAME_ON_GAME_DRIVE) 
+	else
 	{
-		char filepath[0xFF];
-		sprintf(filepath, "%s/games/%s/game.iso", wbfs_fs_drive, header->folder);
-		FILE *fp = fopen(filepath, "r");
-		if (!fp)
-		{
-			snprintf(filepath, sizeof(filepath), "%s/games/%s/sys/boot.bin", wbfs_fs_drive, header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (!fp)
-				return result;
-			fclose(fp);
-			result = DML_read_size_info_file(header);
-			if (result > 0)
-				return result;
-			snprintf(filepath, sizeof(filepath), "%s/games/%s/root/", wbfs_fs_drive, header->folder);
-			result = fsop_GetFolderBytes(filepath);
-			if (result > 0)
-				DML_write_size_info_file(header, result);
-		}
-		else
-		{
-			fseek(fp, 0, SEEK_END);
-			result = ftell(fp);
-			fclose(fp);
-		}
-		return result;
-	}
-	else if (header->magic == GC_GAME_ON_SD_DRIVE) 
-	{
-		char filepath[0xFF];
-		sprintf(filepath, "sd:/games/%s/game.iso", header->folder);
-		FILE *fp = fopen(filepath, "r");
-		if (!fp)
-		{
-			snprintf(filepath, sizeof(filepath), "sd:/games/%s/sys/boot.bin", header->folder);
-			FILE *fp = fopen(filepath, "r");
-			if (!fp)
-				return result;
-			fclose(fp);
-			result = DML_read_size_info_file(header);
-			if (result > 0)
-				return result;
-			snprintf(filepath, sizeof(filepath), "sd:/games/%s/root/", header->folder);
-			result = fsop_GetFolderBytes(filepath);
-			if (result > 0)
-				DML_write_size_info_file(header, result);
-		}
-		else
-		{
-			fseek(fp, 0, SEEK_END);
-			result = ftell(fp);
-			fclose(fp);
-		}
-		return result;
+		fseek(fp, 0, SEEK_END);
+		result = ftell(fp);
+		fclose(fp);
 	}
 	return result;
 }
@@ -513,25 +410,18 @@ s32 delete_Old_Copied_DML_Game() {
 	if (infoFile) {
 		fread(&header, 1, sizeof(struct discHdr), infoFile);
 		fclose(infoFile);
-		DML_RemoveGame(header, true);
+		DML_RemoveGame(header);
 		return 0;
 	}
 	return -1;
 }
 
 s32 copy_DML_Game_to_SD(struct discHdr *header) {
-	char source[255];
 	char target[255];
 	
-	if (header->magic == GC_GAME_ON_GAME_DRIVE) {
-		sprintf(source, "%s/games/%s", wbfs_fs_drive, header->folder);
-	} else if (header->magic == GC_GAME_ON_SD_DRIVE) {
-		sprintf(source, "sd:/games/%s", header->folder);
-	}
-	
-	sprintf(target, "%s/games/%s", dm_boot_drive, header->folder);
-	fsop_CopyFolder(source, target);
-	header->magic = GC_GAME_ON_DM_DRIVE;
+	sprintf(target, "%s/games/%s", dm_boot_drive, get_DM_Game_Folder(header->path));
+	fsop_CopyFolder(header->path, target);
+	strcpy(header->path, target);
 	
 	FILE *infoFile = NULL;
 	char infoFilePath[255];
@@ -636,4 +526,16 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 
 	// flush disc ID and Devolution config out to memory
 	DCFlushRange(lowmem, 64);
+}
+
+char *get_DM_Game_Folder(char *path) {
+	char *folder;
+	
+	folder = strstr(path, "/");
+	folder = folder+1;
+	while (strstr(folder, "/")) {
+		folder = strstr(folder, "/");
+		folder = folder+1;
+	}
+	return folder;
 }

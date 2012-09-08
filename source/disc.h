@@ -40,13 +40,13 @@ struct discHdr
 	/* Padding */
 	u8 unused3[30];
 	
-	char folder[255];
+	char path[255];
 } ATTRIBUTE_PACKED;
 
 struct gc_discHdr
 {
 	/* Game ID */
-	char id[6];
+	u8 id[6];
 
 	/* Disk number */
 	u8 disc;

@@ -287,7 +287,7 @@ int filter_gamecube(struct discHdr *list, int cnt, char *ignore, bool notused)
 	int i;
 	for (i=0; i<cnt;) 
 	{
-		if (list[i].magic >= GC_GAME_ON_DM_DRIVE && list[i].magic <= GC_GAME_DM_MAGIC_MAX) 
+		if (list[i].magic == GC_GAME_ON_DRIVE) 
 		{
 			i++;
 		} 

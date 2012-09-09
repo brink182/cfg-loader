@@ -2057,7 +2057,7 @@ void Init_Info_Dialog(Widget *dd)
 	rr = wgui_arrange_radio_a(dd, pos_fill, 3, 3, gt("Basic"), "IOS", gt("Debug"));
 	wgui_link_page_ctrl(page, rr);
 	// basic
-	Print_SYS_Info_str(basic, sizeof(basic));
+	Print_SYS_Info_str(basic, sizeof(basic), false);
 	pp = wgui_page_get(page, 0);
 	wgui_add_textbox(pp, pos_full, TXT_H_NORMAL, basic, sizeof(basic));
 	// ios

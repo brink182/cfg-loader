@@ -419,6 +419,8 @@ s32 delete_Old_Copied_DML_Game() {
 s32 copy_DML_Game_to_SD(struct discHdr *header) {
 	char target[255];
 	
+	if(!strncmp(header->path, dm_boot_drive, strlen(dm_boot_drive))) return -1;
+	
 	sprintf(target, "%s/games/%s", dm_boot_drive, get_DM_Game_Folder(header->path));
 	fsop_CopyFolder(header->path, target);
 	strcpy(header->path, target);
@@ -538,4 +540,12 @@ char *get_DM_Game_Folder(char *path) {
 		folder = folder+1;
 	}
 	return folder;
+}
+
+bool is_gc_game_on_bootable_drive(struct discHdr *header, bool devo) {
+	bool ret = false;
+	if (!devo) ret = strncmp(header->path, dm_boot_drive, strlen(dm_boot_drive)) == 0;
+	else ret = strncmp(header->path, "sd:", 3) == 0 || strncmp(header->path, "usb:", 4) == 0;
+	
+	return ret;
 }

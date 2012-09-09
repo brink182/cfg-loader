@@ -1754,7 +1754,7 @@ void Print_IOS_Info()
 	DefaultColor();
 }
 
-void Print_SYS_Info_str(char *str, int size)
+void Print_SYS_Info_str(char *str, int size, bool console)
 {
 	snprintf(str, size, gt("Loader Version: %s"), CFG_VERSION);
 	str_seek_end(&str, &size);
@@ -1775,47 +1775,46 @@ void Print_SYS_Info_str(char *str, int size)
 	str_seek_end(&str, &size);
 	Print_IOS_Info_str(str, size);
 	
-	char devopath[200];
-	snprintf(devopath, sizeof(devopath), "%s/%s", USBLOADER_PATH, "loader.bin");
-	
-	snprintf(str, size, "\n");
+	if (!console) {
+		snprintf(str, size, "\n");
 		str_seek_end(&str, &size);
-	
-	FILE *f = NULL;
-	f = fopen(devopath, "rb");
-	if (f) {
-		char buffer[72];
-		u32 i = 0;
-		fseek(f, 4, SEEK_SET);
-		fread(&buffer, 1, sizeof(buffer), f);
-		fclose(f);
-		for (i = 0; i < sizeof(buffer); i++) {
-			if (buffer[i] == '/' && i-5 > 0) {
-				buffer[i-5] = '\n';
-				break;
+		
+		char devopath[200];
+		snprintf(devopath, sizeof(devopath), "%s/%s", USBLOADER_PATH, "loader.bin");
+		
+		FILE *f = NULL;
+		f = fopen(devopath, "rb");
+		if (f) {
+			char buffer[72];
+			u32 i = 0;
+			fseek(f, 4, SEEK_SET);
+			fread(&buffer, 1, sizeof(buffer), f);
+			fclose(f);
+			for (i = 0; i < sizeof(buffer); i++) {
+				if (buffer[i] == '/' && i-5 > 0) {
+					buffer[i-5] = '\n';
+					break;
+				}
 			}
+			snprintf(str, size, buffer);
+			str_seek_end(&str, &size);
+			snprintf(str, size, "\n");
+			str_seek_end(&str, &size);
 		}
-		snprintf(str, size, buffer);
-		str_seek_end(&str, &size);
-		snprintf(str, size, "\n");
-		str_seek_end(&str, &size);
-	}
-	if (CFG.dml > 0) {
-		snprintf(str, size, DIOS_MIOS_INFO);
-		str_seek_end(&str, &size);
-		snprintf(str, size, "\n");
+		if (CFG.dml > 0) {
+			snprintf(str, size, DIOS_MIOS_INFO);
+			str_seek_end(&str, &size);
+		}
+		snprintf(str, size, "NAND Emu Path:\n%s\n", CFG.nand_emu_path);
 		str_seek_end(&str, &size);
 	}
-	
-	snprintf(str, size, "NAND Emu Path:\n%s\n", CFG.nand_emu_path);
-	str_seek_end(&str, &size);
 }
 
 void Print_SYS_Info()
 {
 	char str[400];
 	FgColor(CFG.color_inactive);
-	Print_SYS_Info_str(str, sizeof(str));
+	Print_SYS_Info_str(str, sizeof(str), true);
 	printf_("%s", str);
 	DefaultColor();
 }
@@ -5083,52 +5082,50 @@ L_repaint:
 	printf("\n");
 	printf_x(gt("Booting Wii game, please wait..."));
 	printf("\n\n");
-	if ((strstr(header->path, wbfs_fs_drive) && !strstr(wbfs_fs_drive, dm_boot_drive)) || (strstr(header->path, "sd:") && !strstr(dm_boot_drive, "sd:"))) {
-		if (CFG.game.fix_002 <= 0 || (CFG.game.fix_002 > 0 && !strstr(header->path, "sd:") && (strncmp("sd:", wbfs_fs_drive, 3) && strncmp("usb:", wbfs_fs_drive, 4)))) {
-			char gamePath[255];
-			char drive[255];
-			
-			sprintf(drive, "%s/", dm_boot_drive);
-			if (!fsop_DirExist(drive)) {
-				printf_x(gt("ERROR: the drive or partition %s/ is not connected!!"), dm_boot_drive);
-				printf("\n\n");
-				goto out;
-			}
-			
-			sprintf(gamePath, "%s/games", dm_boot_drive);
-			if (!fsop_DirExist(gamePath))
-			{
-				fsop_MakeFolder(gamePath);
-			}
-			
-			s32 del = delete_Old_Copied_DML_Game();
-			
-			f32 free, used, total;
-			if (!strncmp("sd:", dm_boot_drive, 3))
-				SD_DiskSpace(&used, &free);
-			else
-				FAT_DiskSpace(&used, &free);
-			
-			total = used + free;
-			printf_x("%s ", dm_boot_drive);
-			printf(gt("%.1fGB free of %.1fGB"), free, total);
+	if (header->magic == GC_GAME_ON_DRIVE && !is_gc_game_on_bootable_drive(header, (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0))) {
+		char gamePath[255];
+		char drive[255];
+		
+		sprintf(drive, "%s/", dm_boot_drive);
+		if (!fsop_DirExist(drive)) {
+			printf_x(gt("ERROR: the drive or partition %s/ is not connected!!"), dm_boot_drive);
 			printf("\n\n");
-
-			bench_io();
-
-			// require +128kb for operating safety
-			if ((f32)getDMLGameSize(header) + (f32)128*1024 >= free * GB_SIZE) {
-				printf_x(gt("ERROR: not enough free space!!"));
-				printf("\n\n");
-				if (del >= 0) __Menu_GetEntries();
-				goto out;
-			}
-			
-			copy_DML_Game_to_SD(header);
+			goto out;
 		}
+		
+		sprintf(gamePath, "%s/games", dm_boot_drive);
+		if (!fsop_DirExist(gamePath))
+		{
+			fsop_MakeFolder(gamePath);
+		}
+		
+		s32 del = delete_Old_Copied_DML_Game();
+		
+		f32 free, used, total;
+		if (!strncmp("sd:", dm_boot_drive, 3))
+			SD_DiskSpace(&used, &free);
+		else
+			FAT_DiskSpace(&used, &free);
+		
+		total = used + free;
+		printf_x("%s ", dm_boot_drive);
+		printf(gt("%.1fGB free of %.1fGB"), free, total);
+		printf("\n\n");
+
+		bench_io();
+
+		// require +128kb for operating safety
+		if ((f32)getDMLGameSize(header) + (f32)128*1024 >= free * GB_SIZE) {
+			printf_x(gt("ERROR: not enough free space!!"));
+			printf("\n\n");
+			if (del >= 0) __Menu_GetEntries();
+			goto out;
+		}
+		
+		copy_DML_Game_to_SD(header);
 	}
 	
-	if (gc || header->magic == GC_GAME_ON_DRIVE || ((CFG.game.fix_002 > 0 || CFG.devo > 0) && (strstr(header->path, wbfs_fs_drive) || strstr(header->path, "sd:"))))
+	if (gc || (header->magic == GC_GAME_ON_DRIVE && is_gc_game_on_bootable_drive(header, (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0))))
 	{
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
@@ -5142,7 +5139,7 @@ L_repaint:
 				GC_SetVideoMode(1);
 			else
 				GC_SetVideoMode(2);
-		} else if (CFG.game.fix_002 <= 0)
+		} else if (CFG.game.fix_002 <= 0 || CFG.devo <= 0)
 			GC_SetVideoMode(CFG.game.video);
 
 		if (CFG.game.language > 1 && CFG.game.language < 8)

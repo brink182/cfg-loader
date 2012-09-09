@@ -47,7 +47,7 @@ void Save_Debug();
 void Save_IOS_Hash();
 void Menu_Save_Settings();
 void Menu_All_IOS_Info();
-void Print_SYS_Info_str(char *str, int size);
+void Print_SYS_Info_str(char *str, int size, bool noMiosInfo);
 int get_button_action(int buttons);
 char get_unlock_buttons(int buttons);
 void Admin_Unlock(bool unlock);

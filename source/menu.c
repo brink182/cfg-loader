@@ -2906,7 +2906,7 @@ int Menu_Global_Options()
 				CHANGE(CFG.devo, 1);
 				break;
 			case 7:
-				cache_wait_idle();
+				//cache_wait_idle();
 				Download_All_Covers(change > 0);
 				Cache_Invalidate();
 				if (header) Gui_DrawCover(header->id);

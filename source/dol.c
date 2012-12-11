@@ -82,3 +82,45 @@ bool load_dol_image(void **offset, u32 *pos, u32 *len)
 	return false;
 }
 
+u32 load_dol_image_args(void *dolstart, struct __argv *argv)
+{
+	u32 i;
+	dolheader *dolfile;
+
+	if (dolstart)
+	{
+		dolfile = (dolheader *) dolstart;
+		for (i = 0; i < 7; i++)
+		{
+			if ((!dolfile->text_size[i]) || (dolfile->text_start[i] < 0x100))
+				continue;
+
+			memmove((void *) dolfile->text_start[i], dolstart
+				+ dolfile->text_pos[i], dolfile->text_size[i]);
+
+			DCFlushRange ((void *) dolfile->text_start[i], dolfile->text_size[i]);
+			ICInvalidateRange((void *) dolfile->text_start[i], dolfile->text_size[i]);
+		}
+
+		for (i = 0; i < 11; i++)
+		{
+			if ((!dolfile->data_size[i]) || (dolfile->data_start[i] < 0x100))
+				continue;
+
+			memmove((void *) dolfile->data_start[i], dolstart
+					+ dolfile->data_pos[i], dolfile->data_size[i]);
+
+			DCFlushRange((void *) dolfile->data_start[i],
+					dolfile->data_size[i]);
+		}
+
+		if (argv && argv->argvMagic == ARGV_MAGIC)
+		{
+			void *new_argv = (void *) (dolfile->entry_point + 8);
+			memmove(new_argv, argv, sizeof(*argv));
+			DCFlushRange(new_argv, sizeof(*argv));
+		}
+		return dolfile->entry_point;
+	}
+	return 0;
+}

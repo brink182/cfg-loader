@@ -17,6 +17,8 @@
 #include "wpad.h"
 #include "apploader.h"
 #include "mem.h"
+#include "nand.h"
+#include "RuntimeIOSPatch.h"
 
 typedef struct {
 	u32 block_size;
@@ -158,20 +160,13 @@ void Sys_Exit()
 void Sys_HBC()
 {
 	if (CFG.disable_options == 1) return;
-	//int ret = 0;
-	//dbg_printf("prep_exit\n");
 	prep_exit();
-	//dbg_printf("WII_Initialize\n");
 	WII_Initialize();
 	dbg_printf("HBC107\n");
-	//printf("%d\n1.07\n",ret); sleep(1);
+	WII_LaunchTitle(TITLE_ID(0x00010001,0x4C554C5A)); // LULZ
 	WII_LaunchTitle(TITLE_ID(0x00010001,0xAF1BF516)); // 1.07
-	//printf("%d\nJODI\n",ret); sleep(1);
-	//dbg_printf("jodi\n");
 	WII_LaunchTitle(TITLE_ID(0x00010001,0x4A4F4449)); // JODI
-	//printf("%d\nHAXX\n",ret);
 	WII_LaunchTitle(TITLE_ID(0x00010001,0x48415858)); // HAXX
-	//printf("%d\nexit\n",ret); sleep(1);
 	dbg_printf("exit\n");
 	exit(0);
 }
@@ -631,6 +626,8 @@ int ReloadIOS(int subsys, int verbose)
 {
 	int ret = -1;
 	MountTable mnt;
+	
+	//IOSPATCH_Apply();
 
 	if (verbose) {
 		printf_("IOS(%d) ", CFG.ios);
@@ -694,6 +691,8 @@ int ReloadIOS(int subsys, int verbose)
 		Subsystem_Close();
 		WDVD_Close();
 	}
+	
+	Disable_Emu();
 
 	// deinit isfs, inited in get_iosinfo
 	ISFS_Deinitialize();
@@ -1881,41 +1880,81 @@ bool shadow_mload()
 u16 get_miosinfo()
 {
 	u16 mios = CFG_MIOS;
-	// Timestamp of DML r52 (Mar 7 2012 19:36:06)
-	const time_t dml_r52_time = 1331148966;
+	
+	struct tm time;
 
-	// Timestamp of DML 1.2 (Apr 24 2012 19:44:08)
-	const time_t dml_1_2_time = 1335289448;
+	// Timestamp of DML r52
+	strptime("Mar 7 2012 19:36:06", "%b %d %Y %H:%M:%S", &time);
+	const time_t dml_r52_time = mktime(&time);
 
-	// Timestamp of DML 1.4b (May  7 2012 21:12:47)
-	//const time_t dml_1_4b_time = 1336417967;
+	// Timestamp of DML 1.2
+	strptime("Apr 24 2012 19:44:08", "%b %d %Y %H:%M:%S", &time);
+	const time_t dml_1_2_time = mktime(&time);
 
-	// Timestamp of DML 1.5 (Jun 14 2012 00:05:09)
-	//const time_t dml_1_5_time = 1339625109;
+	// Timestamp of DML 1.4b
+	//strptime("May  7 2012 21:12:47", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_1_4b_time = mktime(&time);
 
-	// Timestamp of DM 2.0 (Jun 23 2012 19:43:21)
-	//const time_t dm_2_0_time = 1340473401;
+	// Timestamp of DML 1.5
+	//strptime("Jun 14 2012 00:05:09", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_1_5_time = mktime(&time);
 
-	// Timestamp of DM 2.1 (Jul 17 2012 11:25:35)
-	const time_t dm_2_1_time = 1342517135;
+	// Timestamp of DM 2.0
+	//strptime("Jun 23 2012 19:43:21", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dm_2_0_time = mktime(&time);
 
-	// Timestamp of DM 2.2 initial release (Jul 18 2012 16:57:47)
-	const time_t dm_2_2_time = 1342623467;
+	// Timestamp of DM 2.1
+	strptime("Jul 17 2012 11:25:35", "%b %d %Y %H:%M:%S", &time);
+	const time_t dm_2_1_time = mktime(&time);
 
-	// Timestamp of DM 2.2 update2 (Jul 20 2012 14:49:47)
-	//const time_t dm_2_2_2_time = 1342788587;
+	// Timestamp of DM 2.2 initial release
+	strptime("Jul 18 2012 16:57:47", "%b %d %Y %H:%M:%S", &time);
+	const time_t dm_2_2_time = mktime(&time);
 
-	// Timestamp of DML 2.2 initial release (Aug  6 2012 15:19:17)
-	const time_t dml_2_2_time = 1344259157;
+	// Timestamp of DM 2.2 update2
+	//strptime("Jul 20 2012 14:49:47", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dm_2_2_2_time = mktime(&time);
 
-	// Timestamp of DML 2.2 update1 (Aug 13 2012 00:12:46)
-	//const time_t dml_2_2_1_time = 1344809566;
+	// Timestamp of DML 2.2 initial release
+	strptime("Aug  6 2012 15:19:17", "%b %d %Y %H:%M:%S", &time);
+	const time_t dml_2_2_time = mktime(&time);
+
+	// Timestamp of DML 2.2 update1
+	//strptime("Aug 13 2012 00:12:46", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_2_2_1_time = mktime(&time);
+
+	// Timestamp of DML 2.3 mirror link
+	//strptime("Sep 24 2012 13:13:42", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_2_3m_time = mktime(&time);
+
+	// Timestamp of DM 2.3
+	//strptime("Sep 24 2012 15:51:54", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dm_2_3_time = mktime(&time);
+
+	// Timestamp of DML 2.3 main link
+	//strptime("Sep 25 2012 03:03:41", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_2_3_time = mktime(&time);
+
+	// Timestamp of DM 2.4
+	//strptime("Oct 21 2012 22:57:12", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dm_2_4_time = mktime(&time);
+
+	// Timestamp of DML 2.4
+	//strptime("Oct 21 2012 22:57:17", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_2_4_time = mktime(&time);
+
+	// Timestamp of DM 2.5
+	//strptime("Nov  9 2012 21:18:52", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dm_2_5_time = mktime(&time);
+
+	// Timestamp of DML 2.5
+	//strptime("Nov  9 2012 21:18:56", "%b %d %Y %H:%M:%S", &time);
+	//const time_t dml_2_5_time = mktime(&time);
 	
 	u32 size = 0;
 	u32 i = 0;
 	s32 ret = 0;
 	u8 *appfile = NULL;
-	struct tm time;
 
 	ISFS_Initialize();
 	
@@ -1940,11 +1979,11 @@ u16 get_miosinfo()
 					sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite\n%s", buffer);
 					dbg_printf("\nMIOS is %s", DIOS_MIOS_INFO);
 					
-					if(difftime(unixTime, dml_2_2_time) >= 0) {
+					if (difftime(unixTime, dml_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");
 						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 2.2+\n%s\n", buffer);
 						mios = CFG_DM_2_2;
-					} else if(difftime(unixTime, dml_1_2_time) >= 0) {
+					} else if (difftime(unixTime, dml_1_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 1.2+\n");
 						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 1.2+\n%s\n", buffer);
 						mios = CFG_DML_1_2;
@@ -1993,4 +2032,103 @@ u16 get_miosinfo()
 	if (mios == CFG_MIOS)
 		strcpy(dm_boot_drive, "usb:");
 	return mios;
+}
+
+void *allocate_memory(u32 size)
+{
+	void *temp;
+	temp = memalign(32, (size+31)&(~31) );
+	memset(temp, 0, (size+31)&(~31) );
+	return temp;
+}
+
+s32 Identify_GenerateTik(signed_blob **outbuf, u32 *outlen)
+{
+	signed_blob *buffer   = NULL;
+
+	sig_rsa2048 *signature = NULL;
+	tik         *tik_data  = NULL;
+
+	u32 len;
+
+	/* Set ticket length */
+	len = STD_SIGNED_TIK_SIZE;
+
+	/* Allocate memory */
+	buffer = (signed_blob *)memalign(32, len);
+	if (!buffer)
+		return -1;
+
+	/* Clear buffer */
+	memset(buffer, 0, len);
+
+	/* Generate signature */
+	signature       = (sig_rsa2048 *)buffer;
+	signature->type = ES_SIG_RSA2048;
+
+	/* Generate ticket */
+	tik_data  = (tik *)SIGNATURE_PAYLOAD(buffer);
+
+	strcpy(tik_data->issuer, "Root-CA00000001-XS00000003");
+	memset(tik_data->cidx_mask, 0xFF, 32);
+
+	/* Set values */
+	*outbuf = buffer;
+	*outlen = len;
+
+	return 0;
+}
+
+s32 identify(u64 titleid, u8 *tmdBuffer, u32 tmdSize)
+{
+	char filepath[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
+	signed_blob *tikBuffer = NULL;
+	u32 tikSize;
+	u8 *certBuffer = NULL;
+	u32 certSize;
+
+	s32 ret;
+
+	Identify_GenerateTik(&tikBuffer,&tikSize);
+
+	sprintf(filepath, "/sys/cert.sys");
+	ret = read_file_from_nand(filepath, &certBuffer, &certSize);
+	if (ret < 0)
+	{
+		dbg_printf("Reading certs failed\n");
+		free(tikBuffer);
+		return ret;
+	}
+	//Print("done\n");
+
+	ret = ES_Identify((signed_blob*)certBuffer, certSize, (signed_blob*)tmdBuffer, tmdSize, tikBuffer, tikSize, NULL);
+	if (ret < 0)
+	{
+		switch(ret)
+		{
+			case ES_EINVAL:
+				dbg_printf("Error! ES_Identify (ret = %d;) Data invalid!\n", ret);
+				break;
+			case ES_EALIGN:
+				dbg_printf("Error! ES_Identify (ret = %d;) Data not aligned!\n", ret);
+				break;
+			case ES_ENOTINIT:
+				dbg_printf("Error! ES_Identify (ret = %d;) ES not initialized!\n", ret);
+				break;
+			case ES_ENOMEM:
+				dbg_printf("Error! ES_Identify (ret = %d;) No memory!\n", ret);
+				break;
+			default:
+				dbg_printf("Error! ES_Identify (ret = %d)\n", ret);
+				break;
+		}
+		free(tikBuffer);
+		free(certBuffer);
+		return ret;
+	}
+	//Print("done\n");
+
+	free(tikBuffer);
+	free(certBuffer);
+	return 0;
 }

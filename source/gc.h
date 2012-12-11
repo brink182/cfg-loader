@@ -59,11 +59,12 @@ typedef struct global_config
 	u32 memcard_cluster;
 	u32 disc1_cluster;
 	u32 disc2_cluster;
+	u32 options;
 } gconfig;
 
 void DEVO_SetOptions(const char* path,u8 NMM);
 
-void GC_SetVideoMode(u8 videomode);
+void GC_SetVideoMode(u8 videomode, bool devo);
 void GC_SetLanguage(u8 lang);
 s32 DML_RemoveGame(struct discHdr header);
 int DML_GameIsInstalled(char *folder);

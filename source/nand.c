@@ -17,6 +17,7 @@
 #include "nand.h"
 #include "sys.h"
 #include "video.h"
+#include "cfg.h"
 
 #define BLOCKSIZE 2048
 
@@ -43,28 +44,9 @@ static int partition = 0;
 static int fullmode = 0;
 static char path[32] = "\0";
 
-typedef struct _dirent
-{
-	char name[ISFS_MAXPATH + 1];
-	int type;
-	u32 ownerID;
-	u16 groupID;
-	u8 attributes;
-	u8 ownerperm;
-	u8 groupperm;
-	u8 otherperm;
-} dirent_t;
-
-typedef struct _dir
-{
-	char name[ISFS_MAXPATH + 1];
-} dir_t;
-
-typedef struct _list
-{
-	char name[ISFS_MAXPATH + 1];
-
-} list_t;
+u8 get_nand_device() {
+	return strncmp(CFG.nand_emu_path, "usb", 3) == 0 ? EMU_USB : EMU_SD;
+}
 
 s32 Nand_Mount(nandDevice *dev)
 {
@@ -302,14 +284,14 @@ s32 dumpfile(char source[1024], char destination[1024])
 	fd = ISFS_Open(source, ISFS_OPEN_READ);
 	if (fd < 0) 
 	{
-		printf("\nError: ISFS_OpenFile(%s) returned %d\n", source, fd);
+		dbg_printf("\nError: ISFS_OpenFile(%s) returned %d\n", source, fd);
 		return fd;
 	}
 	
 	file = fopen(destination, "wb");
 	if (!file)
 	{
-		printf("\nError: fopen(%s) returned 0\n", destination);
+		dbg_printf("\nError: fopen(%s) returned 0\n", destination);
 		ISFS_Close(fd);
 		return -1;
 	}
@@ -318,14 +300,14 @@ s32 dumpfile(char source[1024], char destination[1024])
 	ret = ISFS_GetFileStats(fd, status);
 	if (ret < 0)
 	{
-		printf("\nISFS_GetFileStats(fd) returned %d\n", ret);
+		dbg_printf("\nISFS_GetFileStats(fd) returned %d\n", ret);
 		ISFS_Close(fd);
 		fclose(file);
 		free(status);
 		return ret;
 	}
 	Con_ClearLine();
-	printf("Dumping file %s, size = %uKB", source, (status->file_length / 1024)+1);
+	dbg_printf("Dumping file %s, size = %uKB", source, (status->file_length / 1024)+1);
 
 	buffer = (u8 *)memalign(32, BLOCKSIZE);
 	u32 restsize = status->file_length;
@@ -341,7 +323,7 @@ s32 dumpfile(char source[1024], char destination[1024])
 		ret = ISFS_Read(fd, buffer, size);
 		if (ret < 0)
 		{
-			printf("\nISFS_Read(%d, %p, %d) returned %d\n", fd, buffer, size, ret);
+			dbg_printf("\nISFS_Read(%d, %p, %d) returned %d\n", fd, buffer, size, ret);
 			ISFS_Close(fd);
 			fclose(file);
 			free(status);
@@ -351,7 +333,7 @@ s32 dumpfile(char source[1024], char destination[1024])
 		ret = fwrite(buffer, 1, size, file);
 		if(ret < 0) 
 		{
-			printf("\nfwrite error%d\n", ret);
+			dbg_printf("\nfwrite error%d\n", ret);
 			ISFS_Close(fd);
 			fclose(file);
 			free(status);
@@ -385,7 +367,7 @@ void get_attribs(char *path, u32 *ownerID, u16 *groupID, u8 *ownerperm, u8 *grou
 	u8 attributes;
 	res = ISFS_GetAttr(path, ownerID, groupID, &attributes, ownerperm, groupperm, otherperm);
 	if(res != ISFS_OK)
-		printf("Error getting attributes of %s! (result = %d)\n", path, res);
+		dbg_printf("Error getting attributes of %s! (result = %d)\n", path, res);
 }
 
 s32 __FileCmp(const void *a, const void *b)
@@ -408,7 +390,7 @@ s32 __FileCmp(const void *a, const void *b)
 	}
 }
 
-void get_nand_dir(char *path, dirent_t **ent, int *cnt)
+s32 get_nand_dir(char *path, dirent_t **ent, s32 *cnt)
 {
 	s32 res;
 	u32 num = 0;
@@ -419,27 +401,27 @@ void get_nand_dir(char *path, dirent_t **ent, int *cnt)
 	res = ISFS_ReadDir(path, NULL, &num);
 	if(res != ISFS_OK)
 	{
-		printf("Error: could not get dir entry count! (result: %d)\n", res);
-		return;
+		dbg_printf("Error: could not get dir entry count! (result: %d)\n", res);
+		return -1;
 	}
 
 	//Allocate aligned buffer.
-	char *nbuf = (char *)memalign(32, (ISFS_MAXPATH + 1) * num);
+	char *nbuf = (char *)allocate_memory((ISFS_MAXPATH + 1) * num);
 	char ebuf[ISFS_MAXPATH + 1];
 	char pbuf[ISFS_MAXPATH + 1];
 
 	if(nbuf == NULL)
 	{
-		printf("Error: could not allocate buffer for name list!\n");
-		return;
+		dbg_printf("Error: could not allocate buffer for name list!\n");
+		return -2;
 	}
 
 	//Get the name list.
 	res = ISFS_ReadDir(path, nbuf, &num);
 	if(res != ISFS_OK)
 	{
-		printf("Error: could not get name list! (result: %d)\n", res);
-		return;
+		dbg_printf("Error: could not get name list! (result: %d)\n", res);
+		return -3;
 	}
 	
 	//Set entry cnt.
@@ -449,7 +431,7 @@ void get_nand_dir(char *path, dirent_t **ent, int *cnt)
 	{
 		free(*ent);
 	}
-	*ent = malloc(sizeof(dirent_t) * num);
+	*ent = allocate_memory(sizeof(dirent_t) * num);
 
 	u32 ownerID = 0;
 	u16 groupID = 0;
@@ -497,6 +479,7 @@ void get_nand_dir(char *path, dirent_t **ent, int *cnt)
 	qsort(*ent, *cnt, sizeof(dirent_t), __FileCmp);
 	
 	free(nbuf);
+	return 0;
 }
 
 bool dumpfolder(char source[1024], char destination[1024])
@@ -524,7 +507,7 @@ bool dumpfolder(char source[1024], char destination[1024])
 		ret = mkdir(path, 0777);
 		if (ret < 0)
 		{
-			printf("Error making directory %d...\n", ret);
+			dbg_printf("Error making directory %d...\n", ret);
 			free(dir);
 			return false;
 		}
@@ -544,8 +527,8 @@ bool dumpfolder(char source[1024], char destination[1024])
 		{
 			sprintf(path2, "%s%s", destination, path);
 
-			//printf("Dumping file: %s\n", path);
-			//printf("To: %s\n", path2);
+			//dbg_printf("Dumping file: %s\n", path);
+			//dbg_printf("To: %s\n", path2);
 
 			//sleep(5);
 			ret = dumpfile(path, path2);
@@ -568,6 +551,22 @@ bool dumpfolder(char source[1024], char destination[1024])
 		}
 	}
 	free(dir);
-	//printf("Dumping folder %s complete\n\n", source);
+	//dbg_printf("Dumping folder %s complete\n\n", source);
 	return true;
+}
+
+s32 get_dir_count(char *path, u32 *cnt)
+{
+	if (cnt == NULL) return -2;
+
+	u32 temp = 0;
+	s32 ret = ISFS_ReadDir(path, NULL, &temp);
+	if (ret != ISFS_OK)
+	{
+		dbg_printf("Error: ISFS_ReadDir('%s') ret = %d\n", path, ret);
+		return -1;
+	}
+	*cnt = temp;
+
+	return 1;
 }

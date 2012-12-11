@@ -60,6 +60,7 @@
 #include "nand.h"
 #include "dol.h"
 #include "savegame.h"
+#include "channel.h"
 
 void _unstub_start();
 
@@ -100,6 +101,7 @@ extern s32 filter_index;
 bool MountWBFS = true;
 
 s32 gameCnt = 0, gameSelected = 0, gameStart = 0, chanSelected = 0, chanStart = 0, mycount = 0;
+u64 channels[1000];
 
 bool imageNotFound = false;
 
@@ -291,409 +293,6 @@ struct discHdr *getHeaderById(struct discHdr *list, int cnt, u8 *id, u8 disc) {
 	return NULL;
 }
 
-s32 HexToStr(wchar_t *str, u8 *data, u32 cnt){
-	u32 i = 0;
-	for(; i < cnt;data += 2){
-		u16 *chr = (u16*)data;
-		
-	if (*chr == 0) 
-	break;
-		// ignores all but ASCII characters
-//	else if (*chr >= 0x20 && *chr <= 0x7E)
-			
-				str[i] = *chr;
-				
-//	else
-//	str[i] = '.';
-		i++;
-		
-	}
-	str[i] = 0;
-		
-	return 0;
-}
-
-void *allocate_memory(u32 size)
-{
-	void *temp;
-	temp = memalign(32, (size+31)&(~31) );
-	memset(temp, 0, (size+31)&(~31) );
-	return temp;
-}
-
-s32 getdircount(char *path, u32 *cnt)
-{
-	if (cnt == NULL) return -2;
-	
-	u32 temp = 0;
-	s32 ret = ISFS_ReadDir(path, NULL, &temp);
-	if (ret != ISFS_OK)
-	{
-		printf("Error: ISFS_ReadDir('%s') ret = %d\n", path, ret);
-		 Wpad_WaitButtonsRpt();
-		//waitforbuttonpress(NULL, NULL);
-		return -1;
-	}
-	*cnt = temp;
-	
-	return 1;
-}
-
-s32 getdir(char *path, dirent_t **ent, u32 *cnt)
-{
-	if (ent == NULL) return -2;
-	
-	s32 ret;
-	u32 num = 0;
-
-	int i, j, k;
-	
-	ret = getdircount(path, &num);
-	if (ret < 0)
-	{
-		//Print("Error: could not get dir entry count! (result: %d)\n", ret);
-		return -1;
-	}
-	*cnt = num;
-	
-	if (num == 0) return 0;	
-
-	char ebuf[ISFS_MAXPATH + 1];
-
-	char *nbuf = (char *)allocate_memory(13 * num);
-	if (nbuf == NULL)
-	{
-		printf("Error: could not allocate buffer for name list!\n");
-		return -2;
-	}
-
-	ret = ISFS_ReadDir(path, nbuf, &num);
-	if (ret != ISFS_OK)
-	{
-		printf("Error: could not get name list! (result: %d)\n", ret);
-		free(nbuf);
-		return -3;
-	}
-	
-	*ent = malloc(sizeof(dirent_t) * num);
-	if (*ent == NULL)
-	{
-		printf("Error: could not allocate buffer\n");
-		free(nbuf);
-		return -4;
-	}	
-
-	for (i = 0, k = 0; i < num; i++)
-	{	    
-		for (j = 0; nbuf[k] != 0; j++, k++)
-			ebuf[j] = nbuf[k];
-		ebuf[j] = 0;
-		k++;
-
-		strcpy((*ent)[i].fname, ebuf);
-	}
-	
-	//qsort(*ent, *cnt, sizeof(dirent_t), __FileCmp);
-	
-	free(nbuf);
-	return 0;
-}
-
-s32 chk_dol(u64 titleid, char *out)
-{
-    s32 ret;
-	u32 num;
-	dirent_t *list;
-    char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-    int cnt = 0;
-	
-	//u8 *decompressed = NULL;
-	//u32 decomp_size = 0;
-	
-	u8 *buffer = allocate_memory(32);	// Needs to be aligned because it's used for nand access
-	
-	if (buffer == NULL)
-	{
-		printf("Out of memory\n");
-		return -1;
-	}
- 
-    u8 check[6] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00};
- 
-    sprintf(path, "/title/%08x/%08x/content", TITLE_UPPER(titleid), TITLE_LOWER(titleid));
-    ret = getdir(path, &list, &num);
-    if (ret < 0)
-	{
-		printf("Reading folder of the title failed\n");
-		free(buffer);
-		return ret;
-	}
-	
-	for (cnt=0; cnt < num; cnt++)
-    {        
-        if (num >1)
-        {			
-			memset(buffer, 0, 32);
-            sprintf(path, "/title/%08x/%08x/content/%s", TITLE_UPPER(titleid), TITLE_LOWER(titleid), list[cnt].fname);
-           
-          s32 Fd= ISFS_Open(path, ISFS_OPEN_READ);
-           
-              ISFS_Read(Fd, buffer, 32);
-   
-            if(memcmp(buffer, check, 6) == 0)
-           
-                  {
-				printf("Found DOL --> %s\n", list[cnt].fname);
-				sleep(5);
-				sprintf(out, "%s", path);
-				free(list);
-				free(buffer);
-				ISFS_Close(Fd);
-				return 0;
-            } 
-        }
-    }
-	
-	free(list);
-	free(buffer);
-	
-	printf("No .dol found\n");
-	return -1;
-}
-
-u32 load_dol(u8 *buffer)
-{
-	dolchunkcount = 0;
-	
-	dolheader *dolfile;
-	dolfile = (dolheader *)buffer;
-	
-	printf("Entrypoint: %08x\n", dolfile->entry_point);
-	//Print("BSS: %08x, size = %08x(%u)\n", dolfile->bss_start, dolfile->bss_size, dolfile->bss_size);
-
-	memset((void *)dolfile->bss_start, 0, dolfile->bss_size);
-	DCFlushRange((void *)dolfile->bss_start, dolfile->bss_size);
-	ICInvalidateRange((void *)dolfile->bss_start, dolfile->bss_size);
-	
-    //Print("BSS cleared\n");
-	
-	u32 doloffset;
-	u32 memoffset;
-	u32 restsize;
-	u32 size;
-
-	int i;
-	for (i = 0; i < 7; i++)
-	{	
-		if(dolfile->text_pos[i] < sizeof(dolheader))
-			continue;
-	    
-		dolchunkoffset[dolchunkcount] = (void *)dolfile->text_start[i];
-		dolchunksize[dolchunkcount] = dolfile->text_size[i];
-		dolchunkcount++;
-		
-		doloffset = (u32)buffer + dolfile->text_pos[i];
-		memoffset = dolfile->text_start[i];
-		restsize = dolfile->text_size[i];
-
-		//Print("Moving text section %u from %08x to %08x-%08x...", i, dolfile->text_pos[i], dolfile->text_start[i], dolfile->text_start[i]+dolfile->text_size[i]);
-		//fflush(stdout);
-			
-		while (restsize > 0)
-		{
-			if (restsize > 2048)
-			{
-				size = 2048;
-			} else
-			{
-				size = restsize;
-			}
-			restsize -= size;
-			
-			memcpy((void *)memoffset, (void *)doloffset, size);
-			
-			DCFlushRange((void *)memoffset, size);
-			ICInvalidateRange ((void *)memoffset, size);
-			
-			doloffset += size;
-			memoffset += size;
-		}
-
-		//Print("done\n");
-		//fflush(stdout);			
-	}
-
-	for(i = 0; i < 11; i++)
-	{
-		if(dolfile->data_pos[i] < sizeof(dolheader))
-			continue;
-		
-		dolchunkoffset[dolchunkcount] = (void *)dolfile->data_start[i];
-		dolchunksize[dolchunkcount] = dolfile->data_size[i];
-		dolchunkcount++;
-
-		doloffset = (u32)buffer + dolfile->data_pos[i];
-		memoffset = dolfile->data_start[i];
-		restsize = dolfile->data_size[i];
-
-		//Print("Moving data section %u from %08x to %08x-%08x...", i, dolfile->data_pos[i], dolfile->data_start[i], dolfile->data_start[i]+dolfile->data_size[i]);
-		//fflush(stdout);
-			
-		while (restsize > 0)
-		{
-			if (restsize > 2048)
-			{
-				size = 2048;
-			} else
-			{
-				size = restsize;
-			}
-			restsize -= size;
-			memcpy((void *)memoffset, (void *)doloffset, size);
-
-			DCFlushRange((void *)memoffset, size);
-			ICInvalidateRange ((void *)memoffset, size);
-			
-			doloffset += size;
-			memoffset += size;
-		}
-
-		//Print("done\n");
-		//fflush(stdout);			
-	} 
-	//Print("All .dol sections moved\n");
-	//fflush(stdout);			
-	return dolfile->entry_point;
-}
-
-s32 search_and_read_dol(u64 titleid, u8 **contentBuf, u32 *contentSize, u8 *tmdBuffer)
-{
-	char filepath[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-	int ret;
-	
-	// Write bootcontent to filepath and overwrite it in case another .dol is found
-	sprintf(filepath, "/title/%08x/%08x/content/", TITLE_UPPER(titleid), TITLE_LOWER(titleid));
- 
-	ret = chk_dol(titleid, filepath);
-	
-	ret = read_file_from_nand(filepath, contentBuf, contentSize);
-		
-	if (ret < 0)
-	{
-		printf("Reading .dol failed\n");
-		return ret;
-	}
-	
-	
-	if (ret >= 0)
-	{
-		return 1;
-	} else
-	{
-		return 0;
-	}
-}
-
-void bootTitle(u64 titleid)
-{
-	u32 entryPoint;
-	entrypoint appJump;
-	int ret;
-	//u32 requested_ios;
-	u8 *dolbuffer;
-	u32 dolsize;
-	//u32 bootcontentloaded;
-
-	u8 *tmdBuffer = NULL;
-	//u32 tmdSize;
-
-	ret = search_and_read_dol(titleid, &dolbuffer, &dolsize, tmdBuffer);
-
-	if (ret < 0)
-	{
-		printf(".dol loading failed\n");
-		free(tmdBuffer);
-		return;
-	}
-	//bootcontentloaded = (ret == 1);
-
-	entryPoint = load_dol(dolbuffer);
-
-	free(dolbuffer);
-
-	printf(".dol is loaded\n");
-	sleep(5);
-
-
-	*(u32 *)0x80000000 = TITLE_LOWER(titleid);
-	DCFlushRange((void*)0x80000000,32);
-
-	// Memory setup when booting the main.dol
-	if (entryPoint != 0x3400)
-	{
-		*(u32 *)0x80000034 = 0;			// Arena High, the apploader does this too
-		*(u32 *)0x800000F4 = 0x817FE000;	// BI2, the apploader does this too
-		*(u32 *)0x800000F8 = 0x0E7BE2C0;	// bus speed
-		*(u32 *)0x800000FC = 0x2B73A840;	// cpu speed
-
-		DCFlushRange((void*)0x80000000, 0x100);
-
-		memset((void *)0x817FE000, 0, 0x2000); // Clearing BI2, or should this be read from somewhere?
-		DCFlushRange((void*)0x817FE000, 0x2000);		
-
-		*(u32 *)0x80003180 = 0;		// No comment required here
-
-
-		*(u32 *)0x80003184 = 0x81000000;	// Game id address, while there's all 0s at 0x81000000 when using the apploader...
-
-		DCFlushRange((void*)0x80003180, 32);
-
-		appJump = (entrypoint)entryPoint;
-
-
-		if (ret < 0)
-		{
-			return;
-		}
-
-		printf(".\n");
-	}
-
-	Disable_Emu();
-	ISFS_Deinitialize();
-	//IOS_ReloadIOS(CFG.ios);
-	ISFS_Initialize();
-
-	ret = Enable_Emu(EMU_USB);
-
-	printf("EMU=%d\n",ret);
-	sleep(5);
-
-	*(u16 *)0x80003140 = CFG.ios;
-	*(u16 *)0x80003142 = 0xffff;
-	*(u16 *)0x80003188 = CFG.ios;
-	*(u16 *)0x8000318A = 0xffff;
-
-	DCFlushRange((void*)0x80003140,32);
-	DCFlushRange((void*)0x80003188,32);
-
-	d2x_return_to_channel();
-
-	printf("Preparations complete, booting...\n");
-	sleep(5);
-
-	IRQ_Disable();
-	__IOS_ShutdownSubsystems();
-	__exception_closeall();
-
-	SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
-
-	if (entryPoint != 0x3400)
-		appJump();
-	else
-		_unstub_start();	
-}
-	
 void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
 {
 	if(NandEmuMode && strchr(NandEmuPath, '/'))
@@ -714,7 +313,7 @@ void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
 				Set_Partition(partition);
 			}
 
-			Enable_Emu(strncmp(NandEmuPath, "usb", 3) == 0 ? EMU_USB : EMU_SD);
+			Enable_Emu(get_nand_device());
 
 			//! Mount USB to start game, SD is not required
 			if(strncmp(NandEmuPath, "usb", 3) == 0) {
@@ -725,129 +324,116 @@ void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
 	}
 }
 
-s32 get_channel_list(void *outbuf, u64 channels[], u32 size) 
+s32 get_channel_list(void *outbuf, u32 size) 
 {
-	u8 chan_title_id[5];
-	s32 ret = 0, Fd = 0;
-	u32 i, lower;
-	char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
+	s32 ret = 0;
 	
-	for (i = 0; i < size; i++) {
-		lower = channels[i] & 0xFFFFFFFF;	
-
-		memcpy(chan_title_id, &lower, 4);
-		chan_title_id[4]='\0';
-		char *title = __Menu_PrintTitle(cfg_get_title(chan_title_id));
-
-		sprintf(path, "/title/00010001/%08x/content/title.tmd",lower);
-		Fd = ISFS_Open(path, ISFS_OPEN_READ);
-		u8 *tmdBuffer = memalign(32, 1024);
-		u32 ios;
-		ISFS_Read(Fd, tmdBuffer, 1024);
-		ios = (u32)(tmdBuffer[0x18b]);
-
-		free(tmdBuffer);
-		ISFS_Close(Fd);
-
-		if (title==NULL) 
+	static char path_buffer[255] ATTRIBUTE_ALIGN(32);
+	struct dirent *entry;
+	
+	FILE *fp;
+	DIR *sdir;
+	
+	char gamePath[255];
+	sprintf(gamePath, "%s/title/00010001", CFG.nand_emu_path);
+	sdir = opendir(gamePath);
+	if (sdir) do
+	{
+		entry = readdir(sdir);
+		if (entry)
 		{
-			dbg_printf("title==NULL\n");
-			sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
-			Fd= ISFS_Open(path, ISFS_OPEN_READ);
-			ISFS_Seek(Fd, 0x9C, 0);
-
-			u8 *data = memalign(32, 256);
-			ISFS_Read(Fd, data, 256);
-
-			wchar_t name[0x2B] __attribute__ ((aligned (32)));
-
-			name[0x2A] = 0;
-
-			HexToStr(name, data , 0x2A);
-
-			ISFS_Close(Fd);
-			free(data);
-		}
-		else 
-		{
-			if (strlen(title)>31)
+			sprintf(path_buffer, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
+			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2) || !strncmp(entry->d_name, "48414141", 8) || !strncmp(entry->d_name, "af1bf516", 8) || !strncmp(entry->d_name, "4a4f4449", 8) || !strncmp(entry->d_name, "48415858", 8))
+ 			{
+				continue;
+ 			}
+			sprintf(path_buffer, "%s/title/00010001/%s/content/00000000.app", CFG.nand_emu_path, entry->d_name);
+			fp = fopen(path_buffer, "rb");
+			if (fp)
 			{
-				char titletemp[31];
-
-				strncpy(titletemp, title, sizeof(titletemp));
-				titletemp[sizeof(titletemp)-1]='\0';
-				printf("%s",titletemp);
-			}
-			else 
-			{
-				printf("%s",title);
+				u8 *ptr = ((u8 *)outbuf) + (ret * sizeof(struct discHdr));
+				struct discHdr *channel = (struct discHdr *)ptr;
+				
+				channel->magic = CHANNEL_MAGIC;
+				//strncpy(channel->path, path, strlen(path));
+				u32 title_low = TITLE_LOW(strtol(entry->d_name,NULL,16));
+				memcpy(channel->id, &title_low, sizeof(u32));
+				//char *name = get_name(TITLE_ID(0x00010001, title_low));
+				strncpy(channel->title, (char*)channel->id, strlen((char*)channel->id));
+				//SAFE_FREE(name);
+				
+				ret++;
+				fclose(fp);
+			} else {
+				sprintf(path_buffer, "%s/title/00010001/%s/content/00000008.app", CFG.nand_emu_path, entry->d_name);
+				fp = fopen(path_buffer, "rb");
+				if (fp)
+				{
+					u8 *ptr = ((u8 *)outbuf) + (ret * sizeof(struct discHdr));
+					struct discHdr *channel = (struct discHdr *)ptr;
+					
+					channel->magic = CHANNEL_MAGIC;
+					//strncpy(channel->path, path, strlen(path));
+					u32 title_low = TITLE_LOW(strtol(entry->d_name,NULL,16));
+					memcpy(channel->id, &title_low, sizeof(u32));
+					//char *name = get_name(TITLE_ID(0x00010001, title_low));
+					strncpy(channel->title, (char*)channel->id, strlen((char*)channel->id));
+					//SAFE_FREE(name);
+					
+					ret++;
+					fclose(fp);
+				}
 			}
 		}
-		printf("[%s:%d]\n",chan_title_id,ios);
-		u8 *ptr = ((u8 *)outbuf) + (i * sizeof(struct discHdr));
-		struct discHdr *channel = (struct discHdr *)ptr;
-		memcpy(channel->id, chan_title_id, sizeof(chan_title_id));
-		memcpy(channel->title, title, strlen(title));
-	}
+	} while (entry);
+	closedir(sdir);
 
-	Disable_Emu();
 	return ret;
 }
 
-s32 get_channel_list_cnt(u64 channels[])
-{
-	ISFS_Initialize();		
-
+s32 get_channel_list_cnt()
+{	
 	s32 ret = 0;
-
-	Setup_NandEmu(2, CFG.nand_emu_path);
 	
-	u32 count;
-
-	ret = ES_GetNumTitles(&count);
-	if (ret < 0 ) {
-		printf("error !! ret=%d\n",ret);
-		return ret;
-	}
-
-	static u64 title_list[1024] ATTRIBUTE_ALIGN(32);
-
-	ret = ES_GetTitles(title_list, count);
-	if (ret < 0 ) { 
-		printf("error !! ret=%d",ret);
-		return ret;
-	}
-
-	u32 i,upper,lower;
-	char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-	mycount = 0;
-
-	s32 Fd;
-
-	for (i = 0; i < count; i++) {
-		upper = title_list[i] >> 32 ;
-		lower = title_list[i] & 0xFFFFFFFF;
-
-		if ((upper-0x10001==0)  &&  (lower-0x48414141 !=0) && (lower-0xaf1bf516 !=0) && (lower-0x4a4f4449 !=0) && (lower-0x48415858 !=0))
+	static char path_buffer[255] ATTRIBUTE_ALIGN(32);
+	struct dirent *entry;
+	
+	FILE *fp;
+	DIR *sdir;
+	
+	char gamePath[255];
+	sprintf(gamePath, "%s/title/00010001", CFG.nand_emu_path);
+	sdir = opendir(gamePath);
+	if (sdir) do
+	{
+		entry = readdir(sdir);
+		if (entry)
 		{
-			sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
-			Fd= ISFS_Open(path, ISFS_OPEN_READ);
-			if (Fd >= -102)
+			sprintf(path_buffer, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
+			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2) || !strncmp(entry->d_name, "48414141", 8) || !strncmp(entry->d_name, "af1bf516", 8) || !strncmp(entry->d_name, "4a4f4449", 8) || !strncmp(entry->d_name, "48415858", 8))
+ 			{
+				continue;
+ 			}
+			sprintf(path_buffer, "%s/title/00010001/%s/content/00000000.app", CFG.nand_emu_path, entry->d_name);
+			fp = fopen(path_buffer, "rb");
+			if (fp)
 			{
-				channels[mycount++]=title_list[i];
+				ret++;
+				fclose(fp);
+			} else {
+				sprintf(path_buffer, "%s/title/00010001/%s/content/00000008.app", CFG.nand_emu_path, entry->d_name);
+				fp = fopen(path_buffer, "rb");
+				if (fp)
+				{
+					ret++;
+					fclose(fp);
+				}
 			}
-			sprintf(path, "/title/00010001/%08x/content/00000008.app",lower);
-			Fd= ISFS_Open(path, ISFS_OPEN_READ);
-			if (Fd >= -102)
-			{
-				channels[mycount++]=title_list[i];
-			}
-
-			ISFS_Close(Fd);
 		}
-	}
-	
-	return mycount;
+	} while (entry);
+	closedir(sdir);
+
+	return ret;
 }
 
 s32 get_DML_game_list(void *outbuf)
@@ -855,7 +441,7 @@ s32 get_DML_game_list(void *outbuf)
 	FILE *fp;
 	u32 DML_GameCount = 0;
 	
-	static char name_buffer[64] ATTRIBUTE_ALIGN(32);;
+	static char name_buffer[64] ATTRIBUTE_ALIGN(32);
     DIR *sdir;
     DIR *s2dir;
     struct dirent *entry;
@@ -1100,11 +686,13 @@ s32 __Menu_GetEntries(void)
 {
 	struct discHdr *buffer = NULL;
 	struct discHdr *dmlBuffer = NULL;
+	struct discHdr *channelBuffer = NULL;
 
 	u32 cnt, len = 0;
 	s32 ret = 0;
 	
 	s32 dml = 0;
+	s32 channelCnt = 0;
 
 	Cache_Invalidate();
 
@@ -1123,19 +711,39 @@ s32 __Menu_GetEntries(void)
 	}
 		
 	/* Allocate memory */
-	dmlBuffer = (struct discHdr *)memalign(32, sizeof(struct discHdr)*1000);
+	dmlBuffer = (struct discHdr *)allocate_memory(sizeof(struct discHdr) * 1000);
 	if (!dmlBuffer)
 		return -1;
 	
+	/* Clear buffer */
+	memset(dmlBuffer, 0, sizeof(struct discHdr) * 1000);
+	
 	dml = get_DML_game_list(dmlBuffer);
+	
+	channelCnt = get_channel_list_cnt();
+	
+	/* Allocate memory */
+	channelBuffer = (struct discHdr *)allocate_memory(sizeof(struct discHdr) * channelCnt);
+	if (!channelBuffer)
+		return -1;
+	
+	/* Clear buffer */
+	memset(channelBuffer, 0, sizeof(struct discHdr) * channelCnt);
+	
+	s32 channelTemp = get_channel_list(channelBuffer, channelCnt);
+	dbg_printf("Channel: %d\n", channelTemp);
+	if (channelTemp > 0)
+		channelCnt = channelTemp;
+	else
+		channelCnt = 0;
 
 	/* Buffer length */
-	len = sizeof(struct discHdr) * (cnt+dml);
+	len = sizeof(struct discHdr) * (cnt+dml+channelCnt);
 	
-	dbg_printf("Found %d games (%d wii games and %d gc games)\n", len/sizeof(struct discHdr), cnt, dml);
+	dbg_printf("Found %d games (%d wii games, %d gc games and %d channels)\n", len/sizeof(struct discHdr), cnt, dml, channelCnt);
 
 	/* Allocate memory */
-	buffer = (struct discHdr *)memalign(32, len);
+	buffer = (struct discHdr *)allocate_memory(len);
 	if (!buffer)
 		return -1;
 
@@ -1144,10 +752,13 @@ s32 __Menu_GetEntries(void)
 	
 	memcpy(buffer, dmlBuffer, sizeof(struct discHdr) * dml);
 	SAFE_FREE(dmlBuffer);
+		
+	memcpy(buffer+dml, channelBuffer, sizeof(struct discHdr) * channelCnt);
+	SAFE_FREE(channelBuffer);
 
 	/* Get header list */
 	if (MountWBFS) {
-		ret = WBFS_GetHeaders(buffer+dml, cnt, sizeof(struct discHdr));
+		ret = WBFS_GetHeaders(buffer+(dml+channelCnt), cnt, sizeof(struct discHdr));
 		if (ret < 0)
 			goto err;
 	}
@@ -1158,7 +769,7 @@ s32 __Menu_GetEntries(void)
 
 	/* Set values */
 	gameList = buffer;
-	gameCnt  = cnt+dml;
+	gameCnt  = cnt+dml+channelCnt;
 
 	/* Reset variables */
 	gameSelected = gameStart = 0;
@@ -1177,13 +788,13 @@ s32 __Menu_GetEntries(void)
 	all_gameList = gameList;
 	all_gameCnt  = gameCnt;
 	len = sizeof(struct discHdr) * all_gameCnt;
-	fav_gameList = (struct discHdr *)memalign(32, len);
+	fav_gameList = (struct discHdr *)allocate_memory(len);
 	if (fav_gameList) {
 		memcpy(fav_gameList, all_gameList, len);
 		fav_gameCnt = all_gameCnt;
 	}
 	
-	filter_gameList = (struct discHdr *)memalign(32, len);
+	filter_gameList = (struct discHdr *)allocate_memory(len);
 	if (filter_gameList) {
 		memcpy(filter_gameList, all_gameList, len);
 		filter_gameCnt = all_gameCnt;
@@ -1386,6 +997,8 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	*real_size = 0;
 	
 	*comp_size = *real_size = getDMLGameSize(header);
+	if (*comp_size > 0) return;
+	*comp_size = *real_size = getChannelSize(header);
 	if (*comp_size > 0) return;
 
 	/* Get game size */
@@ -2842,7 +2455,7 @@ int Menu_Global_Options()
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Download game information")); // download database - lustar
 		if (menu_window_mark(&menu))
-			printf("<%s>\n", gt("Download Devolution"));
+			printf("<%s>\n", gt("Download Plugins"));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Update themes"));
 		if (menu_window_mark(&menu))
@@ -2917,7 +2530,7 @@ int Menu_Global_Options()
 				Download_Titles();
 				break;
 			case 9:
-				Download_DEVO();
+				Download_Plugins();
 				break;
 			case 10:
 				Theme_Update();
@@ -3951,245 +3564,6 @@ void print_ntfs_write_error()
 	printf("\n");
 }
 
-void Menu_Channel(void)
-{	 
-	ISFS_Initialize();		
-
-	s32 ret;
-
-	Setup_NandEmu(2, CFG.nand_emu_path);
-
-	u32 count;
-
-	ret = ES_GetNumTitles(&count);
-	if (ret < 0 ) printf("error !! ret=%d",ret);
-
-	static u64 title_list[1024] ATTRIBUTE_ALIGN(32);
-
-	ret = ES_GetTitles(title_list, count);
-	if (ret < 0 ) printf("error !! ret=%d",ret);
-
-	//printf("Owned titles:%d\n\n",count);
-
-	u64 channels[count];
-	u32 i,upper,lower;
-	char path[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-	mycount=0;
-
-	s32 Fd;
-
-	for ( i=0; i < count; i++) {
-		upper = title_list[i] >> 32 ;
-		lower = title_list[i] & 0xFFFFFFFF;
-
-		if ((upper-0x10001==0)  &&  (lower-0x48414141 !=0) && (lower-0xaf1bf516 !=0) && (lower-0x4a4f4449 !=0) && (lower-0x48415858 !=0))
-		{
-			sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
-			Fd= ISFS_Open(path, ISFS_OPEN_READ);
-			if (Fd >= -102)
-			{
-				channels[mycount]=title_list[i];
-				mycount++;
-			}
-			sprintf(path, "/title/00010001/%08x/content/00000008.app",lower);
-			Fd= ISFS_Open(path, ISFS_OPEN_READ);
-			if (Fd >= -102)
-			{
-				channels[mycount]=title_list[i];
-				mycount++;
-			}
-
-			ISFS_Close(Fd);
-		}
-	}
-	// Wpad_WaitButtonsRpt();
-
-	for (;;) {
-		//go_gui = false;
-		Con_Clear();
-		DefaultColor();
-		if (!CFG.hide_header) {
-			printf_x(gt("Channels and Wiiware/VC games"));
-			printf("\n");
-		}
-		//DefaultColor();
-		if (CFG.console_mark_page && chanStart > 0) {
-			printf(" %s +", CFG.cursor_space);
-		}
-		printf("\n");
-
-
-
-		u8 chan_title_id[5];
-
-		for ( i=0; i < mycount; i++) {
-			if ((i - chanStart) >= ENTRIES_PER_PAGE)
-				break;   
-
-			lower = channels[i] & 0xFFFFFFFF;	
-
-			memcpy(chan_title_id, &lower, 4);
-			chan_title_id[4]='\0';
-
-			if (chanSelected == i) {
-				FgColor(CFG.color_selected_fg);
-				BgColor(CFG.color_selected_bg);
-				Con_ClearLine();
-			} else {
-				DefaultColor();
-			}
-			char *title = __Menu_PrintTitle(cfg_get_title(chan_title_id));
-
-			sprintf(path, "/title/00010001/%08x/content/title.tmd",lower);
-			Fd= ISFS_Open(path, ISFS_OPEN_READ);
-			u8 *tmdBuffer = memalign(32, 1024);
-			u32 ios;
-			ISFS_Read(Fd, tmdBuffer, 1024);
-			ios = (u32)(tmdBuffer[0x18b]);
-
-			free(tmdBuffer);
-			ISFS_Close(Fd);
-
-			printf(" %s", (chanSelected == i) ? CFG.cursor : CFG.cursor_space);
-			if (title==NULL) 
-			{
-				sprintf(path, "/title/00010001/%08x/content/00000000.app",lower);
-				Fd= ISFS_Open(path, ISFS_OPEN_READ);
-				ISFS_Seek(Fd, 0x9C, 0);
-
-				u8 *data = memalign(32, 256);
-				// ISFS_Read(Fd, data, 0x22 * 0x2B);
-				ISFS_Read(Fd, data, 256);
-
-				//char str[0x22][0x2B];
-				wchar_t name[0x2B] __attribute__ ((aligned (32)));
-
-				name[0x2A] = 0;
-				// char name[256];
-
-
-				HexToStr(name, data , 0x2A);
-
-				/*
-				int k;
-
-				for (k=0;k<0x2B;k++)
-				{
-				u16 *chr = (u16*)data[k];
-				name1[k]=*chr;
-
-				}
-				sprintf(name, "%s", name1);
-				*/
-				ISFS_Close(Fd);
-				free(data);
-				FgColor(CFG.color_footer);
-				if(wcslen(name)<=5) printf ("No Title..");
-				printf("%ls",name);	
-				//free(buffer);
-			}
-			else 
-			{
-				if (strlen(title)>31)
-				{
-					char titletemp[31];
-
-					strncpy(titletemp,title,sizeof(titletemp));
-					titletemp[sizeof(titletemp)-1]='\0';
-					printf("%s",titletemp);
-				}
-				else 
-				{
-					printf("%s",title);
-				}
-			}
-			FgColor(CFG.color_selected_fg);
-			printf("[%s:%d]\n",chan_title_id,ios);
-			DefaultColor();
-		}
-
-		lower = channels[chanSelected] & 0xFFFFFFFF;	
-		memcpy(chan_title_id, &lower, 4);
-		chan_title_id[4]='\0';
-		Gui_DrawCover(chan_title_id);
-		DefaultColor();
-		if (CFG.console_mark_page && i < mycount) {
-			printf(" %s +", CFG.cursor_space);
-		} else {
-			printf(" %s  ", CFG.cursor_space);
-		}
-		FgColor(CFG.color_footer);
-		BgColor(CONSOLE_BG_COLOR);
-		int num_page = 1 + (mycount - 1) / ENTRIES_PER_PAGE;
-		int cur_page = 1 + chanSelected / ENTRIES_PER_PAGE;
-		printf(" %-*.*s %d/%d", MAX_CHARACTERS - 8, MAX_CHARACTERS - 8, action_string, cur_page, num_page);
-		action_string[0] = 0;
-		if (!CFG.hide_footer) {
-			printf("\n");
-
-			printf_x(gt(" Press [A]:Launch Channel"));
-			printf("\n");
-			printf_x(gt(" Press [B]:GUI Menu"));
-			printf("\n");
-			printf_x(gt(" Press [1]:Download Covers"));
-			printf("\n");		
-		}
-		__console_flush(0);  
-
-		u32 buttons = Wpad_WaitButtonsRpt();
-
-		if (buttons & WPAD_BUTTON_A) {
-			Music_Pause();
-			//bootTitle(channels[chanSelected]);
-
-			WII_LaunchTitle(channels[chanSelected]);
-		}
-
-
-
-		if (buttons & WPAD_BUTTON_B) {	  
-			//go_gui = true;
-			Gui_Mode();
-		}	
-		if (buttons & WPAD_BUTTON_1) {	 
-			DefaultColor(); 
-
-			Download_Cover((char*)chan_title_id, true, true);
-			Cache_Invalidate();
-			Gui_DrawCover(chan_title_id);
-			Menu_PrintWait();
-		}
-
-		/* UP/DOWN buttons */
-		if (buttons & WPAD_BUTTON_UP)
-			__Chan_MoveList(-1);
-
-		if (buttons & WPAD_BUTTON_DOWN)
-			__Chan_MoveList(1);
-
-		/* LEFT/RIGHT buttons */
-		if (buttons & WPAD_BUTTON_LEFT) {
-			//__Menu_MoveList(-ENTRIES_PER_PAGE);
-			if (CFG.cursor_jump) {
-				__Chan_MoveList(-CFG.cursor_jump);
-			} else {
-				__Chan_MoveList((chanSelected-chanStart == 0) ? -ENTRIES_PER_PAGE : -(chanSelected-chanStart));
-			}
-		}
-
-		if (buttons & WPAD_BUTTON_RIGHT) {
-			//__Menu_MoveList(ENTRIES_PER_PAGE);
-			if (CFG.cursor_jump) {
-				__Chan_MoveList(CFG.cursor_jump);
-			} else {
-				__Chan_MoveList((chanSelected-chanStart == (ENTRIES_PER_PAGE - 1)) ? ENTRIES_PER_PAGE : ENTRIES_PER_PAGE - (chanSelected-chanStart) - 1);
-			}
-		}
-		__console_flush(0);
-
-	}
-}
-
 void Menu_Install(void)
 {
 	static struct discHdr header ATTRIBUTE_ALIGN(32);
@@ -4612,7 +3986,7 @@ void bench_io()
 	int size_buf = 128*1024;
 	int size_total = 64*1024*1024;
 	//int size_total = 256*1024;
-	void *buf = memalign(32, size_buf);
+	void *buf = allocate_memory(size_buf);
 	int i, ret;
 	int ms = 0;
 	int count = 0;
@@ -4752,7 +4126,7 @@ restart_menu_boot:;
 		char *nocover = "ZZZZZZ";
 		Gui_DrawCover((u8 *)nocover);
 		if (!disc_header) {
-			disc_header = (struct discHdr *)memalign(32, sizeof(struct discHdr));
+			disc_header = (struct discHdr *)allocate_memory(sizeof(struct discHdr));
 		}
 		memset(disc_header, 0, sizeof(struct discHdr));
 		header = disc_header;
@@ -5020,7 +4394,7 @@ L_repaint:
 				WBFS_CloseDisc(d);
 			}
 			if (game_tmd.sys_version) {
-				set_recommended_cIOS_idx(TITLE_LOW(game_tmd.sys_version));
+				set_recommended_cIOS_idx(TITLE_LOW(game_tmd.sys_version), false);
 			}
 		}
 		//dbg_printf("set ios: %d idx: %d\n", CFG.ios, CFG.game.ios_idx);
@@ -5061,7 +4435,7 @@ L_repaint:
 	}
 
 	get_time(&TIME.playlog1);
-	if (header->magic == GC_GAME_ON_DRIVE) CFG.game.write_playlog = 0;
+	if (header->magic == GC_GAME_ON_DRIVE || header->magic == CHANNEL_MAGIC) CFG.game.write_playlog = 0;
 	if (CFG.game.write_playlog && set_playrec(header->id, banner_title) < 0) {
 		printf_(gt("Error storing playlog file.\nStart from the Wii Menu to fix."));
 		printf("\n");
@@ -5080,8 +4454,28 @@ L_repaint:
 	get_time(&TIME.gcard2);
 	
 	printf("\n");
-	printf_x(gt("Booting Wii game, please wait..."));
+	printf_x(gt("Booting game, please wait..."));
 	printf("\n\n");
+	
+	if (header->magic == CHANNEL_MAGIC) {
+		char args[255][255] = {{"\0"}};
+		int i = 0;
+		strcpy(args[i++], "--ios=249");
+		strcpy(args[i++], "--auto=USB");
+		sprintf(args[i++], "--path=%s", CFG.nand_emu_path);
+		sprintf(args[i++], "--game=%s", header->id);
+		sprintf(args[i++], "--gameIdLower=%02x%02x%02x%02x", header->id[0], header->id[1], header->id[2], header->id[3]);
+		sprintf(args[i++], "--videoMode=%d", CFG.game.video);
+		sprintf(args[i++], "--language=%d", CFG.game.language);
+		strcpy(args[i++], "--bootMethod=0");
+		strcpy(args[i++], "--ocarina=0");
+		strcpy(args[i++], "--hooktype=0");
+		strcpy(args[i++], "--videoPatch=0");
+		strcpy(args[i++], "--debugger=0");
+		Menu_Plugin(0, args, i);
+		return;
+	}
+	
 	if (header->magic == GC_GAME_ON_DRIVE && !is_gc_game_on_bootable_drive(header, (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0))) {
 		char gamePath[255];
 		char drive[255];
@@ -5133,30 +4527,62 @@ L_repaint:
 
 		memcpy((char *)0x80000000, header->id, 6);
 
-		if(CFG.game.video == 0)
-		{
-			if(header->id[3] == 'P')
-				GC_SetVideoMode(1);
-			else
-				GC_SetVideoMode(2);
-		} else if (CFG.game.fix_002 <= 0 || CFG.devo <= 0)
-			GC_SetVideoMode(CFG.game.video);
-
 		if (CFG.game.language > 1 && CFG.game.language < 8)
 			GC_SetLanguage(CFG.game.language-1);
 		else
 			GC_SetLanguage(0);
-
-
+		
 		char cheatPath[255];
-		sprintf(cheatPath, "%s/codes/%.6s.gct", USBLOADER_PATH, header->id);
 		char newCheatPath[255];
 		sprintf(newCheatPath, "%s/%.6s.gct", header->path, header->id);
 		
+		if (CFG.game.ocarina) {
+			FILE *fp;
+			char *fat_drive = FAT_DRIVE;
+			int i;
+
+			printf_x(gt("Ocarina: Searching codes..."));
+			printf("\n");
+
+			for (i=0; i<3; i++) {
+				switch (i) {
+				case 0:
+					snprintf(cheatPath, sizeof(cheatPath), "%s/codes/%.6s.gct",
+						USBLOADER_PATH, header->id);
+					break;
+				case 1:
+					snprintf(cheatPath, sizeof(cheatPath), "%s/data/gecko/codes/%.6s.gct",
+						fat_drive, header->id);
+					break;
+				case 2:
+					snprintf(cheatPath, sizeof(cheatPath), "%s/codes/%.6s.gct",
+						fat_drive, header->id);
+					break;
+				}
+				printf("    %s\n", cheatPath);
+				fp = fopen(cheatPath, "rb");
+				if (fp) {
+					fclose(fp);
+					break;
+				}
+				if (i == 2 && strcmp(fat_drive, "usb:") == 0) {
+					// retry on sd:
+					fat_drive = "sd:";
+					i = 0;
+				}
+			}
+		}
+		
 		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0)
 		{
+			if (getDMLGameSize(header) != GC_GAME_SIZE) {
+				printf_x(gt("Devolution only accepts clean dumps!\n"));
+				Wpad_WaitButtons();
+				goto out;
+			}
+			
 			char devoPath[255];	
-			char loaderPath[255];	
+			char loaderPath[255];
 			
 			snprintf(devoPath, sizeof(devoPath), "%s/game.iso", header->path);	
 			
@@ -5173,10 +4599,18 @@ L_repaint:
 				fseek(fdev, 0, SEEK_SET);
 				loader_bin = (u8*)mem2_alloc(size);
 				fread(loader_bin, 1, size, fdev);
-				puts((const char*)loader_bin + 4);
 				fclose(fdev);
 			}
 			sleep(1);
+			
+			UnmountAll(NULL);
+			Services_Close();
+			Wpad_Disconnect();
+			
+			if(header->id[3] == 'P')
+				GC_SetVideoMode(1, true);
+			else
+				GC_SetVideoMode(2, true);
 
 			extern void __exception_closeall();
 			  IRQ_Disable();
@@ -5185,6 +4619,15 @@ L_repaint:
 			#define LAUNCH() ((void(*)(void))loader_bin)()
 			LAUNCH();
 		} 
+		
+		if(CFG.game.video == 0)
+		{
+			if(header->id[3] == 'P')
+				GC_SetVideoMode(1, false);
+			else
+				GC_SetVideoMode(2, false);
+		} else
+			GC_SetVideoMode(CFG.game.video, false);
 		
 		if(header->magic == GC_GAME_ON_DRIVE)
 		{
@@ -5201,18 +4644,12 @@ L_repaint:
 			*HW_PPCSPEED = 0x0002A9E0;
 
 		UnmountAll(NULL);
-		dbg_printf("UnmountAll(NULL)\n");
 		Services_Close();
-		dbg_printf("Services_Close()\n");
 		Subsystem_Close();
-		dbg_printf("Subsystem_Close()\n");
 		Wpad_Disconnect();
-		dbg_printf("Wpad_Disconnect()\n");
 
 		WII_Initialize();
-		dbg_printf("WII_Initialize()");
 		WII_LaunchTitle(0x0000000100000100ULL);
-		dbg_printf("WII_LaunchTitle(0x0000000100000100ULL)");
 		return;
 	}
 
@@ -5839,6 +5276,72 @@ bool Menu_Confirm(const char *msg)
 		if (buttons & CFG.button_confirm.mask) return true;
 		if (buttons & CFG.button_cancel.mask) return false;
 	}
+}
+
+void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
+	FILE* file;
+	u32 entryPoint;
+	int i = 0;
+	void *buffer = (void *)0x92000000;
+		
+	char fname[128];
+	
+	struct __argv args;
+	bzero(&args, sizeof(args));
+	args.argvMagic = ARGV_MAGIC;
+	args.length = 1;
+	
+	for (i = 0; i < argCnt; i++) {
+		args.length += strlen(arguments[i]) + 1;
+	}
+	
+	args.commandLine = (char*)allocate_memory(args.length);
+	if (!args.commandLine) dbg_printf("failed...\n");
+	
+	int pos = 0;
+	
+	for (i = 0; i < argCnt; i++) {
+		strcpy(args.commandLine+pos, arguments[i]);
+        pos += strlen(arguments[i]) + 1;
+	}
+	
+	args.argc = argCnt;
+	args.commandLine[args.length - 1] = '\0';
+	args.argv = &args.commandLine;
+	args.endARGV = args.argv + 1;
+	
+	snprintf(fname, sizeof(fname), "%s/plugins/mighty.dol", USBLOADER_PATH);
+	
+	printf_(gt("Loading..%s\n"), fname);
+
+	file = fopen(fname, "rb");
+	
+	if(file == NULL) 
+	{
+		printf_(gt("Not Found boot.dol!"));
+		printf("\n");
+		sleep(5);
+		return;
+	}
+	
+	fseek (file, 0, SEEK_END);
+	int len = ftell(file);
+	fseek (file, 0, SEEK_SET);
+	fread(buffer, 1, len, file);
+	fclose (file);
+	
+	entryPoint = load_dol_image_args(buffer, &args);
+	
+	UnmountAll(NULL);
+	Services_Close();
+	Subsystem_Close();
+	Wpad_Disconnect();
+	
+	__IOS_ShutdownSubsystems();
+	SYS_ResetSystem(SYS_SHUTDOWN,0,0);
+	entrypoint exec = (entrypoint)entryPoint;
+	exec();
+	//__lwp_thread_stopmultitasking((entrypoint)entryPoint);
 }
 
 /*

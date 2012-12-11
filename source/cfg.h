@@ -699,7 +699,7 @@ int CFG_filter_favorite(struct discHdr *list, int cnt);
 
 char *get_clock_str(time_t t);
 
-void set_recommended_cIOS_idx(u8 ios);
+void set_recommended_cIOS_idx(u8 ios, bool onlyD2x);
 
 int readPlayStats(void);
 u32 getPlayCount(u8 *id);

@@ -38,13 +38,33 @@ u32 __SYS_SyncSram(void);
 extern char wbfs_fs_drive[16];
 char dm_boot_drive[16];
 
-void GC_SetVideoMode(u8 videomode)
+void GC_SetVideoMode(u8 videomode, bool devo)
 {
 	syssram *sram;
 	sram = __SYS_LockSram();
 	//void *m_frameBuf;
 	static GXRModeObj *rmode;
 	int memflag = 0;
+	
+	if (devo) {
+		if(videomode == 1) {
+			rmode = &TVPal528IntDf;
+		} else if(videomode == 2) {
+			rmode = &TVNtsc480IntDf;
+		}
+
+		/* Set video mode */
+		if (rmode != NULL)
+			VIDEO_Configure(rmode);
+
+		/* Setup video  */
+		VIDEO_SetBlack(TRUE);
+		VIDEO_Flush();
+		VIDEO_WaitVSync();
+		if (rmode->viTVMode & VI_NON_INTERLACE)
+			VIDEO_WaitVSync();
+		return;
+	}
 
 	if((VIDEO_HaveComponentCable() && (CONF_GetProgressiveScan() > 0)) && videomode > 3)
 		sram->flags |= 0x80; //set progressive flag
@@ -467,7 +487,7 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 	char *posz = (char *)NULL;
 	posz = strstr(disc2path, "game.iso");
 	if(posz != NULL)				
-		strncpy(posz, "gam2.iso", 8);
+		strncpy(posz, "disc2.iso", 9);
 		
 	iso_file = fopen(disc2path, "rb");
 	if(iso_file)
@@ -518,13 +538,14 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 	// set FAT cluster for start of memory card file
 	// if this is zero memory card emulation will not be used
 	if(!NMM > 0)
-		{
+	{
 		st.st_ino = 0;
-	printf("emu. memcard is disabled\n");
-	  }
-	  else
-	  printf("emu. memcard is enabled\n");
-	DEVO_CONFIG->memcard_cluster = st.st_ino;
+		printf("emu. memcard is disabled\n");
+	}
+	else {
+		printf("emu. memcard is enabled\n");
+		DEVO_CONFIG->memcard_cluster = st.st_ino;
+	}
 
 	// flush disc ID and Devolution config out to memory
 	DCFlushRange(lowmem, 64);

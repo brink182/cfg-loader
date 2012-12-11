@@ -12,6 +12,7 @@ typedef struct _dolheader {
 
 
 u32 load_dol_start(void *dolstart);
-bool load_dol_image(void **offset, u32 *pos, u32 *len) ;
+bool load_dol_image(void **offset, u32 *pos, u32 *len);
+u32 load_dol_image_args(void *dolstart, struct __argv *argv);
 
 

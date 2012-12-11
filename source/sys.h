@@ -49,4 +49,6 @@ s32 read_file_from_nand(char *filepath, u8 **buffer, u32 *filesize);
 
 u16 get_miosinfo();
 
+void *allocate_memory(u32 size);
+
 #endif

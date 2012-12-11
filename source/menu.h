@@ -13,15 +13,8 @@ extern char *str_wiird[3];
 extern char *str_dml[8];
 extern bool go_gui;
 
-typedef struct _dirent
-{
-	char fname[ISFS_MAXPATH + 1];
-	int type;
-} dirent_t;
-
 /* Prototypes */
 void Menu_Device(void);
-void Menu_Channel(void);
 void Menu_Format(void);
 void Menu_Install(void);
 void Menu_Remove(void);
@@ -51,6 +44,7 @@ void Print_SYS_Info_str(char *str, int size, bool noMiosInfo);
 int get_button_action(int buttons);
 char get_unlock_buttons(int buttons);
 void Admin_Unlock(bool unlock);
+void Menu_Plugin(int plugin, char arguments[255][255], int argCnt);
  
 void __Menu_ShowGameInfo(bool showfullinfo, u8 *id); // Lustar
 char *skip_sort_ignore(char *s);

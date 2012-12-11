@@ -857,7 +857,7 @@ void Download_XML()
 
 /* download zipped Devolution - Lustar */
 /* based on Download_Cover by Forsaeken, modified by oggzee */
-void Download_DEVO()
+void Download_Plugins()
 {
 
 	printf("\n");
@@ -964,6 +964,41 @@ void Download_DEVO()
 	fclose(f);
 	memset(buffer, 0, zipfilebuffersize);
 	SAFE_FREE(buffer);
+	///////////////////////
+	
+	/* Download Mighty Plugin */
+	char mightyPath[200];
+	snprintf(mightyPath, sizeof(mightyPath), "%s/%s", USBLOADER_PATH, "/plugins/mighty.dol");
+	remove(mightyPath);
+	char url[255];
+	strcopy(url, "http://cfg-loader-mod.googlecode.com/files/mighty.dol", sizeof(url));
+	if (zipurl[0] == 0) {
+		printf_(gt("Error: no URL."));
+		printf("\n");
+		goto dl_err;	
+	}
+	
+	printf_x(gt("Downloading mighty plugin."));
+	printf("\n");
+	printf_("%s\n", url);
+
+	printf_("[.");
+	file = downloadfile_progress(url, 64);
+	printf("]\n");
+	
+	f = fopen(mightyPath, "wb");
+	if (!f) {
+		printf("\n");
+		printf_(gt("Error opening: %s"), mightyPath);
+		printf("\n");
+		goto dl_err;
+	}
+	fwrite(file.data,1,file.size,f);
+	fclose(f);
+	SAFE_FREE(file.data);
+	printf_(gt("Download complete."));
+	printf("\n");
+	
 	
 	///////////////////////
 	__console_flush(0);

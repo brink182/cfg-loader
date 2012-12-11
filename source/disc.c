@@ -416,24 +416,15 @@ s32 Disc_DumpGCGame(bool sd) {
 	
 	title_filename(header->title);
 		
-	if (header->disc == 0)
-		printf(gt("DISK1:%s[%s]\n"), strupr(header->title), header->id);
-    else
-		printf(gt("DISK2:%s[%s]2\n"), strupr(header->title), header->id);
-	
 	char sysFolder[0xff];
-	if (header->disc == 0) 
+	if (header->disc == 0)
 		sprintf(sysFolder, "%s:/games/%s [%s]/sys", (sd?"sd":"usb"), strupr(header->title), header->id);
-	else
-		sprintf(sysFolder, "%s:/games/%s [%s]2/sys", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	mkpath(sysFolder, 0777);
 	
 	char filepath1[0xff];
 	if (header->disc == 0) 
 		sprintf(filepath1, "%s:/games/%s [%s]/sys/boot2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
-	else
-		sprintf(filepath1, "%s:/games/%s [%s]2/sys/boot.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	FILE *out = fopen( filepath1, "wb" );
 	if( out == NULL )
@@ -449,8 +440,6 @@ s32 Disc_DumpGCGame(bool sd) {
 	char filepath2[0xff];
 	if (header->disc == 0) 
 		sprintf(filepath2, "%s:/games/%s [%s]/sys/bi2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
-	else
-		sprintf(filepath2, "%s:/games/%s [%s]2/sys/bi2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	out = fopen( filepath2, "wb" );
 	if( out == NULL )
@@ -466,8 +455,6 @@ s32 Disc_DumpGCGame(bool sd) {
 	char filepath3[0xff];
 	if (header->disc == 0)
 		sprintf(filepath3, "%s:/games/%s [%s]/sys/apploader.img", (sd?"sd":"usb"), strupr(header->title), header->id);
-	else
-		sprintf(filepath3, "%s:/games/%s [%s]2/sys/apploader.img", (sd?"sd":"usb"), strupr(header->title), header->id);
 		
 	out = fopen( filepath3, "wb" );
 	if( out == NULL )
@@ -482,7 +469,7 @@ s32 Disc_DumpGCGame(bool sd) {
 	if (header->disc == 0)
 		sprintf(filepath4, "%s:/games/%s [%s]/game.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
 	else
-		sprintf(filepath4, "%s:/games/%s [%s]2/game2.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(filepath4, "%s:/games/%s [%s]/disc2.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
 	
 	out = fopen( filepath4, "wb" );
 	if( out == NULL )

@@ -2049,7 +2049,7 @@ char *ios_str(int idx)
 	return map_ios[idx].name;
 }
 
-void set_recommended_cIOS_idx(u8 ios) {
+void set_recommended_cIOS_idx(u8 ios, bool onlyD2x) {
 	if (ios == cIOS_base[0]) {
 		cfg_ios_set_idx(CFG_IOS_245);
 	} else if (ios == cIOS_base[1]) {
@@ -2064,15 +2064,15 @@ void set_recommended_cIOS_idx(u8 ios) {
 		cfg_ios_set_idx(CFG_IOS_250);
 	} else if (ios == cIOS_base[6]) {
 		cfg_ios_set_idx(CFG_IOS_251);
-	} else if (ios == cIOS_base[7]) {
+	} else if (ios == cIOS_base[7] && !onlyD2x) {
 		cfg_ios_set_idx(CFG_IOS_222_MLOAD);
-	} else if (ios == cIOS_base[8]) {
+	} else if (ios == cIOS_base[8] && !onlyD2x) {
 		cfg_ios_set_idx(CFG_IOS_223_MLOAD);
-	} else if (ios == cIOS_base[9]) {
+	} else if (ios == cIOS_base[9] && !onlyD2x) {
 		cfg_ios_set_idx(CFG_IOS_224_MLOAD);
 	} else {
 		int i = 0;
-		for (i = 0; i < 9; i++) {
+		for (i = 0; i < 10; i++) {
 			if (cIOS_base[i] == 56) {
 				cfg_ios_set_idx(i);
 				return;

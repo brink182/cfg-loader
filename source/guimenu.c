@@ -1925,10 +1925,10 @@ void action_DownloadTitles(Widget *ww)
 	Switch_Console_To_WGui();
 }
 
-void action_DownloadDevolution(Widget *ww)
+void action_DownloadPlugins(Widget *ww)
 {
 	Switch_WGui_To_Console();
-	Download_DEVO();
+	Download_Plugins();
 	Switch_Console_To_WGui();
 }
 
@@ -1972,8 +1972,8 @@ void Init_Online_Dialog(Widget *dd, bool back)
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
-	ww = wgui_add_button(dd, p, gt("Download Devolution"));
-	ww->action = action_DownloadDevolution;
+	ww = wgui_add_button(dd, p, gt("Download Plugins"));
+	ww->action = action_DownloadPlugins;
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 
@@ -2344,130 +2344,29 @@ void action_OpenSettings(Widget *_ww)
 void action_Channel(Widget *ww)
 {
 	Switch_WGui_To_Console();
-	Menu_Channel();
+	//Menu_Channel();
 	//Sys_Channel(0x57494d43);
 }
 
 void action_plugin(Widget *ww)
 {
 	Switch_WGui_To_Console();
-	int ret;
-	FILE* file;
-	void *dol_header;	
-	u32 *entryPoint;
-		
-	char fname[128];
-	
-	snprintf(fname, sizeof(fname), "%s/add-on/boot.dol", USBLOADER_PATH);
-  //snprintf(fname, sizeof(fname), "sd:/apps/wiimc/boot.dol");
-	
-	printf_(gt("Loading..%s\n"), fname);
-
-	file = fopen(fname, "rb");
-	
-	if(file == NULL) 
-	{
-		printf_(gt("Not Found boot.dol!"));
-		printf("\n");
-		sleep(5);
-	return;
-	}
-	
-	int filesize;
-	fseek(file, 0, SEEK_END);
-	filesize = ftell(file);
-	fseek(file, 0, SEEK_SET);
-	
-	dol_header = memalign(32, sizeof(dolheader));
-	if (dol_header == NULL)
-	{
-		printf(gt("Out of memory"));
-		printf("\n");
-		sleep(5);
-		fclose(file);
-	return;
-	}
-	ret = fread( dol_header, 1, sizeof(dolheader), file);
-if(ret != sizeof(dolheader))
-	{
-		printf(gt("Error reading dol header"));
-		printf("\n");
-		sleep(5);
-		free(dol_header);
-		fclose(file);
-		return;
-	}
-	
-  entryPoint = (u32*)load_dol_start(dol_header);
-  
-   
-  if (entryPoint == 0)
-	{
-		printf(gt("Invalid .dol"));
-		printf("\n");
-		sleep(5);
-		free(dol_header);
-		fclose(file);
-		return;
-			}
-  
-  void *offset;
-	u32 pos;
-	u32 len;
-
-	u32 dolStart = 0x90000000;
-    u32 dolEnd = 0x0;
-	
-	int sec_idx = 0;
-	
-	printf_("...");
-	while (load_dol_image(&offset, &pos, &len))
-	{
-		if(pos+len > filesize)
-		{
-			printf(gt(".dol too small"));
-			printf("\n");
-			sleep(5);
-			free(dol_header);
-			fclose(file);
-			return;
-			
-		}		
-		
-		if (len != 0)
-		{
-			dbg_printf("\rdol [%d] @ 0x%08x [%6x] 0x%08x\n", sec_idx,
-						(int)offset, len, (int)offset + len);
-			fseek(file, pos, 0);
-			ret = fread( offset, 1, len, file);
-			if(ret != len)
-			{
-				printf(gt("Error reading .dol"));
-				printf("\n");
-				sleep(5);
-				free(dol_header);
-				fclose(file);
-				return;
-			}
-			DCFlushRange(offset, len);
-			if( (u32)offset < dolStart )
-                dolStart = (u32)offset;
-
-            if( (u32)offset + len > dolEnd )
-                dolEnd = (u32)offset + len;
-		}	
-		sec_idx++;
-		printf(".");
-	}
-	printf("\n");
-	
- 	free(dol_header);
-	fclose(file);
-	__IOS_ShutdownSubsystems();
-	SYS_ResetSystem(SYS_SHUTDOWN,0,0);
-	__lwp_thread_stopmultitasking((entrypoint)entryPoint);
-    
- // Switch_Console_To_WGui();
+	char args[255][255] = {{"\0"}};
+	int i = 0;
+	strcpy(args[i++], "--ios=249");
+	strcpy(args[i++], "--auto=USB");
+	strcpy(args[i++], "--path=/nand");
+	strcpy(args[i++], "--game=WGOP");
+	strcpy(args[i++], "--gameId=57474f50");
+	strcpy(args[i++], "--videoMode=0");
+	strcpy(args[i++], "--language=0");
+	strcpy(args[i++], "--bootMethod=0");
+	strcpy(args[i++], "--ocarina=0");
+	strcpy(args[i++], "--hooktype=0");
+	strcpy(args[i++], "--videoPatch=0");
+	strcpy(args[i++], "--debugger=0");
+	//Menu_Plugin(0, args, i);
+    Switch_Console_To_WGui();
 }
 
 void action_Install(Widget *ww)

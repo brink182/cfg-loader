@@ -26,6 +26,7 @@
 #include "cache.h"
 #include "unzip/unzip.h"
 #include "unzip/miniunz.h"
+#include "fileOps.h"
 
 extern struct discHdr *gameList;
 extern s32 gameCnt, gameSelected, gameStart;
@@ -968,7 +969,9 @@ void Download_Plugins()
 	
 	/* Download Mighty Plugin */
 	char mightyPath[200];
-	snprintf(mightyPath, sizeof(mightyPath), "%s/%s", USBLOADER_PATH, "/plugins/mighty.dol");
+	snprintf(mightyPath, sizeof(mightyPath), "%s/%s", USBLOADER_PATH, "/plugins");
+	if (!fsop_DirExist(mightyPath)) mkpath(mightyPath, 0777);
+	strcat(mightyPath, "/mighty.dol");
 	remove(mightyPath);
 	char url[255];
 	strcopy(url, "http://cfg-loader-mod.googlecode.com/files/mighty.dol", sizeof(url));

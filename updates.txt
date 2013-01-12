@@ -13,6 +13,22 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+release = 70r51
+size = 1843616
+date = 2013-01-12
+url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr51.dol
+-create plugins folder
+when not exist
+-changed button color
+-wbfs folder is now
+configurable
+-added DM 2.5 screenshot
+setting
+-improved devolution 
+launch
+-added new filters
+-improved mighty plugin
+
 release = 70r50
 size = 1824928
 date = 2012-12-11
@@ -23,7 +39,6 @@ url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr50.dol
 -fixed devolution launch
 -added more cheat paths
 for gc games
-
 
 release = 70r49
 size = 1884768

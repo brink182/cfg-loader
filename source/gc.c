@@ -47,11 +47,32 @@ void GC_SetVideoMode(u8 videomode, bool devo)
 	int memflag = 0;
 	
 	if (devo) {
+	
+		if((VIDEO_HaveComponentCable() && (CONF_GetProgressiveScan() > 0)) && videomode > 3)
+			sram->flags |= 0x80; //set progressive flag
+		else
+			sram->flags &= 0x7F; //clear progressive flag
+
+		if(videomode == 1 || videomode == 3 || videomode == 5)
+		{
+			memflag = 1;
+			sram->flags |= 0x01; // Set bit 0 to set the video mode to PAL
+			sram->ntd |= 0x40; //set pal60 flag
+		}
+		else
+		{
+			sram->flags &= 0xFE; // Clear bit 0 to set the video mode to NTSC
+			sram->ntd &= 0xBF; //clear pal60 flag
+		}
+		
 		if(videomode == 1) {
 			rmode = &TVPal528IntDf;
 		} else if(videomode == 2) {
 			rmode = &TVNtsc480IntDf;
 		}
+		
+		__SYS_UnlockSram(1); // 1 -> write changes
+		while(!__SYS_SyncSram());
 
 		/* Set video mode */
 		if (rmode != NULL)
@@ -61,8 +82,7 @@ void GC_SetVideoMode(u8 videomode, bool devo)
 		VIDEO_SetBlack(TRUE);
 		VIDEO_Flush();
 		VIDEO_WaitVSync();
-		if (rmode->viTVMode & VI_NON_INTERLACE)
-			VIDEO_WaitVSync();
+		VIDEO_WaitVSync();
 		return;
 	}
 
@@ -192,7 +212,7 @@ int DML_GameIsInstalled(char *folder)
 	return ret;
 }
 
-void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 LED, u8 DMLvideoMode, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH)
+void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 LED, u8 DMLvideoMode, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH, u8 screenshot)
 {
 	dbg_printf("DML: Launch game '%s/game.iso' through memory (new method)\n", GamePath);
 
@@ -261,6 +281,8 @@ void DML_New_SetOptions(char *GamePath,char *CheatPath, char *NewCheatPath, bool
 		DMLCfg->Config |= DML_CFG_FORCE_WIDE; 
 	if(PHOOK > 0)  
 		DMLCfg->Config |= DML_CFG_PADHOOK;
+	if(screenshot > 0)
+		DMLCfg->Config |= DML_CFG_SCREENSHOT;
 	
 	if(DMLvideoMode == 1 && V_PATCH == 1)
 		DMLCfg->VideoMode |= DML_VID_FORCE_PAL50;
@@ -479,6 +501,9 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 	DEVO_CONFIG->version = 0x00000110;
 	DEVO_CONFIG->device_signature = st.st_dev;
 	DEVO_CONFIG->disc1_cluster = st.st_ino;
+	
+	if (CFG.game.wide_screen)
+		DEVO_CONFIG->options |= CONFIG_WIDE;
 	
 	// For 2nd ios file
 	struct stat st2;

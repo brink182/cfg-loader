@@ -450,6 +450,7 @@ struct W_GameCfg
 	Widget *wide_screen;
 	Widget *ntsc_j_patch;
 	Widget *nodisc;
+	Widget *screenshot;
 	Widget *alt_dol;
 	Widget *ocarina;
 	Widget *hooktype;
@@ -733,6 +734,7 @@ void update_gameopt_state()
 		gameopt_inactive(cond, wgame.ocarina, 0);
 		gameopt_inactive(cond, wgame.wide_screen, 0);		
 		gameopt_inactive(cond, wgame.nodisc, 0);
+		gameopt_inactive(cond, wgame.screenshot, 0);
 		gameopt_inactive(cond, wgame.hooktype, 1);
 		gameopt_inactive(cond, wgame.ntsc_j_patch, 0);
 	}
@@ -975,6 +977,9 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			
 			ww = wgui_add_game_opt(op, gt("NTSC-J patch:"), 2, NULL);
 			BIND_OPT(ntsc_j_patch);
+			
+			ww = wgui_add_game_opt(op, gt("Screenshot:"), 2, NULL);
+			BIND_OPT(screenshot);
 			
 			pos_move_to(pp, PAD0, -bh);
 			pos_pad(pp, PAD0);
@@ -1633,7 +1638,9 @@ void action_filter(Widget *ww)
 		case 3:
 			if (i == 0) t = FILTER_ALL;
 			else if(i == 1) t = FILTER_UNPLAYED;
-			else t = FILTER_GAMECUBE;
+			else if(i == 2) t = FILTER_WII;
+			else if(i == 3) t = FILTER_GAMECUBE;
+			else t = FILTER_CHANNEL;
 			break;
 	}
 	filter_games_set(t, i);
@@ -1652,6 +1659,10 @@ char *get_filter_name(int type, int index)
 			return gt("Unplayed");
 		case FILTER_GAMECUBE:
 			return gt("GameCube");
+		case FILTER_WII:
+			return gt("Wii");
+		case FILTER_CHANNEL:
+			return gt("Channel");
 		case FILTER_GENRE:
 			return genreTypes[index][1];
 		case FILTER_CONTROLLER:
@@ -1717,8 +1728,8 @@ void action_OpenFilter(Widget *a_ww)
 	pos_newline(dd);
 
 	// all, unplayed, gamecube
-	pos_columns(dd, 4, SIZE_FULL);
-	r_filter[3] = rr = wgui_auto_radio_a(dd, 3, 3, gt("Show All"), gt("Unplayed"), gt("GameCube"));
+	pos_columns(dd, 5, SIZE_FULL);
+	r_filter[3] = rr = wgui_auto_radio_a(dd, 5, 5, gt("Show All"), gt("Unplayed"), gt("Wii"), gt("GameCube"), gt("Channel"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
@@ -1737,7 +1748,9 @@ void action_OpenFilter(Widget *a_ww)
 		case FILTER_FEATURES:	r = 2;	i = filter_index + 1;	break;
 		case FILTER_ALL:		r = 3;	i = 0;	break;
 		case FILTER_UNPLAYED:	r = 3;	i = 1;	break;
-		case FILTER_GAMECUBE:	r = 3;	i = 2;	break;
+		case FILTER_WII:		r = 3;	i = 2;	break;
+		case FILTER_GAMECUBE:	r = 3;	i = 3;	break;
+		case FILTER_CHANNEL:	r = 3;	i = 4;	break;
 	}
 	if (r >= 0) {
 		if (r < 3) wgui_set_value(r_filter_group, r);
@@ -2341,34 +2354,6 @@ void action_OpenSettings(Widget *_ww)
 	Init_Online_Dialog(wgui_page_get(page, 4), false);
 }
 
-void action_Channel(Widget *ww)
-{
-	Switch_WGui_To_Console();
-	//Menu_Channel();
-	//Sys_Channel(0x57494d43);
-}
-
-void action_plugin(Widget *ww)
-{
-	Switch_WGui_To_Console();
-	char args[255][255] = {{"\0"}};
-	int i = 0;
-	strcpy(args[i++], "--ios=249");
-	strcpy(args[i++], "--auto=USB");
-	strcpy(args[i++], "--path=/nand");
-	strcpy(args[i++], "--game=WGOP");
-	strcpy(args[i++], "--gameId=57474f50");
-	strcpy(args[i++], "--videoMode=0");
-	strcpy(args[i++], "--language=0");
-	strcpy(args[i++], "--bootMethod=0");
-	strcpy(args[i++], "--ocarina=0");
-	strcpy(args[i++], "--hooktype=0");
-	strcpy(args[i++], "--videoPatch=0");
-	strcpy(args[i++], "--debugger=0");
-	//Menu_Plugin(0, args, i);
-    Switch_Console_To_WGui();
-}
-
 void action_Install(Widget *ww)
 {
 	Switch_WGui_To_Console();
@@ -2484,16 +2469,6 @@ void action_OpenMain(Widget *_ww)
 	ww->action2 = action_close_parent_dialog;
 	pos_newline(dd);
 	
-	ww = wgui_add_button(dd, pos_auto, gt("Dol Booter"));
-	ww->action = action_plugin;
-	ww->action2 = action_close_parent_dialog;
-	wgui_set_inactive(ww, CFG.disable_install);
-	
-	ww = wgui_add_button(dd, pos_auto, gt("Channel"));
-	ww->action = action_Channel;
-	ww->action2 = action_close_parent_dialog;
-	wgui_set_inactive(ww, CFG.disable_install);
-
 	ww = wgui_add_button(dd, pos_auto, gt("Console"));
 	ww->action = action_Console;
 	ww->action2 = action_close_parent_dialog;

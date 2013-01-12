@@ -35,6 +35,7 @@ enum dmlconfig
 	DML_CFG_BOOT_DISC	= (1<<10),
 	DML_CFG_BOOT_DISC2	= (1<<11),
 	DML_CFG_NODISC		= (1<<12),
+	DML_CFG_SCREENSHOT	= (1<<13),
 };
 
 enum dmlvideomode
@@ -62,13 +63,17 @@ typedef struct global_config
 	u32 options;
 } gconfig;
 
+#define CONFIG_WIFILOG    (1<<0)
+#define CONFIG_WIDE       (1<<1)
+#define CONFIG_NOLED      (1<<2)
+
 void DEVO_SetOptions(const char* path,u8 NMM);
 
 void GC_SetVideoMode(u8 videomode, bool devo);
 void GC_SetLanguage(u8 lang);
 s32 DML_RemoveGame(struct discHdr header);
 int DML_GameIsInstalled(char *folder);
-void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode, u8 LED, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH);
+void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode, u8 LED, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH, u8 screenshot);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
 void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats, u8 NMM, u8 LED, u8 DMLvideoMode);
 u64 getDMLGameSize(struct discHdr *header);

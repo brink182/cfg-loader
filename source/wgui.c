@@ -16,6 +16,7 @@
 #include "gettext.h"
 
 #include "button_png.h"
+#include "button_old_png.h"
 #include "window_png.h"
 
 /*
@@ -207,7 +208,10 @@ void wgui_init()
 	int ret;
 
 	// button
-	ret = wgui_load_button(&tx_button, "button.png", button_png, global);
+	if (CFG.old_button_color)
+		ret = wgui_load_button(&tx_button, "button.png", button_old_png, global);
+	else
+		ret = wgui_load_button(&tx_button, "button.png", button_png, global);
 	// if a themed button.png is found
 	// then all other wgui images must be themed too
 	if (ret == 0) global = false;

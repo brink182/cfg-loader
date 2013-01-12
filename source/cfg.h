@@ -244,6 +244,7 @@ struct Game_CFG
 	int wide_screen;
 	int ntsc_j_patch;
 	int nodisc;
+	int screenshot;
 	int country_patch;
 	int fix_002;
 	int ios_idx;
@@ -499,6 +500,7 @@ struct CFG
 	int disable_wip;
 	int dml;
 	int devo;
+	int old_button_color;
 	// int write_playlog;
 	// order of the following options (until specified point) is important
 	int button_M;
@@ -532,6 +534,7 @@ struct CFG
 	char theme[32];
 	char theme_path[200];
 	char nand_emu_path[200];
+	char wbfs_fat_dir[128];
 	int adult_themes;
 	int theme_previews;
 	int theme_previewX;

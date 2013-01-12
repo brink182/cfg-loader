@@ -35,7 +35,6 @@
 #define TITLE_LEN 64
 
 char wbfs_fs_drive[16];
-char wbfs_fat_dir[16] = "/wbfs";
 char invalid_path[] = "/\\:|<>?*\"'";
 
 int  wbfs_fat_vfs_have = 0;
@@ -117,7 +116,7 @@ s32 _WBFS_FAT_GetHeadersCount()
 	fat_hdr_count = 0;
 
 	strcpy(path, wbfs_fs_drive);
-	strcat(path, wbfs_fat_dir);
+	strcat(path, CFG.wbfs_fat_dir);
 	dir_iter = diropen(path);
 	if (!dir_iter) return 0;
 
@@ -267,7 +266,7 @@ s32 _WBFS_FAT_GetHeadersCount()
 void WBFS_FAT_fname(u8 *id, char *fname, int len, char *path)
 {
 	if (path == NULL) {
-		snprintf(fname, len, "%s%s/%.6s.wbfs", wbfs_fs_drive, wbfs_fat_dir, id);
+		snprintf(fname, len, "%s%s/%.6s.wbfs", wbfs_fs_drive, CFG.wbfs_fat_dir, id);
 	} else {
 		snprintf(fname, len, "%s/%.6s.wbfs", path, id);
 	}
@@ -289,7 +288,7 @@ int WBFS_FAT_find_fname(u8 *id, char *fname, int len)
 	char path[MAX_FAT_PATH];
 	char name[MAX_FAT_PATH];
 	strcpy(path, wbfs_fs_drive);
-	strcat(path, wbfs_fat_dir);
+	strcat(path, CFG.wbfs_fat_dir);
 	dir_iter = diropen(path);
 	//dbg_printf("dir: %s %p\n", path, dir); Wpad_WaitButtons();
 	if (!dir_iter) {
@@ -533,7 +532,7 @@ void WBFS_FAT_get_dir(struct discHdr *header, char *path, char *fname)
 {
     // base usb:/wbfs
 	strcpy(path, wbfs_fs_drive);
-	strcat(path, wbfs_fat_dir);
+	strcat(path, CFG.wbfs_fat_dir);
 	mkpath(path, 0777);
 
 	if (CFG.fat_install_dir == 1) {

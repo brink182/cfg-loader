@@ -21,7 +21,6 @@
 #include <ogc/lwp_threads.h>
 #include <ogc/machine/processor.h>
 #include <fat.h>
-#include <wiilight.h>
 
 #include "disc.h"
 #include "fat.h"
@@ -1794,7 +1793,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	int opt_saved;
 	//int opt_ios_reload;
 	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_padhook, opt_nand_emu;
-	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch; 
+	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch, opt_screenshot; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
 	int i;
@@ -1838,7 +1837,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	struct Menu menu;
 	int NUM_OPT = 19;
-	if (header->magic == GC_GAME_ON_DRIVE) NUM_OPT = 14;
+	if (header->magic == GC_GAME_ON_DRIVE) NUM_OPT = 15;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -1873,6 +1872,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 		opt_anti_002 = game_cfg->fix_002;
 		opt_wide_screen = game_cfg->wide_screen;
 		opt_nodisc = game_cfg->nodisc;
+		opt_screenshot = game_cfg->screenshot;
 		opt_padhook = game_cfg->hooktype;
 	 	opt_ocarina = game_cfg->ocarina;
 		opt_ntsc_j_patch = game_cfg->ntsc_j_patch;
@@ -1888,6 +1888,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			opt_ocarina = 0;
 			opt_ntsc_j_patch = 0;
 			opt_nand_emu = 0;
+			opt_nodisc = 0;
+			opt_screenshot = 0;
 			active[1] = 0; // language
 			active[2] = 0; // video
 			active[3] = 0; // video_patch
@@ -1998,6 +2000,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				PRINT_OPT_B(gt("PAD HOOK:"), opt_padhook);				
 			if (menu_window_mark(&menu))
 				PRINT_OPT_B(gt("Devolution:"), opt_anti_002);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Screenshot:"), opt_screenshot);
 				/*
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
@@ -2140,6 +2144,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				break;	
 			case 13: // Devolution (fix_002)
 				CHANGE(game_cfg->fix_002, 1);
+				break;
+			case 14: // Screenshot
+				CHANGE(game_cfg->screenshot, 1);
 				break;
 			}
 		} else if (change) {
@@ -4458,12 +4465,16 @@ L_repaint:
 	printf("\n\n");
 	
 	if (header->magic == CHANNEL_MAGIC) {
+		cfg_ios_set_idx(CFG.game.ios_idx);
 		char args[255][255] = {{"\0"}};
 		int i = 0;
-		strcpy(args[i++], "--ios=249");
-		strcpy(args[i++], "--auto=USB");
-		sprintf(args[i++], "--path=%s", CFG.nand_emu_path);
-		sprintf(args[i++], "--game=%s", header->id);
+		sprintf(args[i++], "--ios=%d", CFG.ios);
+		if (strstr(CFG.nand_emu_path, "usb:")) {
+			strcpy(args[i++], "--auto=USB");
+		} else {
+			strcpy(args[i++], "--auto=SD");
+		}
+		sprintf(args[i++], "--path=%s", strchr(CFG.nand_emu_path, '/'));
 		sprintf(args[i++], "--gameIdLower=%02x%02x%02x%02x", header->id[0], header->id[1], header->id[2], header->id[3]);
 		sprintf(args[i++], "--videoMode=%d", CFG.game.video);
 		sprintf(args[i++], "--language=%d", CFG.game.language);
@@ -4526,7 +4537,8 @@ L_repaint:
 		get_time(&TIME.playstat2);
 
 		memcpy((char *)0x80000000, header->id, 6);
-
+	
+		dbg_printf("Setting language...\n");
 		if (CFG.game.language > 1 && CFG.game.language < 8)
 			GC_SetLanguage(CFG.game.language-1);
 		else
@@ -4620,6 +4632,7 @@ L_repaint:
 			LAUNCH();
 		} 
 		
+		dbg_printf("Setting video mode...\n");
 		if(CFG.game.video == 0)
 		{
 			if(header->id[3] == 'P')
@@ -4629,12 +4642,13 @@ L_repaint:
 		} else
 			GC_SetVideoMode(CFG.game.video, false);
 		
+		dbg_printf("Check DIOS MIOS version...\n");
 		if(header->magic == GC_GAME_ON_DRIVE)
 		{
 			if (CFG.dml == CFG_DML_R51) {
 				DML_Old_SetOptions(header->path, cheatPath, newCheatPath, CFG.game.ocarina);
 			} else {
-				DML_New_SetOptions(header->path, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.nodisc, CFG.game.vidtv, CFG.game.video, CFG.game.wide_screen, CFG.game.hooktype, CFG.game.block_ios_reload);
+				DML_New_SetOptions(header->path, cheatPath, newCheatPath, CFG.game.ocarina, false, CFG.game.country_patch, CFG.game.nodisc, CFG.game.vidtv, CFG.game.video, CFG.game.wide_screen, CFG.game.hooktype, CFG.game.block_ios_reload, CFG.game.screenshot);
 			}
 		} else if (CFG.dml >= CFG_DML_1_2) {
 			DML_New_SetBootDiscOption(cheatPath, newCheatPath, CFG.game.ocarina, CFG.game.country_patch, CFG.game.vidtv, CFG.game.video);
@@ -4642,7 +4656,8 @@ L_repaint:
 
 		if (CFG.game.ntsc_j_patch)
 			*HW_PPCSPEED = 0x0002A9E0;
-
+		
+		dbg_printf("Launching GC game...\n");
 		UnmountAll(NULL);
 		Services_Close();
 		Subsystem_Close();
@@ -5331,6 +5346,9 @@ void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
 	fclose (file);
 	
 	entryPoint = load_dol_image_args(buffer, &args);
+	
+	ReloadIOS(1,1);
+	d2x_return_to_channel();
 	
 	UnmountAll(NULL);
 	Services_Close();

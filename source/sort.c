@@ -15,6 +15,7 @@
 #include "wpad.h"
 #include "gettext.h"
 #include "gc.h"
+#include "disc.h"
 
 extern struct discHdr *all_gameList;
 extern struct discHdr *gameList;
@@ -300,6 +301,42 @@ int filter_gamecube(struct discHdr *list, int cnt, char *ignore, bool notused)
 	return cnt;
 }
 
+int filter_wii(struct discHdr *list, int cnt, char *ignore, bool notused)
+{
+	int i;
+	for (i=0; i<cnt;) 
+	{
+		if (list[i].magic == WII_MAGIC) 
+		{
+			i++;
+		} 
+		else 
+		{
+			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
+			cnt--;
+		}
+	}
+	return cnt;
+}
+
+int filter_channel(struct discHdr *list, int cnt, char *ignore, bool notused)
+{
+	int i;
+	for (i=0; i<cnt;) 
+	{
+		if (list[i].magic == CHANNEL_MAGIC) 
+		{
+			i++;
+		} 
+		else 
+		{
+			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
+			cnt--;
+		}
+	}
+	return cnt;
+}
+
 int filter_play_count(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
@@ -412,6 +449,12 @@ int filter_games_set(int type, int index)
 			break;
 		case FILTER_GAMECUBE:
 			ret = filter_games(filter_gamecube, "", 0);
+			break;
+		case FILTER_WII:
+			ret = filter_games(filter_wii, "", 0);
+			break;
+		case FILTER_CHANNEL:
+			ret = filter_games(filter_channel, "", 0);
 			break;
 	}
 	if (ret > -1) {
@@ -731,7 +774,11 @@ int Menu_Filter()
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_UNPLAYED,-1), gt("Unplayed Games"));
 		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_WII,-1), gt("Wii"));
+		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		menu_window_begin(&menu, size, genreCnt);
 		for (n=0;n<genreCnt;n++) {
 			if (menu_window_mark(&menu))
@@ -777,9 +824,17 @@ int Menu_Filter()
 			}
 			else if (5 == menu.current) {
 				redraw_cover = 1;
+				filter_games_set(FILTER_WII, -1);
+			}
+			else if (6 == menu.current) {
+				redraw_cover = 1;
 				filter_games_set(FILTER_GAMECUBE, -1);
 			}
-			n = menu.current - 6;
+			else if (7 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_CHANNEL, -1);
+			}
+			n = menu.current - 8;
 			if (n >= 0 && n < genreCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_GENRE, n);
@@ -825,7 +880,11 @@ int Menu_Filter2()
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
 		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_WII,-1), gt("Wii"));
+		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
 			if (menu_window_mark(&menu))
@@ -864,10 +923,18 @@ int Menu_Filter2()
 				redraw_cover = 1;
 			}
 			else if (3 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_WII, -1);
+			}
+			else if (4 == menu.current) {
 				filter_games_set(FILTER_GAMECUBE, -1);
 				redraw_cover = 1;
 			}
-			n = menu.current - 4;
+			else if (5 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_CHANNEL, -1);
+			}
+			n = menu.current - 6;
 			if (n >= 0 && n < accessoryCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_CONTROLLER, n);
@@ -914,7 +981,11 @@ int Menu_Filter3()
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
 		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_WII,-1), gt("Wii"));
+		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		menu_window_begin(&menu, size, featureCnt);
 		for (n=0;n<featureCnt;n++) {
 			if (menu_window_mark(&menu))
@@ -953,10 +1024,18 @@ int Menu_Filter3()
 				redraw_cover = 1;
 			}
 			else if (3 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_WII, -1);
+			}
+			else if (4 == menu.current) {
 				filter_games_set(FILTER_GAMECUBE, -1);
 				redraw_cover = 1;
 			}
-			n = menu.current - 4;
+			else if (5 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_CHANNEL, -1);
+			}
+			n = menu.current - 6;
 			if (n >= 0 && n < featureCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_FEATURES, n);

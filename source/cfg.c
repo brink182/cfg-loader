@@ -1193,6 +1193,7 @@ void CFG_Default()
 	CFG.game.wide_screen = 0; // WIDE IS OFF
 	CFG.game.ntsc_j_patch = 0;
 	CFG.game.nodisc = 0;
+	CFG.game.screenshot = 0;
 	CFG.game.block_ios_reload = 2; // 2=auto
 	cfg_ios_set_idx(DEFAULT_IOS_IDX);
 	// all other game settings are 0 (memset(0) above)
@@ -1221,6 +1222,7 @@ void CFG_Default()
 	CFG.disable_dvd_patch = 1;
 	//CFG.dml = CFG_DM_2_2;
 	STRCOPY(CFG.nand_emu_path, "usb:/nand");
+	STRCOPY(CFG.wbfs_fat_dir, "/wbfs");
 	CFG.game.nand_emu = 0;
 }
 
@@ -2238,6 +2240,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	cfg_bool("wide_screen", &game_cfg->wide_screen);
 	cfg_bool("ntsc_j_patch", &game_cfg->ntsc_j_patch);
 	cfg_bool("nodisc", &game_cfg->nodisc);
+	cfg_bool("screenshot", &game_cfg->screenshot);
 	cfg_ios_idx(name, val, &game_cfg->ios_idx);
 	cfg_bool("block_ios_reload", &game_cfg->block_ios_reload);
 	cfg_map("block_ios_reload", "auto", &game_cfg->block_ios_reload, 2);
@@ -2273,6 +2276,7 @@ bool cfg_set_gbl(char *name, char *val)
 	if (cfg_map_auto("gui_style", map_gui_style, &CFG.gui_style)) return true;
 	//if (cfg_int_max("dml", &CFG.dml, 6)) return true;
 	cfg_bool("devo", &CFG.devo);
+	cfg_bool("old_button_color", &CFG.old_button_color);
 
 	int rows = 0;
 	if (cfg_int_max("gui_rows", &rows, 4)) {
@@ -2400,6 +2404,7 @@ void cfg_set(char *name, char *val)
 	// urls
 	CFG_STR("titles_url", CFG.titles_url);
 	CFG_STR("nand_emu_path", CFG.nand_emu_path);
+	CFG_STR("wbfs_fat_dir", CFG.wbfs_fat_dir);
 	CFG_STR_LIST("cover_url", CFG.cover_url_2d);
 	CFG_STR_LIST("cover_url_3d", CFG.cover_url_3d);
 	CFG_STR_LIST("cover_url_disc", CFG.cover_url_disc);
@@ -2494,6 +2499,7 @@ void cfg_set(char *name, char *val)
 
 	//cfg_int_max("dml", &CFG.dml, 6);
 	cfg_bool("devo", &CFG.devo);
+	cfg_bool("old_button_color", &CFG.old_button_color);
 
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
 	cfg_id_list("pref_game", CFG.pref_game, &CFG.num_pref_game, MAX_PREF_GAME);
@@ -2867,6 +2873,7 @@ bool CFG_Save_Settings(int verbose)
 		}
 		//SAVE_OPT("dml = %d\n", CFG.dml);
 		SAVE_OPT("devo = %d\n", CFG.devo);
+		SAVE_OPT("old_button_color = %d", CFG.old_button_color);
 	}
 
 	fprintf(f, "\n# Profiles: %d\n", CFG.num_profiles);
@@ -2916,6 +2923,7 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_BOOL(wide_screen);
 		SAVE_BOOL(ntsc_j_patch);
 		SAVE_BOOL(nodisc);
+		SAVE_BOOL(screenshot);
 		SAVE_BOOL(country_patch);
 		SAVE_BOOL(fix_002);
 		s = ios_str(game_cfg->ios_idx);

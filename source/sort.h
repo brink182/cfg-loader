@@ -29,6 +29,8 @@ struct Sorts
 #define FILTER_FEATURES		3
 #define FILTER_CONTROLLER	4
 #define FILTER_GAMECUBE		5
+#define FILTER_WII			6
+#define FILTER_CHANNEL		7
 
 extern s32 filter_type;
 extern s32 filter_index;
@@ -48,6 +50,8 @@ int filter_play_count(struct discHdr *list, int cnt, char *ignore, bool notused)
 int filter_controller(struct discHdr *list, int cnt, char *controller, bool requiredOnly);
 int filter_genre(struct discHdr *list, int cnt, char *genre, bool notused);
 int filter_gamecube(struct discHdr *list, int cnt, char *ignore, bool notused);
+int filter_wii(struct discHdr *list, int cnt, char *ignore, bool notused);
+int filter_channel(struct discHdr *list, int cnt, char *ignore, bool notused);
 int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * name, bool num);
 int filter_games_set(int type, int index);
 void showAllGames(void);

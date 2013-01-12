@@ -434,15 +434,14 @@ s32 WBFS_OpenPart(u32 part_fs, u32 part_idx, u32 part_lba, u32 part_size, char *
 
 bool is_game_fs(int device, sec_t sector)
 {
-	extern char wbfs_fat_dir[];
 	char path[100];
 	struct stat st;
 	MountPoint *mp;
 	dbg_printf("is_game_fs(%d,%d)\n", device, sector);
 	mp = mount_find_part(device, sector);
 	if (mp) {
-		dbg_printf("check %s:%s\n", mp->name, wbfs_fat_dir);
-		sprintf(path, "%s:%s", mp->name, wbfs_fat_dir);
+		dbg_printf("check %s:%s\n", mp->name, CFG.wbfs_fat_dir);
+		sprintf(path, "%s:%s", mp->name, CFG.wbfs_fat_dir);
 		if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
 			return true;
 		}

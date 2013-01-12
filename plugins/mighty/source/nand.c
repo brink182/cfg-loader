@@ -34,7 +34,7 @@ s32 Nand_Mount(nandDevice *dev){
 
 	rev=IOS_GetRevision();
 	/* Prepare vector */
-	if(rev>=21 && rev<30000){		
+	if(rev>=21){		
 		// NOTE: 
 		// The official cIOSX rev21 by Waninkoko ignores the partition argument
 		// and the nand is always expected to be on the 1st partition.

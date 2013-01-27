@@ -99,30 +99,148 @@ void build_arrays() {
 	genreTypes[0][1] = (char *)gt("Action");
 	genreTypes[1][0] = "adventure";
 	genreTypes[1][1] = (char *)gt("Adventure");
-	genreTypes[2][0] = "sport";
-	genreTypes[2][1] = (char *)gt("Sports");
-	genreTypes[3][0] = "racing";
-	genreTypes[3][1] = (char *)gt("Racing");
-	genreTypes[4][0] = "rhythm";
-	genreTypes[4][1] = (char *)gt("Rhythm");
-	genreTypes[5][0] = "simulation";
-	genreTypes[5][1] = (char *)gt("Simulation");
-	genreTypes[6][0] = "platformer";
-	genreTypes[6][1] = (char *)gt("Platformer");
-	genreTypes[7][0] = "party";
-	genreTypes[7][1] = (char *)gt("Party");
-	genreTypes[8][0] = "music";
-	genreTypes[8][1] = (char *)gt("Music");
-	genreTypes[9][0] = "puzzle";
-	genreTypes[9][1] = (char *)gt("Puzzle");
-	genreTypes[10][0] = "fighting";
-	genreTypes[10][1] = (char *)gt("Fighting");
-	genreTypes[11][0] = "rpg";
-	genreTypes[11][1] = (char *)gt("RPG");
-	genreTypes[12][0] = "shooter";
-	genreTypes[12][1] = (char *)gt("Shooter");
-	genreTypes[13][0] = "strategy";
-	genreTypes[13][1] = (char *)gt("Strategy");
+	genreTypes[2][0] = "fighting";
+	genreTypes[2][1] = (char *)gt("Fighting");
+	genreTypes[3][0] = "music";
+	genreTypes[3][1] = (char *)gt("Music");
+	genreTypes[4][0] = "party";
+	genreTypes[4][1] = (char *)gt("Party");
+	genreTypes[5][0] = "platformer";
+	genreTypes[5][1] = (char *)gt("Platformer");
+	genreTypes[6][0] = "puzzle";
+	genreTypes[6][1] = (char *)gt("Puzzle");
+	genreTypes[7][0] = "racing";
+	genreTypes[7][1] = (char *)gt("Racing");
+	genreTypes[8][0] = "role-playing";
+	genreTypes[8][1] = (char *)gt("RPG");
+	genreTypes[9][0] = "simulation";
+	genreTypes[9][1] = (char *)gt("Simulation");
+	genreTypes[10][0] = "sport";
+	genreTypes[10][1] = (char *)gt("Sports");
+	genreTypes[11][0] = "strategy";
+	genreTypes[11][1] = (char *)gt("Strategy");
+	genreTypes[12][0] = "first-person shooter";
+	genreTypes[12][1] = (char *)gt("1st-Person Shooter");
+	genreTypes[13][0] = "arcade";
+	genreTypes[13][1] = (char *)gt("Arcade");
+	genreTypes[14][0] = "baseball";
+	genreTypes[14][1] = (char *)gt("Baseball");
+	genreTypes[15][0] = "basketball";
+	genreTypes[15][1] = (char *)gt("Basketball");
+	genreTypes[16][0] = "bike racing";
+	genreTypes[16][1] = (char *)gt("Bike Racing");
+	genreTypes[17][0] = "billiards";
+	genreTypes[17][1] = (char *)gt("Billiards");
+	genreTypes[18][0] = "board game";
+	genreTypes[18][1] = (char *)gt("Board Game");
+	genreTypes[19][0] = "bowling";
+	genreTypes[19][1] = (char *)gt("Bowling");
+	genreTypes[20][0] = "boxing";
+	genreTypes[20][1] = (char *)gt("Boxing");
+	genreTypes[21][0] = "business simulation";
+	genreTypes[21][1] = (char *)gt("Business Sim");
+	genreTypes[22][0] = "cards";
+	genreTypes[22][1] = (char *)gt("Cards");
+	genreTypes[23][0] = "chess";
+	genreTypes[23][1] = (char *)gt("Chess");
+	genreTypes[24][0] = "coaching";
+	genreTypes[24][1] = (char *)gt("Coaching");
+	genreTypes[25][0] = "compilation";
+	genreTypes[25][1] = (char *)gt("Compilation");
+	genreTypes[26][0] = "construction simulation";
+	genreTypes[26][1] = (char *)gt("Construction Sim");
+	genreTypes[27][0] = "cooking";
+	genreTypes[27][1] = (char *)gt("Cooking");
+	genreTypes[28][0] = "cricket";
+	genreTypes[28][1] = (char *)gt("Cricket");
+	genreTypes[29][0] = "dance";
+	genreTypes[29][1] = (char *)gt("Dance");
+	genreTypes[30][0] = "darts";
+	genreTypes[30][1] = (char *)gt("Darts");
+	genreTypes[31][0] = "drawing";
+	genreTypes[31][1] = (char *)gt("Drawing");
+	genreTypes[32][0] = "educational";
+	genreTypes[32][1] = (char *)gt("Educational");
+	genreTypes[33][0] = "exercise";
+	genreTypes[33][1] = (char *)gt("Exercise");
+	genreTypes[34][0] = "fishing";
+	genreTypes[34][1] = (char *)gt("Fishing");
+	genreTypes[35][0] = "fitness";
+	genreTypes[35][1] = (char *)gt("Fitness");
+	genreTypes[36][0] = "flight simulation";
+	genreTypes[36][1] = (char *)gt("Flight Sim");
+	genreTypes[37][0] = "football";
+	genreTypes[37][1] = (char *)gt("Football");
+	genreTypes[38][0] = "futuristic racing";
+	genreTypes[38][1] = (char *)gt("Futuristic Racing");
+	genreTypes[39][0] = "golf";
+	genreTypes[39][1] = (char *)gt("Golf");
+	genreTypes[40][0] = "health";
+	genreTypes[40][1] = (char *)gt("Health");
+	genreTypes[41][0] = "hockey";
+	genreTypes[41][1] = (char *)gt("Hockey");
+	genreTypes[42][0] = "hunting";
+	genreTypes[42][1] = (char *)gt("Hunting");
+	genreTypes[43][0] = "karaoke";
+	genreTypes[43][1] = (char *)gt("Karaoke");
+	genreTypes[44][0] = "kart racing";
+	genreTypes[44][1] = (char *)gt("Kart Racing");
+	genreTypes[45][0] = "life simulation";
+	genreTypes[45][1] = (char *)gt("Life Simulation");
+	genreTypes[46][0] = "management simulation";
+	genreTypes[46][1] = (char *)gt("Management Sim");
+	genreTypes[47][0] = "martial arts";
+	genreTypes[47][1] = (char *)gt("Martial Arts");
+	genreTypes[48][0] = "motorcycle racing";
+	genreTypes[48][1] = (char *)gt("Motorcycle Racing");
+	genreTypes[49][0] = "off-road racing";
+	genreTypes[49][1] = (char *)gt("Off-Road Racing");
+	genreTypes[50][0] = "pétanque";
+	genreTypes[50][1] = (char *)gt("Petanque");
+	genreTypes[51][0] = "pinball";
+	genreTypes[51][1] = (char *)gt("Pinball");
+	genreTypes[52][0] = "poker";
+	genreTypes[52][1] = (char *)gt("Poker");
+	genreTypes[53][0] = "rhythm";
+	genreTypes[53][1] = (char *)gt("Rhythm");
+	genreTypes[54][0] = "rugby";
+	genreTypes[54][1] = (char *)gt("Rugby");
+	genreTypes[55][0] = "shooter";
+	genreTypes[55][1] = (char *)gt("Shooter");
+	genreTypes[56][0] = "sim racing";
+	genreTypes[56][1] = (char *)gt("Sim Racing");
+	genreTypes[57][0] = "skateboarding";
+	genreTypes[57][1] = (char *)gt("Skateboarding");
+	genreTypes[58][0] = "ski";
+	genreTypes[58][1] = (char *)gt("Skiing");
+	genreTypes[59][0] = "snowboarding";
+	genreTypes[59][1] = (char *)gt("Snowboarding");
+	genreTypes[60][0] = "soccer";
+	genreTypes[60][1] = (char *)gt("Soccer");
+	genreTypes[61][0] = "surfing";
+	genreTypes[61][1] = (char *)gt("Surfing");
+	genreTypes[62][0] = "survival horror";
+	genreTypes[62][1] = (char *)gt("Survival Horror");
+	genreTypes[63][0] = "table tennis";
+	genreTypes[63][1] = (char *)gt("Table Tennis");
+	genreTypes[64][0] = "tennis";
+	genreTypes[64][1] = (char *)gt("Tennis");
+	genreTypes[65][0] = "train simulation";
+	genreTypes[65][1] = (char *)gt("Train Simulation");
+	genreTypes[66][0] = "trivia";
+	genreTypes[66][1] = (char *)gt("Trivia");
+	genreTypes[67][0] = "truck racing";
+	genreTypes[67][1] = (char *)gt("Truck Racing");
+	genreTypes[68][0] = "virtual pet";
+	genreTypes[68][1] = (char *)gt("Virtual Pet");
+	genreTypes[69][0] = "volleyball";
+	genreTypes[69][1] = (char *)gt("Volleyball");
+	genreTypes[70][0] = "watercraft racing";
+	genreTypes[70][1] = (char *)gt("Watercraft Racing");
+	genreTypes[71][0] = "wrestling";
+	genreTypes[71][1] = (char *)gt("Wrestling");
+
+
 
 	strcpy(sortTypes[0].cfg_val, "title");
 	strcpy(sortTypes[0].name, gt("Title"));
@@ -740,15 +858,15 @@ void sortList_set(int index, bool desc)
 	}
 }
 
-int Menu_Filter()
+int Menu_Filter()			//Filter by Genre
 {
 	struct discHdr *header = NULL;
 	int redraw_cover = 0;
 	struct Menu menu;
 	int rows, cols, size;
 	CON_GetMetrics(&cols, &rows);
-	if ((size = rows-10) < 3) size = 3;
-	menu_init(&menu, genreCnt+5);
+	if ((size = rows-12) < 3) size = 3;		//scroll area -7 fixed and 5 overhead
+	menu_init(&menu, genreCnt+7);			//Add 7 fixed menu items
 	for (;;) {
 
 		menu.line_count = 0;
@@ -769,8 +887,6 @@ int Menu_Filter()
 		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_ONLINE,-1), gt("Online Play"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_UNPLAYED,-1), gt("Unplayed Games"));
 		MENU_MARK();
@@ -817,24 +933,21 @@ int Menu_Filter()
 				redraw_cover = 1;
 			} else if (3 == menu.current) {
 				redraw_cover = 1;
-				filter_games_set(FILTER_ONLINE, -1);
-			} else if (4 == menu.current) {
-				redraw_cover = 1;
 				filter_games_set(FILTER_UNPLAYED, -1);
 			}
-			else if (5 == menu.current) {
+			else if (4 == menu.current) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_WII, -1);
 			}
-			else if (6 == menu.current) {
+			else if (5 == menu.current) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_GAMECUBE, -1);
 			}
-			else if (7 == menu.current) {
+			else if (6 == menu.current) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_CHANNEL, -1);
 			}
-			n = menu.current - 8;
+			n = menu.current - 7;
 			if (n >= 0 && n < genreCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_GENRE, n);
@@ -850,15 +963,15 @@ int Menu_Filter()
 	return 0;
 }
 
-int Menu_Filter2()
+int Menu_Filter2()				//Filter by Controler
 {
 	struct discHdr *header = NULL;
 	int redraw_cover = 0;
 	struct Menu menu;
 	int rows, cols, size;
 	CON_GetMetrics(&cols, &rows);
-	if ((size = rows-8) < 3) size = 3;
-	menu_init(&menu, accessoryCnt+3);
+	if ((size = rows-11) < 3) size = 3;		//scroll area -6 fixed and 5 overhead
+	menu_init(&menu, accessoryCnt+6);		//Add 6 fixed menu items
 	for (;;) {
 
 		menu.line_count = 0;
@@ -887,9 +1000,10 @@ int Menu_Filter2()
 		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
-			if (menu_window_mark(&menu))
+			if (menu_window_mark(&menu)) {
 				printf("%s ", mark_filter(FILTER_CONTROLLER,n));
 				printf("%s\n", gt(accessoryTypes[n][1]));
+			}
 		}
 		DefaultColor();
 		menu_window_end(&menu, cols);
@@ -951,15 +1065,15 @@ int Menu_Filter2()
 	return 0;
 }
 
-int Menu_Filter3()
+int Menu_Filter3()			//Filter by Online Features
 {
 	struct discHdr *header = NULL;
 	int redraw_cover = 0;
 	struct Menu menu;
 	int rows, cols, size;
 	CON_GetMetrics(&cols, &rows);
-	if ((size = rows-8) < 3) size = 3;
-	menu_init(&menu, featureCnt+3);
+	if ((size = rows-12) < 3) size = 3;		//scroll area -7 fixed and 5 overhead
+	menu_init(&menu, featureCnt+7);			//Add 7 fixed menu items
 	for (;;) {
 
 		menu.line_count = 0;
@@ -986,6 +1100,8 @@ int Menu_Filter3()
 		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_ONLINE,-1), gt("Online Play"));
 		menu_window_begin(&menu, size, featureCnt);
 		for (n=0;n<featureCnt;n++) {
 			if (menu_window_mark(&menu))
@@ -1035,7 +1151,11 @@ int Menu_Filter3()
 				redraw_cover = 1;
 				filter_games_set(FILTER_CHANNEL, -1);
 			}
-			n = menu.current - 6;
+			else if (6 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_ONLINE, -1);
+			}
+			n = menu.current - 7;
 			if (n >= 0 && n < featureCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_FEATURES, n);

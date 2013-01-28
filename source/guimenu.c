@@ -34,6 +34,8 @@ typedef void (*entrypoint) (void);
 
 #if 1
 
+extern int page_gi;		//used by jump
+extern int page_covers; //juse by jump
 /*
 Q:
 
@@ -69,6 +71,7 @@ HOME : Home (Quit) Menu
 Widget wgui_desk;
 Widget *d_custom;
 Widget *d_top;
+Widget *d_top5;		//used by jump
 Widget *d_bottom;
 
 void pos_desk(Pos *p)
@@ -1697,7 +1700,7 @@ void action_OpenFilter(Widget *a_ww)
 	for (i=0; i<genreCnt; i++) {
 		names[i] = gt(genreTypes[i][1]);
 	}
-	r_filter[0] = rr = wgui_arrange_radio(pp, pos_full, 3, genreCnt, names);
+	r_filter[0] = rr = wgui_paginate_radio(pp, pos_full, 3, 4, genreCnt, names);	//add multipagesd genre menu
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 	
@@ -1727,8 +1730,8 @@ void action_OpenFilter(Widget *a_ww)
 	pos_margin(dd, PAD3);
 	pos_newline(dd);
 
-	// all, unplayed, gamecube
-	pos_columns(dd, 5, SIZE_FULL);
+	// all, unplayed, wii, gamecube, channel, Back
+	pos_columns(dd, 6, SIZE_FULL);
 	r_filter[3] = rr = wgui_auto_radio_a(dd, 5, 5, gt("Show All"), gt("Unplayed"), gt("Wii"), gt("GameCube"), gt("Channel"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
@@ -2549,6 +2552,13 @@ void desk_dialog_update(Widget *ww)
 	if (alpha > 0xFF) alpha = 0xFF;
 	traverse(ww, wgui_set_color, 0xFFFFFF00 | alpha);
 	traverse_children1(ww, adjust_position);
+
+    if (sort_index != 0) {		//if not sorting by name
+    	traverse_linked_children(d_top5, wgui_set_inactive, true);				//disable jump  
+	} else {
+    	traverse_linked_children(d_top5, wgui_set_state, WGUI_STATE_NORMAL);	//enable jump  
+    }
+
 }
 
 struct CustomButton
@@ -2637,6 +2647,99 @@ void desk_bar_update()
 	}
 }
 
+//new actions for alphabetical radio buttons
+char *string = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+Widget *_jump_rr;
+
+void update_jump()
+{
+//set default button to current game
+    int i, _jump_index;
+	char *_jump_selected;
+    if (gui_style == GUI_STYLE_COVERFLOW) {
+    	game_select = Coverflow_flip_cover_to_back(true, 2);	//flip twice, just to get current pos ??
+	    game_select = Coverflow_flip_cover_to_back(true, 2);	
+		_jump_index = game_select;
+    } else {
+        if (gui_style == 0) {
+            _jump_index = page_gi;
+        } else {
+//offset-ed for grid flow mode; problem if gamelist begining is <2 with same letter
+            _jump_index = page_gi + page_covers/2;           }
+    }
+    _jump_selected = skip_sort_ignore(get_title(&gameList[_jump_index]));
+
+    for (i = 1; i <= 27; i++){     	//search loop
+        if (strncasecmp(_jump_selected, &string[i], 1) == 0) break;  
+    }
+    if (i >= 27) i=0; 
+    _jump_rr->value = i;
+}
+
+void action_Jump(Widget *ww)
+{
+	int _jump_char_offset = _jump_rr->value;
+    int i;      		//starts from 0
+    char *_yan_name;
+    if (_jump_char_offset == 0){
+        i =0;
+    } else {
+        char *_selected_char = &string[_jump_char_offset];
+//		char *_selected_char = mbs_align(&string[_jump_char_offset],1);
+ 
+//search loop. Title only
+        for (i = 0; i <= gameCnt; i++){     //search loop
+            _yan_name = skip_sort_ignore(get_title(&gameList[i]));  //I would deal with title only
+//			_yan_name = mbs_align(_yan_name,1);
+			if (strncmp(_yan_name,"z",1)>0) continue;		//skip names begining with multi byte chars
+            if (!sort_desc){             
+                if (strncasecmp(_yan_name,_selected_char,1)>=0) break;
+//                if (mbs_coll(_yan_name,_selected_char)>=0) break;
+           } else {
+                if (strncasecmp(_yan_name,_selected_char,1)<=0) break;
+//                if (mbs_coll(_yan_name,_selected_char)<=0) break;
+            }
+        }
+    }
+
+    if (gui_style == GUI_STYLE_COVERFLOW) {
+        int _jump_dir = CF_TRANS_ROTATE_LEFT;
+    	game_select = Coverflow_flip_cover_to_back(true, 2);    //flip twice, just to get current pos
+	    game_select = Coverflow_flip_cover_to_back(true, 2);    
+        int _jump_shift_no = i - game_select;
+        if (_jump_shift_no == 0) return;
+        if (_jump_shift_no > 0) {
+            _jump_dir = CF_TRANS_ROTATE_RIGHT;
+        } else {
+            _jump_shift_no = - _jump_shift_no;
+        }
+        while (_jump_shift_no > 0) {
+            Coverflow_init_transition(_jump_dir, 0, gameCnt, true);
+            _jump_shift_no--; 
+		}
+    } else {
+        grid_init_jump(i); //grid_init goes to the page that contains the game not to the game;
+//      page_move_to_jump(i);  //does not seems to have any speed improvement so better use init?
+	}
+}
+
+void action_OpenJump(Widget *ww)
+{
+	Widget *dd;
+
+	dd = desk_open_dialog(pos(POS_CENTER,100,480,170), gt("Jump"));
+	dd->update = update_jump;
+	pos_pad(dd, PAD0/2);
+	pos_rows(dd, 7, -PAD0);
+	pos_prefsize(dd, 0, 30);             //h=height of button 
+
+	_jump_rr = wgui_arrange_radio_a(dd, pos_w(SIZE_AUTO), 9, 27, "#","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+	_jump_rr->action = action_Jump;
+
+	// set initial radio values
+	dd->update(dd);
+}
+
 void desk_dialog_init()
 {
 	Widget *dd;
@@ -2647,18 +2750,19 @@ void desk_dialog_init()
 	// custom
 	desk_custom_init();
 
+//comment pos=x,y,width,heigh
 	// top
 	dd = d_top = wgui_add_dialog(&wgui_desk, pos(POS_CENTER, 0, 600, dh), NULL);
 	dd->update = desk_dialog_update;
 	dd->handle = NULL; // disable handle_B_close;
-	dd->y -= PAD1;
+	dd->y -= PAD1;                      //diaglog y offset
 	dd->ay -= dh/2;
 	dd->color = 0xFFFFFF80;
 	dd->lock_focus = false;
 	pos_margin(dd, PAD1);
-	pos_prefsize(dd, 0, h);
-	pos_columns(dd, 4, SIZE_FULL);
-	pos_move_to(dd, 0, -h);
+	pos_prefsize(dd, 0, h);             //h=height of button =56
+	pos_columns(dd, 5, SIZE_FULL);      //5 View, Sort, Fliter, Fav, Jump
+	pos_move_to(dd, 0, -h);             //move buttons x,y
 
 	ww = wgui_add_button(dd, pos_auto, gt("View"));
 	ww->action = action_OpenView;
@@ -2673,6 +2777,9 @@ void desk_dialog_init()
 			false, gt("Fav: Off"), gt("Fav: On"));
 	ww->val_ptr = &enable_favorite;
 	ww->action = action_Favorites;
+
+    ww = d_top5 = wgui_add_button(dd, pos_auto, gt("Jump")); 
+    ww->action = action_OpenJump;
 
 	// bottom
 	dd = d_bottom = wgui_add_dialog(&wgui_desk, pos(POS_CENTER, -dh, 600, dh), NULL);

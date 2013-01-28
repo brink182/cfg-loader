@@ -1303,6 +1303,43 @@ void grid_init_ratio()
 	else w_ratio = 1.0;
 }
 
+
+void page_move_to_jump(int gi)
+{
+	if (gui_style == GUI_STYLE_GRID) {
+		page_i = gi / grid_covers;
+		page_gi = gi;
+
+	} else {
+		float gi_scroll;
+		calc_scroll_range();
+		gi_scroll = get_scroll_pos(gi);
+		// if not on page, center on screen 
+		if (page_scroll < gi_scroll - scroll_per_page) {
+			page_scroll = gi_scroll - scroll_per_page / 2;
+		}
+		if (page_scroll > gi_scroll) {
+			page_scroll = gi_scroll - scroll_per_page / 2;
+		}
+	}
+	update_scroll();
+	update_page_i();
+}
+
+void grid_init_jump(int game_sel)
+{
+	grid_init_ratio();
+	grid_allocate();
+	init_cover_area();
+	grid_set_style(gui_style, grid_rows);
+	// move page to currently selected
+	page_move_to_jump(game_sel);
+	reset_grid();
+	grid_calc();
+	// update all params and cache current page covers
+	grid_update_all(NULL);
+}
+
 void grid_init(int game_sel)
 {
 	grid_init_ratio();

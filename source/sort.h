@@ -19,7 +19,7 @@ struct Sorts
 
 #define featureCnt 4
 #define accessoryCnt 17
-#define genreCnt 14
+#define genreCnt 72
 #define sortCnt 9
 
 #define FILTER_ALL			-1

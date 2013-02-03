@@ -100,7 +100,6 @@ extern s32 filter_index;
 bool MountWBFS = true;
 
 s32 gameCnt = 0, gameSelected = 0, gameStart = 0, chanSelected = 0, chanStart = 0, mycount = 0;
-u64 channels[1000];
 
 bool imageNotFound = false;
 
@@ -333,6 +332,8 @@ s32 get_channel_list(void *outbuf, u32 size)
 	FILE *fp;
 	DIR *sdir;
 	
+	u8 *buffer = allocate_memory(0x1E4+4);
+	
 	char gamePath[255];
 	sprintf(gamePath, "%s/title/00010001", CFG.nand_emu_path);
 	sdir = opendir(gamePath);
@@ -346,25 +347,16 @@ s32 get_channel_list(void *outbuf, u32 size)
  			{
 				continue;
  			}
-			sprintf(path_buffer, "%s/title/00010001/%s/content/00000000.app", CFG.nand_emu_path, entry->d_name);
+			sprintf(path_buffer, "%s/title/00010001/%s/content/title.tmd", CFG.nand_emu_path, entry->d_name);
 			fp = fopen(path_buffer, "rb");
 			if (fp)
 			{
-				u8 *ptr = ((u8 *)outbuf) + (ret * sizeof(struct discHdr));
-				struct discHdr *channel = (struct discHdr *)ptr;
-				
-				channel->magic = CHANNEL_MAGIC;
-				//strncpy(channel->path, path, strlen(path));
-				u32 title_low = TITLE_LOW(strtol(entry->d_name,NULL,16));
-				memcpy(channel->id, &title_low, sizeof(u32));
-				//char *name = get_name(TITLE_ID(0x00010001, title_low));
-				strncpy(channel->title, (char*)channel->id, strlen((char*)channel->id));
-				//SAFE_FREE(name);
-				
+				fread(buffer, 1, 0x1E4+4, fp);
 				ret++;
 				fclose(fp);
-			} else {
-				sprintf(path_buffer, "%s/title/00010001/%s/content/00000008.app", CFG.nand_emu_path, entry->d_name);
+				u32 bannerContent = 0;
+				memcpy(&bannerContent, buffer+0x1E4, 4);
+				sprintf(path_buffer, "%s/title/00010001/%s/content/%08x.app", CFG.nand_emu_path, entry->d_name, bannerContent);
 				fp = fopen(path_buffer, "rb");
 				if (fp)
 				{
@@ -387,6 +379,7 @@ s32 get_channel_list(void *outbuf, u32 size)
 	} while (entry);
 	closedir(sdir);
 
+	SAFE_FREE(buffer);
 	return ret;
 }
 
@@ -399,6 +392,8 @@ s32 get_channel_list_cnt()
 	
 	FILE *fp;
 	DIR *sdir;
+	
+	u8 *buffer = allocate_memory(0x1E4+4);
 	
 	char gamePath[255];
 	sprintf(gamePath, "%s/title/00010001", CFG.nand_emu_path);
@@ -413,14 +408,16 @@ s32 get_channel_list_cnt()
  			{
 				continue;
  			}
-			sprintf(path_buffer, "%s/title/00010001/%s/content/00000000.app", CFG.nand_emu_path, entry->d_name);
+			sprintf(path_buffer, "%s/title/00010001/%s/content/title.tmd", CFG.nand_emu_path, entry->d_name);
 			fp = fopen(path_buffer, "rb");
 			if (fp)
 			{
+				fread(buffer, 1, 0x1E4+4, fp);
 				ret++;
 				fclose(fp);
-			} else {
-				sprintf(path_buffer, "%s/title/00010001/%s/content/00000008.app", CFG.nand_emu_path, entry->d_name);
+				u32 bannerContent = 0;
+				memcpy(&bannerContent, buffer+0x1E4, 4);
+				sprintf(path_buffer, "%s/title/00010001/%s/content/%08x.app", CFG.nand_emu_path, entry->d_name, bannerContent);
 				fp = fopen(path_buffer, "rb");
 				if (fp)
 				{
@@ -432,6 +429,7 @@ s32 get_channel_list_cnt()
 	} while (entry);
 	closedir(sdir);
 
+	SAFE_FREE(buffer);
 	return ret;
 }
 

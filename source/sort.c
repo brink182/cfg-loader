@@ -42,6 +42,7 @@ s32 __sort_players(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_wifiplayers(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_pub(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_dev(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
+s32 __sort_id(struct discHdr * hdr1, struct discHdr * hdr2, bool desc);
 s32 __sort_players_asc(const void *a, const void *b);
 s32 __sort_players_desc(const void *a, const void *b);
 s32 __sort_wifiplayers_asc(const void *a, const void *b);
@@ -60,6 +61,8 @@ s32 __sort_install_date_asc(const void *a, const void *b);
 s32 __sort_install_date_desc(const void *a, const void *b);
 s32 __sort_play_date_asc(const void *a, const void *b);
 s32 __sort_play_date_desc(const void *a, const void *b);
+s32 __sort_id_asc(const void *a, const void *b);
+s32 __sort_id_desc(const void *a, const void *b);
 
 
 char *featureTypes[featureCnt][2] =
@@ -89,6 +92,24 @@ char *accessoryTypes[accessoryCnt][2] =
 	{ "keyboard",          gts("Keyboard") },
 	{ "vitalitysensor",    gts("Vitality Sensor") },
 	{ "udraw",             gts("uDraw GameTablet") },
+};
+
+char *gameTypes[gameTypeCnt][2] =
+{
+	{ "wii",		gts("Wii") },
+	{ "gamecube",	gts("GameCube") },
+	{ "channel",	gts("All Channels") },
+	{ "wiiware",	gts("WiiWare") },
+	{ "vc-nes",		gts("VC-NES") },
+	{ "vc-snes",	gts("VC-SNES") },
+	{ "vc-n64",		gts("VC-N64") },
+	{ "vc-sms",		gts("VC-SMS") },
+	{ "vc-md",      gts("VC-Sega Genesis") },
+	{ "vc-pce",		gts("VC-TurboGrafx-16") },
+	{ "vc-neogeo",	gts("VC-Neo Geo") },
+	{ "vc-arcade",	gts("VC-Arcade") },
+	{ "vc-c64",		gts("VC-Commodore 64") },
+	{ "wiichannel",	gts("Wii Channel") },
 };
 
 char *genreTypes[genreCnt][2];
@@ -278,6 +299,10 @@ void build_arrays() {
 	strcpy(sortTypes[8].name, gt("Install Date"));
 	sortTypes[8].sortAsc = __sort_install_date_asc;
 	sortTypes[8].sortDsc = __sort_install_date_desc;
+	strcpy(sortTypes[9].cfg_val, "game_id");
+	strcpy(sortTypes[9].name, gt("Game ID"));
+	sortTypes[9].sortAsc = __sort_id_asc;
+	sortTypes[9].sortDsc = __sort_id_desc;
 
 }
 
@@ -455,11 +480,103 @@ int filter_channel(struct discHdr *list, int cnt, char *ignore, bool notused)
 	return cnt;
 }
 
+int filter_game_type(struct discHdr *list, int cnt, char *typeWanted, bool notused)
+{
+	int i;
+	bool isGameType;
+	
+	for (i=0; i<cnt;) {
+		switch ((int) typeWanted) {
+			case GAME_TYPE_Wii:
+				isGameType = (list[i].magic == WII_MAGIC);
+				break;
+			case GAME_TYPE_GameCube:
+				isGameType = (list[i].magic == GC_GAME_ON_DRIVE);
+				break;
+			case GAME_TYPE_All_Channels:
+				isGameType = (list[i].magic == CHANNEL_MAGIC);
+				break;
+			case GAME_TYPE_Wiiware:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("W",list[i].id,1) == 0);
+				break;
+			case GAME_TYPE_VC_NES:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("F",list[i].id,1) == 0);
+				break;
+			case GAME_TYPE_VC_SNES:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("J",list[i].id,1) == 0);
+				break;
+			case GAME_TYPE_VC_N64:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("N",list[i].id,1) == 0)
+							&& (memcmp("NEOG",list[i].id,4) != 0);	//backup disk channel
+				break;
+			case GAME_TYPE_VC_SMS:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("L",list[i].id,1) == 0);
+				break;
+			case GAME_TYPE_VC_MD:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("M",list[i].id,1) == 0)
+							&& (memcmp("MAUI",list[i].id,4) != 0);		//backup homebrew channel
+				break;
+			case GAME_TYPE_VC_PCE:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && ((memcmp("P",list[i].id,1) == 0) || (memcmp("Q",list[i].id,1) == 0));
+				break;
+			case GAME_TYPE_VC_NeoGeo:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("E",list[i].id,1) == 0) && (memcmp("EA",list[i].id,2) <= 0);
+				break;
+			case GAME_TYPE_VC_Arcade:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("E",list[i].id,1) == 0) && (memcmp("EA",list[i].id,2) > 0);
+				break;
+			case GAME_TYPE_VC_C64:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && (memcmp("C",list[i].id,1) == 0);
+				break;
+			case GAME_TYPE_Wii_Channel:
+				isGameType = (list[i].magic == CHANNEL_MAGIC) && ((memcmp("H",list[i].id,1) == 0)
+							|| (memcmp("UCXF",list[i].id,4) == 0)		//cfg loader
+							|| (memcmp("MAUI",list[i].id,4) == 0)		//backup homebrew channel
+							|| (memcmp("NEOG",list[i].id,4) == 0));	//backup disk channel
+				break;
+			default:
+				isGameType = false;
+	}
+		
+		if (!isGameType) {
+			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
+			cnt--;
+		} else {
+			i++;
+		}
+	}
+	return cnt;
+}
+
 int filter_play_count(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
 	for (i=0; i<cnt;) {
 		if (getPlayCount(list[i].id) > 0) {
+			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
+			cnt--;
+		} else {
+			i++;
+		}
+	}
+	return cnt;
+}
+
+int filter_duplicate_id3(struct discHdr *list, int cnt, char *ignore, bool notused)
+{
+	int i, j;
+	bool duplicate;
+	for (i=0; i<cnt;) {
+		duplicate = false;
+		for (j=0; j<cnt; ) {
+			if (i != j) 
+				if (strncmp((char*)list[i].id, (char*)list[j].id, 3) == 0) {
+					duplicate = true;
+					break;
+					}
+			j++;
+			}
+		if (!duplicate) {
 			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
 			cnt--;
 		} else {
@@ -485,7 +602,7 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 	}
 	//if (filter_gameCnt > 0) {
 		gameList = filter_gameList;
-		gameCnt = filter_gameCnt;
+ 		gameCnt = filter_gameCnt;
 		ret = 1;
 	/*} else {
 		// this won't work because gameList might
@@ -574,6 +691,12 @@ int filter_games_set(int type, int index)
 		case FILTER_CHANNEL:
 			ret = filter_games(filter_channel, "", 0);
 			break;
+		case FILTER_DUPLICATE_ID3:
+			ret = filter_games(filter_duplicate_id3, "", 0);
+			break;
+		case FILTER_GAME_TYPE:
+			ret = filter_games(filter_game_type, (char*)index, 0);
+			break;
 	}
 	if (ret > -1) {
 		filter_type = type;
@@ -589,6 +712,7 @@ bool is_filter(int type, int index)
 		case FILTER_GENRE:
 		case FILTER_CONTROLLER:
 		case FILTER_FEATURES:
+		case FILTER_GAME_TYPE:
 			return index == filter_index;
 	}
 	return true;
@@ -716,6 +840,14 @@ s32 __sort_play_count(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
 	return ret;
 }
 
+s32 __sort_id(struct discHdr * hdr1, struct discHdr * hdr2, bool desc)
+{
+	if (desc)
+		return strncmp((char*)hdr2->id, (char*)hdr1->id, 6);
+	else
+		return strncmp((char*)hdr1->id, (char*)hdr2->id, 6);
+}
+
 s32 __sort_players_asc(const void *a, const void *b)
 {
 	return __sort_players((struct discHdr *)a, (struct discHdr *)b, 0);
@@ -806,6 +938,16 @@ s32 __sort_play_date_desc(const void *a, const void *b)
 	return __sort_play_date((struct discHdr *)a, (struct discHdr *)b, 1);
 }
 
+s32 __sort_id_asc(const void *a, const void *b)
+{
+	return __sort_id((struct discHdr *)a, (struct discHdr *)b, 0);
+}
+
+s32 __sort_id_desc(const void *a, const void *b)
+{
+	return __sort_id((struct discHdr *)a, (struct discHdr *)b, 1);
+}
+
 void sortList(int (*sortFunc) (const void *, const void *))
 {
 	int inst_time = 0;
@@ -833,10 +975,12 @@ void sortList(int (*sortFunc) (const void *, const void *))
 		}
 		//dbg_time2("stat"); Menu_PrintWait();
 	}
+
 	qsort(gameList, gameCnt, sizeof(struct discHdr), sortFunc);
 	if (inst_time) {
 		hmap_close(&install_time);
 	}
+	
 	// scroll start list
 	__Menu_ScrollStartList();
 }
@@ -865,8 +1009,8 @@ int Menu_Filter()			//Filter by Genre
 	struct Menu menu;
 	int rows, cols, size;
 	CON_GetMetrics(&cols, &rows);
-	if ((size = rows-12) < 3) size = 3;		//scroll area -7 fixed and 5 overhead
-	menu_init(&menu, genreCnt+7);			//Add 7 fixed menu items
+	if ((size = rows-10) < 3) size = 3;		//scroll area -5 fixed and 5 overhead
+	menu_init(&menu, genreCnt+5);			//Add 5 fixed menu items
 	for (;;) {
 
 		menu.line_count = 0;
@@ -886,15 +1030,11 @@ int Menu_Filter()			//Filter by Genre
 		MENU_MARK();
 		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
+		printf("<%s>\n", gt("Filter by Game Type"));
+		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_UNPLAYED,-1), gt("Unplayed Games"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_WII,-1), gt("Wii"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		menu_window_begin(&menu, size, genreCnt);
 		for (n=0;n<genreCnt;n++) {
 			if (menu_window_mark(&menu))
@@ -929,25 +1069,17 @@ int Menu_Filter()			//Filter by Genre
 				redraw_cover = 1;
 				break;
 			} else if (2 == menu.current) {
+				Menu_Filter4();
+				redraw_cover = 1;
+				break;
+			} else if (3 == menu.current) {
 				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
-			} else if (3 == menu.current) {
+			} else if (4 == menu.current) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_UNPLAYED, -1);
 			}
-			else if (4 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_WII, -1);
-			}
-			else if (5 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_GAMECUBE, -1);
-			}
-			else if (6 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_CHANNEL, -1);
-			}
-			n = menu.current - 7;
+			n = menu.current - 5;
 			if (n >= 0 && n < genreCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_GENRE, n);
@@ -970,8 +1102,8 @@ int Menu_Filter2()				//Filter by Controler
 	struct Menu menu;
 	int rows, cols, size;
 	CON_GetMetrics(&cols, &rows);
-	if ((size = rows-11) < 3) size = 3;		//scroll area -6 fixed and 5 overhead
-	menu_init(&menu, accessoryCnt+6);		//Add 6 fixed menu items
+	if ((size = rows-9) < 3) size = 3;		//scroll area -4 fixed and 5 overhead
+	menu_init(&menu, accessoryCnt+4);		//Add 4 fixed menu items
 	for (;;) {
 
 		menu.line_count = 0;
@@ -991,13 +1123,9 @@ int Menu_Filter2()				//Filter by Controler
 		MENU_MARK();
 		printf("<%s>\n", gt("Filter by Online Features"));
 		MENU_MARK();
+		printf("<%s>\n", gt("Filter by Game Type"));
+		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_WII,-1), gt("Wii"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		menu_window_begin(&menu, size, accessoryCnt);
 		for (n=0; n<accessoryCnt; n++) {
 			if (menu_window_mark(&menu)) {
@@ -1033,22 +1161,14 @@ int Menu_Filter2()				//Filter by Controler
 				redraw_cover = 1;
 				goto end;
 			} else if (2 == menu.current) {
+				Menu_Filter4();
+				redraw_cover = 1;
+				goto end;
+			} else if (3 == menu.current) {
 				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			}
-			else if (3 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_WII, -1);
-			}
-			else if (4 == menu.current) {
-				filter_games_set(FILTER_GAMECUBE, -1);
-				redraw_cover = 1;
-			}
-			else if (5 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_CHANNEL, -1);
-			}
-			n = menu.current - 6;
+			n = menu.current - 4;
 			if (n >= 0 && n < accessoryCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_CONTROLLER, n);
@@ -1072,8 +1192,8 @@ int Menu_Filter3()			//Filter by Online Features
 	struct Menu menu;
 	int rows, cols, size;
 	CON_GetMetrics(&cols, &rows);
-	if ((size = rows-12) < 3) size = 3;		//scroll area -7 fixed and 5 overhead
-	menu_init(&menu, featureCnt+7);			//Add 7 fixed menu items
+	if ((size = rows-10) < 3) size = 3;		//scroll area -5 fixed and 5 overhead
+	menu_init(&menu, featureCnt+5);			//Add 5 fixed menu items
 	for (;;) {
 
 		menu.line_count = 0;
@@ -1093,13 +1213,9 @@ int Menu_Filter3()			//Filter by Online Features
 		MENU_MARK();
 		printf("<%s>\n", gt("Filter by Controller"));		
 		MENU_MARK();
+		printf("<%s>\n", gt("Filter by Game Type"));		
+		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_WII,-1), gt("Wii"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_GAMECUBE,-1), gt("GameCube"));
-		MENU_MARK();
-		printf("%s %s\n", mark_filter(FILTER_CHANNEL,-1), gt("Channel"));
 		MENU_MARK();
 		printf("%s %s\n", mark_filter(FILTER_ONLINE,-1), gt("Online Play"));
 		menu_window_begin(&menu, size, featureCnt);
@@ -1136,26 +1252,18 @@ int Menu_Filter3()			//Filter by Online Features
 				redraw_cover = 1;
 				goto end;
 			} else if (2 == menu.current) {
+				Menu_Filter4();
+				redraw_cover = 1;
+				goto end;
+			} else if (3 == menu.current) {
 				filter_games_set(FILTER_ALL, -1);
 				redraw_cover = 1;
 			}
-			else if (3 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_WII, -1);
-			}
 			else if (4 == menu.current) {
-				filter_games_set(FILTER_GAMECUBE, -1);
-				redraw_cover = 1;
-			}
-			else if (5 == menu.current) {
-				redraw_cover = 1;
-				filter_games_set(FILTER_CHANNEL, -1);
-			}
-			else if (6 == menu.current) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_ONLINE, -1);
 			}
-			n = menu.current - 7;
+			n = menu.current - 5;
 			if (n >= 0 && n < featureCnt) {
 				redraw_cover = 1;
 				filter_games_set(FILTER_FEATURES, n);
@@ -1172,6 +1280,99 @@ int Menu_Filter3()			//Filter by Online Features
 	return 0;
 }
 
+int Menu_Filter4()			//Filter by Game Type
+{
+	struct discHdr *header = NULL;
+	int redraw_cover = 0;
+	struct Menu menu;
+	int rows, cols, size;
+	CON_GetMetrics(&cols, &rows);
+	if ((size = rows-10) < 3) size = 3;		//scroll area -5 fixed and 5 overhead
+	menu_init(&menu, gameTypeCnt+5);			//Add 5 fixed menu items
+	for (;;) {
+
+		menu.line_count = 0;
+
+		if (gameCnt) {
+			header = &gameList[gameSelected];
+		} else {
+			header = NULL;
+		}
+		int n;
+		Con_Clear();
+		FgColor(CFG.color_header);
+		printf_x(gt("Filter by Game Type"));
+		printf(":\n\n");
+		MENU_MARK();
+		printf("<%s>\n", gt("Filter by Genre"));
+		MENU_MARK();
+		printf("<%s>\n", gt("Filter by Controller"));
+		MENU_MARK();
+		printf("<%s>\n", gt("Filter by Online Features"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_ALL,-1), gt("All Games"));
+		MENU_MARK();
+		printf("%s %s\n", mark_filter(FILTER_UNPLAYED,-1), gt("Unplayed Games"));
+		menu_window_begin(&menu, size, gameTypeCnt);
+		for (n=0;n<gameTypeCnt;n++) {
+			if (menu_window_mark(&menu))
+				printf("%s %s\n", mark_filter(FILTER_GAME_TYPE,n), gameTypes[n][1]);
+		}
+		DefaultColor();
+		menu_window_end(&menu, cols);
+		
+		//printf("\n");
+		printf_h(gt("Press %s to select filter type"), (button_names[CFG.button_confirm.num]));
+		__console_flush(0);
+
+		if (redraw_cover) {
+			if (header) Gui_DrawCover(header->id);
+			redraw_cover = 0;
+		}
+		
+		u32 buttons = Wpad_WaitButtonsRpt();
+		menu_move(&menu, buttons);
+
+		int change = 0;
+		if (buttons & WPAD_BUTTON_LEFT) change = -1;
+		if (buttons & WPAD_BUTTON_RIGHT || buttons & CFG.button_confirm.mask || buttons & CFG.button_save.mask) change = +1;
+
+		if (change) {
+			if (0 == menu.current) {
+				Menu_Filter();
+				redraw_cover = 1;
+				break;
+			} else if (1 == menu.current) {
+				Menu_Filter2();
+				redraw_cover = 1;
+				break;
+			} else if (2 == menu.current) {
+				Menu_Filter3();
+				redraw_cover = 1;
+				break;
+			} else if (3 == menu.current) {
+				filter_games_set(FILTER_ALL, -1);
+				redraw_cover = 1;
+			} else if (4 == menu.current) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_UNPLAYED, -1);
+			}
+			n = menu.current - 5;
+			if (n >= 0 && n < gameTypeCnt) {
+				redraw_cover = 1;
+				filter_games_set(FILTER_GAME_TYPE, n);
+			}
+		}
+		
+		// HOME button
+		if (buttons & CFG.button_exit.mask) {
+			Handle_Home(0);
+		}
+		if (buttons & CFG.button_cancel.mask) break;
+	}
+	return 0;
+}
+
 int Menu_Sort()
 {
 	struct discHdr *header = NULL;
@@ -1182,7 +1383,7 @@ int Menu_Sort()
 	for (;n<sortCnt;n++)
 		descend[n] = 0;
 	struct Menu menu;
-	menu_init(&menu, sortCnt);
+	menu_init(&menu, sortCnt +1);
 	for (;;) {
 
 		menu.line_count = 0;
@@ -1206,6 +1407,9 @@ int Menu_Sort()
 			printf("%s", con_align(sortTypes[n].name,25));
 			printf("%s\n", !descend[n] ? gt("< ASC  >") : gt("< DESC >"));
 		}
+		MENU_MARK();
+		printf("%s ", (sort_index == n ? "*": " "));
+		printf("%s", con_align(gt("Duplicate ID3"),25));
 		DefaultColor();
 
 		printf("\n");
@@ -1240,6 +1444,14 @@ int Menu_Sort()
 					sort_index = n;
 				}
 			}
+			if (n == sortCnt){
+				sortList(__sort_id_asc);
+				filter_games_set(FILTER_DUPLICATE_ID3, -1);
+				redraw_cover = 1;
+				sort_index = n;
+
+			}
+			
 		}
 		
 		// HOME button

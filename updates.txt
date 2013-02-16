@@ -13,6 +13,37 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+
+release = 70r56
+size = 
+date = 2013-02-16
+-Added filter by Game Type
+-Moved filter wii, gamecube & channel into filter by Game Type
+-Added download of channel info in wiitdb
+-Added sort by Game ID
+-Added sort by duplicate ID3 (console mode only)
+-Fixed starting a channel wasnt updating playstats.txt
+-Fixed reading playstats.txt when game id is ID4
+-Fixed startup going to previous channel
+-Added genres to game info display
+
+
+release = 70r55
+size = 
+date = 2013-02-3
+-change the way channels are loaded
+
+release = 70r52 - 70r54
+size = 
+date = 2013-01-27
+-The jump was updated to better handle titles with multibyte first characters
+-Genre list updated
+-RPG genre fixed
+-fixed console menues for filter by genre, controler and online (when wii, gamecube & channel options were added the menu sizes werent updated which made a mess)
+-fixed missing begin end brackets when adding controllers to the filter by controller console menu
+-Moved console mode filter by online players from the filter by genre menu to the filter by online menu
+-Fixed back option getting overwritten on graphic filter menu when channels were added
+
 release = 70r51
 size = 1843616
 date = 2013-01-12

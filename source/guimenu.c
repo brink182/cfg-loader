@@ -1594,7 +1594,7 @@ void action_OpenSort(Widget *a_ww)
 	rr->val_ptr = &sort_index;
 	rr->action = action_sort_type;
 	// disable sort by install date on wbfs
-	wgui_set_inactive(wgui_link_get(rr, sortCnt-1), wbfs_part_fs == PART_FS_WBFS);
+	wgui_set_inactive(wgui_link_get(rr, sortCnt-2), wbfs_part_fs == PART_FS_WBFS);
 	pos_margin(dd, PAD3);
 	pos_newlines(dd, 2);
 	
@@ -1613,14 +1613,14 @@ void action_OpenSort(Widget *a_ww)
 
 Widget *r_filter_group;
 Widget *w_filter_page;
-Widget *r_filter[4];
+Widget *r_filter[5];
 
 void action_filter(Widget *ww)
 {
 	Widget *rr;
 	int i, r = -1, t;
 	rr = ww->link_first;
-	for (i=0; i<4; i++) {
+	for (i=0; i<5; i++) {		//must be the same size as r_filter
 		if (rr == r_filter[i]) {
 			r = i;
 		} else {
@@ -1639,11 +1639,11 @@ void action_filter(Widget *ww)
 			else t = FILTER_FEATURES;
 			break;
 		case 3:
+			t = FILTER_GAME_TYPE;
+			break;
+		case 4:
 			if (i == 0) t = FILTER_ALL;
 			else if(i == 1) t = FILTER_UNPLAYED;
-			else if(i == 2) t = FILTER_WII;
-			else if(i == 3) t = FILTER_GAMECUBE;
-			else t = FILTER_CHANNEL;
 			break;
 	}
 	filter_games_set(t, i);
@@ -1672,6 +1672,10 @@ char *get_filter_name(int type, int index)
 			return accessoryTypes[index][1];
 		case FILTER_FEATURES:
 			return featureTypes[index][1];
+		case FILTER_DUPLICATE_ID3:
+			return gt("Duplicate ID3");
+		case FILTER_GAME_TYPE:
+			return gameTypes[index][1];
 	}
 	return "-";
 }
@@ -1690,7 +1694,7 @@ void action_OpenFilter(Widget *a_ww)
 
 	// groups (tabs)
 	r_filter_group = rr = wgui_arrange_radio_a(dd, pos_w(SIZE_FULL),
-			3, 3, gt("Genre"), gt("Controller"), gt("Online"));
+			4, 4, gt("Genre"), gt("Controller"), gt("Online"), gt("Game Type"));
 
 	// Genre
 	pos_margin(dd, PAD1);
@@ -1727,12 +1731,21 @@ void action_OpenFilter(Widget *a_ww)
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
+	// Game Type 
+	pp = wgui_add_page(dd, page, pos_auto, NULL);
+	for (i=0; i<gameTypeCnt; i++) {
+		names[i] = gt(gameTypes[i][1]);
+	}
+	r_filter[3] = rr = wgui_arrange_radio(pp, pos_full, 3, gameTypeCnt, names);
+	wgui_radio_set(rr, -1);
+	rr->action = action_filter;
+
 	pos_margin(dd, PAD3);
 	pos_newline(dd);
 
 	// all, unplayed, wii, gamecube, channel, Back
-	pos_columns(dd, 6, SIZE_FULL);
-	r_filter[3] = rr = wgui_auto_radio_a(dd, 5, 5, gt("Show All"), gt("Unplayed"), gt("Wii"), gt("GameCube"), gt("Channel"));
+	pos_columns(dd, 3, SIZE_FULL);
+	r_filter[4] = rr = wgui_auto_radio_a(dd, 2, 2, gt("Show All"), gt("Unplayed"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
@@ -1749,14 +1762,12 @@ void action_OpenFilter(Widget *a_ww)
 		case FILTER_CONTROLLER:	r = 1;	break;
 		case FILTER_ONLINE:		r = 2;	i = 0;	break;
 		case FILTER_FEATURES:	r = 2;	i = filter_index + 1;	break;
-		case FILTER_ALL:		r = 3;	i = 0;	break;
-		case FILTER_UNPLAYED:	r = 3;	i = 1;	break;
-		case FILTER_WII:		r = 3;	i = 2;	break;
-		case FILTER_GAMECUBE:	r = 3;	i = 3;	break;
-		case FILTER_CHANNEL:	r = 3;	i = 4;	break;
+		case FILTER_GAME_TYPE:	r = 3;	break;
+		case FILTER_ALL:		r = 4;	i = 0;	break;
+		case FILTER_UNPLAYED:	r = 4;	i = 1;	break;
 	}
 	if (r >= 0) {
-		if (r < 3) wgui_set_value(r_filter_group, r);
+		if (r < 4) wgui_set_value(r_filter_group, r);
 		wgui_set_value(r_filter[r], i);
 	}
 }

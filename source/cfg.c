@@ -1211,7 +1211,7 @@ void CFG_Default()
 	//CFG.db_ignore_titles = 0;
 	//CFG.write_playlog = 0;
 	CFG.write_playstats = 1;
-	STRCOPY(CFG.db_url, "http://www.gametdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true&GAMECUBE=true");
+	STRCOPY(CFG.db_url, "http://www.gametdb.com/wiitdb.zip?LANG={DBL}&FALLBACK=true&GAMECUBE=true&WIIWARE=true");
 	STRCOPY(CFG.db_language, auto_cc());
 	STRCOPY(CFG.translation, getLang(CONF_GetLanguage()));
 	STRCOPY(CFG.sort, "title-asc");
@@ -3856,7 +3856,7 @@ int readPlayStats() {
 	if (!f) {
 		return -1;
 	}
-	while (fscanf(f, "%6s:%d:%ld\n", id, &count, &start) == 3) {
+	while (fscanf(f, "%[^:]:%d:%ld\n", id, &count, &start) == 3) {
 		if (n >= playStatsSize) {
 			playStatsSize++;
 			playStats = (struct playStat*)realloc(playStats, (playStatsSize * sizeof(struct playStat)));

@@ -4099,6 +4099,11 @@ void FmtGameInfoLong(u8 *id, int cols, char *game_desc, int size)
 	}
 	if (n) strappend(game_desc, "]", size);
 	strappend(game_desc, "\n", size);
+	// genre
+	if (strcmp(g->genre,"") != 0) {
+		strappend(game_desc, g->genre, size);
+		strappend(game_desc, "\n", size);
+		}	
 	// synopsis
 	if (g->synopsis) {
 		strappend(game_desc, "\n", size);
@@ -4463,6 +4468,11 @@ L_repaint:
 	printf("\n\n");
 	
 	if (header->magic == CHANNEL_MAGIC) {
+
+		get_time(&TIME.playstat1);
+		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
+		get_time(&TIME.playstat2);
+
 		cfg_ios_set_idx(CFG.game.ios_idx);
 		char args[255][255] = {{"\0"}};
 		int i = 0;

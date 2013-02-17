@@ -15,15 +15,17 @@ metaxml=</app>
 
 
 
-release = 70r57
-size = 
+Unreleased = 70r58
+date = 2013-02-17
+-fixed updates.txt so unreleased updates dont show up for download
+
+Unreleased = 70r57
 date = 2013-02-17
 -Fixed loading an empty entry in the game list for each channel
 -Fixed reading game options for id4
 -Fixed 3 channels being loaded on the channel list that shouldnt
 
-release = 70r56
-size = 
+Unreleased = 70r56
 date = 2013-02-16
 -Added filter by Game Type
 -Moved filter wii, gamecube & channel into filter by Game Type
@@ -35,13 +37,11 @@ date = 2013-02-16
 -Fixed startup going to previous channel
 -Added genres to game info display
 
-release = 70r55
-size = 
+Unreleased = 70r55
 date = 2013-02-3
 -change the way channels are loaded
 
-release = 70r52 - 70r54
-size = 
+Unreleased = 70r52 - 70r54
 date = 2013-01-27
 -The jump was updated to better handle titles with multibyte first characters
 -Genre list updated

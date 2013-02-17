@@ -2971,7 +2971,7 @@ struct Game_CFG_2* CFG_find_game(u8 *id)
 {
 	int i;
 	for (i=0; i<num_cfg_game; i++) {
-		if (memcmp(id, cfg_game[i].id, 6) == 0) {
+		if (strncmp((char*)id, (char*)cfg_game[i].id, 6) == 0) {
 			return &cfg_game[i];
 		}
 	}
@@ -3033,8 +3033,8 @@ void game_set(char *name, char *val)
 	u8 id[8];
 	struct Game_CFG_2 *game;
 	if (strncmp(name, "game:", 5) != 0) return;
-	trimcopy((char*)id, name+5, sizeof(id)); 
-	if (strlen((char*)id) != 6) return;
+	split_token((char*)id, name+5, ' ', sizeof(id)); 
+	if ((strlen((char*)id) != 6) && (strlen((char*)id) != 4)) return;
 	game = CFG_get_game(id);
 	// set id and current options as default
 	cfg_init_game(game, id);

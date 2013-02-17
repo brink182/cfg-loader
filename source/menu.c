@@ -322,6 +322,24 @@ void Setup_NandEmu(u8 NandEmuMode, const char *NandEmuPath)
 	}
 }
 
+
+bool unwanted_channel(const char *d_name)
+{
+	if (!strncmp(d_name, ".", 1)			// current directory
+	 || !strncmp(d_name, "..", 2)			// previous directory
+	 || !strncmp(d_name, "48414141", 8)	// H A A A Photo channel 1.0
+	 || !strncmp(d_name, "af1bf516", 8)	// B o o t M i i
+	 || !strncmp(d_name, "4a4f4449", 8)	// J O D I home brew channel
+	 || !strncmp(d_name, "48415858", 8)	// H A X X home brew channel
+	 || !strncmp(d_name, "55435846", 8)	// U C X F cfg loader forwarder
+	 || !strncmp(d_name, "4d415549", 8)	// M A U I backup homebrew channel
+	 || !strncmp(d_name, "4e454f47", 8)	// N E O G backup disk channel
+										)
+		return true;
+	 else
+		return false;
+}
+
 s32 get_channel_list(void *outbuf, u32 size) 
 {
 	s32 ret = 0;
@@ -343,7 +361,7 @@ s32 get_channel_list(void *outbuf, u32 size)
 		if (entry)
 		{
 			sprintf(path_buffer, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
-			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2) || !strncmp(entry->d_name, "48414141", 8) || !strncmp(entry->d_name, "af1bf516", 8) || !strncmp(entry->d_name, "4a4f4449", 8) || !strncmp(entry->d_name, "48415858", 8))
+			if (unwanted_channel(entry->d_name))
  			{
 				continue;
  			}
@@ -352,7 +370,6 @@ s32 get_channel_list(void *outbuf, u32 size)
 			if (fp)
 			{
 				fread(buffer, 1, 0x1E4+4, fp);
-				ret++;
 				fclose(fp);
 				u32 bannerContent = 0;
 				memcpy(&bannerContent, buffer+0x1E4, 4);
@@ -404,7 +421,7 @@ s32 get_channel_list_cnt()
 		if (entry)
 		{
 			sprintf(path_buffer, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
-			if (!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2) || !strncmp(entry->d_name, "48414141", 8) || !strncmp(entry->d_name, "af1bf516", 8) || !strncmp(entry->d_name, "4a4f4449", 8) || !strncmp(entry->d_name, "48415858", 8))
+			if (unwanted_channel(entry->d_name))
  			{
 				continue;
  			}
@@ -413,7 +430,6 @@ s32 get_channel_list_cnt()
 			if (fp)
 			{
 				fread(buffer, 1, 0x1E4+4, fp);
-				ret++;
 				fclose(fp);
 				u32 bannerContent = 0;
 				memcpy(&bannerContent, buffer+0x1E4, 4);

@@ -14,6 +14,14 @@ metaxml=</long_description>
 metaxml=</app>
 
 
+
+release = 70r57
+size = 
+date = 2013-02-17
+-Fixed loading an empty entry in the game list for each channel
+-Fixed reading game options for id4
+-Fixed 3 channels being loaded on the channel list that shouldnt
+
 release = 70r56
 size = 
 date = 2013-02-16
@@ -26,7 +34,6 @@ date = 2013-02-16
 -Fixed reading playstats.txt when game id is ID4
 -Fixed startup going to previous channel
 -Added genres to game info display
-
 
 release = 70r55
 size = 

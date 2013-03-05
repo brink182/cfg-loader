@@ -360,7 +360,7 @@ s32 get_channel_list(void *outbuf, u32 size)
 		entry = readdir(sdir);
 		if (entry)
 		{
-			sprintf(path_buffer, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
+//			sprintf(path, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
 			if (unwanted_channel(entry->d_name))
  			{
 				continue;
@@ -384,9 +384,9 @@ s32 get_channel_list(void *outbuf, u32 size)
 					//strncpy(channel->path, path, strlen(path));
 					u32 title_low = TITLE_LOW(strtol(entry->d_name,NULL,16));
 					memcpy(channel->id, &title_low, sizeof(u32));
-					//char *name = get_name(TITLE_ID(0x00010001, title_low));
-					strncpy(channel->title, (char*)channel->id, strlen((char*)channel->id));
-					//SAFE_FREE(name);
+					char *name = get_name(TITLE_ID(0x00010001, title_low));
+					strncpy(channel->title, name, sizeof(channel->title));
+					SAFE_FREE(name);
 					
 					ret++;
 					fclose(fp);
@@ -394,7 +394,7 @@ s32 get_channel_list(void *outbuf, u32 size)
 			}
 		}
 	} while (entry);
-	closedir(sdir);
+	if (sdir) closedir(sdir);
 
 	SAFE_FREE(buffer);
 	return ret;
@@ -420,7 +420,6 @@ s32 get_channel_list_cnt()
 		entry = readdir(sdir);
 		if (entry)
 		{
-			sprintf(path_buffer, "%s/title/00010001/%s", CFG.nand_emu_path, entry->d_name);
 			if (unwanted_channel(entry->d_name))
  			{
 				continue;
@@ -443,7 +442,7 @@ s32 get_channel_list_cnt()
 			}
 		}
 	} while (entry);
-	closedir(sdir);
+	if (sdir) closedir(sdir);
 
 	SAFE_FREE(buffer);
 	return ret;
@@ -850,7 +849,7 @@ void Switch_Favorites(bool enable)
 	// find game selected
 	gameStart = 0;
 	gameSelected = 0;
-	for (i=0; i<gameCnt; i++) {
+	if (id) for (i=0; i<gameCnt; i++) {
 		if (strncmp((char*)gameList[i].id, (char*)id, 6) == 0) {
 			gameSelected = i;
 			break;
@@ -1040,10 +1039,14 @@ void Menu_GameInfoStr2(struct discHdr *header, char *str, u64 comp_size, u64 rea
 	// req. ios
 	tmd game_tmd;
 	memset(&game_tmd, 0, sizeof(game_tmd));
-	wbfs_disc_t* d = WBFS_OpenDisc(header->id);
-	if (d) {
-		size = wbfs_extract_tmd(d, &game_tmd);
-		WBFS_CloseDisc(d);
+	if (header->magic == CHANNEL_MAGIC) {
+		game_tmd.sys_version = getChannelReqIos(header); //store channel ios directly in sys_version for compatability
+	} else {
+		wbfs_disc_t* d = WBFS_OpenDisc(header->id);
+		if (d) {
+			size = wbfs_extract_tmd(d, &game_tmd);
+			WBFS_CloseDisc(d);
+		}
 	}
 	if (game_tmd.sys_version) {
 		s += strlen(s);
@@ -3590,6 +3593,7 @@ void Menu_Install(void)
 	static struct discHdr header ATTRIBUTE_ALIGN(32);
 
 	s32 ret;
+	int i;
 
 #ifdef FAKE_GAME_LIST
 	fake_games++;
@@ -3763,9 +3767,8 @@ void Menu_Install(void)
 
 		printf_x(gt("Installing game, please wait..."));
 		printf("\n\n");
-		Disc_DumpGCGame(installDevice == WBFS_DEVICE_SDHC);
-		__Menu_GetEntries();
-		goto out;
+		ret = Disc_DumpGCGame(installDevice == WBFS_DEVICE_SDHC);
+		goto out_did_install;	//join common code after tried installing 
 	}
 	
 	// GC installing is ok, Wii won't work because no HDD is mounted
@@ -3878,6 +3881,8 @@ void Menu_Install(void)
 	/* Install game */
 	ret = WBFS_AddGame();
 
+out_did_install:
+
 	// UnPause the music
 	Music_UnPause();
 
@@ -3889,6 +3894,14 @@ void Menu_Install(void)
 
 	/* Reload entries */
 	__Menu_GetEntries();
+	
+	/* Set just installed game as selected */
+	for (i=0; i<gameCnt; i++) {
+		if (strncmp((char*)gameList[i].id, (char*)header.id, 6) == 0) {
+			gameSelected = i;
+			break;
+		}
+	}
 
 	/* Turn on the Slot Light */
 	wiilight(1);
@@ -3922,6 +3935,7 @@ out:
 	} else if (!coversdone && (buttons & CFG.button_other.mask)) {
 		Download_Cover((char *)header.id, true, true);
 		coversdone = true;
+		Gui_DrawCover(header.id);
 		goto out;
 	}
 out2:
@@ -4414,10 +4428,14 @@ L_repaint:
 		} else {
 			tmd game_tmd;
 			memset(&game_tmd, 0, sizeof(game_tmd));
-			wbfs_disc_t* d = WBFS_OpenDisc(header->id);
-			if (d) {
-				wbfs_extract_tmd(d, &game_tmd);
-				WBFS_CloseDisc(d);
+			if (header->magic == CHANNEL_MAGIC) {
+				game_tmd.sys_version = getChannelReqIos(header); //store channel ios directly in sys_version for compatability
+			} else {
+				wbfs_disc_t* d = WBFS_OpenDisc(header->id);
+				if (d) {
+					wbfs_extract_tmd(d, &game_tmd);
+					WBFS_CloseDisc(d);
+				}
 			}
 			if (game_tmd.sys_version) {
 				set_recommended_cIOS_idx(TITLE_LOW(game_tmd.sys_version), false);

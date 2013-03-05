@@ -795,7 +795,7 @@ void Download_XML()
 	printf_x(gt("Downloading database."));
 	printf("\n");
 	printf_("%s\n", zipurl);
-
+//goto skip_download;
 	printf_("[.");
 	struct block file = downloadfile_progress(zipurl, 64);
 	printf("]\n");
@@ -834,15 +834,18 @@ void Download_XML()
 	remove(tmppath);
 	rename(currentzippath, tmppath);
 	rename(zippath, currentzippath);
-
+//skip_download:
 	if (ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0)) {
 		printf_(gt("Database update successful."));
 		printf("\n");
 	} else {
 		// revert to the previous file
-		remove(currentzippath);
-		rename(tmppath, currentzippath);
-		ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0);
+// TODO File is to big to load on the fly need to free up 1 meg in mem2
+// their is enough memory to load it on startup
+// and it already displays a message telling user to restart to use the new file
+//		remove(currentzippath);
+//		rename(tmppath, currentzippath);
+//		ReloadXMLDatabase(USBLOADER_PATH, CFG.db_language, 0);
 		printf_(gt("Error opening database, update did not complete."));
 		printf("\n");
 		goto dl_err;

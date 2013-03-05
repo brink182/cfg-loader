@@ -29,6 +29,7 @@
 #include "dol.h"
 #include "gc.h"
 #include "savegame.h"
+#include "channel.h"
 
 typedef void (*entrypoint) (void);
 
@@ -1151,6 +1152,8 @@ void banner_parse(struct discHdr *header)
 	banner.parsed = false;
 	if (wgame.header->magic == GC_GAME_ON_DRIVE) {
 		parse_riff(&gc_wav, &banner.snd);
+	} else if (wgame.header->magic == CHANNEL_MAGIC) {
+		CHANNEL_Banner(header, &banner.snd);
 	} else {
 		WBFS_Banner(header->id, &banner.snd, banner.title, true, true);
 	}

@@ -591,14 +591,16 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 	int i, len;
 	int ret = 0;
 	u8 *id = NULL;
+
+	// remember the selected game before we change the list
+	if (gameSelected >= 0 && gameSelected < gameCnt) {
+		id = gameList[gameSelected].id;
+	}
 	// filter
 	if (filter_gameList) {
 		len = sizeof(struct discHdr) * all_gameCnt;
 		memcpy(filter_gameList, all_gameList, len);
 		filter_gameCnt = filter(filter_gameList, all_gameCnt, name, num);
-	}
-	if (gameSelected >= 0 && gameSelected < gameCnt) {
-		id = gameList[gameSelected].id;
 	}
 	//if (filter_gameCnt > 0) {
 		gameList = filter_gameList;

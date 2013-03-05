@@ -39,6 +39,8 @@ char *get_name_from_banner_buffer(u8 *buffer)
 		i++;
 	}
 	length = i;
+	if (length == 0)
+		return NULL;
 	out = allocate_memory(length+12);
 	if(out == NULL)
 	{
@@ -93,6 +95,7 @@ char *read_name_from_banner_app(u64 titleid)
 			filesize = ftell(fp);
 			fseek (fp, 0, SEEK_SET);
 			dbg_printf("filesize = %d\n", filesize);
+			filesize = 0x640;		//dont need whole file first sector is more than enough
 			buffer = mem2_alloc(filesize);
 			fread(buffer, 1, filesize, fp);
 			dbg_printf("fclose\n");
@@ -105,17 +108,19 @@ char *read_name_from_banner_app(u64 titleid)
 				if (out == NULL)
 				{
 					SAFE_FREE(buffer);
+					closedir(sdir);
 					return NULL;
 				}
 			   
 				SAFE_FREE(buffer);
-			   
+				closedir(sdir);
 				return out;
 			}
 			SAFE_FREE(buffer);
 		}
 	} while (entry);
-   
+
+	if (sdir) closedir(sdir);
 	dbg_printf("read_name_from_banner_app END\n");
 	return NULL;
 }
@@ -135,9 +140,7 @@ char *read_name_from_banner_bin(u64 titleid)
 		return NULL;
 	}
 	
-	fseek (fp, 0, SEEK_END);
-	filesize = ftell(fp);
-	fseek (fp, 0, SEEK_SET);
+	filesize = 0xff;		//dont need whole file first sector is more than enough
 	buffer = mem2_alloc(filesize);
 	fread(buffer, 1, filesize, fp);
 	fclose (fp);
@@ -145,18 +148,18 @@ char *read_name_from_banner_bin(u64 titleid)
 	char *out = get_name_from_banner_buffer(buffer);
 	if (out == NULL)
 	{
-		free(buffer);
+		SAFE_FREE(buffer);
 		return NULL;
 	}
        
-	free(buffer);
+	SAFE_FREE(buffer);
 
 	return out;            
 }
 
 char *get_name(u64 titleid)
 {
-	char *temp;
+	char *temp = NULL;
 	u32 low;
 	low = TITLE_LOW(titleid);
 
@@ -233,13 +236,17 @@ int CHANNEL_Banner(struct discHdr *hdr, SoundInfo *snd)
    
 	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x/data/banner.bin", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
  
-	fp = fopen(path_buffer, "rb");
-    if (fp == NULL)
-    {
-		sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x/content", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
-		
-		sdir = opendir(path_buffer);
-		if (sdir) do {
+// 	TODO banner.bin appears to never have the required audio info someone else fix the code if it does
+//	until then changed it to always get the banner sound from the content dir
+//	instead of just when banner.bin dosent exist
+//	fp = fopen(path_buffer, "rb");
+//  if (fp == NULL)
+//    {
+	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x/content", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
+	
+	sdir = opendir(path_buffer);
+	if (sdir) {
+		do {
 			entry = readdir(sdir);
 			if (entry)
 			{
@@ -258,27 +265,35 @@ int CHANNEL_Banner(struct discHdr *hdr, SoundInfo *snd)
 				fseek (fp, 0, SEEK_END);
 				filesize = ftell(fp);
 				fseek (fp, 0, SEEK_SET);
+				buffer = mem2_alloc(filesize);
+				if (buffer == NULL)
+				{
+					fclose (fp);
+					continue;	//skip files bigger than memory
+				}
 				fread(buffer, 1, filesize, fp);
 				fclose (fp);
 				
 				if (memcmp((buffer+0x80), imet, 4) == 0)
 				{
-					banner = mem2_alloc(filesize-208);
-					memcpy(banner, buffer+208, filesize-208);
+					banner = mem2_alloc(filesize-0x40);
+					memcpy(banner, buffer+0x40, filesize-0x40);
 					SAFE_FREE(buffer);
 					break;
 				}
 				SAFE_FREE(buffer);
 			}
 		} while (entry);
-	} else {
-		fseek (fp, 0, SEEK_END);
-		filesize = ftell(fp);
-		fseek (fp, 0, SEEK_SET);
-		banner = mem2_alloc(filesize);
-		fread(banner, 1, filesize, fp);
-		fclose (fp);
+	closedir(sdir);
 	}
+//	} else {
+//		fseek (fp, 0, SEEK_END);
+//		filesize = ftell(fp);
+//		fseek (fp, 0, SEEK_SET);
+//		banner = mem2_alloc(filesize);
+//		fread(banner, 1, filesize, fp);
+//		fclose (fp);
+//	}
 
 	parse_banner_snd(banner, snd);
 	SAFE_FREE(banner);
@@ -290,4 +305,18 @@ u64 getChannelSize(struct discHdr *hdr) {
 	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x/content", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
 	
 	return fsop_GetFolderBytes(path_buffer);
+}
+
+u64 getChannelReqIos(struct discHdr *hdr) {
+	u64 ReqIos = 0;
+	static char path_buffer[255] ATTRIBUTE_ALIGN(32);
+
+	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x/content/title.tmd", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
+	FILE *fp = fopen(path_buffer, "rb");
+	if (fp) {
+		fseek(fp, 0x184 , SEEK_SET);
+		fread(&(ReqIos), 8, 1, fp);
+		fclose(fp);
+	}
+	return ReqIos;
 }

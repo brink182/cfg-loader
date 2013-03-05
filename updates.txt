@@ -15,6 +15,18 @@ metaxml=</app>
 
 
 
+Unreleased = 70r59
+date = 2013-03-5
+-Added Channel banner sound
+-Added display of Channel Req ios
+-Added auto ios selection for channels. Auto used to always select ios 249 that may work better.
+-Changed installing a game to display the cover if downloaded
+-Changed installing a game to  return to the game just installed
+-Fixed crash after filtering to no games then switching favorites,  switching profiles, unlocking admin or installing a game
+-Added reading names out of channel files
+-Fixed loading channels not closing directories properly
+-Cleaned up Updates.txt
+
 Unreleased = 70r58
 date = 2013-02-17
 -fixed updates.txt so unreleased updates dont show up for download
@@ -43,11 +55,11 @@ date = 2013-02-3
 
 Unreleased = 70r52 - 70r54
 date = 2013-01-27
--The jump was updated to better handle titles with multibyte first characters
--Genre list updated
--RPG genre fixed
--fixed console menues for filter by genre, controler and online (when wii, gamecube & channel options were added the menu sizes werent updated which made a mess)
--fixed missing begin end brackets when adding controllers to the filter by controller console menu
+-Added Jump Feature (updated to better handle titles with multibyte first characters)
+-Added more Genre filters
+-Fixed RPG genre
+-Fixed console menues for filter by genre, controler and online (when wii, gamecube & channel options were added the menu sizes werent updated which made a mess)
+-Fixed missing begin end brackets when adding controllers to the filter by controller console menu
 -Moved console mode filter by online players from the filter by genre menu to the filter by online menu
 -Fixed back option getting overwritten on graphic filter menu when channels were added
 
@@ -55,15 +67,11 @@ release = 70r51
 size = 1843616
 date = 2013-01-12
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr51.dol
--create plugins folder
-when not exist
+-create plugins folder when not exist
 -changed button color
--wbfs folder is now
-configurable
--added DM 2.5 screenshot
-setting
--improved devolution 
-launch
+-wbfs folder is now configurable
+-added DM 2.5 screenshot setting
+-improved devolution launch
 -added new filters
 -improved mighty plugin
 
@@ -75,8 +83,7 @@ url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr50.dol
 -added mighty plugin
 -added LULZ HBC support
 -fixed devolution launch
--added more cheat paths
-for gc games
+-added more cheat paths for gc games
 
 release = 70r49
 size = 1884768
@@ -84,18 +91,17 @@ date = 2012-10-29
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr49.dol
 -changed button color
 -fixed bug which could
-break cover downloading
+ break cover downloading
 
 release = 70r48
 size = 1891808
 date = 2012-09-09
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr48.dol
 -fixed bug which could
-delete GC games at boot
+ delete GC games at boot
 -improved devolution launch 
--removed some informations
-from console menu to make
-it usable again
+-removed some informations from
+ console menu to make it usable again
 
 release = 70r47
 size = 1891744
@@ -118,8 +124,7 @@ url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr46.dol
 -added savegame dumping
 -added force devolution option
 -added devolution, DIOS MIOS
-and emu nand info to
-info menu
+ and emu nand info to info menu
 -some fixes
 
 release = 70r45
@@ -143,7 +148,7 @@ date = 2012-08-12
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr43.dol
 -fixed DIOS MIOS Lite detection
 -aborts copying when destination
-drive/partition is not connected
+ drive/partition is not connected
 
 release = 70r42
 size = 1828448

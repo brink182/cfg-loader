@@ -826,6 +826,11 @@ void Switch_Favorites(bool enable)
 {
 	int i, len;
 	u8 *id = NULL;
+
+	// remember the selected game before we change the list
+	if (gameSelected < gameCnt) {
+		id = gameList[gameSelected].id;
+	}
 	// filter
 	if (fav_gameList) {
 		len = sizeof(struct discHdr) * all_gameCnt;
@@ -835,9 +840,7 @@ void Switch_Favorites(bool enable)
 	// switch
 	//printf("fav %d %p %d\n", enable, fav_gameList, fav_gameCnt); sleep(5);
 	if (fav_gameList == NULL || fav_gameCnt == 0) enable = false;
-	if (gameSelected < gameCnt) {
-		id = gameList[gameSelected].id;
-	}
+
 	if (enable) {
 		gameList = fav_gameList;
 		gameCnt = fav_gameCnt;
@@ -1008,9 +1011,11 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 	*comp_size = 0;
 	*real_size = 0;
 	
+	if (header->magic == CHANNEL_MAGIC) {
+		*comp_size = *real_size = getChannelSize(header);
+		return;
+	}
 	*comp_size = *real_size = getDMLGameSize(header);
-	if (*comp_size > 0) return;
-	*comp_size = *real_size = getChannelSize(header);
 	if (*comp_size > 0) return;
 
 	/* Get game size */
@@ -1831,6 +1836,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (tempSize > 0) {
 				size = (float)tempSize / 1024.0 / 1024.0 / 1024.0;
 			}
+		}
+		else if (header->magic == CHANNEL_MAGIC) {
+			size = (float)getChannelSize(header) / 1024.0 / 1024.0 / 1024.0;
 		}
 		else 
 		{
@@ -3989,6 +3997,8 @@ void Menu_Remove(void)
 	/* Remove game */
 	if (header->magic == GC_GAME_ON_DRIVE) {
 		ret = DML_RemoveGame(*header);
+	} else if (header->magic == CHANNEL_MAGIC) {
+		ret = Channel_RemoveGame(header);
 	} else {
 		ret = WBFS_RemoveGame(header->id);
 		if (ret < 0) {

@@ -15,6 +15,12 @@ metaxml=</app>
 
 
 
+Unreleased = 70r60
+date = 2013-03-20
+-Added Channel delete
+-Fixed Channel size display
+-Fixed Filters working within favorites
+
 Unreleased = 70r59
 date = 2013-03-5
 -Added Channel banner sound
@@ -26,6 +32,7 @@ date = 2013-03-5
 -Added reading names out of channel files
 -Fixed loading channels not closing directories properly
 -Cleaned up Updates.txt
+-Commented out reverting back to a previous gametdb.zip when downloading an update and their isnt enough memory to install it. About a meg of memory in mem2 needs to be freed up for it to work on the fly again. restarting as it already instructs works fine.
 
 Unreleased = 70r58
 date = 2013-02-17

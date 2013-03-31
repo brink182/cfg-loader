@@ -302,7 +302,7 @@ int CHANNEL_Banner(struct discHdr *hdr, SoundInfo *snd)
 
 u64 getChannelSize(struct discHdr *hdr) {
 	static char path_buffer[255] ATTRIBUTE_ALIGN(32);
-	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x/content", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
+	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
 	
 	return fsop_GetFolderBytes(path_buffer);
 }
@@ -320,3 +320,16 @@ u64 getChannelReqIos(struct discHdr *hdr) {
 	}
 	return ReqIos;
 }
+
+s32 Channel_RemoveGame(struct discHdr *hdr) {
+	static char path_buffer[255] ATTRIBUTE_ALIGN(32);
+
+	sprintf(path_buffer, "%s/ticket/00010001/%02x%02x%02x%02x.tik", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
+	remove(path_buffer);
+
+	sprintf(path_buffer, "%s/title/00010001/%02x%02x%02x%02x", CFG.nand_emu_path, hdr->id[0], hdr->id[1], hdr->id[2], hdr->id[3]);
+	fsop_deleteFolder(path_buffer);
+	
+	return 0;
+}
+

@@ -20,8 +20,10 @@
 extern struct discHdr *all_gameList;
 extern struct discHdr *gameList;
 extern struct discHdr *filter_gameList;
+extern struct discHdr *fav_gameList;
 extern bool enable_favorite;
 extern s32 filter_gameCnt;
+extern s32 fav_gameCnt;
 
 s32 filter_index = -1;
 s32 filter_type = -1;
@@ -599,8 +601,14 @@ int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * nam
 	// filter
 	if (filter_gameList) {
 		len = sizeof(struct discHdr) * all_gameCnt;
-		memcpy(filter_gameList, all_gameList, len);
-		filter_gameCnt = filter(filter_gameList, all_gameCnt, name, num);
+		if (enable_favorite){
+			memcpy(filter_gameList, fav_gameList, len);
+			filter_gameCnt = filter(filter_gameList, fav_gameCnt, name, num);
+		}
+		else {
+			memcpy(filter_gameList, all_gameList, len);
+			filter_gameCnt = filter(filter_gameList, all_gameCnt, name, num);
+		}
 	}
 	//if (filter_gameCnt > 0) {
 		gameList = filter_gameList;
@@ -643,8 +651,14 @@ void showAllGames(void)
 	if (gameSelected >= 0 && gameSelected < gameCnt) {
 		id = gameList[gameSelected].id;
 	}
-	gameList = all_gameList;
-	gameCnt = all_gameCnt;
+	if (enable_favorite){
+		gameList = fav_gameList;
+		gameCnt = fav_gameCnt;
+	}
+	else {
+		gameList = all_gameList;
+		gameCnt = all_gameCnt;
+	}
 	// find game selected
 	gameStart = 0;
 	gameSelected = 0;

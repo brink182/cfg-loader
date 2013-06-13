@@ -384,7 +384,7 @@ s32 get_channel_list(void *outbuf, u32 size)
 					//strncpy(channel->path, path, strlen(path));
 					u32 title_low = TITLE_LOW(strtol(entry->d_name,NULL,16));
 					memcpy(channel->id, &title_low, sizeof(u32));
-					char *name = get_name(TITLE_ID(0x00010001, title_low));
+					char *name = get_channel_name(TITLE_ID(0x00010001, title_low),fp);
 					strncpy(channel->title, name, sizeof(channel->title));
 					SAFE_FREE(name);
 					
@@ -404,47 +404,26 @@ s32 get_channel_list_cnt()
 {	
 	s32 ret = 0;
 	
-	static char path_buffer[255] ATTRIBUTE_ALIGN(32);
 	struct dirent *entry;
 	
-	FILE *fp;
 	DIR *sdir;
-	
-	u8 *buffer = allocate_memory(0x1E4+4);
 	
 	char gamePath[255];
 	sprintf(gamePath, "%s/title/00010001", CFG.nand_emu_path);
+	dbg_printf("\nSearching channel games in %s ...\n", gamePath);
 	sdir = opendir(gamePath);
 	if (sdir) do
 	{
 		entry = readdir(sdir);
 		if (entry)
 		{
-			if (unwanted_channel(entry->d_name))
- 			{
-				continue;
- 			}
-			sprintf(path_buffer, "%s/title/00010001/%s/content/title.tmd", CFG.nand_emu_path, entry->d_name);
-			fp = fopen(path_buffer, "rb");
-			if (fp)
-			{
-				fread(buffer, 1, 0x1E4+4, fp);
-				fclose(fp);
-				u32 bannerContent = 0;
-				memcpy(&bannerContent, buffer+0x1E4, 4);
-				sprintf(path_buffer, "%s/title/00010001/%s/content/%08x.app", CFG.nand_emu_path, entry->d_name, bannerContent);
-				fp = fopen(path_buffer, "rb");
-				if (fp)
-				{
-					ret++;
-					fclose(fp);
-				}
-			}
-		}
+			ret++;	//assume if the dir is their that it is a valid channel
+					//No need to actually open the files here will be done during the actual load
+					//This is much faster but uses slightly more mem while loading		
+		}		
 	} while (entry);
 	if (sdir) closedir(sdir);
 
-	SAFE_FREE(buffer);
 	return ret;
 }
 
@@ -700,7 +679,7 @@ s32 __Menu_GetEntries(void)
 	struct discHdr *dmlBuffer = NULL;
 	struct discHdr *channelBuffer = NULL;
 
-	u32 cnt, len = 0;
+	u32 cnt = 0, len = 0;
 	s32 ret = 0;
 	
 	s32 dml = 0;
@@ -3741,7 +3720,7 @@ void Menu_Install(void)
 			SD_DiskSpace(&used, &free);
 		}
 		total = used + free;
-		printf_x("sd: ");
+		printf_x(installDevice == WBFS_DEVICE_USB ? "usb: " : "sd: ");
 		printf(gt("%.1fGB free of %.1fGB"), free, total);
 		printf("\n\n");
 

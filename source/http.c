@@ -86,12 +86,17 @@ struct block read_message(s32 connection, const char *fname)
 	int progress_count = 0;
 
 	if(buffer.data == NULL) {
+		SAFE_FREE(buffer_found);
 		return emptyblock;
 	}
 	
 	if (fname != NULL)
 	{
-		if ((f = fopen(fname,"wb")) == NULL) return emptyblock;
+		if ((f = fopen(fname,"wb")) == NULL) {
+			SAFE_FREE(buffer_found);
+			SAFE_FREE(buffer.data);
+			return emptyblock;
+			}
 	}
 
 	//The offset variable always points to the first byte of memory that is free in the buffer
@@ -113,6 +118,8 @@ struct block read_message(s32 connection, const char *fname)
 		{
 			printf(gt("Connection error from net_read()  Errorcode: %i"), bytes_read);
 			printf("\n");
+			SAFE_FREE(buffer_found);
+			SAFE_FREE(buffer.data);
 			return emptyblock;
 		}
 		
@@ -159,6 +166,7 @@ struct block read_message(s32 connection, const char *fname)
 			
 			if(buffer.data == NULL)
 			{
+				SAFE_FREE(buffer_found);
 				return emptyblock;
 			}
 		}
@@ -304,14 +312,15 @@ struct block downloadfile_fname(const char *url, const char *fname)
 	unsigned char *filestart = NULL;
 	u32 filesize = 0;
 	int i;
-	for(i = 0; i < response.size-3; i++)
-	{
-		if (memcmp(response.data+i, "\r\n\r\n", 4) == 0) {
-			filestart = response.data + i + 4;
-			filesize = response.size - i - 4;
-			break;
+	if (response.size > 3)			//need at least the 4 chars we are trying to match
+		for(i = 0; i < response.size-3; i++)
+		{
+			if (memcmp(response.data+i, "\r\n\r\n", 4) == 0) {
+				filestart = response.data + i + 4;
+				filesize = response.size - i - 4;
+				break;
+			}
 		}
-	}
 	
 	if(filestart == NULL)
 	{

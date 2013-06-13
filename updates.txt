@@ -15,6 +15,14 @@ metaxml=</app>
 
 
 
+Unreleased = 70r61
+date = 2013-06-13
+-Fixed DML copying from NTFS to sd Estimated time remaining and size
+-Improved time for copying gamecube games from ntfs to sd by 29% for DML
+-Fixed Crash when selecting skip wbfs mounting
+-Fixed downloading covers with "N" as the region code
+-Improved channel loading into the game list time by 50%
+
 Unreleased = 70r60
 date = 2013-03-20
 -Added Channel delete

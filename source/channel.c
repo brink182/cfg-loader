@@ -58,6 +58,33 @@ char *get_name_from_banner_buffer(u8 *buffer)
 	return out;
 }
 
+char *read_name_from_open_banner_app_file(FILE *fp)
+{
+	u8 *buffer = NULL;
+	u32 filesize;
+	
+	u8 imet[4] = {0x49, 0x4D, 0x45, 0x54};
+	
+	if (fp == NULL)
+	{
+		return NULL;
+	}
+	
+	filesize = 0x640;		//dont need whole file first sector is more than enough
+	buffer = mem2_alloc(filesize);
+	fread(buffer, 1, filesize, fp);
+	
+	if (memcmp((buffer+0x80), imet, 4) == 0)
+	{
+		char *out = get_name_from_banner_buffer((void *)((u32)buffer+208));
+		SAFE_FREE(buffer);
+		return out;
+	}
+
+	SAFE_FREE(buffer);
+	return NULL;
+}
+
 char *read_name_from_banner_app(u64 titleid)
 {
 	u8 *buffer = NULL;
@@ -157,15 +184,18 @@ char *read_name_from_banner_bin(u64 titleid)
 	return out;            
 }
 
-char *get_name(u64 titleid)
+//	fp is an already open app file containing the name which is much faster or it may be NULL 
+char *get_channel_name(u64 titleid, FILE *fp)
 {
 	char *temp = NULL;
 	u32 low;
 	low = TITLE_LOW(titleid);
 
 	// TODO
-	dbg_printf("Getting the name for: %08x...\n", titleid);
-	temp = read_name_from_banner_bin(titleid);
+//	dbg_printf("Getting the name for: %08x...\n", titleid);
+	temp = read_name_from_open_banner_app_file(fp);
+	if (temp == NULL)
+		temp = read_name_from_banner_bin(titleid);
 	if (temp == NULL)
 	{
 		dbg_printf("read_name_from_banner_bin failed...\n");
@@ -214,7 +244,7 @@ char *get_name(u64 titleid)
 		memset(temp, 0, 6);
 		memcpy(temp, (char *)(&low), 4);
 	}
-	dbg_printf("Found name: %s...\n", temp);
+//	dbg_printf("Found name: %s...\n", temp);
 	return temp;
 }
 

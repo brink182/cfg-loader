@@ -25,23 +25,26 @@ en exposed s_fsop fsop structure can be used by callback to update operation sta
 #include "video.h"
 #include "gettext.h"
 #include "util.h"
+#include "wpad.h"
 
 #define SET(a, b) a = b; DCFlushRange(&a, sizeof(a));
 #define STACKSIZE 8192
 
 static u8 *buff = NULL;
 static FILE *fs = NULL, *ft = NULL;
-static u32 block = 32768;
+static u32 block = 65536 * 8;
 static u32 blockIdx = 0;
 static u32 blockInfo[2] = {0,0};
 static u32 blockReady = 0;
 static u32 stopThread;
 static u64 folderSize = 0;
+static u64 bytesCopiedPrevFiles = 0;
 
-void __Copy_Spinner(s32 x, s32 max)
+void __Copy_Spinner(s64 x, u64 max)
 {
 	static time_t start;
 	static u32 expected;
+	static u32 prev_d;
 
 	f32 percent, size;
 	u32 d, h, m, s;
@@ -56,6 +59,10 @@ void __Copy_Spinner(s32 x, s32 max)
 	d = time(0) - start;
 
 	if (x != max) {
+		/* only update the display once a second results in 25% speed improvement */
+		if (prev_d == d) return;
+		prev_d = d;
+		
 		/* Expected time */
 		if (d && x)
 			expected = (expected * 3 + d * max / x) / 4;
@@ -84,6 +91,9 @@ void __Copy_Spinner(s32 x, s32 max)
 	} else {
 		printf_(gt("%.2fGB copied in %d:%02d:%02d"), size, h, m, s);
 		printf("  \n");
+//	printf(gt("Press any button..."));
+//	printf("\n");
+//	Wpad_WaitButtons();
 	}
 
 	__console_flush(1);
@@ -214,7 +224,7 @@ static void *thread_CopyFileReader (void *arg)
 	return 0;
 }
 
-bool fsop_CopyFile (char *source, char *target)
+bool doCopyFile (char *source, char *target)
 {
 	int err = 0;
 
@@ -223,8 +233,9 @@ bool fsop_CopyFile (char *source, char *target)
 	
 	if (strstr (source, "usb:") && strstr (target, "usb:"))
 	{
-		block = 1024*1048;
+		block = 1024*1024;
 	}
+	else block = 65536 * 8;
 	
 	fs = fopen(source, "rb");
 	if (!fs)
@@ -260,6 +271,7 @@ bool fsop_CopyFile (char *source, char *target)
 	if (buff == NULL) 
 	{
 		fclose (fs);
+		fclose (ft);
 		return false;
 	}
 
@@ -290,11 +302,11 @@ bool fsop_CopyFile (char *source, char *target)
 		// write current block
 		wb = fwrite(&buff[bi*block], 1, rb, ft);
 
-		if (wb != wb) err = 1;
+		if (rb != wb) err = 1;
 		if (rb == 0) err = 1;
 		bytes += rb;
 
-		__Copy_Spinner(bytes, folderSize);
+		__Copy_Spinner(bytes + bytesCopiedPrevFiles, folderSize);
 	}
 	while (bytes < size && err == 0);
 
@@ -315,6 +327,8 @@ bool fsop_CopyFile (char *source, char *target)
 	
 	free(buff);
 	
+	bytesCopiedPrevFiles += bytes; 		//keep total bytes when copying dir
+
 	if (err) 
 	{
 		unlink (target);
@@ -322,6 +336,17 @@ bool fsop_CopyFile (char *source, char *target)
 	}
 	
 	return true;
+}
+
+bool fsop_CopyFile (char *source, char *target)
+{
+	size_t s;
+	fsop_GetFileSizeBytes (source, &s);
+	folderSize = s;
+	__Copy_Spinner(0, folderSize);				// init spinner
+	bytesCopiedPrevFiles = 0;
+
+	return doCopyFile (source, target);
 }
 
 /*
@@ -368,7 +393,7 @@ static bool doCopyFolder (char *source, char *target)
 		}
 		else	// It is a file !
 		{
-			ret = fsop_CopyFile (newSource, newTarget);
+			ret = doCopyFile (newSource, newTarget);
 		}
 	}
 	
@@ -380,6 +405,8 @@ static bool doCopyFolder (char *source, char *target)
 bool fsop_CopyFolder (char *source, char *target)
 {
 	folderSize = fsop_GetFolderBytes(source);
+	__Copy_Spinner(0, folderSize);				// init spinner
+	bytesCopiedPrevFiles = 0;
 
 	return doCopyFolder (source, target);
 }

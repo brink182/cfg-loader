@@ -267,7 +267,7 @@ char *gameid_to_cc(char *gameid)
 		case 'K': return KO; // Korea
 		case 'L': return PAL;// Japanese Import to Europe, Australia and other PAL regions
 		case 'M': return PAL;// American Import to Europe, Australia and other PAL regions
-		case 'N': return JA; // Japanese Import to USA and other NTSC regions
+		case 'N': return US; // Japanese Import to USA and other NTSC regions
 		case 'P': return PAL;// Europe, Australia and other PAL regions
 		case 'Q': return KO; // Korea with Japanese language.
 		case 'T': return KO; // Korea with English language.

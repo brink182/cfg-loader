@@ -1311,7 +1311,10 @@ int cache_load_image(u8 *id, GRRLIB_texImg *tx, int style, bool *hqavail)
 
 	data_size = size + hq_size;
 	data = cache_alloc_data(data_size);
-	if (!data) return -2; // alloc error
+	if (!data) {
+		close(fd);
+		return -2; // alloc error
+	}
 	
 	ret = read(fd, data + hq_size, size);
 	if (ret != size) goto error;
@@ -1329,11 +1332,13 @@ int cache_load_image(u8 *id, GRRLIB_texImg *tx, int style, bool *hqavail)
 	tx->tex_format = hdr.gxformat;
 	GRRLIB_FlushTex(tx);
 	*hqavail = hdr.hq ? true : false;
+	close(fd);
 	return 0;
 
 error:
 	CACHE_SAFE_FREE(data);
 	memset(tx, 0, sizeof(*tx));
+	close(fd);
 	return -1;
 }
 

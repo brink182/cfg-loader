@@ -994,8 +994,10 @@ void __Menu_GameSize(struct discHdr *header, u64 *comp_size, u64 *real_size)
 		*comp_size = *real_size = getChannelSize(header);
 		return;
 	}
-	*comp_size = *real_size = getDMLGameSize(header);
-	if (*comp_size > 0) return;
+	if (header->magic == GC_GAME_ON_DRIVE) {
+		*comp_size = *real_size = getDMLGameSize(header);
+		return;
+	}
 
 	/* Get game size */
 	if (strncmp((char*)last_id, (char*)header->id, 6) == 0 && last_comp && last_real) {
@@ -1025,6 +1027,9 @@ void Menu_GameInfoStr2(struct discHdr *header, char *str, u64 comp_size, u64 rea
 	memset(&game_tmd, 0, sizeof(game_tmd));
 	if (header->magic == CHANNEL_MAGIC) {
 		game_tmd.sys_version = getChannelReqIos(header); //store channel ios directly in sys_version for compatability
+	}
+	else if (header->magic == GC_GAME_ON_DRIVE) {
+												//do nothing
 	} else {
 		wbfs_disc_t* d = WBFS_OpenDisc(header->id);
 		if (d) {
@@ -4234,7 +4239,8 @@ restart_menu_boot:;
 	game_cfg = CFG_find_game(header->id);
 
 	// Get game size
-	if (!disc && header->magic != GC_GAME_ON_DRIVE) WBFS_GameSize2(header->id, &comp_size, &real_size);
+	if (!disc && (header->magic != GC_GAME_ON_DRIVE)&& (header->magic != CHANNEL_MAGIC))
+		WBFS_GameSize2(header->id, &comp_size, &real_size);
 	bool dl_warn = check_dual_layer(real_size, game_cfg);
 	bool can_skip = !CFG.confirm_start && !dl_warn && check_device(game_cfg, false);
 	bool do_skip = (disc && !CFG.confirm_start) || (!disc && can_skip);
@@ -4310,8 +4316,14 @@ L_repaint:
 	// parse banner sound
 	if (!banner_parsed) {
 		__console_flush(0);
-		WBFS_Banner(header->id, &snd, banner_title, !do_skip,
+		if (header->magic == GC_GAME_ON_DRIVE) {
+			parse_riff(&gc_wav, &snd);
+		} else if (header->magic == CHANNEL_MAGIC) {
+			CHANNEL_Banner(header, &snd);
+		} else {
+			WBFS_Banner(header->id, &snd, banner_title, !do_skip,
 				CFG_read_active_game_setting(header->id).write_playlog);
+		}
 		banner_parsed = true;
 	}
 
@@ -4419,6 +4431,9 @@ L_repaint:
 			memset(&game_tmd, 0, sizeof(game_tmd));
 			if (header->magic == CHANNEL_MAGIC) {
 				game_tmd.sys_version = getChannelReqIos(header); //store channel ios directly in sys_version for compatability
+			}
+			else if (header->magic == GC_GAME_ON_DRIVE) {
+														//do nothing
 			} else {
 				wbfs_disc_t* d = WBFS_OpenDisc(header->id);
 				if (d) {
@@ -4801,7 +4816,7 @@ L_repaint:
 // printf("CFG language=%d,Wii language=%x\n",CFG.game.language,CONF_GetLanguage());
 // sleep(5);
   
-	if ((memcmp("SUK",header->id,3)!=0) && (CFG.game.language == 0))
+	if ((memcmp("SUK",header->id,3)!=0) && (CFG.game.language == 0))	//Kirby's Return to Dream Land 
 	{
 		if (((header->id[3]=='W') ||(header->id[3]=='J')) && (CONF_GetLanguage()== 1))
 			CFG.game.language=1;

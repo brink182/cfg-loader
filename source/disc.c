@@ -30,6 +30,7 @@
 #define ALIGNED(x) __attribute__((aligned(x)))
 
 /* Extern */
+extern MountTable mtab;
 
 /* Constants */
 #define PTABLE_OFFSET	0x40000
@@ -407,6 +408,27 @@ s32 Disc_ReadGCHeader(void *outbuf)
 }
 
 s32 Disc_DumpGCGame(bool sd) {
+	char destDrive[10];
+	bool usbMounted = false;
+	bool ntfsMounted = false;
+	if (sd)
+		strcpy(destDrive,"sd");
+	else {
+		int i;
+		for (i=0; i<mtab.num; i++)
+		{
+			if (strncmp(mtab.point[i].name,"usb",3) == 0)
+				usbMounted = true;
+			if (strncmp(mtab.point[i].name,"ntfs",4) == 0)
+				ntfsMounted = true;
+		}
+		if (ntfsMounted && !usbMounted) {
+			if (!CFG.ntfs_write) return -1;
+			strcpy(destDrive,"ntfs");
+		}
+		else strcpy(destDrive,"usb");
+	}
+	
 	struct gc_discHdr *header = (struct gc_discHdr *)buffer;
 	s32 ret = Disc_ReadGCHeader(header);
 	u8 *bootBin = memalign(32, 0x440);
@@ -418,13 +440,13 @@ s32 Disc_DumpGCGame(bool sd) {
 		
 	char sysFolder[0xff];
 	if (header->disc == 0)
-		sprintf(sysFolder, "%s:/games/%s [%s]/sys", (sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(sysFolder, "%s:/games/%s [%s]/sys", destDrive, strupr(header->title), header->id);
 		
 	mkpath(sysFolder, 0777);
 	
 	char filepath1[0xff];
 	if (header->disc == 0) 
-		sprintf(filepath1, "%s:/games/%s [%s]/sys/boot2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(filepath1, "%s:/games/%s [%s]/sys/boot2.bin", destDrive, strupr(header->title), header->id);
 		
 	FILE *out = fopen( filepath1, "wb" );
 	if( out == NULL )
@@ -439,7 +461,7 @@ s32 Disc_DumpGCGame(bool sd) {
 	
 	char filepath2[0xff];
 	if (header->disc == 0) 
-		sprintf(filepath2, "%s:/games/%s [%s]/sys/bi2.bin", (sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(filepath2, "%s:/games/%s [%s]/sys/bi2.bin", destDrive, strupr(header->title), header->id);
 		
 	out = fopen( filepath2, "wb" );
 	if( out == NULL )
@@ -454,7 +476,7 @@ s32 Disc_DumpGCGame(bool sd) {
 	
 	char filepath3[0xff];
 	if (header->disc == 0)
-		sprintf(filepath3, "%s:/games/%s [%s]/sys/apploader.img", (sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(filepath3, "%s:/games/%s [%s]/sys/apploader.img", destDrive, strupr(header->title), header->id);
 		
 	out = fopen( filepath3, "wb" );
 	if( out == NULL )
@@ -467,9 +489,9 @@ s32 Disc_DumpGCGame(bool sd) {
 	
 	char filepath4[0xff];
 	if (header->disc == 0)
-		sprintf(filepath4, "%s:/games/%s [%s]/game.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(filepath4, "%s:/games/%s [%s]/game.iso", destDrive, strupr(header->title), header->id);
 	else
-		sprintf(filepath4, "%s:/games/%s [%s]/disc2.iso",(sd?"sd":"usb"), strupr(header->title), header->id);
+		sprintf(filepath4, "%s:/games/%s [%s]/disc2.iso", destDrive, strupr(header->title), header->id);
 	
 	out = fopen( filepath4, "wb" );
 	if( out == NULL )

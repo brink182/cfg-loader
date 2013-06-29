@@ -258,6 +258,7 @@ void action_OpenQuit(Widget *parent)
 	ww = wgui_add_button(dd, p, gt("Homebrew Channel"));
 	ww->action = action_HBC;
 	ww->action2 = action_close_parent_dialog;
+	wgui_set_inactive(ww, CFG.disable_options);
 	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), gt("[HOME]"));
 	pos_newline(dd);
 
@@ -272,9 +273,11 @@ void action_OpenQuit(Widget *parent)
 	ww = wgui_add_button(dd, p, gt("Priiloader"));
 	ww->action = action_priiloader;
 	ww->action2 = action_close_parent_dialog;
+	wgui_set_inactive(ww, CFG.disable_options);
 	if (p.h == H_LARGE) wgui_add_text(dd, pos_h(H_LARGE), gt("[HOME]"));
 	pos_newline(dd);
 
+	p.h = H_NORMAL;
 	ww = wgui_add_button(dd, p, gt("Shutdown"));
 	ww->action = action_Shutdown;
 	ww->action2 = action_close_parent_dialog;
@@ -288,6 +291,12 @@ void action_OpenQuit(Widget *parent)
 	p.y = POS_EDGE;
 	ww = wgui_add_button(dd, p, gt("Back"));
 	ww->action = action_close_parent_dialog;
+	pos_newline(dd);
+	
+	//battery level
+	static char battery_str[50];
+	sprintf(battery_str, "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%", WPAD_BatteryLevel(0), WPAD_BatteryLevel(1), WPAD_BatteryLevel(2), WPAD_BatteryLevel(3)); 
+	wgui_add_text(dd, pos(POS_CENTER, 322,	SIZE_AUTO, H_LARGE), battery_str);
 }
 
 /*
@@ -2682,6 +2691,10 @@ void update_jump()
             _jump_index = page_gi + page_covers/2;           }
     }
     _jump_selected = skip_sort_ignore(get_title(&gameList[_jump_index]));
+
+	//dbg_printf("Jump %02x%02x = %s \n", _jump_selected[0], _jump_selected[1], _jump_selected);
+	if ((_jump_selected[0] == 0xC5) && (_jump_selected[1] == 0x8C))	//Okami
+		_jump_selected = "O";		//make it look like non accented character
 
     for (i = 1; i <= 27; i++){     	//search loop
         if (strncasecmp(_jump_selected, &string[i], 1) == 0) break;  

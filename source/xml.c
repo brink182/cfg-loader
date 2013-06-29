@@ -253,7 +253,11 @@ bool hasGenre(char *genre, u8 * gameid)
 	gameXMLinfo *g = get_game_info_id(gameid);
 	if (g) {
 		if (strstr(g->genre, genre)) {
-			return 1;
+			if (!strcmp(genre,"tennis")) {		// if looking for tennis
+				if ((strstr(g->genre, "table tennis,tennis")) || (!strstr(g->genre, "table tennis")))	//exclude ones that only have table tennis
+					return 1;
+			} else
+				return 1;
 		}
 	}
 	return 0;

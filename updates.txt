@@ -15,6 +15,18 @@ metaxml=</app>
 
 
 
+Unreleased = 70r62
+date = 2013-06-29
+-Added battery level display to Home Menu
+-Fixed covers failing to load after scrolling through a lot of them
+-Fixed installing game cube disk to NTFS drive
+-Fixed delays caused by trying to access channels & gamecube files as wbfs files
+-Fixed jump when starting on Okami
+-Fixed Home Menu button size when the home key is set to priiloader
+-Added banner sounds for gamecube and channels to console menu
+-Fixed tennis genre
+-Fixed Home Menu priiloader and home brew channel not displaying as disabled when disable_options = 1 
+
 Unreleased = 70r61
 date = 2013-06-13
 -Fixed DML copying from NTFS to sd Estimated time remaining and size
@@ -22,6 +34,7 @@ date = 2013-06-13
 -Fixed Crash when selecting skip wbfs mounting
 -Fixed downloading covers with "N" as the region code
 -Improved channel loading into the game list time by 50%
+=Fixed crash when downloading covers and getting a network error
 
 Unreleased = 70r60
 date = 2013-03-20

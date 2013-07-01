@@ -316,7 +316,8 @@ typedef struct CfgButton
 #define GUI_BUTTON_SORT      5
 #define GUI_BUTTON_FILTER    6
 #define GUI_BUTTON_FAVORITES 7
-#define GUI_BUTTON_NUM       8
+#define GUI_BUTTON_JUMP		 8
+#define GUI_BUTTON_NUM       9
 
 #define GUI_COLOR_NONE  0
 #define GUI_COLOR_BASE  1

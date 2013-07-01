@@ -2533,143 +2533,6 @@ void action_OpenKonami(Widget *_ww)
 }
 
 
-void desk_dialog_update(Widget *ww)
-{
-	int alpha = ww->color & 0xFF;
-	int pad_y = winput.w_ir->sy;
-	int dir = 1;
-	int speed = 3;
-	int speed2 = 5;
-	if (ww->y > 480/2) {
-		// bottom - reverse dir.
-		dir = -1;
-		speed *= dir;
-		speed2 *= dir;
-		pad_y = 480 - pad_y;
-	}
-	int delta = (ww->ay - ww->y) * dir;
-	if (winput.w_ir->smooth_valid) {
-		int y1 = 480/5;
-		int y2 = 480/3;
-		if (wgui_over(ww) || pad_y < 0) {
-			alpha += 8;
-			if (delta < 0) ww->ay += speed2;
-		} else if (pad_y < y1) {
-			if (alpha > 0x80) alpha -= 2; else alpha += 2;
-			if (delta  < -ww->h/2) ww->ay += speed;
-		} else if (pad_y < y2) {
-			if (delta  > -ww->h/2) ww->ay -= speed;
-			if (alpha > 0x80) alpha -= 2;
-		} else {
-			goto hide;
-		}
-	} else {
-		hide:
-		alpha -= 8;
-		if (delta > -ww->h) ww->ay -= speed;
-	}
-	delta = (ww->ay - ww->y) * dir;
-	if (delta > 0) ww->ay = ww->y;
-	if (delta < -ww->h) ww->ay = ww->y - dir * ww->h;
-	if (alpha < 0) alpha = 0;
-	if (alpha > 0xFF) alpha = 0xFF;
-	traverse(ww, wgui_set_color, 0xFFFFFF00 | alpha);
-	traverse_children1(ww, adjust_position);
-
-    if (sort_index != 0) {		//if not sorting by name
-    	traverse_linked_children(d_top5, wgui_set_inactive, true);				//disable jump  
-	} else {
-    	traverse_linked_children(d_top5, wgui_set_state, WGUI_STATE_NORMAL);	//enable jump  
-    }
-
-}
-
-struct CustomButton
-{
-	char *name;
-	void (*action)(Widget *ww);
-};
-
-struct CustomButton custom_button[GUI_BUTTON_NUM] =
-{
-	{ gts("Main"), action_OpenMain },
-	{ gts("Settings"), action_OpenSettings },
-	{ gts("Quit"), action_OpenQuit },
-	{ gts("Style"), action_OpenStyle },
-	{ gts("View"), action_OpenView },
-	{ gts("Sort"), action_OpenSort },
-	{ gts("Filter"), action_OpenFilter },
-	{ "Favorites", action_Favorites }
-};
-
-char *custom_button_name(int i)
-{
-	return custom_button[i].name;
-}
-
-void desk_custom_update(Widget *ww)
-{
-	// set custom buttons inactive if any window is opened
-	traverse_children(ww, wgui_set_inactive, ww->parent->num_child > 3);
-}
-
-// custom buttons
-void desk_custom_init()
-{
-	struct CfgButton *bb;
-	char *name;
-	Widget *ww;
-	int i;
-	Pos p;
-	if (!d_custom) {
-		d_custom = wgui_add(&wgui_desk, pos_full, NULL);
-		d_custom->update = desk_custom_update;
-	}
-	wgui_remove_children(d_custom);
-	for (i=0; i<GUI_BUTTON_NUM; i++) {
-		bb = &CFG.gui_button[i];
-		if (bb->enabled) {
-			p = pos(bb->pos.x, bb->pos.y, bb->pos.w, bb->pos.h);
-			name = gt(custom_button[i].name);
-			if (i == GUI_BUTTON_FAVORITES) {
-				ww = wgui_add_checkboxx(d_custom, p, name,
-						false, gt("Fav: Off"), gt("Fav: On"));
-				ww->val_ptr = &enable_favorite;
-			} else {
-				ww = wgui_add_button(d_custom, p, name);
-			}
-			ww->action = custom_button[i].action;
-			ww->text_color = GUI_TC_CBUTTON + i;
-			ww->max_zoom = 1.0 + (float)bb->hover_zoom / 100.0;
-			if (*bb->image && tx_custom[i]) {
-				ww->custom_tx = true;
-				ww->tx_idx = i;
-			}
-		}
-	}
-}
-
-void desk_bar_update()
-{
-	switch (CFG.gui_bar) {
-		case 0:
-			d_top->state = d_bottom->state = WGUI_STATE_DISABLED;
-			break;
-		default:
-		case 1:
-			d_top->state = d_bottom->state = WGUI_STATE_NORMAL;
-			break;
-		case 2: // top
-			d_top->state = WGUI_STATE_NORMAL;
-			d_bottom->state = WGUI_STATE_DISABLED;
-			break;
-		case 3: // bottom
-			d_top->state = WGUI_STATE_DISABLED;
-			d_bottom->state = WGUI_STATE_NORMAL;
-			break;
-	}
-}
-
 //new actions for alphabetical radio buttons
 char *string = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 Widget *_jump_rr;
@@ -2765,6 +2628,144 @@ void action_OpenJump(Widget *ww)
 
 	// set initial radio values
 	dd->update(dd);
+}
+
+void desk_dialog_update(Widget *ww)
+{
+	int alpha = ww->color & 0xFF;
+	int pad_y = winput.w_ir->sy;
+	int dir = 1;
+	int speed = 3;
+	int speed2 = 5;
+	if (ww->y > 480/2) {
+		// bottom - reverse dir.
+		dir = -1;
+		speed *= dir;
+		speed2 *= dir;
+		pad_y = 480 - pad_y;
+	}
+	int delta = (ww->ay - ww->y) * dir;
+	if (winput.w_ir->smooth_valid) {
+		int y1 = 480/5;
+		int y2 = 480/3;
+		if (wgui_over(ww) || pad_y < 0) {
+			alpha += 8;
+			if (delta < 0) ww->ay += speed2;
+		} else if (pad_y < y1) {
+			if (alpha > 0x80) alpha -= 2; else alpha += 2;
+			if (delta  < -ww->h/2) ww->ay += speed;
+		} else if (pad_y < y2) {
+			if (delta  > -ww->h/2) ww->ay -= speed;
+			if (alpha > 0x80) alpha -= 2;
+		} else {
+			goto hide;
+		}
+	} else {
+		hide:
+		alpha -= 8;
+		if (delta > -ww->h) ww->ay -= speed;
+	}
+	delta = (ww->ay - ww->y) * dir;
+	if (delta > 0) ww->ay = ww->y;
+	if (delta < -ww->h) ww->ay = ww->y - dir * ww->h;
+	if (alpha < 0) alpha = 0;
+	if (alpha > 0xFF) alpha = 0xFF;
+	traverse(ww, wgui_set_color, 0xFFFFFF00 | alpha);
+	traverse_children1(ww, adjust_position);
+
+    if (sort_index != 0) {		//if not sorting by name
+    	traverse_linked_children(d_top5, wgui_set_inactive, true);				//disable jump  
+	} else {
+    	traverse_linked_children(d_top5, wgui_set_state, WGUI_STATE_NORMAL);	//enable jump  
+    }
+
+}
+
+struct CustomButton
+{
+	char *name;
+	void (*action)(Widget *ww);
+};
+
+struct CustomButton custom_button[GUI_BUTTON_NUM] =
+{
+	{ gts("Main"), action_OpenMain },
+	{ gts("Settings"), action_OpenSettings },
+	{ gts("Quit"), action_OpenQuit },
+	{ gts("Style"), action_OpenStyle },
+	{ gts("View"), action_OpenView },
+	{ gts("Sort"), action_OpenSort },
+	{ gts("Filter"), action_OpenFilter },
+	{ "Favorites", action_Favorites },
+	{ gts("Jump"), action_OpenJump }
+};
+
+char *custom_button_name(int i)
+{
+	return custom_button[i].name;
+}
+
+void desk_custom_update(Widget *ww)
+{
+	// set custom buttons inactive if any window is opened
+	traverse_children(ww, wgui_set_inactive, ww->parent->num_child > 3);
+}
+
+// custom buttons
+void desk_custom_init()
+{
+	struct CfgButton *bb;
+	char *name;
+	Widget *ww;
+	int i;
+	Pos p;
+	if (!d_custom) {
+		d_custom = wgui_add(&wgui_desk, pos_full, NULL);
+		d_custom->update = desk_custom_update;
+	}
+	wgui_remove_children(d_custom);
+	for (i=0; i<GUI_BUTTON_NUM; i++) {
+		bb = &CFG.gui_button[i];
+		if (bb->enabled) {
+			p = pos(bb->pos.x, bb->pos.y, bb->pos.w, bb->pos.h);
+			name = gt(custom_button[i].name);
+			if (i == GUI_BUTTON_FAVORITES) {
+				ww = wgui_add_checkboxx(d_custom, p, name,
+						false, gt("Fav: Off"), gt("Fav: On"));
+				ww->val_ptr = &enable_favorite;
+			} else {
+				ww = wgui_add_button(d_custom, p, name);
+			}
+			ww->action = custom_button[i].action;
+			ww->text_color = GUI_TC_CBUTTON + i;
+			ww->max_zoom = 1.0 + (float)bb->hover_zoom / 100.0;
+			if (*bb->image && tx_custom[i]) {
+				ww->custom_tx = true;
+				ww->tx_idx = i;
+			}
+		}
+	}
+}
+
+void desk_bar_update()
+{
+	switch (CFG.gui_bar) {
+		case 0:
+			d_top->state = d_bottom->state = WGUI_STATE_DISABLED;
+			break;
+		default:
+		case 1:
+			d_top->state = d_bottom->state = WGUI_STATE_NORMAL;
+			break;
+		case 2: // top
+			d_top->state = WGUI_STATE_NORMAL;
+			d_bottom->state = WGUI_STATE_DISABLED;
+			break;
+		case 3: // bottom
+			d_top->state = WGUI_STATE_DISABLED;
+			d_bottom->state = WGUI_STATE_NORMAL;
+			break;
+	}
 }
 
 void desk_dialog_init()

@@ -14,6 +14,12 @@ metaxml=</long_description>
 metaxml=</app>
 
 
+Unreleased = 70r64
+date = 2013-08-11
+-Fixed installing the second disk of multi disk gamecube games
+-Fixed the size of multi disk gamecube games
+-Added error messages for read errors when installing a gamecube game 
+
 Unreleased = 70r63
 date = 2013-06-30
 -Added new command gui_button_jump to theme.txt so the jump button can be used within themes
@@ -28,7 +34,7 @@ date = 2013-06-29
 -Fixed Home Menu button size when the home key is set to priiloader
 -Added banner sounds for gamecube and channels to console menu
 -Fixed tennis genre
--Fixed Home Menu priiloader and home brew channel not displaying as disabled when disable_options = 1 
+-Fixed Home Menu, priiloader and home brew channel not displaying as disabled when disable_options = 1 
 
 Unreleased = 70r61
 date = 2013-06-13

@@ -4633,7 +4633,7 @@ L_repaint:
 		
 		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0)
 		{
-			if (getDMLGameSize(header) != GC_GAME_SIZE) {
+			if (getDMLDisk1Size(header) != GC_GAME_SIZE) {
 				printf_x(gt("Devolution only accepts clean dumps!\n"));
 				Wpad_WaitButtons();
 				goto out;

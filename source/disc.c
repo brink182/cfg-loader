@@ -431,61 +431,66 @@ s32 Disc_DumpGCGame(bool sd) {
 	
 	struct gc_discHdr *header = (struct gc_discHdr *)buffer;
 	s32 ret = Disc_ReadGCHeader(header);
-	u8 *bootBin = memalign(32, 0x440);
-	u8 *bi2Bin = memalign(32, 0x2000);
-	u8 *apploaderImg = memalign(32, 0x1C720);
-	ret = WDVD_UnencryptedRead(bootBin, 0x440, 0);
 	
 	title_filename(header->title);
 		
 	char sysFolder[0xff];
 	if (header->disc == 0)
 		sprintf(sysFolder, "%s:/games/%s [%s]/sys", destDrive, strupr(header->title), header->id);
-		
+	else
+		sprintf(sysFolder, "%s:/games/%s [%s]", destDrive, strupr(header->title), header->id);
 	mkpath(sysFolder, 0777);
 	
-	char filepath1[0xff];
-	if (header->disc == 0) 
+	if (header->disc == 0) {	//sys dir only contains files from disk 1
+
+		u8 *bootBin = memalign(32, 0x440);
+		ret = WDVD_UnencryptedRead(bootBin, 0x440, 0);
+		if (ret) printf("\rWARNING: read (%u) error (%d)\n", 0, ret);
+
+		char filepath1[0xff];
 		sprintf(filepath1, "%s:/games/%s [%s]/sys/boot2.bin", destDrive, strupr(header->title), header->id);
+			
+		FILE *out = fopen( filepath1, "wb" );
+		if( out == NULL )
+		{
+			return -1;
+		}
+		fwrite(bootBin, 1, 0x440, out);
+		fclose(out);
+		free(bootBin);
 		
-	FILE *out = fopen( filepath1, "wb" );
-	if( out == NULL )
-	{
-		return -1;
-	}
-	fwrite(bootBin, 1, 0x440, out);
-	fclose(out);
-	free(bootBin);
-	
-	ret = WDVD_UnencryptedRead(bi2Bin, 0x2000, 0x440);
-	
-	char filepath2[0xff];
-	if (header->disc == 0) 
+		u8 *bi2Bin = memalign(32, 0x2000);
+		ret = WDVD_UnencryptedRead(bi2Bin, 0x2000, 0x440);
+		if (ret) printf("\rWARNING: read (%u) error (%d)\n", 0x440, ret);
+		
+		char filepath2[0xff];
 		sprintf(filepath2, "%s:/games/%s [%s]/sys/bi2.bin", destDrive, strupr(header->title), header->id);
+			
+		out = fopen( filepath2, "wb" );
+		if( out == NULL )
+		{
+			return -1;
+		}
+		fwrite(bi2Bin, 1, 0x2000, out);
+		fclose(out);
+		free(bi2Bin);
 		
-	out = fopen( filepath2, "wb" );
-	if( out == NULL )
-	{
-		return -1;
-	}
-	fwrite(bi2Bin, 1, 0x2000, out);
-	fclose(out);
-	free(bi2Bin);
-	
-	ret = WDVD_UnencryptedRead(apploaderImg, 0x1C720, 0x2440);
-	
-	char filepath3[0xff];
-	if (header->disc == 0)
+		u8 *apploaderImg = memalign(32, 0x1C720);
+		ret = WDVD_UnencryptedRead(apploaderImg, 0x1C720, 0x2440);
+		if (ret) printf("\rWARNING: read (%u) error (%d)\n", 0x2440, ret);
+		
+		char filepath3[0xff];
 		sprintf(filepath3, "%s:/games/%s [%s]/sys/apploader.img", destDrive, strupr(header->title), header->id);
-		
-	out = fopen( filepath3, "wb" );
-	if( out == NULL )
-	{
-		return -1;
+			
+		out = fopen( filepath3, "wb" );
+		if( out == NULL )
+		{
+			return -1;
+		}
+		fwrite(apploaderImg, 1, 0x1C704, out);
+		fclose(out);
+		free(apploaderImg);
 	}
-	fwrite(apploaderImg, 1, 0x1C704, out);
-	fclose(out);
-	free(apploaderImg);
 	
 	char filepath4[0xff];
 	if (header->disc == 0)
@@ -493,7 +498,7 @@ s32 Disc_DumpGCGame(bool sd) {
 	else
 		sprintf(filepath4, "%s:/games/%s [%s]/disc2.iso", destDrive, strupr(header->title), header->id);
 	
-	out = fopen( filepath4, "wb" );
+	FILE *out = fopen( filepath4, "wb" );
 	if( out == NULL )
 	{
 		return -1;
@@ -509,6 +514,7 @@ s32 Disc_DumpGCGame(bool sd) {
 	for (i = 0; i < 0x22CF; i++) {
 		ret = WDVD_UnencryptedRead(buf, 0x28000, offset);
 		if (ret < 0) {
+			printf("\rWARNING: read (%llu) error (%d)\n", offset, ret);
 			break;
 		}
 		fwrite(buf, 1, 0x28000, out);
@@ -518,7 +524,7 @@ s32 Disc_DumpGCGame(bool sd) {
 	fclose(out);
 	free(buf);
 	Music_UnPause();
-	return 0;
+	return ret;
 }
 
 s32 Disc_Type(bool gc)

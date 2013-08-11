@@ -76,6 +76,7 @@ int DML_GameIsInstalled(char *folder);
 void DML_New_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats, bool debugger, u8 NMM, u8 nodisc, u8 DMLvideoMode, u8 LED, u8 W_SCREEN, u8 PHOOK, u8 V_PATCH, u8 screenshot);
 void DML_Old_SetOptions(char *GamePath, char *CheatPath, char *NewCheatPath, bool cheats);
 void DML_New_SetBootDiscOption(char *CheatPath, char *NewCheatPath, bool cheats, u8 NMM, u8 LED, u8 DMLvideoMode);
+u64 getDMLDisk1Size(struct discHdr *header);
 u64 getDMLGameSize(struct discHdr *header);
 s32 copy_DML_Game_to_SD(struct discHdr *header);
 s32 delete_Old_Copied_DML_Game();

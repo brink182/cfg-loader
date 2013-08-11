@@ -414,7 +414,7 @@ u64 DML_read_size_info_file(struct discHdr *header) {
 	return result;
 }
 
-u64 getDMLGameSize(struct discHdr *header) {
+u64 getDMLDisk1Size(struct discHdr *header) {
 	u64 result = 0;
 	char filepath[0xFF];
 	snprintf(filepath, sizeof(filepath), "%s/game.iso", header->path);
@@ -438,6 +438,22 @@ u64 getDMLGameSize(struct discHdr *header) {
 	{
 		fseek(fp, 0, SEEK_END);
 		result = ftell(fp);
+		fclose(fp);
+	}
+	return result;
+}
+
+u64 getDMLGameSize(struct discHdr *header) {
+	u64 result = 0;
+	result = getDMLDisk1Size(header);	//get the size of the first disk
+
+	char filepath[0xFF];
+	snprintf(filepath, sizeof(filepath), "%s/disc2.iso", header->path);
+	FILE *fp = fopen(filepath, "r");
+	if (fp)
+	{
+		fseek(fp, 0, SEEK_END);
+		result += ftell(fp);			//add the size of the second disk
 		fclose(fp);
 	}
 	return result;

@@ -978,7 +978,7 @@ void Download_Plugins()
 	remove(mightyPath);
 	char url[255];
 	strcopy(url, "http://cfg-loader-mod.googlecode.com/files/mighty.dol", sizeof(url));
-	if (zipurl[0] == 0) {
+	if (url[0] == 0) {
 		printf_(gt("Error: no URL."));
 		printf("\n");
 		goto dl_err;	
@@ -996,6 +996,43 @@ void Download_Plugins()
 	if (!f) {
 		printf("\n");
 		printf_(gt("Error opening: %s"), mightyPath);
+		printf("\n");
+		goto dl_err;
+	}
+	fwrite(file.data,1,file.size,f);
+	fclose(f);
+	SAFE_FREE(file.data);
+	printf_(gt("Download complete."));
+	printf("\n");
+	
+	
+	///////////////////////
+	
+	/* Download Neek2o Plugin */
+	char neekPath[200];
+	snprintf(neekPath, sizeof(neekPath), "%s/%s", USBLOADER_PATH, "/plugins");
+	if (!fsop_DirExist(neekPath)) mkpath(neekPath, 0777);
+	strcat(neekPath, "/neek2o.dol");
+	remove(neekPath);
+	strcopy(url, "http://cfg-loader-mod.googlecode.com/files/neek2o.dol", sizeof(url));
+	if (url[0] == 0) {
+		printf_(gt("Error: no URL."));
+		printf("\n");
+		goto dl_err;	
+	}
+	
+	printf_x(gt("Downloading neek2o plugin."));
+	printf("\n");
+	printf_("%s\n", url);
+
+	printf_("[.");
+	file = downloadfile_progress(url, 64);
+	printf("]\n");
+	
+	f = fopen(neekPath, "wb");
+	if (!f) {
+		printf("\n");
+		printf_(gt("Error opening: %s"), neekPath);
 		printf("\n");
 		goto dl_err;
 	}

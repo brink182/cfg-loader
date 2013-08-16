@@ -325,7 +325,8 @@ int CHANNEL_Banner(struct discHdr *hdr, SoundInfo *snd)
 //		fclose (fp);
 //	}
 
-	parse_banner_snd(banner, snd);
+	if (banner != NULL)
+		parse_banner_snd(banner, snd);
 	SAFE_FREE(banner);
 	return 0;
 }

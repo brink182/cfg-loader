@@ -152,8 +152,8 @@ int main(int argc, char **argv)
 	MountSDHC();
 	
 	dbg_printf("Mount USB\n");
-	CFG_MountUSB();
-	mount_find(USB_DRIVE);
+	if (MountUSB() == 0)
+		mount_find(USB_DRIVE);
 
 	//save_dip();
 

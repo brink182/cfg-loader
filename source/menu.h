@@ -5,6 +5,9 @@
 #include "disc.h" // discHdr
 #include "cfg.h"
 
+#define PLUGIN_MIGHTY 0
+#define PLUGIN_NEEK 1
+
 extern char *videos[CFG_VIDEO_NUM];
 extern char *DML_videos[6];
 extern char *languages[CFG_LANG_NUM];

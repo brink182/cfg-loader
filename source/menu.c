@@ -182,6 +182,12 @@ char *str_nand_emu[3] =
 	gts("Full")
 };
 
+char *str_channel_boot[2] =
+{
+	gts("Mighty Plugin"),
+	gts("Neek2o Plugin")
+};
+
 int Menu_Global_Options();
 int Menu_Game_Options();
 void Switch_Favorites(bool enable);
@@ -1799,7 +1805,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	int opt_saved;
 	//int opt_ios_reload;
 	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_padhook, opt_nand_emu;
-	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch, opt_screenshot; 
+	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch, opt_screenshot, opt_channel_boot; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
 	int i;
@@ -1886,6 +1892,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	 	opt_ocarina = game_cfg->ocarina;
 		opt_ntsc_j_patch = game_cfg->ntsc_j_patch;
 		opt_nand_emu = game_cfg->nand_emu;
+		opt_channel_boot = game_cfg->channel_boot;
 
 		if (game_cfg->clean == CFG_CLEAN_ALL) {
 			opt_language = CFG_LANG_CONSOLE;
@@ -1899,6 +1906,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			opt_nand_emu = 0;
 			opt_nodisc = 0;
 			opt_screenshot = 0;
+			opt_channel_boot = 0;
 			active[1] = 0; // language
 			active[2] = 0; // video
 			active[3] = 0; // video_patch
@@ -2017,6 +2025,54 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 				*/
+		} else if (header->magic == CHANNEL_MAGIC) {
+			int num_channel_boot = map_get_num(map_nand_emu);
+			char *names_channel_boot[num_channel_boot];
+			num_channel_boot = map_to_list(map_channel_boot, num_channel_boot, names_channel_boot);
+			
+			menu_window_begin(&menu, win_size, NUM_OPT);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Language:"), gt(languages[opt_language]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Video:"), gt(videos[opt_video]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Video Patch:"), gt(names_vpatch[opt_video_patch]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B("VIDTV:", opt_vidtv);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Country Fix:"), opt_country_patch);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Anti 002 Fix:"), opt_anti_002);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S("IOS:", ios_str(game_cfg->ios_idx));
+			if (menu_window_mark(&menu)) {
+				if (game_cfg->block_ios_reload == 2) {
+					PRINT_OPT_S(gt("Block IOS Reload:"), gt("Auto"));
+				} else {
+					PRINT_OPT_B(gt("Block IOS Reload:"), game_cfg->block_ios_reload);
+				}
+			}
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Alt dol:"), str_alt_dol);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Ocarina (cheats):"), opt_ocarina);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Hook Type:"), hook_name[game_cfg->hooktype]);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_A(gt("Cheat Codes:"), gt("Manage"));
+			if (menu_window_mark(&menu))
+				printf("%s%s\n", con_align(gt("Cover Image:"), 18), 
+					imageNotFound ? gt("< DOWNLOAD >") : gt("[ FOUND ]"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Hide Game:"), is_hide_game(header->id) ? gt("Yes") : gt("No"));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_S(gt("Plugin:"), gt(names_channel_boot[opt_channel_boot]));
 		} else {
 			int num_nand_emu = map_get_num(map_nand_emu);
 			char *names_nand_emu[num_nand_emu];
@@ -2068,6 +2124,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_A(gt("Savegame:"), gt("Dump savegame"));
 		}
+		
 		DefaultColor();
 		menu_window_end(&menu, cols);
 
@@ -4529,7 +4586,7 @@ L_repaint:
 		strcpy(args[i++], "--hooktype=0");
 		strcpy(args[i++], "--videoPatch=0");
 		strcpy(args[i++], "--debugger=0");
-		Menu_Plugin(0, args, i);
+		Menu_Plugin(CFG.game.channel_boot, args, i);
 		return;
 	}
 	
@@ -5371,7 +5428,16 @@ void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
 	args.argv = &args.commandLine;
 	args.endARGV = args.argv + 1;
 	
-	snprintf(fname, sizeof(fname), "%s/plugins/mighty.dol", USBLOADER_PATH);
+	switch (plugin) {
+		case PLUGIN_MIGHTY:
+			snprintf(fname, sizeof(fname), "%s/plugins/mighty.dol", USBLOADER_PATH);
+			break;
+		case PLUGIN_NEEK:
+			snprintf(fname, sizeof(fname), "%s/plugins/neek2o.dol", USBLOADER_PATH);
+			break;
+		default:
+			return;
+	}
 	
 	printf_(gt("Loading..%s\n"), fname);
 

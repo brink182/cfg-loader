@@ -261,6 +261,13 @@ struct TextMap map_nand_emu[] =
 	{ NULL, -1 }
 };
 
+struct TextMap map_channel_boot[] =
+{
+	{ "Mighty Plugin", 0 },
+	{ "Neek2o Plugin", 1  },
+	{ NULL, -1 }
+};
+
 struct playStat {
 	char id[7];
 	s32 playCount;
@@ -1192,6 +1199,7 @@ void CFG_Default()
 	CFG.game.hooktype = 1; // VBI
 	CFG.game.wide_screen = 0; // WIDE IS OFF
 	CFG.game.ntsc_j_patch = 0;
+	CFG.game.channel_boot = 0;
 	CFG.game.nodisc = 0;
 	CFG.game.screenshot = 0;
 	CFG.game.block_ios_reload = 2; // 2=auto
@@ -2231,6 +2239,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 
 	cfg_map_auto("video_patch", map_video_patch, &game_cfg->video_patch);
 	cfg_map_auto("nand_emu", map_nand_emu, &game_cfg->nand_emu);
+	cfg_map_auto("channel_boot", map_channel_boot, &game_cfg->channel_boot);
 
 	cfg_bool("vidtv", &game_cfg->vidtv);
 	cfg_bool("country_patch", &game_cfg->country_patch);
@@ -2919,6 +2928,8 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_STR("video_patch", s);
 		s = map_get_name(map_nand_emu, game_cfg->nand_emu);
 		SAVE_STR("nand_emu", s);
+		s = map_get_name(map_channel_boot, game_cfg->channel_boot);
+		SAVE_STR("channel_boot", s);
 		SAVE_BOOL(vidtv);
 		SAVE_BOOL(wide_screen);
 		SAVE_BOOL(ntsc_j_patch);

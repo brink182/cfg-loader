@@ -256,6 +256,7 @@ struct Game_CFG
 	int hooktype;
 	int clean;
 	int nand_emu;
+	int channel_boot;
 };
 
 struct Game_CFG_2
@@ -716,6 +717,7 @@ extern struct TextMap map_video_patch[];
 extern struct TextMap map_gui_style[];
 extern struct TextMap map_ios[];
 extern struct TextMap map_nand_emu[];
+extern struct TextMap map_channel_boot[];
 extern char *names_vpatch[CFG_VIDEO_PATCH_NUM];
 extern u8	  cIOS_base[];
 

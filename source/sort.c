@@ -27,6 +27,7 @@ extern s32 fav_gameCnt;
 
 s32 filter_index = -1;
 s32 filter_type = -1;
+char search_str[100] = "";
 s32 sort_index = -1;
 bool sort_desc = 0;
 
@@ -588,6 +589,159 @@ int filter_duplicate_id3(struct discHdr *list, int cnt, char *ignore, bool notus
 	return cnt;
 }
 
+
+int filter_search(struct discHdr *list, int cnt, char *strWanted, bool notused)
+{
+	int i;
+	char simple_title[64];
+	char *full_title;
+	int full_pos;
+	int simple_pos;
+	
+	for (i=0; i<cnt;) {
+		simple_pos = 0;
+		full_title = get_title(&list[i]);
+		for (full_pos = 0; full_pos < 63; full_pos++){
+			if (((full_title[full_pos] >= '0') && (full_title[full_pos] <= '9'))
+			 || ((full_title[full_pos] >= 'A') && (full_title[full_pos] <= 'Z'))
+			 || ((full_title[full_pos] >= 'a') && (full_title[full_pos] <= 'z'))) {
+				simple_title[simple_pos] = full_title[full_pos];
+				simple_pos++;
+				continue;
+			 }
+			if ((full_title[full_pos] == ' ') && (simple_title[simple_pos - 1] != ' ')) {
+				simple_title[simple_pos] = full_title[full_pos];
+				simple_pos++;
+				continue;
+			 }
+			if (full_title[full_pos] == 0xC5) {
+				if (full_title[full_pos+1] == 0x8C) {	//Okami
+					simple_title[simple_pos] = 'O';
+					simple_pos++;
+					full_pos++;
+					continue;
+				}
+				if (full_title[full_pos+1] == 0x8D) {
+					simple_title[simple_pos] = 'o';
+					simple_pos++;
+					full_pos++;
+					continue;
+				}
+			 }
+			if (full_title[full_pos] == 0xC3) {
+				if ((full_title[full_pos+1] >= 0x80) && (full_title[full_pos+1] <= 0x85)) {	//pokemon
+					simple_title[simple_pos] = 'A';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (full_title[full_pos+1] == 0x87) {
+					simple_title[simple_pos] = 'C';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0x88) && (full_title[full_pos+1] <= 0x8B)) {
+					simple_title[simple_pos] = 'E';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0x8C) && (full_title[full_pos+1] <= 0x8F)) {
+					simple_title[simple_pos] = 'I';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (full_title[full_pos+1] == 0x91) {
+					simple_title[simple_pos] = 'N';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (((full_title[full_pos+1] >= 0x92) && (full_title[full_pos+1] <= 0x96))
+				  || (full_title[full_pos+1] == 0x98)) {
+					simple_title[simple_pos] = 'O';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0x99) && (full_title[full_pos+1] <= 0x9C)) {
+					simple_title[simple_pos] = 'U';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (full_title[full_pos+1] == 0x9D) {
+					simple_title[simple_pos] = 'Y';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0xA0) && (full_title[full_pos+1] <= 0xA5)) {
+					simple_title[simple_pos] = 'a';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (full_title[full_pos+1] == 0xA7) {
+					simple_title[simple_pos] = 'c';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0xA8) && (full_title[full_pos+1] <= 0xAB)) {
+					simple_title[simple_pos] = 'e';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0xAC) && (full_title[full_pos+1] <= 0xAF)) {
+					simple_title[simple_pos] = 'i';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (full_title[full_pos+1] == 0xB1) {
+					simple_title[simple_pos] = 'n';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if (((full_title[full_pos+1] >= 0xB2) && (full_title[full_pos+1] <= 0xB6))
+				  || (full_title[full_pos+1] == 0xB8)) {
+					simple_title[simple_pos] = 'o';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0xB9) && (full_title[full_pos+1] <= 0xBC)) {
+					simple_title[simple_pos] = 'u';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+				if ((full_title[full_pos+1] >= 0xBD) || (full_title[full_pos+1] <= 0xBF)) {
+					simple_title[simple_pos] = 'y';
+					simple_pos++;
+					full_pos++;
+					continue;
+				 }
+			}
+		}
+		simple_title[simple_pos] = 0;	//null terminate it
+
+//		if (!strcasestr(get_title(&list[i]), strWanted)) {
+		if (!strcasestr(simple_title, strWanted)) {
+			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
+			cnt--;
+		} else {
+			i++;
+		}
+	}
+	return cnt;
+}
+
 int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * name, bool num)
 {
 	int i, len;
@@ -712,6 +866,9 @@ int filter_games_set(int type, int index)
 			break;
 		case FILTER_GAME_TYPE:
 			ret = filter_games(filter_game_type, (char*)index, 0);
+			break;
+		case FILTER_SEARCH:
+			ret = filter_games(filter_search, (char*)search_str, 0);
 			break;
 	}
 	if (ret > -1) {

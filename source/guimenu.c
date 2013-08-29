@@ -470,6 +470,7 @@ struct W_GameCfg
 	Widget *write_playlog;
 	Widget *clean;
 	Widget *nand_emu;
+	Widget *channel_boot;
 } wgame;
 
 
@@ -751,6 +752,25 @@ void update_gameopt_state()
 		gameopt_inactive(cond, wgame.hooktype, 1);
 		gameopt_inactive(cond, wgame.ntsc_j_patch, 0);
 	}
+	else if (header->magic == CHANNEL_MAGIC)
+	{
+		// clear
+		wgui_update(wgame.clean);
+		cond = (wgame.clean->value == CFG_CLEAN_ALL);
+		gameopt_inactive(cond, wgame.language, CFG_LANG_CONSOLE);
+		gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
+		gameopt_inactive(cond, wgame.video_patch, CFG_VIDEO_PATCH_OFF);	
+		gameopt_inactive(cond, wgame.vidtv, 0);
+		gameopt_inactive(cond, wgame.country_patch, 0);
+		gameopt_inactive(cond, wgame.fix_002, 0);
+		gameopt_inactive(cond, wgame.ocarina, 0);
+		gameopt_inactive(cond, wgame.wide_screen, 0);
+				
+		// ocarina hook type
+		wgui_update(wgame.ocarina);
+		cond = (cond || (!wgame.ocarina->value && !CFG.wiird));
+		gameopt_inactive(cond, wgame.hooktype, 0);
+	}
 	else
 	{
 		// clear
@@ -1020,7 +1040,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			char *names_ios[num_ios];
 			num_ios = map_to_list(map_ios, num_ios, names_ios);
 			
-			int num_channel_boot = map_get_num(map_nand_emu);
+			int num_channel_boot = map_get_num(map_channel_boot);
 			char *names_channel_boot[num_channel_boot];
 			num_channel_boot = map_to_list(map_channel_boot, num_channel_boot, names_channel_boot);
 
@@ -1078,7 +1098,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			op->render = NULL;
 			
 			ww = wgui_add_game_opt(op, gt("Plugin:"), num_channel_boot, names_channel_boot);
-			BIND_OPT(nand_emu);
+			BIND_OPT(channel_boot);
 
 			pos_move_to(pp, PAD0, -bh);
 			pos_pad(pp, PAD0);
@@ -1708,16 +1728,81 @@ void action_OpenSort(Widget *a_ww)
 	ww->action_button = WPAD_BUTTON_B;
 }
 
+void action_Search(Widget *ww)
+{
+	Widget *rr;
+	int i;
+	int len = strlen(search_str);
+	
+
+	rr = ww->link_first;
+	i = rr->value;
+
+	if ((i >= 0) && (i <= 9))			// 0 - 9
+		search_str[len] = '0' + i; 
+	else if ((i >= 10) && (i <= 35))	// A = Z
+		search_str[len] = 'A' + i - 10;
+	else if (i == 36)					// space
+		search_str[len] = ' '; 
+	else if (i == 37)					//backspace
+		search_str[len - 1] = 0; 
+	else if (i == 38)					//clear
+		search_str[0] = 0; 
+	search_str[len + 1] = 0;	//make sure its null terminated
+		
+    rr->value = -1;		//show all keys as unpressed
+
+	filter_games_set(FILTER_SEARCH, i);
+	Gui_Refresh_List();
+
+}
+
+void action_OpenSearch(Widget *a_ww)
+{
+	Widget *dd;
+	Widget *ww;
+
+	dd = desk_open_dialog(pos(POS_CENTER,118,550,276), gt("Search"));
+//	dd->update = update_search;
+
+	pos_newlines(dd, 1);
+	pos_columns(dd, 2, SIZE_FULL);
+	wgui_add_text(dd, pos_auto, gt("Search for: "));
+	wgui_add_text(dd, pos_auto, search_str);
+	pos_newlines(dd, 1);
+
+	pos_pad(dd, PAD0/2);
+	pos_rows(dd, 8, -PAD0);
+	pos_prefsize(dd, 0, 30);             //h=height of button 
+
+	ww = wgui_arrange_radio_a(dd, pos_w(SIZE_AUTO), 10, 39, 
+				"0","1","2","3","4","5","6","7","8","9",
+				"A","B","C","D","E","F","G","H","I","J",
+				"K","L","M","N","O","P","Q","R","S","T",
+				"U","V","W","X","Y","Z"," ","<-","Clr");
+	ww->action = action_Search;
+    ww->value = -1;		//show all keys as unpressed
+/*	
+	pos_columns(dd, 3, SIZE_FULL);
+	ww = wgui_add_button(dd, pos_xy(POS_EDGE, POS_EDGE), gt("Back"));
+	ww->action = action_close_parent_dialog;
+	ww->action_button = WPAD_BUTTON_B;
+*/
+
+	// set initial radio values
+//	dd->update(dd);
+}
+
 Widget *r_filter_group;
 Widget *w_filter_page;
-Widget *r_filter[5];
+Widget *r_filter[6];
 
 void action_filter(Widget *ww)
 {
 	Widget *rr;
 	int i, r = -1, t;
 	rr = ww->link_first;
-	for (i=0; i<5; i++) {		//must be the same size as r_filter
+	for (i=0; i<6; i++) {		//must be the same size as r_filter
 		if (rr == r_filter[i]) {
 			r = i;
 		} else {
@@ -1741,6 +1826,9 @@ void action_filter(Widget *ww)
 		case 4:
 			if (i == 0) t = FILTER_ALL;
 			else if(i == 1) t = FILTER_UNPLAYED;
+			break;
+		case 5:
+			t = FILTER_SEARCH;
 			break;
 	}
 	filter_games_set(t, i);
@@ -1773,6 +1861,8 @@ char *get_filter_name(int type, int index)
 			return gt("Duplicate ID3");
 		case FILTER_GAME_TYPE:
 			return gameTypes[index][1];
+		case FILTER_SEARCH:
+			return search_str;
 	}
 	return "-";
 }
@@ -1840,11 +1930,16 @@ void action_OpenFilter(Widget *a_ww)
 	pos_margin(dd, PAD3);
 	pos_newline(dd);
 
-	// all, unplayed, wii, gamecube, channel, Back
-	pos_columns(dd, 3, SIZE_FULL);
+	// all, unplayed, search, Back
+	pos_columns(dd, 4, SIZE_FULL);
 	r_filter[4] = rr = wgui_auto_radio_a(dd, 2, 2, gt("Show All"), gt("Unplayed"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
+
+	// Search
+	r_filter[5] = rr = wgui_add_button(dd, pos_auto, gt("Search"));
+	wgui_radio_set(rr, -1);
+	rr->action = action_OpenSearch;
 
 	// close	
 	ww = wgui_add_button(dd, pos_auto, gt("Back"));
@@ -1862,6 +1957,7 @@ void action_OpenFilter(Widget *a_ww)
 		case FILTER_GAME_TYPE:	r = 3;	break;
 		case FILTER_ALL:		r = 4;	i = 0;	break;
 		case FILTER_UNPLAYED:	r = 4;	i = 1;	break;
+		case FILTER_SEARCH:		r = 5;	i = 0;	break;
 	}
 	if (r >= 0) {
 		if (r < 4) wgui_set_value(r_filter_group, r);
@@ -2494,7 +2590,7 @@ void action_Console(Widget *ww)
 
 char about_title[] = "Configurable SD/USB Loader";
 char about_str2[] =
-"by oggzee,Dr.Clipper,FIX94,R2-D2199,airline38"
+"by oggzee,Dr.Clipper,FIX94,R2-D2199,airline38,Howard"
 "\n\n"
 "CREDITS: "
 "Waninkoko Kwiirk Hermes WiiGator Spaceman Spiff WiiPower "

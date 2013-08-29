@@ -13,13 +13,20 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r66
+date = 2013-08-28
+-Added Search function (still a work in process)
+-Added display of DOIS MIOS version 2.10+ if installed
+-Fixed launching neek2o plugin 
+-Fixed mighty plugin ocarina support
+
 release = 70r65
 size = 1858016
 date = 2013-08-16
 url = http://cfg-loader-mod.googlecode.com/files/cfg70MODr65.dol
--fixed searching for hdd when
-only sd is used
--added neek2o plugin (thx Maxternal)
+-Fixed searching for hdd when
+ only sd is used
+-Added neek2o plugin (thx Maxternal)
 
 Unreleased = 70r64
 date = 2013-08-11

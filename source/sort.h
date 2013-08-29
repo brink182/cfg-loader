@@ -34,6 +34,7 @@ struct Sorts
 #define FILTER_CHANNEL		7
 #define FILTER_DUPLICATE_ID3 8
 #define FILTER_GAME_TYPE	9
+#define FILTER_SEARCH		10
 
 #define GAME_TYPE_Wii			0
 #define GAME_TYPE_GameCube		1
@@ -52,6 +53,7 @@ struct Sorts
 
 extern s32 filter_type;
 extern s32 filter_index;
+extern char search_str[100];
 extern s32 sort_index;
 extern bool sort_desc;
 extern struct Sorts sortTypes[sortCnt];
@@ -73,6 +75,7 @@ int filter_wii(struct discHdr *list, int cnt, char *ignore, bool notused);
 int filter_channel(struct discHdr *list, int cnt, char *ignore, bool notused);
 int filter_duplicate_id3(struct discHdr *list, int cnt, char *ignore, bool notused);
 int filter_game_type(struct discHdr *list, int cnt, char *typeWanted, bool notused);
+int filter_game_search(struct discHdr *list, int cnt, char *strWanted, bool notused);
 int filter_games(int (*filter) (struct discHdr *, int, char *, bool), char * name, bool num);
 int filter_games_set(int type, int index);
 void showAllGames(void);

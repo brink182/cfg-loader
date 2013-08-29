@@ -100,9 +100,28 @@ s32 load_codes(char *filename, u32 maxsize, u8 *buffer){
 
 	fflush(stdout);
 	
-	sprintf(buf, "fat:/config/mighty/cheats/%s.gct", filename);
+	sprintf(buf, "fat:/usb-loader/codes/%s.gct", filename);
+	printf("Ocaraina trying to open file %s\n", buf);
 	fp = fopen(buf, "rb");
 
+	if (!fp){
+		printf("Failed to open %s\n", buf);
+		sprintf(buf, "fat:/apps/USBLoader/codes/%s.gct", filename);
+		fp = fopen(buf, "rb");
+	}
+
+	if (!fp){
+		printf("Failed to open %s\n", buf);
+		sprintf(buf, "fat:/codes/%s.gct", filename);
+		fp = fopen(buf, "rb");
+	}
+
+	if (!fp){
+		printf("Failed to open %s\n", buf);
+		sprintf(buf, "fat:/config/mighty/cheats/%s.gct", filename);
+		fp = fopen(buf, "rb");
+	}
+	
 	if (!fp){
 		fatUnmount("fat");
 		storage_shutdown();
@@ -112,6 +131,8 @@ s32 load_codes(char *filename, u32 maxsize, u8 *buffer){
 		//write_font(185, 346, "No %s codes found", text);
 		return -1;
 	}
+
+	printf("Ocaraina using %s\n", buf);
 
 	fseek(fp, 0, SEEK_END);
 	filesize = ftell(fp);

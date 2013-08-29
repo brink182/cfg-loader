@@ -1805,7 +1805,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	int opt_saved;
 	//int opt_ios_reload;
 	int opt_language, opt_video, opt_video_patch, opt_vidtv, opt_padhook, opt_nand_emu;
-	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch, opt_screenshot, opt_channel_boot; 
+	int opt_country_patch, opt_anti_002, opt_ocarina, opt_wide_screen, opt_nodisc, opt_ntsc_j_patch, opt_screenshot; 
 	f32 size = 0.0;
 	int redraw_cover = 0;
 	int i;
@@ -1853,6 +1853,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	struct Menu menu;
 	int NUM_OPT = 19;
 	if (header->magic == GC_GAME_ON_DRIVE) NUM_OPT = 15;
+	if (header->magic == CHANNEL_MAGIC) NUM_OPT = 18;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -1892,7 +1893,6 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 	 	opt_ocarina = game_cfg->ocarina;
 		opt_ntsc_j_patch = game_cfg->ntsc_j_patch;
 		opt_nand_emu = game_cfg->nand_emu;
-		opt_channel_boot = game_cfg->channel_boot;
 
 		if (game_cfg->clean == CFG_CLEAN_ALL) {
 			opt_language = CFG_LANG_CONSOLE;
@@ -1906,7 +1906,6 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			opt_nand_emu = 0;
 			opt_nodisc = 0;
 			opt_screenshot = 0;
-			opt_channel_boot = 0;
 			active[1] = 0; // language
 			active[2] = 0; // video
 			active[3] = 0; // video_patch
@@ -2026,7 +2025,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 				*/
 		} else if (header->magic == CHANNEL_MAGIC) {
-			int num_channel_boot = map_get_num(map_nand_emu);
+			int num_channel_boot = map_get_num(map_channel_boot);
 			char *names_channel_boot[num_channel_boot];
 			num_channel_boot = map_to_list(map_channel_boot, num_channel_boot, names_channel_boot);
 			
@@ -2072,7 +2071,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 			if (menu_window_mark(&menu))
-				PRINT_OPT_S(gt("Plugin:"), gt(names_channel_boot[opt_channel_boot]));
+				PRINT_OPT_S(gt("Plugin:"), gt(names_channel_boot[game_cfg->channel_boot]));
 		} else {
 			int num_nand_emu = map_get_num(map_nand_emu);
 			char *names_nand_emu[num_nand_emu];
@@ -2213,6 +2212,87 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				break;
 			case 14: // Screenshot
 				CHANGE(game_cfg->screenshot, 1);
+				break;
+			}
+		} else if (change && (header->magic == CHANNEL_MAGIC)) {
+			switch (menu.current) {
+			case 0:
+				printf("\n\n");
+				printf_x(gt("Saving Settings... "));
+				__console_flush(0);
+				if (set_favorite(header->id, change > 0)) {
+					printf(gt("OK"));
+				} else {
+					printf(gt("ERROR"));
+					sleep(1);
+				}
+				__console_flush(0);
+				Gui_DrawCover(header->id);
+				break;
+			case 1:
+				CHANGE(game_cfg->language, CFG_LANG_MAX);
+				break;
+			case 2:
+				CHANGE(game_cfg->video, CFG_VIDEO_MAX);
+				break;
+			case 3:
+				CHANGE(game_cfg->video_patch, CFG_VIDEO_PATCH_MAX);
+				break;
+			case 4:
+				CHANGE(game_cfg->vidtv, 1);
+				break;
+			case 5:
+				CHANGE(game_cfg->country_patch, 1);
+				break;
+			case 6:
+				CHANGE(game_cfg->fix_002, 1);
+				break;
+			case 7:
+				CHANGE(game_cfg->ios_idx, CFG_IOS_MAX);
+				break;
+			case 8:
+				CHANGE(game_cfg->block_ios_reload, 2);
+				break;
+			case 9:
+				if (!disc) Menu_Alt_Dol(header, game_cfg, 1);
+				break;
+			case 10:
+				CHANGE(game_cfg->ocarina, 1);
+				break;
+			case 11:
+				CHANGE(game_cfg->hooktype, NUM_HOOK-1);
+				break;
+			case 12:
+				Menu_Cheats(header);
+				break;
+			case 13:
+				printf("\n\n");
+				Download_Cover((char*)header->id, change > 0, true);
+				Cache_Invalidate();
+				Gui_DrawCover(header->id);
+				Menu_PrintWait();
+				break;
+			case 14: // hide game
+				printf("\n\n");
+				printf_x(gt("Saving Settings... "));
+				__console_flush(0);
+				if (set_hide_game(header->id, change > 0)) {
+					printf(gt("OK"));
+				} else {
+					printf(gt("ERROR"));
+					sleep(1);
+				}
+				__console_flush(0);
+				Gui_DrawCover(header->id);
+				break;
+			case 15:
+				CHANGE(game_cfg->write_playlog, 3);
+				break;
+			case 16:
+				CHANGE(game_cfg->clean, 2);
+				break;
+			case 17:
+				CHANGE(game_cfg->channel_boot, 1);
 				break;
 			}
 		} else if (change) {
@@ -4582,8 +4662,10 @@ L_repaint:
 		sprintf(args[i++], "--videoMode=%d", CFG.game.video);
 		sprintf(args[i++], "--language=%d", CFG.game.language);
 		strcpy(args[i++], "--bootMethod=0");
-		strcpy(args[i++], "--ocarina=0");
-		strcpy(args[i++], "--hooktype=0");
+		if ((CFG.game.ocarina == 1) && (strncmp(USBLOADER_PATH,"usb",3) == 0))
+			CFG.game.ocarina = 2;	// 1 is enabled on sd: , 2 is enabled on usb:
+		sprintf(args[i++], "--ocarina=%d", CFG.game.ocarina);
+		sprintf(args[i++], "--hooktype=%d", CFG.game.hooktype);
 		strcpy(args[i++], "--videoPatch=0");
 		strcpy(args[i++], "--debugger=0");
 		Menu_Plugin(CFG.game.channel_boot, args, i);

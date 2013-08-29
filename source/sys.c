@@ -1951,6 +1951,24 @@ u16 get_miosinfo()
 	//strptime("Nov  9 2012 21:18:56", "%b %d %Y %H:%M:%S", &time);
 	//const time_t dml_2_5_time = mktime(&time);
 	
+	// Timestamp of DM 2.6.0	// Dec  1 2012 01:52:53
+ 	// Timestamp of DML 2.6		// Dec  1 2012 16:22:29
+ 	// Timestamp of DM 2.6.1	// Dec  1 2012 16:42:34
+ 	// Timestamp of DM 2.7		// Feb 20 2013 14:54:33
+ 	// Timestamp of DML 2.7		// Feb 21 2013 03:13:49
+	// Timestamp of DML 2.8		// Feb 24 2013 13:30:29
+ 	// Timestamp of DM 2.8		// Feb 24 2013 14:17:03
+	// Timestamp of DML 2.9		// Apr  5 2013 18:20:33
+	// Timestamp of DM 2.9		// Apr  5 2013 18:29:35    
+
+	// Timestamp of DML 2.10	// May 24 2013 18:51:58
+	strptime("May 24 2013 18:51:58", "%b %d %Y %H:%M:%S", &time);
+	const time_t dml_2_10_time = mktime(&time);
+
+	// Timestamp of DM 2.10		// May 24 2013 21:22:22    
+	strptime("May 24 2013 21:22:22", "%b %d %Y %H:%M:%S", &time);
+	const time_t dm_2_10_time = mktime(&time);
+
 	u32 size = 0;
 	u32 i = 0;
 	s32 ret = 0;
@@ -1979,7 +1997,11 @@ u16 get_miosinfo()
 					sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite\n%s", buffer);
 					dbg_printf("\nMIOS is %s", DIOS_MIOS_INFO);
 					
-					if (difftime(unixTime, dml_2_2_time) >= 0) {
+					if (difftime(unixTime, dml_2_10_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS Lite 2.10+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 2.10+\n%s\n", buffer);
+						mios = CFG_DM_2_2;
+					} else if (difftime(unixTime, dml_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS Lite 2.2+\n");
 						sprintf(DIOS_MIOS_INFO, "DIOS MIOS Lite 2.2+\n%s\n", buffer);
 						mios = CFG_DM_2_2;
@@ -2009,7 +2031,11 @@ u16 get_miosinfo()
 					strptime(buffer, "%b %d %Y %H:%M:%S", &time);
 					time_t unixTime = mktime(&time);
 					
-					if (difftime(unixTime, dm_2_2_time) >= 0) {
+					if (difftime(unixTime, dm_2_10_time) >= 0) {
+						dbg_printf("\nMIOS is DIOS MIOS 2.10+\n");
+						sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.10+\n%s\n", buffer);
+						mios = CFG_DM_2_2;
+					} else if (difftime(unixTime, dm_2_2_time) >= 0) {
 						dbg_printf("\nMIOS is DIOS MIOS 2.2+\n");
 						sprintf(DIOS_MIOS_INFO, "DIOS MIOS 2.2+\n%s\n", buffer);
 						mios = CFG_DM_2_2;

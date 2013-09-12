@@ -63,10 +63,13 @@ typedef struct global_config
 	u32 options;
 } gconfig;
 
-#define CONFIG_WIFILOG    (1<<0)
-#define CONFIG_WIDE       (1<<1)
-#define CONFIG_NOLED      (1<<2)
-
+#define DEVO_CFG_WIFILOG    (1<<0) // added in Devo r100, config version 0x0110
+#define DEVO_CFG_WIDE       (1<<1) // added in Devo r142 
+#define DEVO_CFG_NOLED      (1<<2)
+#define DEVO_CFG_FZERO_AX	(1<<3) // added in Devo r196, config version x0111
+#define DEVO_CFG_TIMER_FIX  (1<<4)
+#define DEVO_CFG_D_BUTTONS  (1<<5) // added in Devo r200, config version 0x0112
+   
 void DEVO_SetOptions(const char* path,u8 NMM);
 
 void GC_SetVideoMode(u8 videomode, bool devo);

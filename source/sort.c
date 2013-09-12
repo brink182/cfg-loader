@@ -28,6 +28,7 @@ extern s32 fav_gameCnt;
 s32 filter_index = -1;
 s32 filter_type = -1;
 char search_str[100] = "";
+int cur_search_compare_type = 0;
 s32 sort_index = -1;
 bool sort_desc = 0;
 
@@ -113,6 +114,31 @@ char *gameTypes[gameTypeCnt][2] =
 	{ "vc-arcade",	gts("VC-Arcade") },
 	{ "vc-c64",		gts("VC-Commodore 64") },
 	{ "wiichannel",	gts("Wii Channel") },
+};
+
+char *searchFields[searchFieldCnt] =
+{
+	gts("Title"),
+	gts("Synopsis"),
+	gts("Developer"),
+	gts("Publisher"),
+	gts("Game ID"),
+	gts("Region"),
+	gts("Rating"),
+	gts("Players"),
+	gts("Online Players"),
+	gts("Play Count"),
+	"Synopsis Len",
+};
+
+char *searchCompareTypes[searchCompareTypeCnt] =
+{
+	gts("Contains"),
+	"<",
+	"<=",
+	"=",
+	">=",
+	">",
 };
 
 char *genreTypes[genreCnt][2];
@@ -375,120 +401,119 @@ void __set_default_sort()
 int filter_features(struct discHdr *list, int cnt, char *feature, bool requiredOnly)
 {
 	int i;
-	for (i=0; i<cnt;) {
-		if (!hasFeature(feature, list[i].id)) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) {
+		if (hasFeature(feature, list[i].id)) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_online(struct discHdr *list, int cnt, char * name, bool notused)
 {
 	int i;
-	for (i=0; i<cnt;) {
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) {
 		gameXMLinfo *g = get_game_info_id(list[i].id);
-		if (!g || g->wifiplayers < 1) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+		if (g && g->wifiplayers >= 1) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_controller(struct discHdr *list, int cnt, char *controller, bool requiredOnly)
 {
 	int i;
-	for (i=0; i<cnt;) {
-		if (getControllerTypes(controller, list[i].id) < (requiredOnly ? 1 : 0)) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) {
+		if (getControllerTypes(controller, list[i].id) >= (requiredOnly ? 1 : 0)) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_genre(struct discHdr *list, int cnt, char *genre, bool notused)
 {
 	int i;
-	for (i=0; i<cnt;) {
-		if (!hasGenre(genre, list[i].id)) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) {
+		if (hasGenre(genre, list[i].id)) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_gamecube(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
-	for (i=0; i<cnt;) 
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) 
 	{
-		if (list[i].magic == GC_GAME_ON_DRIVE) 
-		{
-			i++;
-		} 
-		else 
-		{
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
+		if (list[i].magic == GC_GAME_ON_DRIVE) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_wii(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
-	for (i=0; i<cnt;) 
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) 
 	{
-		if (list[i].magic == WII_MAGIC) 
-		{
-			i++;
-		} 
-		else 
-		{
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
+		if (list[i].magic == WII_MAGIC) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_channel(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
-	for (i=0; i<cnt;) 
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) 
 	{
-		if (list[i].magic == CHANNEL_MAGIC) 
-		{
-			i++;
-		} 
-		else 
-		{
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
+		if (list[i].magic == CHANNEL_MAGIC) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_game_type(struct discHdr *list, int cnt, char *typeWanted, bool notused)
 {
 	int i;
+	int kept_cnt = 0;
 	bool isGameType;
 	
-	for (i=0; i<cnt;) {
+	for (i=0; i<cnt; i++) {
 		switch ((int) typeWanted) {
 			case GAME_TYPE_Wii:
 				isGameType = (list[i].magic == WII_MAGIC);
@@ -541,35 +566,37 @@ int filter_game_type(struct discHdr *list, int cnt, char *typeWanted, bool notus
 				isGameType = false;
 	}
 		
-		if (!isGameType) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+		if (isGameType) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_play_count(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i;
-	for (i=0; i<cnt;) {
-		if (getPlayCount(list[i].id) > 0) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) {
+		if (getPlayCount(list[i].id) <= 0) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 int filter_duplicate_id3(struct discHdr *list, int cnt, char *ignore, bool notused)
 {
 	int i, j;
+	int kept_cnt = 0;
 	bool duplicate;
-	for (i=0; i<cnt;) {
+	for (i=0; i<cnt; i++) {
 		duplicate = false;
 		for (j=0; j<cnt; ) {
 			if (i != j) 
@@ -579,41 +606,177 @@ int filter_duplicate_id3(struct discHdr *list, int cnt, char *ignore, bool notus
 					}
 			j++;
 			}
-		if (!duplicate) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+		if (duplicate) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
 
-int filter_search(struct discHdr *list, int cnt, char *strWanted, bool notused)
+int filter_search(struct discHdr *list, int cnt, char *search_field, bool notused)
 {
 	int i;
-	char simple_title[64];
+	char simple_title[XML_MAX_SYNOPSIS + 1];
 	char *full_title;
 	int full_pos;
 	int simple_pos;
+	int kept_cnt = 0;
+	struct gameXMLinfo *g;
+	char temp_str[8];
+	int	search_int;
+	int rec_int;
+	bool keep_record;
 	
-	for (i=0; i<cnt;) {
+	if (cur_search_compare_type > 0)	//numeric compare
+		search_int = atoi(search_str);
+	if ((int)search_field == 6)			//rating
+		search_int = ConvertRatingToAge(search_str, "ESRB");	//assume us console if we can detect australian and new zeland consoles should pass those ratings boards here other countries wont make a differance
+	
+	for (i=0; i<cnt; i++) {
+		switch ((int)search_field) {
+			case 0:		//title
+				full_title = get_title(&list[i]);
+				break;
+			case 1:		//synopsis
+				g = get_game_info_id(list[i].id);
+				if (g)
+					full_title = g->synopsis;
+				if (!g || !full_title) {
+					continue;
+				}
+				break;
+			case 2:		//developer
+				g = get_game_info_id(list[i].id);
+				if (g)
+					full_title = g->developer;
+				else {
+					continue;
+				}
+				break;
+			case 3:		//publisher
+				g = get_game_info_id(list[i].id);
+				if (g)
+					full_title = g->publisher;
+				else {
+					continue;
+				}
+				break;
+			case 4:		//ID6
+				sprintf(temp_str, "%s", list[i].id);
+				full_title = temp_str;
+				break;
+			case 5:		//region
+				temp_str[0] = list[i].id[3];
+				temp_str[1] = 0;
+				full_title = temp_str;
+				break;
+			case 6:		//rating
+				g = get_game_info_id(list[i].id);
+				if (g)
+					rec_int = ConvertRatingToAge(g->ratingvalue, g->ratingtype);
+				else {
+					continue;
+				}
+				goto numeric_compare;
+				break;
+			case 7:		//Number of Players
+				g = get_game_info_id(list[i].id);
+				if (g)
+					rec_int = g->players;
+				else {
+					continue;
+				}
+				goto numeric_compare;
+				break;
+			case 8:		//Number of Online Players
+				g = get_game_info_id(list[i].id);
+				if (g)
+					rec_int = g->wifiplayers;
+				else {
+					continue;
+				}
+				goto numeric_compare;
+				break;
+			case 9:		//Play Count
+				rec_int = getPlayCount(list[i].id);
+				goto numeric_compare;
+				break;
+			case 10:		//test synopsis len
+				g = get_game_info_id(list[i].id);
+				if (g)
+					full_title = g->synopsis;
+				if (!g || !full_title) {
+					continue;
+				}
+				rec_int = strlen(g->synopsis);
+				goto numeric_compare;
+				break;
+			default:		//should never happen
+				continue;
+		}
 		simple_pos = 0;
-		full_title = get_title(&list[i]);
-		for (full_pos = 0; full_pos < 63; full_pos++){
+		for (full_pos = 0; full_pos < XML_MAX_SYNOPSIS - 1; full_pos++){
 			if (((full_title[full_pos] >= '0') && (full_title[full_pos] <= '9'))
 			 || ((full_title[full_pos] >= 'A') && (full_title[full_pos] <= 'Z'))
 			 || ((full_title[full_pos] >= 'a') && (full_title[full_pos] <= 'z'))) {
 				simple_title[simple_pos] = full_title[full_pos];
 				simple_pos++;
 				continue;
-			 }
-			if ((full_title[full_pos] == ' ') && (simple_title[simple_pos - 1] != ' ')) {
-				simple_title[simple_pos] = full_title[full_pos];
-				simple_pos++;
+			}
+			if ((full_title[full_pos] == ' ')		//space
+			 || (full_title[full_pos] == 0x0D)		//carrage return
+			 || (full_title[full_pos] == 0x0A)		//line feed
+			 || (full_title[full_pos] == 0x09)) {	//tab
+				if (simple_title[simple_pos - 1] != ' ') {
+					simple_title[simple_pos] = full_title[full_pos];
+					simple_pos++;
+				}
 				continue;
-			 }
+			}
+			if (full_title[full_pos] == 0x00) {		// null
+				break;
+			}
+			if (full_title[full_pos] == '&') {		//possable xml esc seaquences
+				if ((full_title[full_pos+1] == 'g')
+				 && (full_title[full_pos+2] == 't')
+				 && (full_title[full_pos+3] == ';')) {	//&gt;
+					full_pos = full_pos + 3;
+					continue;
+				}
+				if ((full_title[full_pos+1] == 'l')
+				 && (full_title[full_pos+2] == 't')
+				 && (full_title[full_pos+3] == ';')) {	//&lt;
+					full_pos = full_pos + 3;
+					continue;
+				}
+				if ((full_title[full_pos+1] == 'q')
+				 && (full_title[full_pos+2] == 'u')
+				 && (full_title[full_pos+3] == 'o')
+				 && (full_title[full_pos+4] == 't')
+				 && (full_title[full_pos+5] == ';')) {	//&quot;
+					full_pos = full_pos + 5;
+					continue;
+				}
+				if ((full_title[full_pos+1] == 'a')
+				 && (full_title[full_pos+2] == 'p')
+				 && (full_title[full_pos+3] == 'o')
+				 && (full_title[full_pos+4] == 's')
+				 && (full_title[full_pos+5] == ';')) {	//&apos;
+					full_pos = full_pos + 5;
+					continue;
+				}
+				if ((full_title[full_pos+1] == 'a')
+				 && (full_title[full_pos+2] == 'm')
+				 && (full_title[full_pos+3] == 'p')
+				 && (full_title[full_pos+4] == ';')) {	//&amp;
+					full_pos = full_pos + 4;
+					continue;
+				}
+			}
 			if (full_title[full_pos] == 0xC5) {
 				if (full_title[full_pos+1] == 0x8C) {	//Okami
 					simple_title[simple_pos] = 'O';
@@ -621,124 +784,188 @@ int filter_search(struct discHdr *list, int cnt, char *strWanted, bool notused)
 					full_pos++;
 					continue;
 				}
-				if (full_title[full_pos+1] == 0x8D) {
+				if ((full_title[full_pos+1] == 0x8D)
+				  ||(full_title[full_pos+1] == 0x91)) {
 					simple_title[simple_pos] = 'o';
 					simple_pos++;
 					full_pos++;
 					continue;
 				}
-			 }
+				if (full_title[full_pos+1] == 0x92) {
+					simple_title[simple_pos] = 'O';
+					simple_pos++;
+					simple_title[simple_pos] = 'E';
+					simple_pos++;
+					full_pos++;
+					continue;
+				}
+				if (full_title[full_pos+1] == 0x93) {
+					simple_title[simple_pos] = 'o';
+					simple_pos++;
+					simple_title[simple_pos] = 'e';
+					simple_pos++;
+					full_pos++;
+					continue;
+				}
+			}
 			if (full_title[full_pos] == 0xC3) {
-				if ((full_title[full_pos+1] >= 0x80) && (full_title[full_pos+1] <= 0x85)) {	//pokemon
+				if ((full_title[full_pos+1] >= 0x80) && (full_title[full_pos+1] <= 0x85)) {
 					simple_title[simple_pos] = 'A';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
+				if (full_title[full_pos+1] == 0x86) {
+					simple_title[simple_pos] = 'A';
+					simple_pos++;
+					simple_title[simple_pos] = 'E';
+					simple_pos++;
+					full_pos++;
+					continue;
+				}
 				if (full_title[full_pos+1] == 0x87) {
 					simple_title[simple_pos] = 'C';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0x88) && (full_title[full_pos+1] <= 0x8B)) {
 					simple_title[simple_pos] = 'E';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0x8C) && (full_title[full_pos+1] <= 0x8F)) {
 					simple_title[simple_pos] = 'I';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if (full_title[full_pos+1] == 0x91) {
 					simple_title[simple_pos] = 'N';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if (((full_title[full_pos+1] >= 0x92) && (full_title[full_pos+1] <= 0x96))
 				  || (full_title[full_pos+1] == 0x98)) {
 					simple_title[simple_pos] = 'O';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0x99) && (full_title[full_pos+1] <= 0x9C)) {
 					simple_title[simple_pos] = 'U';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if (full_title[full_pos+1] == 0x9D) {
 					simple_title[simple_pos] = 'Y';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0xA0) && (full_title[full_pos+1] <= 0xA5)) {
 					simple_title[simple_pos] = 'a';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
+				if (full_title[full_pos+1] == 0xA6) {
+					simple_title[simple_pos] = 'a';
+					simple_pos++;
+					simple_title[simple_pos] = 'e';
+					simple_pos++;
+					full_pos++;
+					continue;
+				}
 				if (full_title[full_pos+1] == 0xA7) {
 					simple_title[simple_pos] = 'c';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
-				if ((full_title[full_pos+1] >= 0xA8) && (full_title[full_pos+1] <= 0xAB)) {
+				}
+				if ((full_title[full_pos+1] >= 0xA8) && (full_title[full_pos+1] <= 0xAB)) {	//pokemon
 					simple_title[simple_pos] = 'e';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0xAC) && (full_title[full_pos+1] <= 0xAF)) {
 					simple_title[simple_pos] = 'i';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if (full_title[full_pos+1] == 0xB1) {
 					simple_title[simple_pos] = 'n';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if (((full_title[full_pos+1] >= 0xB2) && (full_title[full_pos+1] <= 0xB6))
 				  || (full_title[full_pos+1] == 0xB8)) {
 					simple_title[simple_pos] = 'o';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0xB9) && (full_title[full_pos+1] <= 0xBC)) {
 					simple_title[simple_pos] = 'u';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 				if ((full_title[full_pos+1] >= 0xBD) || (full_title[full_pos+1] <= 0xBF)) {
 					simple_title[simple_pos] = 'y';
 					simple_pos++;
 					full_pos++;
 					continue;
-				 }
+				}
 			}
 		}
 		simple_title[simple_pos] = 0;	//null terminate it
 
-//		if (!strcasestr(get_title(&list[i]), strWanted)) {
-		if (!strcasestr(simple_title, strWanted)) {
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+//		if (!strcasestr(get_title(&list[i]), search_str)) {
+		if (strcasestr(simple_title, search_str)) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
+		}
+		continue;
+
+numeric_compare:
+		switch (cur_search_compare_type) {
+			case 0:		//contains
+				keep_record = strcasestr(simple_title, search_str);
+				break;
+			case 1:		//<
+				keep_record = (rec_int < search_int);
+				break;
+			case 2:		//<=
+				keep_record = (rec_int <= search_int);
+				break;
+			case 3:		//=
+				keep_record = (rec_int == search_int);
+				break;
+			case 4:		//>=
+				keep_record = (rec_int >= search_int);
+				break;
+			case 5:		//>
+				keep_record = (rec_int > search_int);
+				break;
+			default:
+				keep_record = false;
+		}
+		
+		if (keep_record) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
@@ -868,7 +1095,7 @@ int filter_games_set(int type, int index)
 			ret = filter_games(filter_game_type, (char*)index, 0);
 			break;
 		case FILTER_SEARCH:
-			ret = filter_games(filter_search, (char*)search_str, 0);
+			ret = filter_games(filter_search, (char*)index, 0);
 			break;
 	}
 	if (ret > -1) {
@@ -886,6 +1113,7 @@ bool is_filter(int type, int index)
 		case FILTER_CONTROLLER:
 		case FILTER_FEATURES:
 		case FILTER_GAME_TYPE:
+		case FILTER_SEARCH:
 			return index == filter_index;
 	}
 	return true;
@@ -1124,6 +1352,10 @@ s32 __sort_id_desc(const void *a, const void *b)
 void sortList(int (*sortFunc) (const void *, const void *))
 {
 	int inst_time = 0;
+	if (!all_gameList) {	//During init all-gamesList dosent exist yet fake it
+		all_gameList = gameList;
+		all_gameCnt  = gameCnt;
+	}
 	if (sortFunc == __sort_install_date_asc	|| sortFunc == __sort_install_date_desc) {
 		inst_time = 1;
 		// prepare install times
@@ -1135,24 +1367,37 @@ void sortList(int (*sortFunc) (const void *, const void *))
 		//dbg_time1();
 		printf("\n\n");
 		hmap_init(&install_time, 6, sizeof(time_t));
-		for (i=0; i<gameCnt; i++) {
-			printf_("... %3d%%\r", 100*(i+1)/gameCnt);
+		for (i=0; i<all_gameCnt; i++) {
+			printf_("... %3d%%\r", 100*(i+1)/all_gameCnt);
 			__console_flush(1);
 			*fname = 0;
 			time = 0;
-			ret = WBFS_FAT_find_fname(gameList[i].id, fname, sizeof(fname));
+			if (all_gameList[i].magic == GC_GAME_ON_DRIVE) {
+				sprintf(fname, "%s", all_gameList[i].path);	
+				ret = 1;
+			} else if (all_gameList[i].magic == CHANNEL_MAGIC) {
+				sprintf(fname, "%s/title/00010001/%02x%02x%02x%02x/content/title.tmd", CFG.nand_emu_path, all_gameList[i].id[0], all_gameList[i].id[1], all_gameList[i].id[2], all_gameList[i].id[3]);
+				ret = 1;
+			} else {
+				ret = WBFS_FAT_find_fname(all_gameList[i].id, fname, sizeof(fname));
+			}
 			if (ret > 0 && stat(fname, &st) == 0) {
 				time = st.st_mtime;
 			}
-			hmap_add(&install_time, gameList[i].id, &time);
+			hmap_add(&install_time, all_gameList[i].id, &time);
 		}
 		//dbg_time2("stat"); Menu_PrintWait();
 	}
 
-	qsort(gameList, gameCnt, sizeof(struct discHdr), sortFunc);
+	qsort(all_gameList, all_gameCnt, sizeof(struct discHdr), sortFunc);	//sort the whole list or it gets lost when changing filters
+	if (fav_gameList)	// if the list exists
+		qsort(fav_gameList, fav_gameCnt, sizeof(struct discHdr), sortFunc);	//fav list needs to be sorted also
 	if (inst_time) {
 		hmap_close(&install_time);
 	}
+
+	if (filter_gameList)	// if the list exists
+		filter_games_set(filter_type, filter_index);	//refilter the list with the new sort
 	
 	// scroll start list
 	__Menu_ScrollStartList();

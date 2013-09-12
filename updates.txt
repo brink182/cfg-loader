@@ -13,6 +13,19 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r67
+date = 2013-09-12
+-Updated Search function (still a work in process)
+-Spead up filters, switching on favorites, hiding games
+-Fixed WiFi Players not displaying when WiFi Players = 1
+-Fixed Sort not working when selecting filter, then sort, then a different filter
+-Increased the max synopsis length used
+-Fixed sorting by install date for channels, gamecube if on fat, 
+-Fixed drive corruption when using Devolution with nmm and the isos on a different drive than cfg
+-Added Devolution LED control
+-Fixed Devolution when isos are on sd:
+-Added Devolution direct button mapping support 
+
 Unreleased = 70r66
 date = 2013-08-28
 -Added Search function (still a work in process)

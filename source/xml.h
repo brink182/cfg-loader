@@ -11,7 +11,7 @@ extern "C"
 
 #define XML_NUM_FEATURES 4
 
-#define XML_MAX_SYNOPSIS 2000
+#define XML_MAX_SYNOPSIS 3000
 
 typedef struct gameXMLinfo
 {	
@@ -46,6 +46,7 @@ void CloseXMLDatabase();
 bool LoadGameInfoFromXML(u8 * gameid);
 char *ConvertLangTextToCode(char *langtext);
 char *VerifyLangCode(char *langtext);
+int ConvertRatingToAge(char *ratingvalue, char *ratingSystem);
 void ConvertRating(char *ratingvalue, char *fromrating, char *torating, char *destvalue, int destsize);
 void FmtGameInfo(char *linebuf, int cols, int size);
 void PrintGameInfo();

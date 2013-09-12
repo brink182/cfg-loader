@@ -519,7 +519,13 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 	DEVO_CONFIG->disc1_cluster = st.st_ino;
 	
 	if (CFG.game.wide_screen)
-		DEVO_CONFIG->options |= CONFIG_WIDE;
+		DEVO_CONFIG->options |= DEVO_CFG_WIDE;
+	if (!CFG.game.vidtv)
+		DEVO_CONFIG->options |= DEVO_CFG_NOLED;
+	if (CFG.game.alt_controller_cfg) {
+		DEVO_CONFIG->version = 0x00000112;
+		DEVO_CONFIG->options |= DEVO_CFG_D_BUTTONS;
+	}
 	
 	// For 2nd ios file
 	struct stat st2;
@@ -541,16 +547,28 @@ void DEVO_SetOptions(const char *path, u8 NMM)
 		DEVO_CONFIG->disc2_cluster = st2.st_ino;	
 	}
 
-	// make sure these directories exist, they are required for Devolution to function correctly
-	snprintf(full_path, sizeof(full_path), "usb:/apps");
+	// make sure these directories exist ON THE DRIVE THAT HOLDS THE ISO FILE, they are required for Devolution to function correctly
+	char iso_disk[5];
+	if (path[0] == 'u')
+		sprintf(iso_disk, "usb:");
+	else
+		sprintf(iso_disk, "sd:");
+	snprintf(full_path, sizeof(full_path), "%s/apps", iso_disk);
 	fsop_MakeFolder(full_path);
-	snprintf(full_path, sizeof(full_path), "usb:/apps/gc_devo");
+	snprintf(full_path, sizeof(full_path), "%s/apps/gc_devo", iso_disk);
 	fsop_MakeFolder(full_path);
 
 	// find or create a 16MB memcard file for emulation
 	// this file can be located anywhere since it's passed by cluster, not name
-	// it must be at least 16MB though
-	snprintf(full_path, sizeof(full_path), "%s/memcard.bin", USBLOADER_PATH);
+	// it must be at least 512KB (smallest possible memcard = 59 blocks)
+
+	// IT MUST BE LOCATED ON THE SAME DRIVE AS THE ISO FILE!
+	// IF YOU FUCK THIS UP (I'M LOOKING AT YOU, CFG-LOADER) YOU RISK DATA CORRUPTION
+	if (USBLOADER_PATH[0] == iso_disk[0])
+		snprintf(full_path, sizeof(full_path), "%s/memcard.bin", USBLOADER_PATH);
+	else
+		snprintf(full_path, sizeof(full_path), "%s/apps/gc_devo/memcard.bin", iso_disk);
+
 
 	// check if file doesn't exist or is less than 16MB
 	if(stat(full_path, &st) == -1 || st.st_size < 16<<20)

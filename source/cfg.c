@@ -1203,6 +1203,7 @@ void CFG_Default()
 	CFG.game.nodisc = 0;
 	CFG.game.screenshot = 0;
 	CFG.game.block_ios_reload = 2; // 2=auto
+	CFG.game.alt_controller_cfg = 0;
 	cfg_ios_set_idx(DEFAULT_IOS_IDX);
 	// all other game settings are 0 (memset(0) above)
 	STRCOPY(CFG.sort_ignore, "A,An,The");
@@ -2253,6 +2254,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 	cfg_ios_idx(name, val, &game_cfg->ios_idx);
 	cfg_bool("block_ios_reload", &game_cfg->block_ios_reload);
 	cfg_map("block_ios_reload", "auto", &game_cfg->block_ios_reload, 2);
+	cfg_bool("alt_controller_cfg", &game_cfg->alt_controller_cfg);
 	if (strcmp("alt_dol", name) == 0) {
 		int set = 0;
 		if (cfg_bool("alt_dol", &game_cfg->alt_dol)) set = 1;
@@ -2589,15 +2591,15 @@ void cfg_set(char *name, char *val)
 int CFG_hide_games(struct discHdr *list, int cnt)
 {
 	int i;
-	for (i=0; i<cnt;) {
-		if (is_in_hide_list(list+i)) {
-			// move remaining entries over
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+	int kept_cnt = 0;
+	for (i=0; i<cnt; i++) {
+		if (!is_in_hide_list(list+i)) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	return cnt;
 }
 
@@ -2653,17 +2655,17 @@ bool set_favorite(u8 *id, bool fav)
 int CFG_filter_favorite(struct discHdr *list, int cnt)
 {
 	int i;
+	int kept_cnt = 0;
 	//printf("f filter %p %d\n", list, cnt); sleep(2);
-	for (i=0; i<cnt;) {
+	for (i=0; i<cnt; i++) {
 		//printf("%d %s %d\n", i, list[i].id, is_favorite(list[i].id));
-		if (!is_favorite(list[i].id)) {
-			// move remaining entries over
-			memcpy(list+i, list+i+1, (cnt-i-1) * sizeof(struct discHdr));
-			cnt--;
-		} else {
-			i++;
+		if (is_favorite(list[i].id)) {
+			if (kept_cnt != i)
+				list[kept_cnt] = list[i];
+			kept_cnt++;
 		}
 	}
+	cnt = kept_cnt;
 	//printf("e filter %p %d\n", list, cnt); sleep(5);
 	return cnt;
 }
@@ -2960,6 +2962,7 @@ bool CFG_Save_Settings(int verbose)
 		s = map_get_name(map_hook, game_cfg->hooktype);
 		SAVE_STR("hooktype", s);
 		SAVE_NUM(write_playlog);
+		SAVE_BOOL(alt_controller_cfg);
 		if (game_cfg->clean == CFG_CLEAN_OFF) {
 			SAVE_STR("clear_patches", "0");
 		} else if (game_cfg->clean == CFG_CLEAN_ON) {

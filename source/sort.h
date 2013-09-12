@@ -22,6 +22,8 @@ struct Sorts
 #define genreCnt 72
 #define sortCnt 10
 #define gameTypeCnt 14
+#define searchFieldCnt 11
+#define searchCompareTypeCnt 6
 
 #define FILTER_ALL			-1
 #define FILTER_ONLINE		0
@@ -54,6 +56,7 @@ struct Sorts
 extern s32 filter_type;
 extern s32 filter_index;
 extern char search_str[100];
+extern int cur_search_compare_type;
 extern s32 sort_index;
 extern bool sort_desc;
 extern struct Sorts sortTypes[sortCnt];
@@ -62,6 +65,8 @@ extern char *genreTypes[genreCnt][2];
 extern char *accessoryTypes[accessoryCnt][2];
 extern char *featureTypes[featureCnt][2];
 extern char *gameTypes[gameTypeCnt][2];
+extern char *searchFields[searchFieldCnt];
+extern char *searchCompareTypes[searchCompareTypeCnt];
 
 int (*default_sort_function) (const void *a, const void *b);
 

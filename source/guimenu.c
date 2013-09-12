@@ -471,6 +471,7 @@ struct W_GameCfg
 	Widget *clean;
 	Widget *nand_emu;
 	Widget *channel_boot;
+	Widget *alt_controller_cfg;
 } wgame;
 
 
@@ -1013,6 +1014,9 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			
 			ww = wgui_add_game_opt(op, gt("Screenshot:"), 2, NULL);
 			BIND_OPT(screenshot);
+			
+			ww = wgui_add_game_opt(op, gt("Alt Button Cfg:"), 2, NULL);
+			BIND_OPT(alt_controller_cfg);
 			
 			pos_move_to(pp, PAD0, -bh);
 			pos_pad(pp, PAD0);
@@ -1728,6 +1732,10 @@ void action_OpenSort(Widget *a_ww)
 	ww->action_button = WPAD_BUTTON_B;
 }
 
+Widget *r_filter_group;
+Widget *w_filter_page;
+Widget *r_filter[6];
+
 void action_Search(Widget *ww)
 {
 	Widget *rr;
@@ -1752,23 +1760,66 @@ void action_Search(Widget *ww)
 		
     rr->value = -1;		//show all keys as unpressed
 
-	filter_games_set(FILTER_SEARCH, i);
+	if (filter_index < 0) filter_index = 0;
+	if (filter_index >= searchFieldCnt) filter_index = searchFieldCnt - 1;
+	
+	filter_games_set(FILTER_SEARCH, filter_index);
+	Gui_Refresh_List();
+
+}
+void action_search_field(Widget *ww)
+{
+	Widget *rr;
+	int i;
+
+	rr = ww->link_first;
+	i = rr->value;
+	if (i < 0) i = 0;
+
+	if (filter_index <= 5)
+		cur_search_compare_type = 0;	//only allow contains
+	if ((filter_index > 5) && (cur_search_compare_type == 0))
+		cur_search_compare_type = 4;	//default to >=
+
+//	filter_games_set(FILTER_SEARCH, i);
+	filter_games_set(FILTER_SEARCH, filter_index);
 	Gui_Refresh_List();
 
 }
 
-void action_OpenSearch(Widget *a_ww)
+void action_search_compare_type(Widget *ww)
 {
-	Widget *dd;
+	cur_search_compare_type = ww->value;
+	filter_games_set(FILTER_SEARCH, filter_index);
+	Gui_Refresh_List();
+
+}
+
+void Init_Search_Dilog(Widget *dd)
+{
+//	Widget *dd;
 	Widget *ww;
 
-	dd = desk_open_dialog(pos(POS_CENTER,118,550,276), gt("Search"));
+//	dd = desk_open_dialog(pos(POS_CENTER,118,550,276), gt("Search"));
 //	dd->update = update_search;
 
-	pos_newlines(dd, 1);
-	pos_columns(dd, 2, SIZE_FULL);
-	wgui_add_text(dd, pos_auto, gt("Search for: "));
-	wgui_add_text(dd, pos_auto, search_str);
+	r_filter[4] = ww = wgui_add_opt(dd, gt("Search for:"), searchFieldCnt, searchFields);
+	ww->val_ptr = &filter_index;
+	ww->action = action_write_val_ptr_int;
+	ww->action2 = action_search_field;
+
+//	pos_newlines(dd, 1);
+//	pos_columns(dd, 2, SIZE_FULL);
+//	pos_rows(dd, 8, -PAD0);
+//	wgui_add_text(dd, pos_auto, gt("Search for: "));
+	ww = wgui_add_superbox(dd, pos_auto, gt("Compare Type"), searchCompareTypeCnt, searchCompareTypes);
+	ww->val_ptr = &cur_search_compare_type;
+	ww->action = action_write_val_ptr_int;
+	ww->action2 = action_search_compare_type;
+//wgui_set_inactive(wgui_link_get(ww, 4), true);
+	pos_move_y(ww, -20);
+
+	wgui_add_label(dd, pos_auto, search_str);
 	pos_newlines(dd, 1);
 
 	pos_pad(dd, PAD0/2);
@@ -1779,7 +1830,7 @@ void action_OpenSearch(Widget *a_ww)
 				"0","1","2","3","4","5","6","7","8","9",
 				"A","B","C","D","E","F","G","H","I","J",
 				"K","L","M","N","O","P","Q","R","S","T",
-				"U","V","W","X","Y","Z"," ","<-","Clr");
+				"U","V","W","X","Y","Z"," ","\x11--",gt("Clear"));
 	ww->action = action_Search;
     ww->value = -1;		//show all keys as unpressed
 /*	
@@ -1792,10 +1843,6 @@ void action_OpenSearch(Widget *a_ww)
 	// set initial radio values
 //	dd->update(dd);
 }
-
-Widget *r_filter_group;
-Widget *w_filter_page;
-Widget *r_filter[6];
 
 void action_filter(Widget *ww)
 {
@@ -1824,11 +1871,11 @@ void action_filter(Widget *ww)
 			t = FILTER_GAME_TYPE;
 			break;
 		case 4:
-			if (i == 0) t = FILTER_ALL;
-			else if(i == 1) t = FILTER_UNPLAYED;
+			t = FILTER_SEARCH;
 			break;
 		case 5:
-			t = FILTER_SEARCH;
+			if (i == 0) t = FILTER_ALL;
+			else if(i == 1) t = FILTER_UNPLAYED;
 			break;
 	}
 	filter_games_set(t, i);
@@ -1927,19 +1974,21 @@ void action_OpenFilter(Widget *a_ww)
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
+	//search page
+	pp = wgui_add_page(dd, page, pos_auto, NULL);
+	Init_Search_Dilog(pp);
+
 	pos_margin(dd, PAD3);
 	pos_newline(dd);
 
 	// all, unplayed, search, Back
 	pos_columns(dd, 4, SIZE_FULL);
-	r_filter[4] = rr = wgui_auto_radio_a(dd, 2, 2, gt("Show All"), gt("Unplayed"));
+	r_filter[5] = rr = wgui_auto_radio_a(dd, 2, 2, gt("Show All"), gt("Unplayed"));
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
-	// Search
-	r_filter[5] = rr = wgui_add_button(dd, pos_auto, gt("Search"));
-	wgui_radio_set(rr, -1);
-	rr->action = action_OpenSearch;
+	// Search (only add the button here to get the positions correct)
+	rr = wgui_add_radio(dd, r_filter_group, pos_auto, gt("Search"));
 
 	// close	
 	ww = wgui_add_button(dd, pos_auto, gt("Back"));
@@ -1955,12 +2004,12 @@ void action_OpenFilter(Widget *a_ww)
 		case FILTER_ONLINE:		r = 2;	i = 0;	break;
 		case FILTER_FEATURES:	r = 2;	i = filter_index + 1;	break;
 		case FILTER_GAME_TYPE:	r = 3;	break;
-		case FILTER_ALL:		r = 4;	i = 0;	break;
-		case FILTER_UNPLAYED:	r = 4;	i = 1;	break;
-		case FILTER_SEARCH:		r = 5;	i = 0;	break;
+		case FILTER_SEARCH:		r = 4;	break;
+		case FILTER_ALL:		r = 5;	i = 0;	break;
+		case FILTER_UNPLAYED:	r = 5;	i = 1;	break;
 	}
 	if (r >= 0) {
-		if (r < 4) wgui_set_value(r_filter_group, r);
+		if (r < 5) wgui_set_value(r_filter_group, r);
 		wgui_set_value(r_filter[r], i);
 	}
 }

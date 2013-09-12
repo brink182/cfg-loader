@@ -1429,7 +1429,7 @@ void Print_SYS_Info_str(char *str, int size, bool console)
 			snprintf(str, size, DIOS_MIOS_INFO);
 			str_seek_end(&str, &size);
 		}
-		snprintf(str, size, "NAND Emu Path:\n%s\n", CFG.nand_emu_path);
+		snprintf(str, size, gt("NAND Emu Path:\n%s\n"), CFG.nand_emu_path);
 		str_seek_end(&str, &size);
 	}
 }
@@ -1852,8 +1852,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 
 	struct Menu menu;
 	int NUM_OPT = 19;
-	if (header->magic == GC_GAME_ON_DRIVE) NUM_OPT = 15;
-	if (header->magic == CHANNEL_MAGIC) NUM_OPT = 18;
+	if (header->magic == GC_GAME_ON_DRIVE) NUM_OPT = 16;
+	if (header->magic == CHANNEL_MAGIC) NUM_OPT = 19;
 	char active[NUM_OPT];
 	menu_init(&menu, NUM_OPT);
 
@@ -2018,6 +2018,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				PRINT_OPT_B(gt("Devolution:"), opt_anti_002);
 			if (menu_window_mark(&menu))
 				PRINT_OPT_B(gt("Screenshot:"), opt_screenshot);
+			if (menu_window_mark(&menu))
+				PRINT_OPT_B(gt("Alt Button Cfg:"), game_cfg->alt_controller_cfg);
 				/*
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Write Playlog:"), gt(playlog_name[game_cfg->write_playlog]));
@@ -2072,6 +2074,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Plugin:"), gt(names_channel_boot[game_cfg->channel_boot]));
+			if (menu_window_mark(&menu))
+				PRINT_OPT_A(gt("Savegame:"), gt("Dump savegame"));
 		} else {
 			int num_nand_emu = map_get_num(map_nand_emu);
 			char *names_nand_emu[num_nand_emu];
@@ -2213,6 +2217,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			case 14: // Screenshot
 				CHANGE(game_cfg->screenshot, 1);
 				break;
+			case 15: // Alt Button Cfg
+				CHANGE(game_cfg->alt_controller_cfg, 1);
+				break;
 			}
 		} else if (change && (header->magic == CHANNEL_MAGIC)) {
 			switch (menu.current) {
@@ -2293,6 +2300,9 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 				break;
 			case 17:
 				CHANGE(game_cfg->channel_boot, 1);
+				break;
+			case 18:
+				Menu_dump_savegame(header);
 				break;
 			}
 		} else if (change) {

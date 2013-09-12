@@ -377,6 +377,39 @@ char ConvertRatingToIndex(char *ratingtext)
 	return type;
 }
 
+int ConvertRatingToAge(char *ratingvalue, char *ratingSystem)
+{
+	int age;
+	
+	age = atoi(ratingvalue);
+	if ((age > 0 ) && (age <= 25)) return age;
+	if (!strncmp(ratingvalue,"E1",2)) return 10;	//E10+
+	if (!strncmp(ratingvalue,"EC",2)) return 3;
+	if (!strncmp(ratingvalue,"AO",2)) return 18;
+	if (ratingvalue[0] == 'A') return 0;
+	if (ratingvalue[0] == 'B') return 12;
+	if (ratingvalue[0] == 'C') return 15;
+	if (ratingvalue[0] == 'D') return 17;
+	if (ratingvalue[0] == 'E') return 6;
+	if (ratingvalue[0] == 'G') return 0;
+	if (ratingvalue[0] == 'L') return 0;
+	if (ratingvalue[0] == 'T') return 13;
+	if (ratingvalue[0] == 'Z') return 18;
+	if (ratingvalue[0] == '0') return 0;
+	if (ratingvalue[0] == 'M') {
+		if (!strncmp(ratingvalue,"M18",3)) return 18;
+		if (!strncmp(ratingvalue,"MA15",4)) return 15;
+		if (!strncmp(ratingSystem,"ACB",3)) return 12;
+		if (!strncmp(ratingSystem,"OFLC",4)) return 13;
+		return 17;		//assume us ESRB system
+		}
+	if (!strncmp(ratingvalue,"PG",2)) return 8;
+	if (!strncmp(ratingvalue,"R13",3)) return 13;
+	if (!strncmp(ratingvalue,"R16",3)) return 16;
+	if (!strncmp(ratingvalue,"R18",3)) return 18;
+	return -1;
+}
+
 void ConvertRating(char *ratingvalue, char *fromrating, char *torating, char *destvalue, int destsize)
 {
 	if(!strcmp(fromrating,torating)) {
@@ -714,6 +747,7 @@ void readTitles(xmlIndex *x, struct gameXMLinfo *g)
 	char *locTmp;
 	char *titStart;
 	char *titEnd;
+	char temp_synopsis[XML_MAX_SYNOPSIS *2];
 
 	if (!x->start) return;
 	locEnd = x->start;
@@ -754,10 +788,14 @@ void readTitles(xmlIndex *x, struct gameXMLinfo *g)
 			if (titStart != NULL) {
 				titEnd = strstr(titStart, "</synopsis>");
 				int len = titEnd-(titStart+10);
+				if (len >= sizeof(temp_synopsis)) len = sizeof(temp_synopsis) - 1;
+				strcopy(temp_synopsis, titStart+10, len+1);
+				unescape(temp_synopsis,sizeof(temp_synopsis));
+				len = strlen(temp_synopsis);
 				if (len >= XML_MAX_SYNOPSIS) len = XML_MAX_SYNOPSIS - 1;
 				g->synopsis = obs_alloc(&obs_game_info, len+1);
 				if (!g->synopsis) break;
-				strcopy(g->synopsis, titStart+10, len+1);
+				strcopy(g->synopsis, temp_synopsis, len+1);
 				f_synopsis = found;
 			}
 		}
@@ -1017,7 +1055,7 @@ void FmtGameInfo(char *linebuf, int cols, int size)
 			strcpy(players, gt("for 1 player"));
 		}
 		strcat(linebuf, players);
-		if (gameinfo.wifiplayers > 1) {
+		if (gameinfo.wifiplayers > 0) {
 			snprintf(D_S(players), gt("(%d online)"), gameinfo.wifiplayers);
 			strcat(linebuf, " ");
 			strcat(linebuf, players);

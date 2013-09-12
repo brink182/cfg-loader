@@ -257,6 +257,7 @@ struct Game_CFG
 	int clean;
 	int nand_emu;
 	int channel_boot;
+	int alt_controller_cfg;
 };
 
 struct Game_CFG_2

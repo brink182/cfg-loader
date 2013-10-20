@@ -2302,6 +2302,13 @@ bool cfg_set_gbl(char *name, char *val)
 	if (strcmp(name, "theme")==0) {
 		if (*val) {
 			load_theme(val);
+			int i;
+			for (i=0; i<num_theme; i++) {
+				if (stricmp(val, theme_list[i]) == 0) {
+					cur_theme = i;
+					break;
+				}
+			}
 			return true;
 		}
 	}
@@ -2560,6 +2567,18 @@ void cfg_set(char *name, char *val)
 			STRCOPY(CFG.profile_names[0], "default");
 		}
 	}
+
+	if (strcmp(name, "profile_start_favorites")==0) {
+		int i;
+		char token[25];
+		for (i=0; i<MAX_PROFILES; i++) {
+			if (get_token_n(token, sizeof(token), val, " ", i)) {
+				cfg_val = token;
+				cfg_bool("profile_start_favorites", &CFG.profile_start_favorites[i]);
+			}
+		}
+	}
+
 	cfg_int_max("wiird", &CFG.wiird, 2);
 	if (strcmp(name, "return_to_channel")==0) {
 		if (strcmp(val, "0")== 0)
@@ -2769,6 +2788,17 @@ void settings_set(char *name, char *val)
 		//printf("%s : %s : %d\n", name, val, i);
 	}
 	if (profile_tag_index >= 0) {
+		if (strcmp(name, "profile_theme") == 0) {
+			int i;
+			for (i=0; i<num_theme; i++) {
+				if (stricmp(val, theme_list[i]) == 0) {
+					CFG.profile_theme[profile_tag_index] = i;
+					break;
+				}
+			}
+		}
+	}
+	if (profile_tag_index >= 0) {
 		cfg_id_list("favorite_game", CFG.favorite_game,
 			&CFG.num_favorite_game, MAX_FAVORITE_GAME);
 	}
@@ -2810,6 +2840,8 @@ bool CFG_Load_Settings()
 	profile_tag_index = 0;
 	memset(&CFG.profile_favorite, 0, sizeof(CFG.profile_favorite));
 	memset(&CFG.profile_num_favorite, 0, sizeof(CFG.profile_num_favorite));
+	for (i = 0; i < MAX_PROFILES; i++)
+		CFG.profile_theme[i] = -1;
 	// load settings
 	ret = cfg_parsefile(pathname, &settings_set);
 	// set current profile
@@ -2893,6 +2925,9 @@ bool CFG_Save_Settings(int verbose)
 		CFG.current_profile = j;
 		fprintf(f, "[profile=%s]\n", CFG.profile_names[j]);
 		//fprintf(f, "# Profile: [%d] %s\n", j+1, CFG.profile_names[j]);
+		if (CFG.profile_theme[j] != -1) {
+			fprintf(f, "profile_theme = %s\n", theme_list[CFG.profile_theme[j]]);
+		}
 		fprintf(f, "# Favorite Games: %d\n", CFG.num_favorite_game);
 		for (i=0; i<CFG.num_favorite_game; i++) {
 			fprintf(f, "favorite_game = %.4s\n", CFG.favorite_game[i]);
@@ -3777,6 +3812,9 @@ void CFG_Load(int argc, char **argv)
 	snprintf(filename, sizeof(filename), "%s/%s", USBLOADER_PATH, "custom-titles.txt");
 	cfg_parsefile(filename, &title_set);
 
+	// get theme list
+	get_theme_list();
+
 	// load per-game settings
 	CFG_Load_Settings();
 
@@ -3785,11 +3823,6 @@ void CFG_Load(int argc, char **argv)
 
 	// parse commandline arguments (wiiload)
 	cfg_parsearg(argc, argv);
-
-	// get theme list
-	if (!CFG.direct_launch) {
-		get_theme_list();
-	}
 
 	// setup dependant and calculated parameters
 	cfg_setup1();

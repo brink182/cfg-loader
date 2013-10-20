@@ -28,6 +28,7 @@ extern s32 fav_gameCnt;
 s32 filter_index = -1;
 s32 filter_type = -1;
 char search_str[100] = "";
+int cur_search_field = 0;
 int cur_search_compare_type = 0;
 s32 sort_index = -1;
 bool sort_desc = 0;
@@ -128,7 +129,8 @@ char *searchFields[searchFieldCnt] =
 	gts("Players"),
 	gts("Online Players"),
 	gts("Play Count"),
-	"Synopsis Len",
+	gts("Synopsis Len"),
+	gts("Covers Available"),
 };
 
 char *searchCompareTypes[searchCompareTypeCnt] =
@@ -153,66 +155,66 @@ void build_arrays() {
 	genreTypes[2][1] = (char *)gt("Fighting");
 	genreTypes[3][0] = "music";
 	genreTypes[3][1] = (char *)gt("Music");
-	genreTypes[4][0] = "party";
-	genreTypes[4][1] = (char *)gt("Party");
-	genreTypes[5][0] = "platformer";
-	genreTypes[5][1] = (char *)gt("Platformer");
-	genreTypes[6][0] = "puzzle";
-	genreTypes[6][1] = (char *)gt("Puzzle");
-	genreTypes[7][0] = "racing";
-	genreTypes[7][1] = (char *)gt("Racing");
-	genreTypes[8][0] = "role-playing";
-	genreTypes[8][1] = (char *)gt("RPG");
+	genreTypes[4][0] = "platformer";
+	genreTypes[4][1] = (char *)gt("Platformer");
+	genreTypes[5][0] = "puzzle";
+	genreTypes[5][1] = (char *)gt("Puzzle");
+	genreTypes[6][0] = "racing";
+	genreTypes[6][1] = (char *)gt("Racing");
+	genreTypes[7][0] = "role-playing";
+	genreTypes[7][1] = (char *)gt("RPG");
+	genreTypes[8][0] = "shooter";
+	genreTypes[8][1] = (char *)gt("Shooter");
 	genreTypes[9][0] = "simulation";
 	genreTypes[9][1] = (char *)gt("Simulation");
 	genreTypes[10][0] = "sport";
 	genreTypes[10][1] = (char *)gt("Sports");
 	genreTypes[11][0] = "strategy";
 	genreTypes[11][1] = (char *)gt("Strategy");
-	genreTypes[12][0] = "first-person shooter";
-	genreTypes[12][1] = (char *)gt("1st-Person Shooter");
-	genreTypes[13][0] = "arcade";
-	genreTypes[13][1] = (char *)gt("Arcade");
-	genreTypes[14][0] = "baseball";
-	genreTypes[14][1] = (char *)gt("Baseball");
-	genreTypes[15][0] = "basketball";
-	genreTypes[15][1] = (char *)gt("Basketball");
-	genreTypes[16][0] = "bike racing";
-	genreTypes[16][1] = (char *)gt("Bike Racing");
-	genreTypes[17][0] = "billiards";
-	genreTypes[17][1] = (char *)gt("Billiards");
-	genreTypes[18][0] = "board game";
-	genreTypes[18][1] = (char *)gt("Board Game");
-	genreTypes[19][0] = "bowling";
-	genreTypes[19][1] = (char *)gt("Bowling");
-	genreTypes[20][0] = "boxing";
-	genreTypes[20][1] = (char *)gt("Boxing");
-	genreTypes[21][0] = "business simulation";
-	genreTypes[21][1] = (char *)gt("Business Sim");
-	genreTypes[22][0] = "cards";
-	genreTypes[22][1] = (char *)gt("Cards");
-	genreTypes[23][0] = "chess";
-	genreTypes[23][1] = (char *)gt("Chess");
-	genreTypes[24][0] = "coaching";
-	genreTypes[24][1] = (char *)gt("Coaching");
-	genreTypes[25][0] = "compilation";
-	genreTypes[25][1] = (char *)gt("Compilation");
-	genreTypes[26][0] = "construction simulation";
-	genreTypes[26][1] = (char *)gt("Construction Sim");
-	genreTypes[27][0] = "cooking";
-	genreTypes[27][1] = (char *)gt("Cooking");
-	genreTypes[28][0] = "cricket";
-	genreTypes[28][1] = (char *)gt("Cricket");
-	genreTypes[29][0] = "dance";
-	genreTypes[29][1] = (char *)gt("Dance");
-	genreTypes[30][0] = "darts";
-	genreTypes[30][1] = (char *)gt("Darts");
-	genreTypes[31][0] = "drawing";
-	genreTypes[31][1] = (char *)gt("Drawing");
-	genreTypes[32][0] = "educational";
-	genreTypes[32][1] = (char *)gt("Educational");
-	genreTypes[33][0] = "exercise";
-	genreTypes[33][1] = (char *)gt("Exercise");
+	genreTypes[12][0] = "arcade";
+	genreTypes[12][1] = (char *)gt("Arcade");
+	genreTypes[13][0] = "baseball";
+	genreTypes[13][1] = (char *)gt("Baseball");
+	genreTypes[14][0] = "basketball";
+	genreTypes[14][1] = (char *)gt("Basketball");
+	genreTypes[15][0] = "bike racing";
+	genreTypes[15][1] = (char *)gt("Bike Racing");
+	genreTypes[16][0] = "billiards";
+	genreTypes[16][1] = (char *)gt("Billiards");
+	genreTypes[17][0] = "board game";
+	genreTypes[17][1] = (char *)gt("Board Game");
+	genreTypes[18][0] = "bowling";
+	genreTypes[18][1] = (char *)gt("Bowling");
+	genreTypes[19][0] = "boxing";
+	genreTypes[19][1] = (char *)gt("Boxing");
+	genreTypes[20][0] = "business simulation";
+	genreTypes[20][1] = (char *)gt("Business Sim");
+	genreTypes[21][0] = "cards";
+	genreTypes[21][1] = (char *)gt("Cards");
+	genreTypes[22][0] = "chess";
+	genreTypes[22][1] = (char *)gt("Chess");
+	genreTypes[23][0] = "coaching";
+	genreTypes[23][1] = (char *)gt("Coaching");
+	genreTypes[24][0] = "compilation";
+	genreTypes[24][1] = (char *)gt("Compilation");
+	genreTypes[25][0] = "construction simulation";
+	genreTypes[25][1] = (char *)gt("Construction Sim");
+	genreTypes[26][0] = "cooking";
+	genreTypes[26][1] = (char *)gt("Cooking");
+	genreTypes[27][0] = "cricket";
+	genreTypes[27][1] = (char *)gt("Cricket");
+	genreTypes[28][0] = "dance";
+	genreTypes[28][1] = (char *)gt("Dance");
+	genreTypes[29][0] = "darts";
+	genreTypes[29][1] = (char *)gt("Darts");
+	genreTypes[30][0] = "drawing";
+	genreTypes[30][1] = (char *)gt("Drawing");
+	genreTypes[31][0] = "educational";
+	genreTypes[31][1] = (char *)gt("Educational");
+	genreTypes[32][0] = "exercise";
+	genreTypes[32][1] = (char *)gt("Exercise");
+	genreTypes[33][0] = "first-person shooter";
+	genreTypes[33][1] = (char *)gt("1st-Person Shooter");
 	genreTypes[34][0] = "fishing";
 	genreTypes[34][1] = (char *)gt("Fishing");
 	genreTypes[35][0] = "fitness";
@@ -227,68 +229,76 @@ void build_arrays() {
 	genreTypes[39][1] = (char *)gt("Golf");
 	genreTypes[40][0] = "health";
 	genreTypes[40][1] = (char *)gt("Health");
-	genreTypes[41][0] = "hockey";
-	genreTypes[41][1] = (char *)gt("Hockey");
-	genreTypes[42][0] = "hunting";
-	genreTypes[42][1] = (char *)gt("Hunting");
-	genreTypes[43][0] = "karaoke";
-	genreTypes[43][1] = (char *)gt("Karaoke");
-	genreTypes[44][0] = "kart racing";
-	genreTypes[44][1] = (char *)gt("Kart Racing");
-	genreTypes[45][0] = "life simulation";
-	genreTypes[45][1] = (char *)gt("Life Simulation");
-	genreTypes[46][0] = "management simulation";
-	genreTypes[46][1] = (char *)gt("Management Sim");
-	genreTypes[47][0] = "martial arts";
-	genreTypes[47][1] = (char *)gt("Martial Arts");
-	genreTypes[48][0] = "motorcycle racing";
-	genreTypes[48][1] = (char *)gt("Motorcycle Racing");
-	genreTypes[49][0] = "off-road racing";
-	genreTypes[49][1] = (char *)gt("Off-Road Racing");
-	genreTypes[50][0] = "pétanque";
-	genreTypes[50][1] = (char *)gt("Petanque");
-	genreTypes[51][0] = "pinball";
-	genreTypes[51][1] = (char *)gt("Pinball");
-	genreTypes[52][0] = "poker";
-	genreTypes[52][1] = (char *)gt("Poker");
-	genreTypes[53][0] = "rhythm";
-	genreTypes[53][1] = (char *)gt("Rhythm");
-	genreTypes[54][0] = "rugby";
-	genreTypes[54][1] = (char *)gt("Rugby");
-	genreTypes[55][0] = "shooter";
-	genreTypes[55][1] = (char *)gt("Shooter");
-	genreTypes[56][0] = "sim racing";
-	genreTypes[56][1] = (char *)gt("Sim Racing");
-	genreTypes[57][0] = "skateboarding";
-	genreTypes[57][1] = (char *)gt("Skateboarding");
-	genreTypes[58][0] = "ski";
-	genreTypes[58][1] = (char *)gt("Skiing");
-	genreTypes[59][0] = "snowboarding";
-	genreTypes[59][1] = (char *)gt("Snowboarding");
-	genreTypes[60][0] = "soccer";
-	genreTypes[60][1] = (char *)gt("Soccer");
-	genreTypes[61][0] = "surfing";
-	genreTypes[61][1] = (char *)gt("Surfing");
-	genreTypes[62][0] = "survival horror";
-	genreTypes[62][1] = (char *)gt("Survival Horror");
-	genreTypes[63][0] = "table tennis";
-	genreTypes[63][1] = (char *)gt("Table Tennis");
-	genreTypes[64][0] = "tennis";
-	genreTypes[64][1] = (char *)gt("Tennis");
-	genreTypes[65][0] = "train simulation";
-	genreTypes[65][1] = (char *)gt("Train Simulation");
-	genreTypes[66][0] = "trivia";
-	genreTypes[66][1] = (char *)gt("Trivia");
-	genreTypes[67][0] = "truck racing";
-	genreTypes[67][1] = (char *)gt("Truck Racing");
-	genreTypes[68][0] = "virtual pet";
-	genreTypes[68][1] = (char *)gt("Virtual Pet");
-	genreTypes[69][0] = "volleyball";
-	genreTypes[69][1] = (char *)gt("Volleyball");
-	genreTypes[70][0] = "watercraft racing";
-	genreTypes[70][1] = (char *)gt("Watercraft Racing");
-	genreTypes[71][0] = "wrestling";
-	genreTypes[71][1] = (char *)gt("Wrestling");
+	genreTypes[41][0] = "hidden object";
+	genreTypes[41][1] = (char *)gt("Hidden Object");
+	genreTypes[42][0] = "hockey";
+	genreTypes[42][1] = (char *)gt("Hockey");
+	genreTypes[43][0] = "hunting";
+	genreTypes[43][1] = (char *)gt("Hunting");
+	genreTypes[44][0] = "karaoke";
+	genreTypes[44][1] = (char *)gt("Karaoke");
+	genreTypes[45][0] = "kart racing";
+	genreTypes[45][1] = (char *)gt("Kart Racing");
+	genreTypes[46][0] = "life simulation";
+	genreTypes[46][1] = (char *)gt("Life Simulation");
+	genreTypes[47][0] = "management simulation";
+	genreTypes[47][1] = (char *)gt("Management Sim");
+	genreTypes[48][0] = "martial arts";
+	genreTypes[48][1] = (char *)gt("Martial Arts");
+	genreTypes[49][0] = "motorcycle racing";
+	genreTypes[49][1] = (char *)gt("Motorcycle Racing");
+	genreTypes[50][0] = "off-road racing";
+	genreTypes[50][1] = (char *)gt("Off-Road Racing");
+	genreTypes[51][0] = "party";
+	genreTypes[51][1] = (char *)gt("Party");
+	genreTypes[52][0] = "pétanque";
+	genreTypes[52][1] = (char *)gt("Petanque");
+	genreTypes[53][0] = "pinball";
+	genreTypes[53][1] = (char *)gt("Pinball");
+	genreTypes[54][0] = "poker";
+	genreTypes[54][1] = (char *)gt("Poker");
+	genreTypes[55][0] = "rail shooter";
+	genreTypes[55][1] = (char *)gt("Rail Shooter");
+	genreTypes[56][0] = "rhythm";
+	genreTypes[56][1] = (char *)gt("Rhythm");
+	genreTypes[57][0] = "rugby";
+	genreTypes[57][1] = (char *)gt("Rugby");
+	genreTypes[58][0] = "sim racing";
+	genreTypes[58][1] = (char *)gt("Sim Racing");
+	genreTypes[59][0] = "skateboarding";
+	genreTypes[59][1] = (char *)gt("Skateboarding");
+	genreTypes[60][0] = "ski";
+	genreTypes[60][1] = (char *)gt("Skiing");
+	genreTypes[61][0] = "snowboarding";
+	genreTypes[61][1] = (char *)gt("Snowboarding");
+	genreTypes[62][0] = "soccer";
+	genreTypes[62][1] = (char *)gt("Soccer");
+	genreTypes[63][0] = "stealth action";
+	genreTypes[63][1] = (char *)gt("Stealth Action");
+	genreTypes[64][0] = "surfing";
+	genreTypes[64][1] = (char *)gt("Surfing");
+	genreTypes[65][0] = "survival horror";
+	genreTypes[65][1] = (char *)gt("Survival Horror");
+	genreTypes[66][0] = "table tennis";
+	genreTypes[66][1] = (char *)gt("Table Tennis");
+	genreTypes[67][0] = "tennis";
+	genreTypes[67][1] = (char *)gt("Tennis");
+	genreTypes[68][0] = "third-person shooter";
+	genreTypes[68][1] = (char *)gt("3rd-person Shooter");
+	genreTypes[69][0] = "train simulation";
+	genreTypes[69][1] = (char *)gt("Train Simulation");
+	genreTypes[70][0] = "trivia";
+	genreTypes[70][1] = (char *)gt("Trivia");
+	genreTypes[71][0] = "truck racing";
+	genreTypes[71][1] = (char *)gt("Truck Racing");
+	genreTypes[72][0] = "virtual pet";
+	genreTypes[72][1] = (char *)gt("Virtual Pet");
+	genreTypes[73][0] = "volleyball";
+	genreTypes[73][1] = (char *)gt("Volleyball");
+	genreTypes[74][0] = "watercraft racing";
+	genreTypes[74][1] = (char *)gt("Watercraft Racing");
+	genreTypes[75][0] = "wrestling";
+	genreTypes[75][1] = (char *)gt("Wrestling");
 
 
 
@@ -626,7 +636,7 @@ int filter_search(struct discHdr *list, int cnt, char *search_field, bool notuse
 	int simple_pos;
 	int kept_cnt = 0;
 	struct gameXMLinfo *g;
-	char temp_str[8];
+	char temp_str[200];
 	int	search_int;
 	int rec_int;
 	bool keep_record;
@@ -634,7 +644,7 @@ int filter_search(struct discHdr *list, int cnt, char *search_field, bool notuse
 	if (cur_search_compare_type > 0)	//numeric compare
 		search_int = atoi(search_str);
 	if ((int)search_field == 6)			//rating
-		search_int = ConvertRatingToAge(search_str, "ESRB");	//assume us console if we can detect australian and new zeland consoles should pass those ratings boards here other countries wont make a differance
+		search_int = ConvertRatingToAge(search_str, "");
 	
 	for (i=0; i<cnt; i++) {
 		switch ((int)search_field) {
@@ -688,7 +698,7 @@ int filter_search(struct discHdr *list, int cnt, char *search_field, bool notuse
 				if (g)
 					rec_int = g->players;
 				else {
-					continue;
+					rec_int = 0;
 				}
 				goto numeric_compare;
 				break;
@@ -697,7 +707,7 @@ int filter_search(struct discHdr *list, int cnt, char *search_field, bool notuse
 				if (g)
 					rec_int = g->wifiplayers;
 				else {
-					continue;
+					rec_int = 0;
 				}
 				goto numeric_compare;
 				break;
@@ -710,9 +720,27 @@ int filter_search(struct discHdr *list, int cnt, char *search_field, bool notuse
 				if (g)
 					full_title = g->synopsis;
 				if (!g || !full_title) {
-					continue;
+					rec_int = 0;
 				}
-				rec_int = strlen(g->synopsis);
+				else
+					rec_int = strlen(g->synopsis);
+				goto numeric_compare;
+				break;
+			case 11:		//Covers available
+				if (find_cover_path(list[i].id, CFG_COVER_STYLE_2D, temp_str, sizeof(temp_str), NULL) == 0) {
+					rec_int = 1;
+					if (find_cover_path(list[i].id, CFG_COVER_STYLE_3D, temp_str, sizeof(temp_str), NULL) == 0) {
+						rec_int = 2;
+						if (find_cover_path(list[i].id, CFG_COVER_STYLE_FULL, temp_str, sizeof(temp_str), NULL) == 0) {
+							rec_int = 3;
+							if (find_cover_path(list[i].id, CFG_COVER_STYLE_DISC, temp_str, sizeof(temp_str), NULL) == 0) {
+								rec_int = 4;
+							}
+						}
+					}
+				}
+				else
+					rec_int = 0;
 				goto numeric_compare;
 				break;
 			default:		//should never happen

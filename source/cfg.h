@@ -418,6 +418,8 @@ struct CFG
 	char profile_names[MAX_PROFILES][PROFILE_NAME_LEN];
 	int profile_num_favorite[MAX_PROFILES];
 	GAMEID_t profile_favorite[MAX_PROFILES][MAX_FAVORITE_GAME];
+	int profile_theme[MAX_PROFILES];
+	int profile_start_favorites[MAX_PROFILES];
 	// sort order ignore list
 	char sort_ignore[200];
 	// cover urls

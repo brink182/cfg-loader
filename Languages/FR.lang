@@ -1,4 +1,4 @@
-﻿# CFG USB Loader language file template.
+# CFG USB Loader language file template.
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
@@ -168,6 +168,9 @@ msgstr "Démarrer le disque"
 msgid "Booting Wii game, please wait..."
 msgstr "Démarrage du jeu, patientez SVP..."
 
+msgid "Booting game, please wait..."
+msgstr "Démarrage du jeu, patientez SVP..."
+
 #, c-format
 msgid "CFG base: %s"
 msgstr "Base de CFG"
@@ -178,6 +181,9 @@ msgstr "Annulé."
 #, c-format
 msgid "Cannot create dir: %s"
 msgstr "Impossible de créer le répertoire: %s"
+
+msgid "Channel"
+msgstr "Chaîne"
 
 msgid "Cheat Codes:"
 msgstr "Codes de triche:"
@@ -289,6 +295,9 @@ msgstr "Custom IOS %s Chargé OK"
 msgid "DISC cover"
 msgstr "jaquette du disque"
 
+msgid "Dol Booter"
+msgstr "Lanceur DOL"
+
 msgid "DOWN"
 msgstr "BAS"
 
@@ -325,6 +334,9 @@ msgstr "Disque"
 msgid "Disc (Ask)"
 msgstr "Disque (Demande)"
 
+msgid "DML version:"
+msgstr "Version DML:"
+
 msgid "Done."
 msgstr "Terminé."
 
@@ -337,8 +349,14 @@ msgstr "Télécharger toutes les jaquettes"
 msgid "Download All Missing Covers"
 msgstr "Tél. toutes jaquettes manquantes"
 
+msgid "Download game information"
+msgstr "Télécharger les informations des jeux"
+
 msgid "Download Missing Covers"
 msgstr "Télécharger les jaquettes manquantes"
+
+msgid "Download Plugins"
+msgstr "Télécharger des plugins"
 
 msgid "Download Themes"
 msgstr "Télécharger des thèmes"
@@ -395,6 +413,9 @@ msgstr "Téléchargements"
 
 msgid "Drums"
 msgstr "Batterie"
+
+msgid "Dump savegame"
+msgstr "Dump sauvegarde"
 
 msgid "Dutch"
 msgstr "Néerlandais"
@@ -729,6 +750,9 @@ msgstr "Filtrer:"
 msgid "Fixing EXTEND partition..."
 msgstr "Réglage de la partition ÉTENDUE..."
 
+msgid "Force Devolution:"
+msgstr "Forcer Devolut°:"
+
 msgid "Force NTSC"
 msgstr "Forcer le NTSC"
 
@@ -800,6 +824,9 @@ msgstr "Masquer le jeu:"
 
 msgid "Hold button B to cancel."
 msgstr "Maintenir B pour annuler."
+
+msgid "Home Menu"
+msgstr "Menu Wii"
 
 msgid "Homebrew Channel"
 msgstr "Chaîne Homebrew"
@@ -973,6 +1000,12 @@ msgstr "Musique: Nombre de fichiers %s trouvés: %i"
 msgid "Music: musicArray contents: "
 msgstr "Musique: contenu de CollectiondeMusique:"
 
+msgid "NAND Emu:"
+msgstr "Emu NAND:"
+
+msgid "NoDisc:"
+msgstr "SansDisque:"
+
 msgid ""
 "NOTE: CIOS249 before rev10:\n"
 "Loading games from SDHC not supported!"
@@ -1080,6 +1113,9 @@ msgstr "Aucune mise à jour trouvée."
 msgid "None found on disc"
 msgstr "Aucun trouvé sur le disque"
 
+msgid "NTSC-J patch:"
+msgstr "Patch NTSC-J:"
+
 msgid "Not Found!"
 msgstr "Introuvable !"
 
@@ -1170,6 +1206,9 @@ msgstr "Options sauvegardées pour ce jeu."
 
 msgid "Out of memory"
 msgstr "Plus de mémoire disponible"
+
+msgid "PAD HOOK"
+msgstr "PAD HOOK"
 
 msgid "Page:"
 msgstr "Page:"
@@ -1425,6 +1464,9 @@ msgstr "Suppression du jeu, veuillez patienter..."
 msgid "Restarting Wii..."
 msgstr "Redémarrage de la Wii..."
 
+msgid "Retry: %d ...\n"
+msgstr "Réessayer: %d ...\n"
+
 #, c-format
 msgid "Returned! (ret = %d)"
 msgstr "Retourné ! (ret = %d)"
@@ -1454,7 +1496,7 @@ msgid "Save Debug"
 msgstr "Sauvegarder débogage"
 
 msgid "Save Settings"
-msgstr "Sauver les paramètres"
+msgstr "Sauver paramètres"
 
 msgid "Save debug.log"
 msgstr "Sauvegarder debug.log"
@@ -1509,7 +1551,7 @@ msgid "Shooter"
 msgstr "Tir"
 
 msgid "Show All"
-msgstr "Montrer tous"
+msgstr "Voir tous"
 
 msgid "Show cIOS info"
 msgstr "Montrer les infos des cIOS"
@@ -1714,6 +1756,9 @@ msgstr "WBFS: %.1fGo libre sur %.1fGo"
 msgid "Wheel"
 msgstr "Volant"
 
+msgid "Wide Screen:"
+msgstr "Écran large:"
+
 msgid "Wii Speak"
 msgstr "Wii Speak"
 
@@ -1772,7 +1817,7 @@ msgid "[USED]"
 msgstr "[UTILISÉ]"
 
 msgid "[default]"
-msgstr "[défaut]"
+msgstr "[Défaut]"
 
 msgid "[saved]"
 msgstr "[sauvegardé]"
@@ -1873,6 +1918,9 @@ msgstr "incapable d'ouvrir le disque wii"
 #, c-format
 msgid "used: %p - %p"
 msgstr "utilisé: %p - %p"
+
+msgid "No Hooks"
+msgstr "Pas de hook"
 
 #~ msgid "Front"
 #~ msgstr "Avant"

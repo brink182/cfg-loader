@@ -625,7 +625,7 @@ Config file:
 #   Setting gui_text_color_button will also set radio and checkbox
 #
 # gui_button_NAME = X, Y, W, H, TextColor, image.png, Type, HoverZoom
-#   NAME can be: main settings quit style view sort filter favorites
+#   NAME can be: main settings quit style view sort filter favorites jump
 #   TextColor is same format as gui_text_color_menu
 #   (Seting TextColor to 0 will disable text on the button in case icons are used)
 #   Type: button or icon
@@ -867,6 +867,10 @@ Config file:
 #   will specify the default profile to use
 #   saving global settings will also save which profile is used
 #
+# profile_start_favorites = {[0], 1} ...
+#   specifies when each profile is switched to if favorites should be enabled or disabled.
+#   profile_start_favorites 0 1 1 1 1 1 1 1 1 1
+# 
 # db_url = [http://wiitdb.com/wiitdb.zip?LANG={DBL}]
 #   URL to download database from.
 #

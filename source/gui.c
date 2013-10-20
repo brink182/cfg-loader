@@ -2687,7 +2687,8 @@ void Gui_Action_Profile(int n)
 	if (CFG.current_profile >= CFG.num_profiles) CFG.current_profile = CFG.num_profiles - 1;
 	if (CFG.current_profile < 0 ) CFG.current_profile = 0;
 	reset_sort_default();
-	Switch_Favorites(enable_favorite);
+	Switch_Favorites(CFG.profile_start_favorites[CFG.current_profile]);
+	action_Theme_2(CFG.profile_theme[CFG.current_profile]);
 	Gui_Refresh_List();
 	sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
 	action_alpha = 0xFF;

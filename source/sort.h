@@ -19,10 +19,10 @@ struct Sorts
 
 #define featureCnt 4
 #define accessoryCnt 17
-#define genreCnt 72
+#define genreCnt 76
 #define sortCnt 10
 #define gameTypeCnt 14
-#define searchFieldCnt 11
+#define searchFieldCnt 12
 #define searchCompareTypeCnt 6
 
 #define FILTER_ALL			-1
@@ -56,6 +56,7 @@ struct Sorts
 extern s32 filter_type;
 extern s32 filter_index;
 extern char search_str[100];
+extern int cur_search_field;
 extern int cur_search_compare_type;
 extern s32 sort_index;
 extern bool sort_desc;

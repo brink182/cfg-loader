@@ -700,6 +700,17 @@ s32 __Menu_GetEntries(void)
 	SAFE_FREE(filter_gameList);
 	filter_gameCnt = 0;
 
+	/* Free memory */
+	if (all_gameList) {
+		free(all_gameList);
+		all_gameList = NULL;
+		all_gameCnt = 0;
+	}
+
+	/* we just cleared all possable places gameList could be poinying so it must be clear */
+	gameList = NULL;
+	gameCnt = 0;
+
 	if (MountWBFS) {
 		/* Get list length */
 		ret = WBFS_GetCount(&cnt);
@@ -759,10 +770,6 @@ s32 __Menu_GetEntries(void)
 		if (ret < 0)
 			goto err;
 	}
-
-	/* Free memory */
-	if (gameList)
-		free(gameList);
 
 	/* Set values */
 	gameList = buffer;
@@ -2660,11 +2667,20 @@ int Menu_Global_Options()
 			case 1:
 				CHANGE(CFG.current_profile, CFG.num_profiles-1);
 				// refresh favorites list
-				Switch_Favorites(enable_favorite);
+				Switch_Favorites(CFG.profile_start_favorites[CFG.current_profile]);
+
+				int new_theme;
+				if (CFG.profile_theme[CFG.current_profile] == -1)
+					new_theme = CFG.profile_theme[0];
+				else new_theme = CFG.profile_theme[CFG.current_profile];
+				CFG_switch_theme(new_theme);
+				Video_DrawBg();
 				redraw_cover = 1;
+				Cache_Invalidate();
 				break;
 			case 2:
 				CFG_switch_theme(cur_theme + change);
+				CFG.profile_theme[CFG.current_profile] = cur_theme;
 				Video_DrawBg();
 				redraw_cover = 1;
 				Cache_Invalidate();
@@ -2813,9 +2829,19 @@ void DoAction(int action)
 				CFG.current_profile = 0;
 			else
 				CFG.current_profile++;
-			Switch_Favorites(enable_favorite);
+			Switch_Favorites(CFG.profile_start_favorites[CFG.current_profile]);
 			
+			int new_theme;
+			if (CFG.profile_theme[CFG.current_profile] == -1)
+				new_theme = CFG.profile_theme[0];
+			else new_theme = CFG.profile_theme[CFG.current_profile];
+			CFG_switch_theme(new_theme);
+			Video_DrawBg();
+			if (gameCnt) Gui_DrawCover(gameList[gameSelected].id);//redraw_cover = 1;
+			Cache_Invalidate();
+
 			sprintf(action_string, gt("Profile: %s"), CFG.profile_names[CFG.current_profile]);
+			if (go_gui) action_alpha = 0xFF;
 			
 			break;
 		case CFG_BTN_FAVORITES:
@@ -2833,6 +2859,7 @@ void DoAction(int action)
 			break;
 		case CFG_BTN_THEME:
 			CFG_switch_theme(cur_theme + 1);
+			CFG.profile_theme[CFG.current_profile] = cur_theme;
 			Video_DrawBg();
 			if (gameCnt) Gui_DrawCover(gameList[gameSelected].id);//redraw_cover = 1;
 			Cache_Invalidate();
@@ -4031,12 +4058,16 @@ out_did_install:
 		goto out;
 	}
 
+	/* Remember the game id because reload will free the memory its currently using */
+	u8 new_game_id[6];
+	memcpy(new_game_id, header.id, 6);
+
 	/* Reload entries */
 	__Menu_GetEntries();
 	
 	/* Set just installed game as selected */
 	for (i=0; i<gameCnt; i++) {
-		if (strncmp((char*)gameList[i].id, (char*)header.id, 6) == 0) {
+		if (strncmp((char*)gameList[i].id, (char*)new_game_id, 6) == 0) {
 			gameSelected = i;
 			break;
 		}
@@ -4072,7 +4103,7 @@ out:
 		WDVD_Eject();
 		sleep(1);
 	} else if (!coversdone && (buttons & CFG.button_other.mask)) {
-		Download_Cover((char *)header.id, true, true);
+		Download_Cover((char *)new_game_id, true, true);
 		coversdone = true;
 		Gui_DrawCover(header.id);
 		goto out;
@@ -4082,8 +4113,7 @@ out2:
 	printf_(gt("Stopping DVD..."));
 	WDVD_StopMotor();
 	printf(gt("OK"));
-	header = gameList[gameSelected];
-	Gui_DrawCover(header.id);
+	Gui_DrawCover(gameList[gameSelected].id);
 }
 
 void Menu_Remove(void)
@@ -5094,7 +5124,7 @@ void Menu_Loop(void)
 	get_time(&TIME.guitheme2);
 
 	// Init Favorites
-	Switch_Favorites(CFG.start_favorites);
+	Switch_Favorites(CFG.start_favorites || CFG.profile_start_favorites[CFG.current_profile]);
 
 	switch(CFG.select) {
 		case CFG_SELECT_PREVIOUS: 

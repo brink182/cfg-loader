@@ -1736,12 +1736,16 @@ Widget *r_filter_group;
 Widget *w_filter_page;
 Widget *r_filter[6];
 
-void action_Search(Widget *ww)
+void action_search_char(Widget *ww)
 {
 	Widget *rr;
 	int i;
 	int len = strlen(search_str);
 	
+	for (i=0; i<6; i++) {		//must be the same size as r_filter
+		if (i != 4)				//all but search
+			wgui_radio_set(r_filter[i], -1);	//clear filter type
+	}
 
 	rr = ww->link_first;
 	i = rr->value;
@@ -1752,18 +1756,20 @@ void action_Search(Widget *ww)
 		search_str[len] = 'A' + i - 10;
 	else if (i == 36)					// space
 		search_str[len] = ' '; 
-	else if (i == 37)					//backspace
-		search_str[len - 1] = 0; 
+	else if (i == 37) {					//backspace
+		if (len > 0)
+			search_str[len - 1] = 0;
+	}
 	else if (i == 38)					//clear
 		search_str[0] = 0; 
 	search_str[len + 1] = 0;	//make sure its null terminated
 		
     rr->value = -1;		//show all keys as unpressed
 
-	if (filter_index < 0) filter_index = 0;
-	if (filter_index >= searchFieldCnt) filter_index = searchFieldCnt - 1;
+	if (cur_search_field < 0) cur_search_field = 0;
+	if (cur_search_field >= searchFieldCnt) cur_search_field = searchFieldCnt - 1;
 	
-	filter_games_set(FILTER_SEARCH, filter_index);
+	filter_games_set(FILTER_SEARCH, cur_search_field);
 	Gui_Refresh_List();
 
 }
@@ -1772,25 +1778,36 @@ void action_search_field(Widget *ww)
 	Widget *rr;
 	int i;
 
+	for (i=0; i<6; i++) {		//must be the same size as r_filter
+		if (i != 4)				//all but search
+			wgui_radio_set(r_filter[i], -1);	//clear filter type
+	}
+
 	rr = ww->link_first;
 	i = rr->value;
 	if (i < 0) i = 0;
 
-	if (filter_index <= 5)
+	if (cur_search_field <= 5)
 		cur_search_compare_type = 0;	//only allow contains
-	if ((filter_index > 5) && (cur_search_compare_type == 0))
+	if ((cur_search_field > 5) && (cur_search_compare_type == 0))
 		cur_search_compare_type = 4;	//default to >=
 
 //	filter_games_set(FILTER_SEARCH, i);
-	filter_games_set(FILTER_SEARCH, filter_index);
+	filter_games_set(FILTER_SEARCH, cur_search_field);
 	Gui_Refresh_List();
 
 }
 
 void action_search_compare_type(Widget *ww)
 {
+	int i;
+	for (i=0; i<6; i++) {		//must be the same size as r_filter
+		if (i != 4)				//all but search
+			wgui_radio_set(r_filter[i], -1);	//clear filter type
+	}
+
 	cur_search_compare_type = ww->value;
-	filter_games_set(FILTER_SEARCH, filter_index);
+	filter_games_set(FILTER_SEARCH, cur_search_field);
 	Gui_Refresh_List();
 
 }
@@ -1804,7 +1821,7 @@ void Init_Search_Dilog(Widget *dd)
 //	dd->update = update_search;
 
 	r_filter[4] = ww = wgui_add_opt(dd, gt("Search for:"), searchFieldCnt, searchFields);
-	ww->val_ptr = &filter_index;
+	ww->val_ptr = &cur_search_field;
 	ww->action = action_write_val_ptr_int;
 	ww->action2 = action_search_field;
 
@@ -1831,7 +1848,7 @@ void Init_Search_Dilog(Widget *dd)
 				"A","B","C","D","E","F","G","H","I","J",
 				"K","L","M","N","O","P","Q","R","S","T",
 				"U","V","W","X","Y","Z"," ","\x11--",gt("Clear"));
-	ww->action = action_Search;
+	ww->action = action_search_char;
     ww->value = -1;		//show all keys as unpressed
 /*	
 	pos_columns(dd, 3, SIZE_FULL);
@@ -2062,12 +2079,17 @@ void action_Style(Widget *ww)
 	update_Style(NULL);
 }
 
-void action_Theme(Widget *ww)
+void action_Theme_2(int theme_i)
 {
-	if (ww->value == cur_theme) return;
+	int new_theme;
+	
+	if (theme_i == -1)
+		new_theme = CFG.profile_theme[0];
+	else new_theme = theme_i;
+	if (new_theme == cur_theme) return;
 	Cache_Invalidate();
 	Gui_reset_previous_cover_style();
-	CFG_switch_theme(ww->value);
+	CFG_switch_theme(new_theme);
 	Gui_save_cover_style();
 	Grx_Init();
 	Cache_Init();
@@ -2083,6 +2105,12 @@ void action_Theme(Widget *ww)
 	desk_custom_init();
 	void desk_bar_update();
 	desk_bar_update();
+}
+
+void action_Theme(Widget *ww)
+{
+	action_Theme_2(ww->value);
+	CFG.profile_theme[CFG.current_profile] = cur_theme;
 }
 
 void action_OpenStyle(Widget *aa)

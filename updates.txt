@@ -13,6 +13,14 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r68
+date = 2013-10-20
+-Added separate themes for each profile
+-Added profile_start_favorites [0,1]... option to config.txt [0,1] repeats for each profile 
+-Fixed memory leak when reloading game list (caused sort problem when unlocking admin mode)
+-Updated lang.pot , FR.lang (Thanks JABE), JA.lang (Thanks Trickart), ZH_CN.lang (Thanks Kavid)
+-Updated Search function (still a work in process)
+
 Unreleased = 70r67
 date = 2013-09-12
 -Updated Search function (still a work in process)

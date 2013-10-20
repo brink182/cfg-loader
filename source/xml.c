@@ -383,14 +383,18 @@ int ConvertRatingToAge(char *ratingvalue, char *ratingSystem)
 	
 	age = atoi(ratingvalue);
 	if ((age > 0 ) && (age <= 25)) return age;
-	if (!strncmp(ratingvalue,"E1",2)) return 10;	//E10+
-	if (!strncmp(ratingvalue,"EC",2)) return 3;
-	if (!strncmp(ratingvalue,"AO",2)) return 18;
-	if (ratingvalue[0] == 'A') return 0;
+	if (ratingvalue[0] == 'A') {
+		if (!strncmp(ratingvalue,"AO",2)) return 18;
+		return 0;
+	}
 	if (ratingvalue[0] == 'B') return 12;
 	if (ratingvalue[0] == 'C') return 15;
 	if (ratingvalue[0] == 'D') return 17;
-	if (ratingvalue[0] == 'E') return 6;
+	if (ratingvalue[0] == 'E') {
+		if (!strncmp(ratingvalue,"E1",2)) return 10;	//E10+
+		if (!strncmp(ratingvalue,"EC",2)) return 3;
+		return 6;
+	}
 	if (ratingvalue[0] == 'G') return 0;
 	if (ratingvalue[0] == 'L') return 0;
 	if (ratingvalue[0] == 'T') return 13;
@@ -399,14 +403,26 @@ int ConvertRatingToAge(char *ratingvalue, char *ratingSystem)
 	if (ratingvalue[0] == 'M') {
 		if (!strncmp(ratingvalue,"M18",3)) return 18;
 		if (!strncmp(ratingvalue,"MA15",4)) return 15;
-		if (!strncmp(ratingSystem,"ACB",3)) return 12;
-		if (!strncmp(ratingSystem,"OFLC",4)) return 13;
+		if (!strncmp(ratingSystem,"ACB",3)
+			|| (!ratingSystem && (CONF_GetArea() == CONF_AREA_AUS))) return 12;
+		if (!strncmp(ratingSystem,"OFLC",4)
+		/*	|| (!ratingSystem && (CONF_GetShopCode() == 95)) */) return 13;	//New Zeland needs updated lib for GetShopCode to work
 		return 17;		//assume us ESRB system
-		}
-	if (!strncmp(ratingvalue,"PG",2)) return 8;
-	if (!strncmp(ratingvalue,"R13",3)) return 13;
-	if (!strncmp(ratingvalue,"R16",3)) return 16;
-	if (!strncmp(ratingvalue,"R18",3)) return 18;
+	}
+	if (ratingvalue[0] == 'P') {
+		if (!strncmp(ratingvalue,"PG12",4)) return 12;
+		if (!strncmp(ratingvalue,"PG 12",5)) return 12;
+		if (!strncmp(ratingvalue,"PG15",4)) return 15;
+		if (!strncmp(ratingvalue,"PG 15",5)) return 15;
+		if (!strncmp(ratingvalue,"PG",2)) return 8;
+		return 6;
+	}
+	if (ratingvalue[0] == 'R') {
+		if (!strncmp(ratingvalue,"R13",3)) return 13;
+		if (!strncmp(ratingvalue,"R16",3)) return 16;
+		if (!strncmp(ratingvalue,"R18",3)) return 18;
+		return 18;
+	}		
 	return -1;
 }
 

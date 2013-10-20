@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-22 23:40+0200\n"
-"PO-Revision-Date: 2012-08-08 15:40+GMT+8\n"
+"PO-Revision-Date: 2013-10-16 16:50+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
 "Language: Simplified Chinese\n"
@@ -142,7 +142,7 @@ msgid ""
 msgstr "你确定要删除此款游戏？"
 
 msgid "Ascending"
-msgstr "正在升序排列中"
+msgstr "升序排列"
 
 msgid "Auto"
 msgstr "自动"
@@ -208,7 +208,7 @@ msgid "Choose a sorting method"
 msgstr "请选择一种排序方式"
 
 msgid "Classic"
-msgstr "经典"
+msgstr "对应经典手柄"
 
 msgid "Classic Controller"
 msgstr "对应经典手柄"
@@ -257,10 +257,10 @@ msgid "Cover Style"
 msgstr "封面类型"
 
 msgid "Cover~~Back"
-msgstr "封面～～背面"
+msgstr "背面"
 
 msgid "Cover~~Front"
-msgstr "封面~~正面"
+msgstr "正面"
 
 msgid "Create"
 msgstr "创建"
@@ -322,7 +322,7 @@ msgid "Deleting"
 msgstr "删除中"
 
 msgid "Descending"
-msgstr "正降序排列"
+msgstr "降序排列"
 
 msgid "Developer"
 msgstr "开发小组"
@@ -352,7 +352,7 @@ msgid "Download All Missing Covers"
 msgstr "下载所有缺失的游戏封面"
 
 msgid "Download Missing Covers"
-msgstr "下载所有确实封面"
+msgstr "下载所有缺失封面"
 
 msgid "Download Themes"
 msgstr "下载主题"
@@ -777,7 +777,7 @@ msgid "GB"
 msgstr "GB"
 
 msgid "GameCube"
-msgstr "GameCube游戏"
+msgstr "GameCube"
 
 msgid "Game Default"
 msgstr "游戏缺省"
@@ -870,7 +870,7 @@ msgid "Install"
 msgstr "安装"
 
 msgid "Install Date"
-msgstr "安装数据"
+msgstr "安装日期"
 
 msgid "Install Game"
 msgstr "安装游戏"
@@ -917,7 +917,7 @@ msgid "Language:"
 msgstr "语言："
 
 msgid "Last Play Date"
-msgstr "最近一次游戏的日期"
+msgstr "最近一次游戏日期"
 
 msgid "Launch Methods"
 msgstr "启动方式"
@@ -955,7 +955,7 @@ msgid "Microphone"
 msgstr "对应麦克风"
 
 msgid "Motion+"
-msgstr "对应动感强化器MotionPlus"
+msgstr "对应Wii动感强化器"
 
 msgid "Mounting device, please wait..."
 msgstr "正在加载设备，请稍候..."
@@ -1114,7 +1114,7 @@ msgid "Number of Players"
 msgstr "游戏人数"
 
 msgid "Nunchuk"
-msgstr "对应Wii双节棍手柄"
+msgstr "对应Wii双节棍左右手柄"
 
 msgid "OK"
 msgstr "完毕"
@@ -1171,7 +1171,7 @@ msgid "Online Updates"
 msgstr "在线更新"
 
 msgid "Open Sort"
-msgstr "打开类别"
+msgstr "打开排序"
 
 msgid "Open Style"
 msgstr "打开类型"
@@ -1400,7 +1400,7 @@ msgid "Profile: %s"
 msgstr "配置文件：%s"
 
 msgid "Program Updates"
-msgstr "游戏更新"
+msgstr "程序更新"
 
 msgid "Publisher"
 msgstr "发行厂商"
@@ -1421,7 +1421,7 @@ msgid "RPG"
 msgstr "角色扮演游戏"
 
 msgid "Racing"
-msgstr "赛车游戏"
+msgstr "竞速游戏"
 
 #, c-format
 msgid "Rated %s"
@@ -1544,7 +1544,7 @@ msgid "Shutdown"
 msgstr "关闭"
 
 msgid "Side:"
-msgstr "列数："
+msgstr "封面："
 
 msgid "Simulation"
 msgstr "模拟游戏"
@@ -1557,16 +1557,16 @@ msgid "Size: %d bytes"
 msgstr "大小：%d字节"
 
 msgid "Sort"
-msgstr "类别"
+msgstr "排序"
 
 msgid "Sort Games"
 msgstr "游戏排序"
 
 msgid "Sort Order:"
-msgstr "类别排序："
+msgstr "排序次序："
 
 msgid "Sort Type:"
-msgstr "类型排序："
+msgstr "排序类别："
 
 #, c-format
 msgid "Sort: %s-%s"
@@ -1594,10 +1594,10 @@ msgid "Strategy"
 msgstr "战略游戏"
 
 msgid "Style"
-msgstr "类型"
+msgstr "界面设置"
 
 msgid "Style:"
-msgstr "类型："
+msgstr "界面设置："
 
 msgid "Sync FAT free space info?"
 msgstr "是否同步FAT分区剩余空间信息？"
@@ -1745,7 +1745,7 @@ msgid "WiiTDB Game Database"
 msgstr "WiiTDB游戏数据库"
 
 msgid "Wiimote"
-msgstr "对应Wii遥控器手柄"
+msgstr "对应Wii右手柄"
 
 msgid "Write Playlog:"
 msgstr "记录游戏运行日志："
@@ -1911,3 +1911,207 @@ msgstr "已使用：%p - %p"
 
 #~ msgid "Remove Game"
 #~ msgstr "删除游戏"
+
+msgid "Basketball"
+msgstr "篮球运动游戏"
+
+msgid "Baseball"
+msgstr "棒球运动游戏"
+
+msgid "1st-Person Shooter"
+msgstr "第一人称射击游戏"
+
+msgid "Arcade"
+msgstr "街机游戏"
+
+msgid "Bike Racing"
+msgstr "自行车竞速游戏"
+
+msgid "Bowling"
+msgstr "运动模拟游戏"
+
+msgid "Billiards"
+msgstr "台球运动游戏"
+
+msgid "Board Game"
+msgstr "图版游戏"
+
+msgid "Boxing"
+msgstr "拳击运动游戏"
+
+msgid "Business Sim"
+msgstr "模拟经营游戏"
+
+msgid "Cards"
+msgstr "交换卡片游戏"
+
+msgid "Chess"
+msgstr "棋类运动游戏"
+
+msgid "Wiird "
+msgstr "金手指"
+
+msgid "Download game information"
+msgstr "下载游戏信息"
+
+msgid "Download Plugins"
+msgstr "下载插件"
+
+msgid "Download Plugins"
+msgstr "下载插件"
+
+msgid "Game Type"
+msgstr "游戏平台"
+
+msgid "Game Type"
+msgstr "游戏平台"
+
+msgid "Coaching"
+msgstr "指导训练游戏"
+
+msgid "Compilation"
+msgstr "游戏合集"
+
+msgid "Construction Sim"
+msgstr "建设经营游戏"
+
+msgid "Cooking"
+msgstr "烹饪游戏"
+
+msgid "Cricket"
+msgstr "板球运动游戏"
+
+msgid "Dance"
+msgstr "舞蹈游戏"
+
+msgid "Darts"
+msgstr "飞镖运动游戏"
+
+msgid "Drawing"
+msgstr "绘画游戏"
+
+msgid "Educational"
+msgstr "培养游戏"
+
+msgid "Exercise"
+msgstr "锻炼游戏"
+
+msgid "Fishing"
+msgstr "钓鱼运动游戏"
+
+msgid "Fitness"
+msgstr "训练游戏"
+
+msgid "Flight Sim"
+msgstr "飞行模拟游戏"
+
+msgid "Football"
+msgstr "美式橄榄球运动游戏"
+
+msgid "Futuristic Racing"
+msgstr "急速竞速游戏"
+
+msgid "Golf"
+msgstr "高尔夫运动游戏"
+
+msgid "Health"
+msgstr "健康训练游戏"
+
+msgid "Hockey"
+msgstr "曲棍球冰球运动游戏"
+
+msgid "Hunting"
+msgstr "狩猎运动游戏"
+
+msgid "Karaoke"
+msgstr "卡拉ok游戏"
+
+msgid "Darts"
+msgstr "飞镖运动游戏"
+
+msgid "Kart Racing"
+msgstr "卡丁车竞速游戏"
+
+msgid "Life Simulation"
+msgstr "模拟人生游戏"
+
+msgid "Management Sim"
+msgstr "管理经营游戏"
+
+msgid "Martial Arts"
+msgstr "武术游戏"
+
+msgid "Motorcycle Racing"
+msgstr "摩托车竞速游戏"
+
+msgid "Petanque"
+msgstr "法式长滚球运动游戏"
+
+msgid "Pinball"
+msgstr "弹球运动游戏"
+
+msgid "Poker"
+msgstr "纸牌游戏"
+
+msgid "Rugby"
+msgstr "橄榄球运动游戏"
+
+msgid "Sim Racing"
+msgstr "竞速经营游戏"
+
+msgid "Skateboarding"
+msgstr "滑板运动游戏"
+
+msgid "Skiing"
+msgstr "滑冰运动游戏"
+
+msgid "Snowboarding"
+msgstr "滑雪运动游戏"
+
+msgid "Soccer"
+msgstr "足球运动游戏"
+
+msgid "Surfing"
+msgstr "冲浪运动游戏"
+
+msgid "Survival Horror"
+msgstr "恐怖游戏"
+
+msgid "Table Tennis"
+msgstr "乒乓球运动游戏"
+
+msgid "Tennis"
+msgstr "网球运动游戏"
+
+msgid "Train Simulation"
+msgstr "火车模拟游戏"
+
+msgid "Trivia"
+msgstr "答题游戏"
+
+msgid "Truck Racing"
+msgstr "卡车竞速游戏"
+
+msgid "Virtual Pet"
+msgstr "宠物养成游戏"
+
+msgid "Volleyball"
+msgstr "排球运动游戏"
+
+msgid "Watercraft Racing"
+msgstr "水上运动游戏"
+
+msgid "Wrestling"
+msgstr "摔跤运动游戏"
+
+msgid "Force Devolution:"
+msgstr "强制Devolution:"
+
+msgid "Dump savegame"
+msgstr "卸载游戏存档"
+
+msgid "Jump"
+msgstr "搜索"
+
+msgid "Off-Road Racing"
+msgstr "越野竞速游戏"

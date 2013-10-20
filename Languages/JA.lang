@@ -1,4 +1,4 @@
-﻿# CFG USB Loader language file template.
+・ CFG USB Loader language file template.e
 # Put the translated string in msgstr ""
 # Fill in the Last-Translator and Language-Team fields.
 # Please use utf-8 charset when editing.
@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-07 23:40+0200\n"
 "PO-Revision-Date: 2010-02-11 HO:MI+ZONE\n"
-"Last-Translator: Hosigumayuugi <hosigumayuugi@gmail.com>\n"
+"Last-Translator: Trickart <trickart1109@gmail.com>\n"
 "Language-Team: Japanese <hosigumayuugi@gmail.com>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -175,6 +175,9 @@ msgstr "キャンセルしました"
 msgid "Cannot create dir: %s"
 msgstr "ディレクトリを作成できませんでした: %s"
 
+msgid "Channel"
+msgstr "チャンネル"
+
 msgid "Cheat Codes:"
 msgstr "チートコード:"
 
@@ -285,6 +288,9 @@ msgstr "cIOS%sを読み込みました"
 msgid "DISC cover"
 msgstr "ディスクカバー"
 
+msgid "Dol Booter"
+msgstr "DOL Booter"
+
 msgid "DOWN"
 msgstr "下"
 
@@ -296,6 +302,9 @@ msgstr "データベースを更新しました"
 
 msgid "Debug"
 msgstr "デバッグ"
+
+msgid "default"
+msgstr	"デフォルト"
 
 msgid "Delete Game"
 msgstr "ゲームを削除"
@@ -321,6 +330,9 @@ msgstr "ディスク"
 msgid "Disc (Ask)"
 msgstr "ディスク(尋ねる)"
 
+msgid "DML version:"
+msgstr "DMlバージョン:"
+
 msgid "Done."
 msgstr "完了しました"
 
@@ -333,8 +345,14 @@ msgstr "全てのカバーをダウンロード"
 msgid "Download All Missing Covers"
 msgstr "不足しているカバーをダウンロード"
 
+msgid "Download game information"
+msgstr "ゲームインフォをダウンロード"
+
 msgid "Download Missing Covers"
 msgstr "不足しているカバーをダウンロード"
+
+msgid "Download Plugins"
+msgstr "プラグインをダウンロード"
 
 msgid "Download Themes"
 msgstr "テーマをダウンロード"
@@ -393,6 +411,9 @@ msgstr "ダウンロード数"
 
 msgid "Drums"
 msgstr "タルコンガ"
+
+msgid "Dump savegame"
+msgstr "セーブデータをダンプ"
 
 msgid "Dutch"
 msgstr "オランダ語"
@@ -727,6 +748,9 @@ msgstr "絞り込み:"
 msgid "Fixing EXTEND partition..."
 msgstr "拡張領域を修復中です…"
 
+msgid "Force Devolution:"
+msgstr "Devolutionを強制使用:"
+
 msgid "Force NTSC"
 msgstr "強制NTSC"
 
@@ -763,7 +787,7 @@ msgid "Game Options:  %s"
 msgstr "ゲーム設定:%s"
 
 msgid "Gamecube"
-msgstr "GCコントローラ"
+msgstr "ゲームキューブ"
 
 msgid "Gamer Card:"
 msgstr "ゲーマーカード:"
@@ -799,8 +823,11 @@ msgstr "ゲームを隠す:"
 msgid "Hold button B to cancel."
 msgstr "キャンセルするにはBボタンを押してください"
 
+msgid "Home Menu"
+msgstr "HOMEメニュー"
+
 msgid "Homebrew Channel"
-msgstr "Homebrewチャンネルへ"
+msgstr "Homebrewチャンネル"
 
 msgid "Hook Type:"
 msgstr "フックタイプ:"
@@ -880,6 +907,9 @@ msgstr "キーボード"
 msgid "Korean"
 msgstr "韓国語"
 
+msgid "LED:"
+msgstr "LED点灯:"
+
 msgid "LEFT"
 msgstr "左"
 
@@ -917,7 +947,7 @@ msgid ""
 msgstr "端に近い方のUSBポートを使用してください"
 
 msgid "Manage"
-msgstr "管理画面へ"
+msgstr "管理画面"
 
 msgid "Manage Cheats"
 msgstr "チートを管理"
@@ -966,6 +996,15 @@ msgstr "BGM:%sが%i個見つかりました"
 
 msgid "Music: musicArray contents: "
 msgstr "BGM:音楽コンテンツ: "
+
+msgid "NAND Emu:"
+msgstr "NANDエミュレーション:"
+
+msgid "NAND Emu Path:"
+msgstr "エミュNANDのパス:"
+
+msgid "NoDisc:"
+msgstr "ディスクなし起動:"
 
 msgid ""
 "NOTE: CIOS249 before rev10:\n"
@@ -1073,6 +1112,9 @@ msgstr "更新はありません"
 msgid "None found on disc"
 msgstr "ディスクに何も見つかりません"
 
+msgid "NTSC-J patch:"
+msgstr "セーブ破損回避:"
+
 msgid "Not Found!"
 msgstr "見つかりません"
 
@@ -1163,6 +1205,9 @@ msgstr "このゲームのため設定を保存しました"
 
 msgid "Out of memory"
 msgstr "メモリ不足"
+
+msgid "PAD HOOK"
+msgstr "パッドフック:"
 
 msgid "Page:"
 msgstr "ページ:"
@@ -1400,7 +1445,7 @@ msgid "Reading BCA..."
 msgstr "BCAを読み込み中…"
 
 msgid "Reboot"
-msgstr "Wiiメニューへ"
+msgstr "Wiiメニュー"
 
 msgid "Release Date"
 msgstr "発売日"
@@ -1413,6 +1458,9 @@ msgstr "ゲームを削除しています、お待ちください…"
 
 msgid "Restarting Wii..."
 msgstr "Wiiを再起動しています…"
+
+msgid "Retry: %d ...\n"
+msgstr "再試行: %d ...\n"
 
 #, c-format
 msgid "Returned! (ret = %d)"
@@ -1466,6 +1514,9 @@ msgstr "保存中:"
 #, c-format
 msgid "Saving: %s"
 msgstr "保存中:%s"
+
+msgid "Screenshot:"
+msgstr "スクリーンショット:"
 
 msgid "Scroll:"
 msgstr "スクロール:"
@@ -1703,6 +1754,9 @@ msgstr "使用容量: %.1fGB 空き容量: %.1fGB"
 msgid "Wheel"
 msgstr "Wiiハンドル"
 
+msgid "Wide Screen:"
+msgstr "ワイドスクリーン"
+
 msgid "Wii Speak"
 msgstr "Wiiスピーク"
 
@@ -1862,6 +1916,10 @@ msgstr "Wiiディスクを開けません"
 #, c-format
 msgid "used: %p - %p"
 msgstr "使用済み: %p - %p"
+
+
+msgid "No Hooks"
+msgstr "フックなし"
 
 #~ msgid "Front"
 #~ msgstr "正面"

@@ -3861,6 +3861,14 @@ void CFG_Setup(int argc, char **argv)
 	}
 	// load unifont
 	char fname[200];
+	char * dbl = ((strlen(CFG.db_language) == 2) ? VerifyLangCode(CFG.db_language) : ConvertLangTextToCode(CFG.db_language));
+	if ((!strncmp(CFG.translation,"JA",2))
+	  ||(!strncmp(CFG.translation,"KO",2))
+	  ||(!strncmp(CFG.translation,"ZH",2))
+	  ||(!strncmp(dbl,"JA",2))
+	  ||(!strncmp(dbl,"KO",2))
+	  ||(!strncmp(dbl,"ZH",2)))
+		CFG.load_unifont = true;			//all require unifont
 	if (CFG.load_unifont) {
 		snprintf(D_S(fname), "%s/unifont.dat", USBLOADER_PATH);
 		console_load_unifont(fname);

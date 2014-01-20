@@ -749,6 +749,34 @@ void readControls(char * start, struct gameXMLinfo *g)
 			z++;
 		}
 	}
+	// The followint games use controllers not supported by the gametdb database
+	if (strncmp(g->id, "RX5", 3) == 0)		//Tony Hawk Ride
+		g->accessoryID[z] = get_accesory_id("skateboard") + 100;
+	if (strncmp(g->id, "STY", 3) == 0)		//Tony Hawk Shred
+		g->accessoryID[z] = get_accesory_id("skateboard") + 100;
+	if (strncmp(g->id, "SQI", 3) == 0)		//Disney Infinity
+		g->accessoryID[z] = get_accesory_id("infinitybase") + 100;
+	if (strncmp(g->id, "SSP", 3) == 0)		//Skylanders Spyros Adventure
+		g->accessoryID[z] = get_accesory_id("portalofpower") + 100;
+	if (strncmp(g->id, "SKY", 3) == 0)		//Skylanders Giants
+		g->accessoryID[z] = get_accesory_id("portalofpower") + 100;
+	if (strncmp(g->id, "SVX", 3) == 0)		//Skylanders Swamp Force
+		g->accessoryID[z] = get_accesory_id("portalofpower") + 100;
+	if (strncmp(g->id, "SWA", 3) == 0)		//DJ Hero
+		g->accessoryID[z] = get_accesory_id("turntable") + 100;
+	if (strncmp(g->id, "SWB", 3) == 0)		//DJ Hero 2
+		g->accessoryID[z] = get_accesory_id("turntable") + 100;
+	if (strncmp(g->id, "RYR", 3) == 0)		//Your Shape
+		g->accessoryID[z] = get_accesory_id("camera") + 100;
+	if (strncmp(g->id, "SRQ", 3) == 0)		//Racquet Sports
+		g->accessoryID[z] = get_accesory_id("camera") + 1;
+	if (strncmp(g->id, "SF5", 3) == 0)		//Fit in Six
+		g->accessoryID[z] = get_accesory_id("camera") + 1;
+	if (strncmp(g->id, "SE2", 3) == 0)		//Active 2
+		g->accessoryID[z] = get_accesory_id("totalbodytracking") + 100;
+	if (strncmp(g->id, "SNF", 3) == 0)		//NFL Training Camp
+		g->accessoryID[z] = get_accesory_id("totalbodytracking") + 100;
+	
 }
 
 
@@ -825,7 +853,12 @@ bool xml_compare_key(void *cb, void *key, int handle)
 	// Some entries in wiitdb have ID4 instead of ID6 (wiiware)
 	// but the image has ID6 (ID4+"00")
 	// so we cut the key to ID4 if it is ID4 in wiitdb
-	int len = (id[4] == 0) ? 4 : 6;
+//	int len = (id[4] == 0) ? 4 : 6;
+	// always need to compare whole id6.
+	// game id4 s are null terminated when they are loaded.
+	// only comparing id4 was causing incorrect matching for titles like wii fit plus and mario kart wii,
+	// when their is a channel id4 and the first 4 of the id6 match.
+	int len = 6;
 	return (strncmp(id, (char *)key, len) == 0);
 }
 

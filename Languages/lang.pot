@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-20 13:30-0400\n"
+"POT-Creation-Date: 2014-01-20 13:14-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -216,6 +216,9 @@ msgstr ""
 
 #, c-format
 msgid "CFG base: %s"
+msgstr ""
+
+msgid "Camera"
 msgstr ""
 
 msgid "Can not dump GC savegames.\n"
@@ -488,6 +491,12 @@ msgid "Downloading neek2o plugin."
 msgstr ""
 
 msgid "Downloading titles.txt ..."
+msgstr ""
+
+msgid "Downloading translation file."
+msgstr ""
+
+msgid "Downloading unifont."
 msgstr ""
 
 #, c-format
@@ -1009,6 +1018,9 @@ msgstr ""
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr ""
 
+msgid "Infinity Base"
+msgstr ""
+
 msgid "Info"
 msgstr ""
 
@@ -1387,6 +1399,10 @@ msgstr ""
 msgid "Out of memory"
 msgstr ""
 
+#, c-format
+msgid "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+msgstr ""
+
 msgid "PAD HOOK"
 msgstr ""
 
@@ -1434,6 +1450,9 @@ msgid "Plugin:"
 msgstr ""
 
 msgid "Poker"
+msgstr ""
+
+msgid "Portal of Power"
 msgstr ""
 
 #, c-format
@@ -1805,6 +1824,9 @@ msgstr ""
 msgid "Size: %d bytes"
 msgstr ""
 
+msgid "Skateboard"
+msgstr ""
+
 msgid "Skateboarding"
 msgstr ""
 
@@ -1878,7 +1900,7 @@ msgstr ""
 msgid "Synopsis"
 msgstr ""
 
-msgid "Synopsis Len"
+msgid "Synopsis Length"
 msgstr ""
 
 msgid "System"
@@ -1937,6 +1959,9 @@ msgstr ""
 msgid "Too many fragments! %d"
 msgstr ""
 
+msgid "Total Body Tracking"
+msgstr ""
+
 msgid "Train Simulation"
 msgstr ""
 
@@ -1948,6 +1973,9 @@ msgstr ""
 
 #, c-format
 msgid "Trying (url#%d) ..."
+msgstr ""
+
+msgid "Turntable"
 msgstr ""
 
 msgid "UNUSED"

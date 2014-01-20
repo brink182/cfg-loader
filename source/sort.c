@@ -89,14 +89,20 @@ char *accessoryTypes[accessoryCnt][2] =
 	{ "wheel",             gts("Wheel") },
 	{ "zapper",            gts("Zapper") },
 	{ "balanceboard",      gts("Balance Board") },
-	{ "wiispeak",          gts("Wii Speak") },
 	{ "microphone",        gts("Microphone") },
 	{ "guitar",            gts("Guitar") },
 	{ "drums",             gts("Drums") },
+	{ "camera",            gts("Camera") },
 	{ "dancepad",          gts("Dance Pad") },
+	{ "infinitybase",      gts("Infinity Base") },
 	{ "keyboard",          gts("Keyboard") },
-	{ "vitalitysensor",    gts("Vitality Sensor") },
+	{ "portalofpower",     gts("Portal of Power") },
+	{ "skateboard",        gts("Skateboard") },
+	{ "totalbodytracking", gts("Total Body Tracking") },
+	{ "turntable",         gts("Turntable") },
 	{ "udraw",             gts("uDraw GameTablet") },
+	{ "wiispeak",          gts("Wii Speak") },
+	{ "vitalitysensor",    gts("Vitality Sensor") },	//must be last never used
 };
 
 char *gameTypes[gameTypeCnt][2] =
@@ -117,34 +123,10 @@ char *gameTypes[gameTypeCnt][2] =
 	{ "wiichannel",	gts("Wii Channel") },
 };
 
-char *searchFields[searchFieldCnt] =
-{
-	gts("Title"),
-	gts("Synopsis"),
-	gts("Developer"),
-	gts("Publisher"),
-	gts("Game ID"),
-	gts("Region"),
-	gts("Rating"),
-	gts("Players"),
-	gts("Online Players"),
-	gts("Play Count"),
-	gts("Synopsis Len"),
-	gts("Covers Available"),
-};
-
-char *searchCompareTypes[searchCompareTypeCnt] =
-{
-	gts("Contains"),
-	"<",
-	"<=",
-	"=",
-	">=",
-	">",
-};
-
 char *genreTypes[genreCnt][2];
 struct Sorts sortTypes[sortCnt];
+char *searchFields[searchFieldCnt];
+char *searchCompareTypes[searchCompareTypeCnt];
 
 void build_arrays() {
 	genreTypes[0][0] = "action";
@@ -342,6 +324,26 @@ void build_arrays() {
 	strcpy(sortTypes[9].name, gt("Game ID"));
 	sortTypes[9].sortAsc = __sort_id_asc;
 	sortTypes[9].sortDsc = __sort_id_desc;
+
+	searchFields[0]  = (char *)gt("Title");
+	searchFields[1]  = (char *)gt("Synopsis");
+	searchFields[2]  = (char *)gt("Developer");
+	searchFields[3]  = (char *)gt("Publisher");
+	searchFields[4]  = (char *)gt("Game ID");
+	searchFields[5]  = (char *)gt("Region");
+	searchFields[6]  = (char *)gt("Rating");
+	searchFields[7]  = (char *)gt("Players");
+	searchFields[8]  = (char *)gt("Online Players");
+	searchFields[9]  = (char *)gt("Play Count");
+	searchFields[10] = (char *)gt("Synopsis Length");
+	searchFields[11] = (char *)gt("Covers Available");
+
+	searchCompareTypes[0] = (char *)gt("Contains");
+	searchCompareTypes[1] = (char *)"<";
+	searchCompareTypes[2] = (char *)"<=";
+	searchCompareTypes[3] = (char *)"=";
+	searchCompareTypes[4] = (char *)">=";
+	searchCompareTypes[5] = (char *)">";
 
 }
 
@@ -729,6 +731,8 @@ int filter_search(struct discHdr *list, int cnt, char *search_field, bool notuse
 			case 11:		//Covers available
 				if (find_cover_path(list[i].id, CFG_COVER_STYLE_2D, temp_str, sizeof(temp_str), NULL) == 0) {
 					rec_int = 1;
+					if ((cur_search_compare_type == 3) && (search_int == 0))	//most common search for missing covers 4x faster
+						goto numeric_compare;
 					if (find_cover_path(list[i].id, CFG_COVER_STYLE_3D, temp_str, sizeof(temp_str), NULL) == 0) {
 						rec_int = 2;
 						if (find_cover_path(list[i].id, CFG_COVER_STYLE_FULL, temp_str, sizeof(temp_str), NULL) == 0) {
@@ -1762,7 +1766,7 @@ int Menu_Filter4()			//Filter by Game Type
 		menu_window_begin(&menu, size, gameTypeCnt);
 		for (n=0;n<gameTypeCnt;n++) {
 			if (menu_window_mark(&menu))
-				printf("%s %s\n", mark_filter(FILTER_GAME_TYPE,n), gameTypes[n][1]);
+				printf("%s %s\n", mark_filter(FILTER_GAME_TYPE,n), gt(gameTypes[n][1]));
 		}
 		DefaultColor();
 		menu_window_end(&menu, cols);

@@ -18,7 +18,7 @@ struct Sorts
 };
 
 #define featureCnt 4
-#define accessoryCnt 17
+#define accessoryCnt 23
 #define genreCnt 76
 #define sortCnt 10
 #define gameTypeCnt 14

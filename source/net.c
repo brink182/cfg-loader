@@ -254,7 +254,7 @@ char *gameid_to_cc(char *gameid)
 	char *ES = "ES";
 	char *ZH = "ZH";
 	char *PAL = "PAL";
-	char *OTHER = "OTHER";
+	char *OTHER = "other";
 	// gameid regions:
 	switch (gameid[3]) {
 		// channel regions:
@@ -1052,6 +1052,122 @@ void Download_Plugins()
 	dl_err:
 	sleep(4);
 } /* end download zipped devolution */
+
+void Download_Translation()
+{
+	char destPath[200];
+	char url[255];
+	struct block file;
+	FILE *f = NULL;
+	file.data = NULL;
+
+	printf("\n");
+	if(!Init_Net()) goto dl_err;
+
+	///////////////////////
+	
+	/* Download unifont */
+	snprintf(destPath, sizeof(destPath), "%s", USBLOADER_PATH);
+	if (!fsop_DirExist(destPath)) mkpath(destPath, 0777);
+	strcat(destPath, "/unifont.dat");
+	if ((!CFG.load_unifont) || fsop_FileExist(destPath))	//if unifont not used or already exists
+		goto skip_unifont;									//dont need to download it
+	strcopy(url, "http://cfg-loader-mod.googlecode.com/svn/trunk/tools/unifont.dat", sizeof(url));
+	if (url[0] == 0) {
+		printf_(gt("Error: no URL."));
+		printf("\n");
+		goto dl_err;	
+	}
+	
+	printf_x(gt("Downloading unifont."));
+	printf("\n");
+	printf_("%s\n", url);
+
+	printf_("[.");
+	file = downloadfile_progress(url, 64);
+	printf("]\n");
+	
+	if (file.data == NULL || file.size < 1300000) {
+		goto dl_err;
+	}
+
+	remove(destPath);
+	
+	f = fopen(destPath, "wb");
+	if (!f) {
+		printf("\n");
+		printf_(gt("Error opening: %s"), destPath);
+		printf("\n");
+		goto dl_err;
+	}
+	fwrite(file.data,1,file.size,f);
+	fclose(f);
+	SAFE_FREE(file.data);
+	printf_(gt("Download complete."));
+	printf("\n");
+	
+	skip_unifont:
+	///////////////////////
+	
+	/* Download language file */
+	if (strcmp(CFG.translation, "EN") == 0)		// if english
+		goto skip_language;						// no file to download
+	snprintf(destPath, sizeof(destPath), "%s/%s", USBLOADER_PATH, "/languages");
+	if (!fsop_DirExist(destPath)) mkpath(destPath, 0777);
+	snprintf(destPath, sizeof(destPath), "%s/%s.lang", destPath, CFG.translation);
+	snprintf(url, sizeof(url), "http://cfg-loader-mod.googlecode.com/svn/trunk/Languages/%s.lang", CFG.translation);
+	if (url[0] == 0) {
+		printf_(gt("Error: no URL."));
+		printf("\n");
+		goto dl_err;	
+	}
+	
+	printf_x(gt("Downloading translation file."));
+	printf("\n");
+	printf_("%s\n", url);
+
+	printf_("[.");
+	file = downloadfile_progress(url, 64);
+	printf("]\n");
+	
+	if (file.data == NULL || file.size < 30000) {
+		goto dl_err;
+	}
+
+	// backup old language file
+	char bak_name[200];
+	strcpy(bak_name, destPath);
+	strcat(bak_name, ".bak");
+	// remove old backup
+	remove(bak_name);
+	// rename current to backup
+	rename(destPath, bak_name);
+	
+	f = fopen(destPath, "wb");
+	if (!f) {
+		printf("\n");
+		printf_(gt("Error opening: %s"), destPath);
+		printf("\n");
+		goto dl_err;
+	}
+	fwrite(file.data,1,file.size,f);
+	fclose(f);
+	SAFE_FREE(file.data);
+	printf_(gt("Download complete."));
+	printf("\n");
+	
+	skip_language:
+	///////////////////////
+	
+//	__console_flush(0);
+//	printf_x(gt("Press any button.\n")); 
+//	Wpad_WaitButtons();
+	return;
+	
+	dl_err:
+	SAFE_FREE(file.data);
+	sleep(4);
+}
 
 int gamercard_enabled = 1;
 

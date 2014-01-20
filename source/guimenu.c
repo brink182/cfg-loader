@@ -295,7 +295,7 @@ void action_OpenQuit(Widget *parent)
 	
 	//battery level
 	static char battery_str[50];
-	sprintf(battery_str, "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%", WPAD_BatteryLevel(0), WPAD_BatteryLevel(1), WPAD_BatteryLevel(2), WPAD_BatteryLevel(3)); 
+	sprintf(battery_str, gt("P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"), WPAD_BatteryLevel(0), WPAD_BatteryLevel(1), WPAD_BatteryLevel(2), WPAD_BatteryLevel(3)); 
 	wgui_add_text(dd, pos(POS_CENTER, 322,	SIZE_AUTO, H_LARGE), battery_str);
 }
 
@@ -1918,13 +1918,13 @@ char *get_filter_name(int type, int index)
 		case FILTER_GENRE:
 			return genreTypes[index][1];
 		case FILTER_CONTROLLER:
-			return accessoryTypes[index][1];
+			return gt(accessoryTypes[index][1]);
 		case FILTER_FEATURES:
-			return featureTypes[index][1];
+			return gt(featureTypes[index][1]);
 		case FILTER_DUPLICATE_ID3:
 			return gt("Duplicate ID3");
 		case FILTER_GAME_TYPE:
-			return gameTypes[index][1];
+			return gt(gameTypes[index][1]);
 		case FILTER_SEARCH:
 			return search_str;
 	}
@@ -1965,8 +1965,8 @@ void action_OpenFilter(Widget *a_ww)
 		names[i] = gt(accessoryTypes[i][1]);
 	}
 	names[5] = gt("Classic");
-	// -2 = omit last 2 (vitality, udraw)
-	r_filter[1] = rr = wgui_arrange_radio(pp, pos_full, 3, accessoryCnt-2, names);
+	// -1 = omit last 1 (vitality)
+	r_filter[1] = rr = wgui_paginate_radio(pp, pos_full, 3, 4, accessoryCnt-1, names);
 	wgui_radio_set(rr, -1);
 	rr->action = action_filter;
 
@@ -2028,6 +2028,8 @@ void action_OpenFilter(Widget *a_ww)
 	if (r >= 0) {
 		if (r < 5) wgui_set_value(r_filter_group, r);
 		wgui_set_value(r_filter[r], i);
+		if ((filter_type == FILTER_GENRE) || (filter_type == FILTER_CONTROLLER))	//if multiple pages
+			wgui_set_value(r_filter[r]->parent, i/12);	//set default page
 	}
 }
 

@@ -13,6 +13,17 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r69
+date = 2014-1-20
+-Added additional controllers to filter by controller
+-Added downloading language files when updating to a new version
+-Fixed downloading covers for regions that are undefined in the gametdb data base mostly used by customs
+-Fixed gametdb lookups when an id6 has an id4 in the id that matched the first 4 characters
+-Updated FR.lang (Thanks JABE)
+-Automatically load unifont if JA, KO and ZH language or db files are used
+-Fixed several spots ware translation was not working
+-Updated Search function (still a work in process)
+ 
 Unreleased = 70r68
 date = 2013-10-20
 -Added separate themes for each profile

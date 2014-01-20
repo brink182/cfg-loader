@@ -496,6 +496,8 @@ void Download_Update(int n, char *app_path, int update_meta)
 		}
 	}
 
+	Download_Translation();		//download new translation file
+
 	printf_(gt("Done."));
 	printf("\n\n");
 	printf_(gt("NOTE: loader restart is required\nfor the update to take effect."));

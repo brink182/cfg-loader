@@ -110,6 +110,8 @@ Default File locations:
   .bca files:      sd:/usb-loader/GAMEID.bca
   .wdm files:      sd:/usb-loader/GAMEID.wdm
 
+  nand Immage      usb:/nand
+
   Games on FAT/NTFS
     :              usb:/wbfs/GAMEID.wbfs
   or:              usb:/wbfs/TITLE [GAMEID].wbfs
@@ -912,12 +914,15 @@ Config file:
 # translation = [AUTO], EN, custom, etc.
 #   Current auto values: JA, EN, DE, FR, ES, IT, NL, ZH, ZH, KO
 #   Any filename is supported as long as a corresponding translation 
-#   file exists
+#   file exists. Translation files currently exist for DE, DK, ES, FI, FR,
+#   GR, IT, JA, KO, NL, NO, PT_BR, PT_PT, TR, ZH_CN, ZH_CN-clamis, ZH_TW
 #
 # load_unifont = [0], 1
 #   Specifies if unifont.dat should be loaded or not. unifont.dat contains
 #   all the unicode characters, required for ASIAN language support so that
 #   translation or wiitdb info shows up correctly.
+#   load_unifont automaticly switches to 1 if translation starts with JA, KO or ZH
+#   or if db_language is JA, KO, ZH
 #   Note: the LATIN unicode set is already embedded into the loader,
 #   so to display German, French, Spanish, etc... unifont.dat is not needed
 #
@@ -983,6 +988,9 @@ Config file:
 #   intro=2 : color image [default]
 #   intro=3 : grey image
 #   This option only works if set in meta.xml <arguments>
+#
+# nand_emu_path = [usb:/nand]
+#   sets the path whare a nand image is located. It must be a fat drive.
 #
 # Game Compatibility Options:
 # ===========================

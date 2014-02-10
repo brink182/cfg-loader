@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-07 23:40+0200\n"
-"PO-Revision-Date: 2010-02-28 13:52+0100\n"
+"POT-Creation-Date: 2014-02-10 11:11-0500\n"
+"PO-Revision-Date: 2014-01-26 23:18+0100\n"
 "Last-Translator: xxdimixx\n"
 "Language-Team: GREEK <xxdimixx>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: Greek\n"
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
@@ -35,15 +35,27 @@ msgstr "%d διαθέσιμα"
 
 #, c-format
 msgid "%d more notes"
-msgstr "%d περισσότερες σημειώσης"
+msgstr "%d περισσότερες σημειώσεις"
 
 #, c-format
 msgid "%s Split: %d %s"
-msgstr "%s Split: %d %s"
+msgstr "%s Χώρισμα: %d %s"
 
 #, c-format
 msgid "%s, please wait..."
 msgstr "%s, παρακαλώ περιμένετε..."
+
+#, c-format
+msgid "%s: Favorites"
+msgstr ""
+
+#, c-format
+msgid "%s: GUI "
+msgstr ""
+
+#, c-format
+msgid "%s: Options "
+msgstr ""
 
 #, c-format
 msgid "(%d online)"
@@ -54,40 +66,58 @@ msgid "(%d seconds timeout)"
 msgstr "(%d δευτ. timeout)"
 
 msgid "(This can take a couple of minutes)"
-msgstr ""
+msgstr "(Ίσως να αργήσει λίγα λεπτά)"
 
 msgid ".dol too small"
 msgstr ".dol πολύ μικρό"
 
+msgid "1.2+"
+msgstr "1.2+"
+
+msgid "1st-Person Shooter"
+msgstr "1st-Person Shooter"
+
+msgid "2.0+"
+msgstr "2.0+"
+
+msgid "2.1+"
+msgstr "2.1+"
+
+msgid "2.2+"
+msgstr "2.2+"
+
 msgid "3D cover"
-msgstr ""
+msgstr "3D cover"
+
+msgid "3rd-person Shooter"
+msgstr "3rd-person Shooter"
 
 msgid "< ASC  >"
-msgstr "< Ανοδ. >"
+msgstr "< ΑΝΟΔ. >"
 
 msgid "< DESC >"
-msgstr "< Καθοδ. >"
+msgstr "< ΚΑΘΟΔ. >"
 
 msgid "< DOWNLOAD >"
-msgstr "< Κατέβασμα >"
+msgstr "< ΚΑΤΕΒΑΣΜΑ >"
 
 msgid "About"
-msgstr ""
+msgstr "Περί"
 
 msgid "Action"
 msgstr "Action"
 
 msgid "Additional config:"
-msgstr " πρόσθετες ρυθμίσεις:"
+msgstr "Πρόσθετες ρυθμίσεις:"
 
 msgid "Admin Lock:"
-msgstr ""
+msgstr "Κλείδωμα άντμιν"
 
 msgid "Admin Unlock"
-msgstr ""
+msgstr "Ξεκλείδωμα άντμιν"
 
 msgid "Adult"
-msgstr ""
+msgstr "Ενήλικας"
 
 msgid "Adventure"
 msgstr "Περιπέτεια"
@@ -95,17 +125,23 @@ msgstr "Περιπέτεια"
 msgid "All"
 msgstr "Όλα"
 
+msgid "All Channels"
+msgstr "Όλα τα κανάλια"
+
 msgid "All Games"
 msgstr "Όλα τα παιχνίδια"
 
 msgid "All themes up to date."
-msgstr ""
+msgstr "Όλα τα Θέματα είναι επίκαιρα"
+
+msgid "Alt Button Cfg:"
+msgstr "Εναλ. πληκτρό Cfg"
 
 msgid "Alt dol:"
-msgstr ""
+msgstr "Εναλ. dol"
 
 msgid "Alternative .dol:"
-msgstr "Διαφορετικό .dol:"
+msgstr "Εναλλακτικό .dol:"
 
 msgid "Anti 002 Fix:"
 msgstr "Anti 002 Fix:"
@@ -114,72 +150,114 @@ msgstr "Anti 002 Fix:"
 msgid "App. Path: %s"
 msgstr "App. Path: %s"
 
+msgid "Arcade"
+msgstr "Arcade"
+
 #, c-format
 msgid ""
 "Are you sure you want to %s\n"
 "this partition?"
 msgstr ""
-"Είσαι σίγουρος πως θέλεις να %s\n"
+"Είστε σίγουρος πως θέλετε να %s\n"
 "αυτό το partition;"
 
 msgid ""
 "Are you sure you want to FIX\n"
 "this partition?"
 msgstr ""
-"Είσαι σίγουρος πως θέλεις να επισκευάσεις \n"
+"Είστε σίγουρος πως θέλετε να επισκευάσετε \n"
 "αυτό το partition;"
 
 msgid ""
 "Are you sure you want to remove this\n"
 "game?"
 msgstr ""
-"Είσαι σίγουρος πως θέλεις να διαγράψεις αυτό\n"
+"Είστε σίγουρος πως θέλετε να διαγράψετε αυτό\n"
 "το παιχνίδι;"
 
 msgid "Ascending"
-msgstr ""
+msgstr "Ανοδικά"
 
 msgid "Auto"
-msgstr ""
+msgstr "Αυτόματα"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
 msgstr "Αυτόματο ξεκίνημα παιχνιδιού: %.6s δεν εβρέθηκε!"
 
 msgid "Available Updates"
-msgstr "Διαθέσιμες αναβαθμίσεις "
+msgstr "Διαθέσιμες αναβαθμίσεις"
 
 msgid "Back"
-msgstr ""
+msgstr "Πίσω"
 
 msgid "Balance Board"
 msgstr "Balance Board"
 
+msgid "Baseball"
+msgstr "Μπέιζμπολ"
+
 msgid "Basic"
-msgstr ""
+msgstr "Βασικό"
+
+msgid "Basketball"
+msgstr "Μπασκετμπόλ"
+
+msgid "Bike Racing"
+msgstr "Αγώνες ποδηλάτων"
+
+msgid "Billiards"
+msgstr "Μπιλιάρδο"
 
 msgid "Block IOS Reload:"
 msgstr "Μπλοκ IOS Reload:"
 
+msgid "Board Game"
+msgstr "Board Game"
+
 msgid "Boot Disc"
-msgstr "Ξεκινώ Disc"
+msgstr "Έναρξη Disc"
 
 msgid "Boot disc"
-msgstr ""
+msgstr "Έναρξη disc"
 
-msgid "Booting Wii game, please wait..."
-msgstr "Ξεκινάω το παιχνίδι, παρακαλώ περιμένετε..."
+msgid "Booting game, please wait..."
+msgstr "Εκκίνηση παιχνιδιού, παρακαλώ περιμένετε"
+
+msgid "Bowling"
+msgstr "Μποουλινγκ"
+
+msgid "Boxing"
+msgstr "Μποξ"
+
+msgid "Business Sim"
+msgstr "Business Sim"
 
 #, c-format
 msgid "CFG base: %s"
 msgstr "CFG βάση: %s"
+
+msgid "Camera"
+msgstr "Κάμερα"
+
+msgid "Can not dump GC savegames.\n"
+msgstr "Αδύνατον το dump των GC savegame.\n"
+
+msgid "Can't install Wii games!"
+msgstr "Αδύνατον η εγκατάσταση του Wii παιχνιδιού!"
 
 msgid "Cancelled."
 msgstr "Ακυρόθηκε."
 
 #, c-format
 msgid "Cannot create dir: %s"
-msgstr "Η δημιουργία ενώς φακέλου δεν είταν δυνατόν: %s"
+msgstr "Αδύνατον Η δημιουργία ενώς φακέλου: %s"
+
+msgid "Cards"
+msgstr "Χαρτιά"
+
+msgid "Channel"
+msgstr "Κανάλι"
 
 msgid "Cheat Codes:"
 msgstr "Cheat Codes:"
@@ -191,22 +269,37 @@ msgid "Check For Updates"
 msgstr "Ψάξιμο για αναβαθμίσεις"
 
 msgid "Checking for themes..."
-msgstr ""
+msgstr "Ψάξιμο για θέματα..."
 
 msgid "Checking for updates..."
-msgstr "Ψάχνω για αναβαθμίσεις..."
+msgstr "Ψάξιμο για αναβαθμίσεις..."
+
+msgid "Chess"
+msgstr "Σκάκι"
 
 msgid "Choose a sorting method"
-msgstr "διάλεξε μέθοδο ταξινόμισης"
+msgstr "διαλέξτε μέθοδο ταξινόμισης"
 
 msgid "Classic"
-msgstr ""
+msgstr "Κλασικό"
 
 msgid "Classic Controller"
 msgstr "Classic Controller"
 
+msgid "Clear"
+msgstr "Διαγραφή"
+
 msgid "Clear Patches:"
-msgstr ""
+msgstr "Διαγραφή Patches:"
+
+msgid "Coaching"
+msgstr "Coaching"
+
+msgid "Compare Type"
+msgstr "Σύγκριση τύπων"
+
+msgid "Compilation"
+msgstr "Compilation"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -224,41 +317,53 @@ msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "Λάθος σύνδεσης από net_read() Errorcode: %i"
 
 msgid "Console"
-msgstr ""
+msgstr "Κονσόλα"
 
-msgid "Console Def."
-msgstr ""
+msgid "Construction Sim"
+msgstr "Construction Sim"
+
+msgid "Contains"
+msgstr "Περιέχει"
 
 msgid "Controller"
-msgstr ""
+msgstr "Controller"
+
+msgid "Cooking"
+msgstr "Μαγείρεμα"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
-msgstr "Η Έναρξη του DIP Modul δεν ήταν δυνατόν! (ret= %d)"
+msgstr "Η έναρξη του DIP Modul δεν ήταν δυνατόν! (ret= %d)"
 
 msgid "Country Fix:"
 msgstr "Country Fix:"
 
 msgid "Cover"
-msgstr ""
+msgstr "Cover"
 
 msgid "Cover Image:"
-msgstr "Cover:"
+msgstr "Εικόνα cover:"
 
 msgid "Cover Style"
-msgstr ""
+msgstr "Cover Style"
+
+msgid "Covers Available"
+msgstr "Διαθέσιμα cover"
 
 msgid "Cover~~Back"
-msgstr ""
+msgstr "Cover~~πίσω"
 
 msgid "Cover~~Front"
-msgstr ""
+msgstr "Cover~~μπροστινό"
 
 msgid "Create"
-msgstr "Δημιουργώ"
+msgstr "Δημιουργία"
 
 msgid "Creator"
-msgstr ""
+msgstr "Δημιουργός"
+
+msgid "Cricket"
+msgstr "Κρίκετ"
 
 #, c-format
 msgid "Current Version: %s"
@@ -269,6 +374,8 @@ msgid ""
 "Custom IOS %d could not be found!\n"
 "Please install it."
 msgstr ""
+"Το custom IOS %d δεν βρέθηκε!\n"
+"Παρακαλό εγκαταστήστε το."
 
 #, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
@@ -279,123 +386,167 @@ msgid ""
 "Custom IOS %d is a stub!\n"
 "Please reinstall it."
 msgstr ""
+"Το custom IOS %d είναι stub!\n"
+"Παρακαλώ επανεγκαταστήστε το."
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
-msgstr "Custom IOS %s φορτώθηκε OK"
+msgstr "Φόρτωμα custom IOS %s OK"
+
+msgid "DEVO"
+msgstr "DEVO"
 
 msgid "DISC cover"
-msgstr ""
+msgstr "DISC cover"
 
 msgid "DOWN"
-msgstr ""
+msgstr "ΚΑΤΩ"
+
+msgid "Dance"
+msgstr "Χορός"
 
 msgid "Dance Pad"
 msgstr "Dance Pad"
+
+msgid "Darts"
+msgstr "Βελάκια"
 
 msgid "Database update successful."
 msgstr "Ανανέωση της τράπεζας πληροφωριών επιτυχάνθηκε."
 
 msgid "Debug"
-msgstr ""
+msgstr "Debug"
 
 msgid "Delete Game"
-msgstr "Διαγράφω παιχνίδι"
+msgstr "Διαγραφή παιχνιδιού"
 
 msgid "Deleting"
-msgstr "Διαγράφω"
+msgstr "Διαγραφή"
 
 msgid "Descending"
-msgstr ""
+msgstr "Καθοδικά"
 
 msgid "Developer"
-msgstr "εμφανιστής"
+msgstr "Προγραμματιστής"
 
 msgid "Device is not responding!"
-msgstr ""
+msgstr "Η μονάδα δεν αντιδρά"
 
 msgid "Device:"
 msgstr "Μονάδα:"
+
+msgid "Devolution only accepts clean dumps!\n"
+msgstr "Το Devolution δέχεται μόνο καθαρά dumps!\n"
+
+msgid "Devolution:"
+msgstr "Devolution"
 
 msgid "Disc"
 msgstr "Disc"
 
 msgid "Disc (Ask)"
-msgstr ""
+msgstr "Disc (Ask)"
 
 msgid "Done."
 msgstr "Έτοιμο."
 
 msgid "Download .txt"
-msgstr "Κατέβασε .txt"
+msgstr "Κατέβασμα .txt"
 
 msgid "Download All Covers"
-msgstr ""
+msgstr "Κατέβασμα όλων των cover"
 
 msgid "Download All Missing Covers"
 msgstr "Κατέβασε όλα τα απόν Cover"
 
 msgid "Download Missing Covers"
-msgstr ""
+msgstr "Κατέβασμα των λειπών cover"
+
+msgid "Download Plugins"
+msgstr "Κατέβασμα των πλάγκινς"
 
 msgid "Download Themes"
-msgstr ""
+msgstr "Κατέβασμα θεμάτων"
 
 msgid "Download complete."
 msgstr "Download ολοκληρώθηκε."
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "Λάθος στο κατέβασμα στην gamercard #%d."
 
-msgid "Download titles.txt"
-msgstr ""
+msgid "Download game information"
+msgstr "Κατέβασμα πληροφοριών παιχνιδιού"
 
 msgid "Downloadable Content"
 msgstr "Κατεβάσιμο περιεχόμενο"
 
 msgid "Downloading ALL MISSING covers"
-msgstr "Κατέβαζω απόν Cover"
+msgstr "Κατέβασμα απόν cover"
 
 msgid "Downloading ALL covers"
-msgstr "Κατεβάζω όλα τα Cover"
+msgstr "Κατέβασμα όλων των cover"
 
 #, c-format
 msgid "Downloading ALL covers for %.6s"
-msgstr "Κατέβασε όλα τα Cover για %.6s"
+msgstr "Κατέβασμα όλων των cover για %.6s"
 
 #, c-format
 msgid "Downloading MISSING covers for %.6s"
-msgstr "Κατέβαζω απόν Cover για %.6s"
+msgstr "Κατέβασμα απόν Cover για %.6s"
 
 msgid "Downloading Theme previews..."
-msgstr ""
+msgstr "Κατέβασμα προεπίδειξη θέματος"
 
 msgid "Downloading cheats..."
-msgstr "Κατεβάζω cheats..."
+msgstr "Κατεβάσμα cheats..."
 
 msgid "Downloading database."
-msgstr "Κατεβάζω τράπεζα πληροφωριών."
+msgstr "Κατέβασμα τράπεζα πληροφωριών."
+
+msgid "Downloading devolution."
+msgstr "Κατέβασμα devolution"
+
+msgid "Downloading mighty plugin."
+msgstr "Κατέβασμα mighty plugin"
+
+msgid "Downloading neek2o plugin."
+msgstr "Κατέβασμα neek2o plugin"
 
 msgid "Downloading titles.txt ..."
-msgstr "Κατεβάζω titles.txt ..."
+msgstr "Κατέβασμα titles.txt ..."
+
+msgid "Downloading translation file."
+msgstr "Κατέβασμα αρχείων μεταγλώττισης"
+
+msgid "Downloading unifont."
+msgstr "Κατέβασμα unifont."
 
 #, c-format
 msgid "Downloading: %s"
-msgstr "Κατεβάζω: %s"
+msgstr "Κατέβασμα: %s"
 
 #, c-format
 msgid "Downloading: %s as %s"
-msgstr ""
+msgstr "Κατέβασμα: %s as %s"
 
 msgid "Downloads"
-msgstr ""
+msgstr "Λήψεις"
+
+msgid "Drawing"
+msgstr "Σχεδιασμός"
 
 msgid "Drums"
 msgstr "Τύμπανα"
 
+msgid "Dump savegame"
+msgstr "Dump savegame"
+
+msgid "Duplicate ID3"
+msgstr "Αντιγραφή ID3"
+
 msgid "Dutch"
-msgstr ""
+msgstr "Ολλανδικά"
 
 msgid "ERROR"
 msgstr "ΛΑΘΟΣ"
@@ -404,7 +555,7 @@ msgid "ERROR creating file"
 msgstr "ΛΑΘΟΣ δημιουργία αρχείου"
 
 msgid "ERROR game opt"
-msgstr "ΛΑΘΟΣ ρυθμίσεις παιχνιδιών"
+msgstr "ΛΑΘΟΣ επιλογές παιχνιδιών"
 
 msgid "ERROR reading BCA!"
 msgstr "ΛΑΘΟΣ διάβασμα BCA!"
@@ -438,14 +589,14 @@ msgid "ERROR: CIOS222/223 v4 required for BCA"
 msgstr "ΛΑΘΟΣ:  Το CIOS222/223 v4 είναι απαρέτητο για BCA"
 
 msgid "ERROR: Cache Close"
-msgstr "ΛΑΘΟΣ: κλείσιμο Cache"
+msgstr "ΛΑΘΟΣ: Κλείσιμο cache"
 
 #, c-format
 msgid "ERROR: Could not open game! (ret = %d)"
 msgstr "ΛΑΘΟΣ: Το ξεκίνημα παιχνιδιού δεν ήταν δυνατόν! (ret = %d)"
 
 msgid "ERROR: Game already installed!!"
-msgstr "ΛΑΘΟΣ: Το παιχνίδι έχει είδη εγκατασταθεί!"
+msgstr "ΛΑΘΟΣ: Το παιχνίδι έχει είδη εγκατασταθεί!!"
 
 #, c-format
 msgid "ERROR: GetCerts %d"
@@ -456,16 +607,18 @@ msgstr "ΛΑΘΟΣ: Άκυρο Game ID"
 
 #, c-format
 msgid "ERROR: Loading EHC module! (%d)"
-msgstr "ΛΑΘΟΣ: Φορτώνω EHC module! (%d)"
+msgstr "ΛΑΘΟΣ: Φόρτωμα EHC module! (%d)"
 
 msgid ""
 "ERROR: NTFS write disabled!\n"
 "(set ntfs_write=1)"
 msgstr ""
+"ΛΑΘΟΣ: Γράψιμο σε NTFS απενεργοποιημένο!\n"
+"(βάλτε ntfs_write=1)"
 
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
-msgstr "ΛΑΘΟΣ: Δεν βρεθήκαν partitions! (ret = %d)"
+msgstr "ΛΑΘΟΣ: Δεν βρέθηκαν partitions! (ret = %d)"
 
 msgid "ERROR: Not a Wii disc!!"
 msgstr "ΛΑΘΟΣ: Δεν πρόκειτε για Wii Disk!"
@@ -497,43 +650,50 @@ msgstr "ΛΑΘΟΣ: Setting SD mode"
 msgid "ERROR: USB init! (%d)"
 msgstr "ΛΑΘΟΣ: USB init! (%d)"
 
+msgid "ERROR: WBFS not mounted!"
+msgstr "ΛΑΘΟΣ: WBFS not mounted"
+
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
 "cIOS223v4, cIOS224v5 or higher required\n"
 "for starting games from a FAT partition!\n"
 "Upgrade IOS249 or choose a different IOS."
 msgstr ""
+"ΛΑΘΟΣ: για εκκίνηση από FAT partition\n"
+"απαιτείται cIOS249rev18, cIOS222v4,\n"
+"cIOS223v4, cIOS224v5 ή υψηλότερο\n"
+"Αναβαθμίστε IOS249 ή επιλέξτε διαφορετικό IOS."
 
 msgid "ERROR: cache: out of memory"
-msgstr "ΛΑΘΟΣ: Cache: Δεν υπάρχει περίσιος χώρος στη μνήμη"
+msgstr "ΛΑΘΟΣ: Cache: δεν υπάρχει περίσιος χώρος στη μνήμη"
 
 #, c-format
 msgid "ERROR: creating: %s"
-msgstr ""
+msgstr "ΛΑΘΟΣ: δημιουργία: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
 msgstr "ΛΑΘΟΣ: get_frag_list: %d"
 
 msgid "ERROR: memory overlap!"
-msgstr "ΛΑΘΟΣ: Επικάλυψη μνήμης!"
+msgstr "ΛΑΘΟΣ: επικάλυψη μνήμης!"
 
 msgid ""
 "ERROR: multiple wbfs partitions\n"
 "supported only with IOS222/223-mload"
 msgstr ""
-"ΛΑΘΟΣ: Μόνο το CIOS222/223-mload\n"
-"υποστηρίζει πολαπλά WBFS Partitions"
+"ΛΑΘΟΣ: πολαπλά WBFS Partitions\n"
+"υποστηρίζονται μόνο με το CIOS222/223-mload"
 
 msgid "ERROR: not enough free space!!"
-msgstr "ΛΑΘΟΣ: Δεν υπάρχει ελεύθερος χώρος στην μνήμη!"
+msgstr "ΛΑΘΟΣ: δεν υπάρχει ελεύθερος χώρος!!"
 
 msgid "ERROR: ntfs was not cleanly unmounted"
-msgstr ""
+msgstr "ΛΑΘΟΣ: το ntfs δεν αφαιρέθηκε σωστά"
 
 #, c-format
 msgid "ERROR: opening %.6s"
-msgstr "ΛΑΘΟΣ: Ανοίγω %.6s"
+msgstr "ΛΑΘΟΣ: άνοιγμα %.6s"
 
 #, c-format
 msgid "ERROR: set_frag_list: %d"
@@ -544,89 +704,102 @@ msgid "ERROR: setting up fragments %d %d"
 msgstr "ΛΑΘΟΣ: setting up fragments %d %d"
 
 #, c-format
+msgid "ERROR: the drive or partition %s/ is not connected!!"
+msgstr "ΛΑΘΟΣ: η μονάδα ή το partition %s/ δεν έχει συνδεθεί!!"
+
+#, c-format
 msgid "ERROR: writing %s (%d)."
-msgstr "ΛΑΘΟΣ: γράφω %s (%d)."
+msgstr "ΛΑΘΟΣ: γράψιμο %s (%d)."
 
 msgid "EXTEND"
 msgstr "επέκταση"
+
+msgid "Educational"
+msgstr "Εκπαιδευτικά"
 
 msgid "Ejecting DVD..."
 msgstr "Εξαγωγή DVD..."
 
 msgid "English"
-msgstr ""
+msgstr "Αγγλικά"
 
 msgid "English Title"
-msgstr ""
+msgstr "Αγγλικός τίτλος"
 
 msgid "Enter Code: "
 msgstr "Εισάγετε κωδικό: "
 
 msgid "Error GRRLIB init"
-msgstr "ΛΑΘΟΣ GRRLIB init"
+msgstr "Λάθος GRRLIB init"
 
 msgid "Error Initializing Network."
-msgstr "Error Initializing Network."
+msgstr "Λάθος στην αρχικοποίηση δικτύου."
 
 msgid "Error adding disc!"
-msgstr "ΛΑΘΟΣ πρόσθεση disc!"
+msgstr "Λάθος στην πρόσθεση του disc!"
+
+#, c-format
+msgid "Error allocating buffer: %d"
+msgstr "Λάθος στην εκχώρηση μνήμης"
 
 msgid "Error creating directory..."
-msgstr ""
+msgstr "Λάθος στην δημιουργία φακέλου"
 
 msgid "Error discarding options!"
-msgstr "ΛΑΘΟΣ απορρίψη options!"
+msgstr "Λάθος στην απορρίψη των επιλογών!"
 
 msgid "Error downloading theme preview..."
-msgstr ""
+msgstr "Λάθος στο κατέβασμα για προεπίδειξη θεμάτων"
 
 msgid "Error downloading theme..."
-msgstr ""
+msgstr "Λάθος στο κατέβασμα του θέματος"
 
 msgid "Error downloading themes..."
-msgstr ""
+msgstr "Λάθος στο κατέβασμα των θεμάτων"
 
 msgid "Error downloading update..."
-msgstr "ΛΑΘΟΣ στο κατέβασμα αναβάθμισης..."
+msgstr "Λάθος στο κατέβασμα αναβάθμισης..."
 
 msgid "Error downloading updates..."
-msgstr "ΛΑΘΟΣ στο κατέβασμα αναβαθμίσεων..."
+msgstr "Λάθος στο κατέβασμα αναβαθμίσεων..."
 
 msgid "Error downloading."
-msgstr "ΛΑΘΟΣ στο κατέβασμα."
+msgstr "Λάθος στο κατέβασμα."
 
 msgid "Error establishing connection"
-msgstr "Δημιουργία σύνδεσης απέτυχε"
+msgstr "Η δημιουργία σύνδεσης απέτυχε"
 
 msgid "Error extracting theme..."
-msgstr ""
+msgstr "Λάθος στην εξαγωγή του θέματος"
 
 msgid "Error opening database, update did not complete."
-msgstr "ΛΑΘΟΣ άνοιγμα τράπεζα πληροφωριών, αναβάθμιση μη ολοκληρομένη."
+msgstr ""
+"ΛΑΘΟΣ στο άνοιγμα τράπεζα πληροφωριών,\n"
+" αναβάθμιση μη ολοκληρομένη."
 
 #, c-format
 msgid "Error opening: %s"
-msgstr "ΛΑΘΟΣ άνοιγμα: %s"
+msgstr "Λάθος στο άνοιγμα: %s"
 
 #, c-format
 msgid "Error playing %s"
-msgstr "ΛΑΘΟΣ στο παίξιμο από %s"
+msgstr "Λάθος στο παίξιμο %s"
 
 msgid "Error reading .dol"
-msgstr "ΛΑΘΟΣ ανάγνωση από .dol"
+msgstr "Λάθος στην ανάγνωση .dol"
 
 msgid "Error reading dol header"
-msgstr "ΛΑΘΟΣ στην ανάγνωση του dol header!"
+msgstr "Λάθος στην ανάγνωση του dol header!"
 
 #, c-format
 msgid "Error saving %s"
-msgstr "ΛΑΘΟΣ: αποθήκευση %s"
+msgstr "Λάθος στην αποθήκευση %s"
 
 msgid "Error saving options!"
-msgstr "ΛΑΘΟΣ: αποθήκευση options!"
+msgstr "Λάθος στην αποθήκευση επιλογών!"
 
 msgid "Error saving settings!"
-msgstr "ΛΑΘΟΣ: αποθήκευση ρυθμίσεων!"
+msgstr "Λάθος στην αποθήκευση ρυθμίσεων!"
 
 msgid ""
 "Error storing playlog file.\n"
@@ -636,20 +809,23 @@ msgstr ""
 "Ξεκινήστε από το Wii-Menu για να αποφύγετε το λάθος."
 
 msgid "Error: Invalid PNG image!"
-msgstr "ΛΑΘΟΣ: Άκυρη PNG εικόνα!"
+msgstr "Λάθος: Άκυρη PNG εικόνα!"
 
 msgid "Error: no URL."
-msgstr "ΛΑΘΟΣ: δεν υπάρχει URL."
+msgstr "Λάθος: δεν υπάρχει URL."
 
 msgid "Error: no data."
-msgstr "ΛΑΘΟΣ: δεν υπάρχουν δεδομένα."
+msgstr "Λάθος: δεν υπάρχουν δεδομένα."
+
+msgid "Exercise"
+msgstr "Άσκηση"
 
 msgid "Exit"
-msgstr ""
+msgstr "Έξοδος"
 
 #, c-format
 msgid "Extracting: %s"
-msgstr ""
+msgstr "Εξαγωγή: %s"
 
 msgid "FAIL"
 msgstr "ΑΠΕΤΥΧΕ"
@@ -667,31 +843,31 @@ msgid "FILL %d"
 msgstr "ΣΗΜΠΛΗΡΩΣΤΕ %d"
 
 msgid "FLAT cover"
-msgstr ""
+msgstr "FLAT cover"
 
 msgid "FULL cover"
-msgstr ""
+msgstr "FULL cover"
 
 msgid "Fav"
-msgstr ""
+msgstr "Αγαπ."
 
 msgid "Fav: Off"
-msgstr ""
+msgstr "Αγαπ.: Off"
 
 msgid "Fav: On"
-msgstr ""
+msgstr "Αγαπ.: On"
 
 msgid "Favorite"
-msgstr ""
+msgstr "Αγαπημένο"
 
 msgid "Favorite Games"
 msgstr "Αγαπημένα παιχνίδια"
 
 msgid "Favorite:"
-msgstr "Αγαπημένα:"
+msgstr "Αγαπημένο:"
 
 msgid "Favorites:"
-msgstr ""
+msgstr "Αγαπημένα:"
 
 msgid "Fighting"
 msgstr "Παιχνίδια πάλης"
@@ -701,13 +877,16 @@ msgid "File not found! %s"
 msgstr "Το αρχείο δεν βρέθηκε! %s"
 
 msgid "Filter"
-msgstr ""
+msgstr "Φίλτρο"
 
 msgid "Filter Games"
-msgstr "Φιλτράρω παιχνίδια"
+msgstr "Φιλτράρισμα παιχνιδιών"
 
 msgid "Filter by Controller"
 msgstr "Φιλτράρισμα με Controller"
+
+msgid "Filter by Game Type"
+msgstr "Φιλτράρισμα με τύπο παιχνιδιού"
 
 msgid "Filter by Genre"
 msgstr "Φιλτράρισμα με Genre"
@@ -716,88 +895,142 @@ msgid "Filter by Online Features"
 msgstr "Φιλτράρισμα με Online Features"
 
 msgid "Filter:"
-msgstr ""
+msgstr "Φίλτρο:"
+
+msgid "Fishing"
+msgstr "Ψάρεμα"
+
+msgid "Fitness"
+msgstr "Fitness"
 
 msgid "Fixing EXTEND partition..."
-msgstr "Επισκευάζω επεκταμένο Partition..."
+msgstr "Επισκευή επεκταμένου Partition..."
+
+msgid "Flight Sim"
+msgstr "Προσομοίωση πτήσης"
+
+msgid "Football"
+msgstr "Φούτμπολ"
+
+msgid "Force Devolution:"
+msgstr "Εξαναγκασμός Devolution:"
 
 msgid "Force NTSC"
-msgstr ""
+msgstr "Εξαναγκασμός NTSC"
+
+msgid "Force NTSC 480p"
+msgstr "Εξαναγκασμός NTSC 480p"
+
+msgid "Force PAL"
+msgstr "Εξαναγκασμός PAL"
+
+msgid "Force PAL 480p"
+msgstr "Εξαναγκασμός PAL 480p"
 
 msgid "Force PAL50"
-msgstr ""
+msgstr "Εξαναγκασμός PAL50"
 
 msgid "Force PAL60"
-msgstr ""
+msgstr "Εξαναγκασμός PAL60"
 
 msgid "Formatting"
-msgstr "Μορφοποιώ"
+msgstr "Μορφοποίηση"
 
 #, c-format
 msgid "Found %s"
-msgstr ""
+msgstr "Βρέθηκε %s"
 
 msgid "French"
-msgstr ""
+msgstr "Γαλλικά"
 
 msgid "Full"
-msgstr ""
+msgstr "Full"
+
+msgid "Futuristic Racing"
+msgstr "Μελλοντικά αγωνιστικά"
 
 msgid "GB"
 msgstr "GB"
 
 msgid "Game Default"
-msgstr ""
+msgstr "Default παιχνίδη"
+
+msgid "Game ID"
+msgstr "Game ID"
 
 msgid "Game Options"
-msgstr "Options παιχνιδιών"
+msgstr "Επιλογές παιχνιδιού"
 
 #, c-format
 msgid "Game Options:  %s"
-msgstr "Options παιχνιδιών:  %s"
+msgstr "Επιλογές παιχνιδιού:  %s"
+
+msgid "Game Type"
+msgstr "Τύπος παιχνιδιού"
+
+msgid "GameCube"
+msgstr "GameCube"
 
 msgid "Gamecube"
 msgstr "Gamecube"
 
 msgid "Gamer Card:"
-msgstr ""
+msgstr "Gamer Card:"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "Gamercard #%d reported: %.*s"
 
 msgid "Genre"
-msgstr ""
+msgstr "Είδος"
 
 msgid "German"
-msgstr ""
+msgstr "Γερμανικά"
 
 msgid "Global Options"
 msgstr "Γενικές ρυθμίσεις"
+
+msgid "Golf"
+msgstr "Γκολφ"
 
 msgid "Guitar"
 msgstr "Κιθάρα"
 
 msgid "HQ cover"
-msgstr ""
+msgstr "HQ cover"
 
 msgid "HTTP Response was without a file"
-msgstr "HTTP απάντηση χωρίς αρχείο"
+msgstr "Απάντηση HTTP χωρίς αρχείο"
+
+msgid "Health"
+msgstr "Υγεία"
+
+msgid "Hidden Object"
+msgstr "Κρυμμένο αντικείμενο"
 
 msgid "Hide"
-msgstr ""
+msgstr "Απόκρυψη"
 
 msgid "Hide Game:"
 msgstr "Απόκρυψη παιχνιδιού:"
 
+msgid "Hockey"
+msgstr "Χόκευ"
+
 msgid "Hold button B to cancel."
 msgstr "Κρατήστε B πατημένο για ακύροση."
 
+msgid "Home Menu"
+msgstr "Πληκτρό Menu"
+
 msgid "Homebrew Channel"
-msgstr ""
+msgstr "Κανάλι Homebrew"
 
 msgid "Hook Type:"
 msgstr "Τύπος Hook:"
+
+msgid "Hunting"
+msgstr "Κυνήγι"
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -815,13 +1048,19 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
+"Αν υπάρχει πρόβλημα με την έναρξη Cfg\n"
+"αντικαταστήστε το boot.dol με\n"
+"το boot.dol.bak και ξαναπροσπαθήστε."
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
-msgstr "Ασυνέπεια σε LZ77 Κωδικοποίηση %x"
+msgstr "Ασυνέπεια στην κωδικοποίηση LZ77 %x"
+
+msgid "Infinity Base"
+msgstr "Infinity Base"
 
 msgid "Info"
-msgstr ""
+msgstr "Πληροφορίες"
 
 #, c-format
 msgid "Info file: %s"
@@ -831,7 +1070,7 @@ msgid "Initializing Network..."
 msgstr "Initializing Network..."
 
 msgid "Install"
-msgstr ""
+msgstr "Εγκατάσταση"
 
 msgid "Install Date"
 msgstr "Ημερομηνία εγκατάστασης"
@@ -844,10 +1083,10 @@ msgstr "Εγκατάσταση παιχνιδιού"
 
 #, c-format
 msgid "Installation ERROR! (ret = %d)"
-msgstr "Λάθος εγκατάστασης! (ret = %d)"
+msgstr "Λάθος στην εγκατάσταση! (ret = %d)"
 
 msgid "Installing game, please wait..."
-msgstr "Εγκαταστώ παιχνίδι, παρακαλώ περιμένετε..."
+msgstr "Εγκατάσταση παιχνιδιού, παρακαλώ περιμένετε..."
 
 msgid "Invalid .dol"
 msgstr "Άκυρο .dol"
@@ -857,22 +1096,34 @@ msgid "Invalid partition: '%s'"
 msgstr "Άκυρο partition '%s'"
 
 msgid "Italian"
-msgstr ""
+msgstr "Ιταλικά"
 
 msgid "Japanese"
-msgstr ""
+msgstr "Ιαπωνέζικα"
 
 msgid "Japanese Title"
-msgstr ""
+msgstr "Ιαπωνέζικος τίτλος"
+
+msgid "Jump"
+msgstr "Jump"
+
+msgid "Karaoke"
+msgstr "Karaoke"
+
+msgid "Kart Racing"
+msgstr "Αγώνες καρτ"
 
 msgid "Keyboard"
 msgstr "Πληκτρολόγιο"
 
 msgid "Korean"
-msgstr ""
+msgstr "Κορεάτικα"
+
+msgid "LED:"
+msgstr "LED:"
 
 msgid "LEFT"
-msgstr ""
+msgstr "ΑΡΙΣΤΕΡΑ"
 
 msgid "LOCKED!"
 msgstr "ΚΛΕΙΔΩΜΕΝΟ!"
@@ -884,20 +1135,27 @@ msgid "Last Play Date"
 msgstr "Παίχθηκε τελευταία"
 
 msgid "Launch Methods"
-msgstr ""
+msgstr "Μέθοδοι έναρξης"
+
+msgid "Life Simulation"
+msgstr "Προσομοίωση ζωής"
 
 msgid "Load OK!"
-msgstr "Φορτώθηκε OK!"
+msgstr "Φόρτωμα OK!"
 
 #, c-format
 msgid "Loader Version: %s"
 msgstr "Loader Version: %s"
 
 msgid "Loading ..."
-msgstr "Φορτώνω ..."
+msgstr "Φόρτωμα ..."
+
+#, c-format
+msgid "Loading..%s\n"
+msgstr "Φόρτωμα..%s\n"
 
 msgid "Main"
-msgstr ""
+msgstr "Κύριο"
 
 msgid "Main Menu"
 msgstr "Κύριο Μενού"
@@ -906,23 +1164,35 @@ msgid ""
 "Make sure USB port 0 is used!\n"
 "(The one nearest to the edge)"
 msgstr ""
-"Πρέπει να χρησιμοποιηθεί USB Port 0!\n"
+"Σιγουρευτείτε για την χρησιμοποίηση του USB Port 0!\n"
 "(USB Port κοντά στην άκρη)"
 
 msgid "Manage"
-msgstr "Διαχειρίζω"
+msgstr "Διαχειρίση"
 
 msgid "Manage Cheats"
-msgstr ""
+msgstr "Διαχειρίση Cheats"
+
+msgid "Management Sim"
+msgstr "Διαχειρίση Sim"
+
+msgid "Martial Arts"
+msgstr "Martial Arts"
 
 msgid "Microphone"
 msgstr "Μικρόφωνο"
 
+msgid "Mighty Plugin"
+msgstr "Mighty Plugin"
+
 msgid "Motion+"
 msgstr "Motion+"
 
+msgid "Motorcycle Racing"
+msgstr "Αγώνες μηχανών"
+
 msgid "Mounting device, please wait..."
-msgstr "Mounting μονάδα, παρακαλώ περιμένετε.."
+msgstr "Mounting μονάδας, παρακαλώ περιμένετε.."
 
 msgid "Music"
 msgstr "Μουσική"
@@ -947,7 +1217,7 @@ msgstr "Μουσική: ανοιχτή"
 
 #, c-format
 msgid "Music: Looking for %s files in: %s"
-msgstr "Μουσική: Ψάχνω %s αρχεία: %s"
+msgstr "Μουσική: Ψάξιμο %s αρχείων: %s"
 
 #, c-format
 msgid "Music: Next file index to play: %i"
@@ -959,6 +1229,20 @@ msgstr "Μουσική: Βρεθήκαν %s αρχεία: %i"
 
 msgid "Music: musicArray contents: "
 msgstr "Musik: Συλλογή μουσικής περιέχει:"
+
+#, c-format
+msgid ""
+"NAND Emu Path:\n"
+"%s\n"
+msgstr ""
+"NAND Emu Path:\n"
+"%s\n"
+
+msgid "NAND Emu:"
+msgstr "NAND Emu:"
+
+msgid "NMM:"
+msgstr "NMM:"
 
 msgid ""
 "NOTE: CIOS249 before rev10:\n"
@@ -1012,6 +1296,13 @@ msgstr ""
 "Προσοχή: επανεκκίνηση αναγκαστική\n"
 "για την ολοκλήρωση της αναβάθμισης."
 
+msgid ""
+"NOTE: may loader restart is required\n"
+"for the settings to take effect."
+msgstr ""
+"NOTE: Ίσως να χρειαστεί η επανεκκίνηση του loader\n"
+"για την αποδοχή ρυθμίσεων."
+
 #, c-format
 msgid ""
 "NOTE: partition P#%d is type EXTEND but\n"
@@ -1025,19 +1316,25 @@ msgstr ""
 "αλλάξετε τον τύπο του partition από επεκταμένο σε DATA."
 
 msgid "NTFS compression not supported!"
-msgstr ""
+msgstr "Η συμπίεση NTFS δεν υποστηρίζεται"
 
 msgid "NTFS encryption not supported!"
-msgstr ""
+msgstr "Η κωδικοποίηση NTFS δεν υποστηρίζεται"
+
+msgid "NTSC-J patch:"
+msgstr "NTSC-J patch:"
+
+msgid "Neek2o Plugin"
+msgstr "Neek2o Plugin"
 
 msgid "Network connection established."
 msgstr "Σύνδεση δικτύου OK."
 
 msgid "Network error. Can't update gamercards."
-msgstr ""
+msgstr "Λάθος δικτύου. Αναβάθμιση των gamercards αδύνατον"
 
 msgid "New Themes"
-msgstr ""
+msgstr "Νέα θέματα"
 
 msgid "Nintendo DS"
 msgstr "Nintendo DS"
@@ -1053,19 +1350,25 @@ msgid "No domain part in URL '%s'"
 msgstr "No domain part in URL '%s'"
 
 msgid "No games found!"
-msgstr "Δεν βρεθήκαν παιχνίδια!"
+msgstr "Δεν βρέθηκαν παιχνίδια!"
 
 msgid "No partition selected!"
 msgstr "Δεν επιλέξατε partition!"
 
 msgid "No themes found."
-msgstr ""
+msgstr "Δεν βρέθηκαν θέματα"
 
 msgid "No updates found."
-msgstr "Δεν βρεθήκαν αναβαθμίσης."
+msgstr "Δεν βρέθηκαν αναβαθμίσης."
+
+msgid "NoDisc:"
+msgstr "NoDisc:"
 
 msgid "None found on disc"
-msgstr "Δεν βρέθηκε δίσκος"
+msgstr "Δεν βρέθηκε στο δίσκο"
+
+msgid "Not Found boot.dol!"
+msgstr "Δεν βρέθηκε boot.dol!"
 
 msgid "Not Found!"
 msgstr "Δεν βρέθηκε!"
@@ -1104,19 +1407,22 @@ msgid "Ocarina: Out Of Memory Error"
 msgstr "Ocarina: Η μνήμη γέμισε"
 
 msgid "Ocarina: Searching codes..."
-msgstr "Ocarina: Ψάχνω κωδικούς..."
+msgstr "Ocarina: Ψάξιμο κωδικών..."
 
 msgid "Ocarina: Too many codes"
-msgstr ""
+msgstr "Ocarina: Πολλοί κωδικοί"
 
 msgid "Off"
 msgstr "Απενεργά"
+
+msgid "Off-Road Racing"
+msgstr "Off-Road αγωνιστικά"
 
 msgid "On"
 msgstr "Ενεργά"
 
 msgid "Online"
-msgstr ""
+msgstr "Online"
 
 msgid "Online Content"
 msgstr "Online Content"
@@ -1125,40 +1431,53 @@ msgid "Online Play"
 msgstr "Online Play"
 
 msgid "Online Players"
-msgstr ""
+msgstr "Online παίκτες"
 
 msgid "Online Score List"
 msgstr "Online-Λίστα πόντων"
 
 msgid "Online Updates"
-msgstr ""
+msgstr "Online αναβαθμίσεις"
 
 msgid "Open Sort"
-msgstr ""
+msgstr "Ελεύθερη ταξινόμηση"
 
 msgid "Open Style"
-msgstr ""
+msgstr "Ελεύθερο στυλ"
 
 msgid "Opening DVD disc..."
-msgstr "Ανοίγω DVD Disk..."
+msgstr "Άνοιγμα DVD Disk..."
 
 #, c-format
 msgid "Opening partition: %s"
-msgstr ""
+msgstr "Άνοιγμα partition: %s"
 
 msgid "Options"
-msgstr ""
+msgstr "Επιλογές"
 
 msgid "Options discarded for this game."
-msgstr "Ακυρώθηκαν τα option του παιχνιδιού."
+msgstr "Ακυρώθηκαν οι επιλογές του παιχνιδιού."
 
 msgid "Options saved for this game."
-msgstr "Αποθηκεύτηκαν τα options του παιχνιδιού."
+msgstr "Αποθηκεύτηκαν οι επιλογές του παιχνιδιού."
 
 msgid "Out of memory"
 msgstr "Η μνήμη είναι γεμάτη"
 
+#, c-format
+msgid "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+msgstr "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+
+msgid "PAD HOOK"
+msgstr "PAD HOOK"
+
+msgid "PAD HOOK:"
+msgstr "PAD HOOK:"
+
 msgid "Page:"
+msgstr "Σελίδα:"
+
+msgid "Partial"
 msgstr ""
 
 msgid "Partition:"
@@ -1172,35 +1491,50 @@ msgid "Party"
 msgstr "Party"
 
 msgid "Paused Start"
-msgstr ""
+msgstr "Paused Start"
+
+msgid "Petanque"
+msgstr "Petanque"
+
+msgid "Pinball"
+msgstr "Pinball"
 
 msgid "Platformer"
-msgstr "Jump & Run"
+msgstr "Platformer"
 
 msgid "Play Count"
 msgstr "Παίχθηκε"
 
 msgid "Players"
-msgstr ""
+msgstr "Παίκτες"
 
 msgid "Please insert a game disc..."
 msgstr "Παρακαλώ εισαγάγετε Wii game disc..."
 
+msgid "Plugin:"
+msgstr "Πλαγκιν"
+
+msgid "Poker"
+msgstr "Πόκερ"
+
+msgid "Portal of Power"
+msgstr "Portal of Power"
+
 #, c-format
 msgid "Press %s button for options."
-msgstr "Πατήστε %s: options"
+msgstr "Πατήστε %s για επιλογές"
 
 #, c-format
 msgid "Press %s button to %s."
-msgstr "Πατήστε %s: %s"
+msgstr "Πατήστε %s για %s"
 
 #, c-format
 msgid "Press %s button to apply codes."
-msgstr "Πατήστε %s: ενεργοποίηση κωδικών"
+msgstr "Πατήστε %s για την αποδοχή κωδικών"
 
 #, c-format
 msgid "Press %s button to cancel."
-msgstr "Πατήστε %s: ακύροση"
+msgstr "Πατήστε %s για ακύροση"
 
 #, c-format
 msgid "Press %s button to change device."
@@ -1216,23 +1550,23 @@ msgstr "Πατήστε %s: Διαγραφή σύστημα αρχείων"
 
 #, c-format
 msgid "Press %s button to dump BCA."
-msgstr "Πατήστε %s: γράφω BCA"
+msgstr "Πατήστε %s για γράψιμο BCA"
 
 #, c-format
 msgid "Press %s button to exit."
-msgstr "Πατήστε %s: έξοδος"
+msgstr "Πατήστε %s για έξοδο"
 
 #, c-format
 msgid "Press %s button to fix EXTEND/WBFS."
-msgstr "Πατήστε %s: επισκευή επεκταμένη/WBFS"
+msgstr "Πατήστε %s: επισκευή επεκταμένο/WBFS"
 
 #, c-format
 msgid "Press %s button to format WBFS."
-msgstr "Πατήστε %s: format WBFS"
+msgstr "Πατήστε %s: Μορφοποίηση WBFS"
 
 #, c-format
 msgid "Press %s button to go back."
-msgstr "Πατήστε %s: πίσω"
+msgstr "Πατήστε %s για επιστροφή"
 
 #, c-format
 msgid "Press %s button to select a partition."
@@ -1248,31 +1582,31 @@ msgstr "Πατήστε %s:skip codes"
 
 #, c-format
 msgid "Press %s button to sync FAT."
-msgstr ""
+msgstr "Πατήστε %s για sync FAT."
 
 #, c-format
 msgid "Press %s for fullscreen preview"
-msgstr ""
+msgstr "Πατήστε %s για προεπίδειξη πλήρης οθόνης"
 
 #, c-format
 msgid "Press %s for game options"
-msgstr "Πατήστε %s: Game options"
+msgstr "Πατήστε %s για επιλογές του παιχνιδιού"
 
 #, c-format
 msgid "Press %s for global options"
-msgstr "Πατήστε %s: γενικές ρυθμίσεις"
+msgstr "Πατήστε %s για γενικές επιλογές"
 
 #, c-format
 msgid "Press %s to discard options"
-msgstr "Πατήστε %s: απόρριψη των options"
+msgstr "Πατήστε %s: απόρριψη των επιλογών"
 
 #, c-format
 msgid "Press %s to download and update"
-msgstr "Πατήστε %s: κατέβαζμα/αναβάθμιση"
+msgstr "Πατήστε %s για κατέβαζμα και αναβάθμιση"
 
 #, c-format
 msgid "Press %s to download this theme"
-msgstr ""
+msgstr "Πατήστε %s για κατέβαζμα του θέματος"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1280,19 +1614,19 @@ msgstr "Πατήστε: %s = κατέβαζμα, %s = πίσω"
 
 #, c-format
 msgid "Press %s to return"
-msgstr "Πατήστε %s: πίσω"
+msgstr "Πατήστε %s για επιστροφή"
 
 #, c-format
 msgid "Press %s to save global settings"
-msgstr "Πατήστε %s: Αποθήκευση γενικών ρυθμίσεων"
+msgstr "Πατήστε %s για αποθήκευση γενικών ρυθμίσεων"
 
 #, c-format
 msgid "Press %s to save options"
-msgstr "Πατήστε %s: Αποθήκευση των options"
+msgstr "Πατήστε %s για αποθήκευση των επιλογώς"
 
 #, c-format
 msgid "Press %s to save selection"
-msgstr "Πατήστε %s: Αποθηκεύστε επιλογή"
+msgstr "Πατήστε %s για αποθήκευση επιλογής"
 
 #, c-format
 msgid "Press %s to select filter type"
@@ -1314,20 +1648,26 @@ msgstr "Πατήστε %s: Αναβάθμιση χωρίς meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Πατήστε αριστερά/δεξιά: επιλογή μονάδας"
 
+msgid "Press 1 to skip WBFS mounting"
+msgstr "Πατήστε 1 για να παραλείψετε το WBFS mounting"
+
 msgid "Press 2 to reload IOS"
-msgstr ""
+msgstr "Πατήστε 2 για να επαναφορτωθεί το IOS"
+
+msgid "Press A to continue without config.txt"
+msgstr "Πατήστε A για συνέχεια χωρίς config.txt"
 
 msgid "Press A to select device"
-msgstr ""
+msgstr "Πατήστε A για επιλογή της μονάδας"
 
 msgid "Press B to exit to HBC"
-msgstr ""
+msgstr "Πατήστε B για έξοδο στο HBC"
 
 msgid "Press HOME to reset"
-msgstr ""
+msgstr "Πατήστε HOME για επαναφορά"
 
 msgid "Press LEFT/RIGHT to select IOS"
-msgstr ""
+msgstr "Πατήστε LEFT/RIGHT για επιλογή του IOS"
 
 msgid "Press any button to continue..."
 msgstr "Πατήστε πλήκτρο για συνέχεια..."
@@ -1338,16 +1678,22 @@ msgstr "Πατήστε Πλήκτρο επιλόγης για έξοδο..."
 msgid "Press any button to restart..."
 msgstr "Πατήστε Πλήκτρο επιλόγης για επανεκκίνηση..."
 
+msgid "Press any button.\n"
+msgstr "Πατήστε ένα πλήκτρο.\n"
+
 msgid "Press any button..."
-msgstr "Πατήστε Πλήκτρο επιλόγης..."
+msgstr "Πατήστε ένα πλήκτρο..."
 
 #, c-format
 msgid "Press button %s to download covers."
-msgstr ""
+msgstr "Πατήστε πλήκτρο %s για κατέβασμα των cover"
 
 #, c-format
 msgid "Press button %s to eject DVD."
 msgstr "Πατήστε %s: eject DVD"
+
+msgid "Priiloader"
+msgstr "Priiloader"
 
 msgid "Profile:"
 msgstr "Προφίλ:"
@@ -1357,7 +1703,7 @@ msgid "Profile: %s"
 msgstr "Προφίλ: %s"
 
 msgid "Program Updates"
-msgstr ""
+msgstr "Αναβαθμίσεις του προγράμματος"
 
 msgid "Publisher"
 msgstr "Εκδότης"
@@ -1366,13 +1712,13 @@ msgid "Puzzle"
 msgstr "Puzzle"
 
 msgid "Quit"
-msgstr ""
+msgstr "Έξοδος"
 
 msgid "RAW"
 msgstr "RAW"
 
 msgid "RIGHT"
-msgstr ""
+msgstr "ΔΕΞΙΑ"
 
 msgid "RPG"
 msgstr "RPG"
@@ -1380,12 +1726,15 @@ msgstr "RPG"
 msgid "Racing"
 msgstr "Αγωνιστικά"
 
+msgid "Rail Shooter"
+msgstr "Rail Shooter"
+
 #, c-format
 msgid "Rated %s"
 msgstr "Rated %s"
 
 msgid "Rating"
-msgstr ""
+msgstr "Rating"
 
 msgid "Read"
 msgstr "Ανάγνωση"
@@ -1394,35 +1743,41 @@ msgid "Reading BCA..."
 msgstr "Ανάγνωση BCA..."
 
 msgid "Reboot"
-msgstr ""
+msgstr "Επανεκκίνηση"
+
+msgid "Region"
+msgstr "Region"
 
 msgid "Release Date"
 msgstr "Ημερομηνία κυκλοφορίας"
 
 msgid "Release Notes: (short)"
-msgstr "Πληροφορίες έκδοσης:  (περιληπτηκά)"
+msgstr "Πληροφορίες έκδοσης: (περιληπτηκά)"
 
 msgid "Removing game, please wait..."
-msgstr "Διαγράφω παιχνίδι, παρακαλώ περιμένετε!"
+msgstr "Διαγραφή παιχνιδιού, παρακαλώ περιμένετε!"
 
 msgid "Restarting Wii..."
 msgstr "Επανεκκίνηση της Wii..."
 
 #, c-format
 msgid "Returned! (ret = %d)"
-msgstr "Πίσω! (ret = %d)"
+msgstr "Επιστροφή! (ret = %d)"
 
 msgid "Rhythm"
 msgstr "Ρυθμός"
 
 msgid "Rows:"
-msgstr ""
+msgstr "Σειρές"
+
+msgid "Rugby"
+msgstr "Rugby"
 
 msgid "Running benchmark, please wait"
 msgstr "Γίνετε μέτρηση, παρακαλώ περιμένετε"
 
 msgid "S. Chinese"
-msgstr ""
+msgstr "Α. Κινέζικα"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHC κάρτα"
@@ -1431,38 +1786,53 @@ msgid "SUCCESS!"
 msgstr "ΕΠΙΤΥΧΙΑ!"
 
 msgid "Save .gct"
-msgstr "Αποθηκεύω .gct"
+msgstr "Αποθήκευση .gct"
 
 msgid "Save Debug"
-msgstr ""
+msgstr "Αποθήκευση Debug"
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Αποθήκευση ρυθμίσεων"
 
 msgid "Save debug.log"
-msgstr ""
+msgstr "Αποθήκευση debug.log"
+
+msgid "Savegame not found.\n"
+msgstr "Δεν βρέθηκε αποθήκευση παιχνιδιού.\n"
+
+msgid "Savegame:"
+msgstr "Αποθήκευση παιχνιδιού:"
 
 msgid "Saving Settings... "
-msgstr "Αποθηκεύω ρυθμίσεις..."
+msgstr "Αποθήκευση ρυθμίσεις..."
 
 msgid "Saving cheats..."
-msgstr "Αποθηκεύω cheats..."
+msgstr "Αποθήκευση cheats..."
 
 msgid "Saving gamelist.txt ... "
-msgstr "Αποθηκεύω gamelist.txt..."
+msgstr "Αποθήκευση gamelist.txt..."
 
 msgid "Saving settings..."
-msgstr "Αποθηκεύω ρυθμίσεις..."
+msgstr "Αποθήκευση ρυθμίσεις..."
 
 msgid "Saving:"
-msgstr ""
+msgstr "Αποθήκευση:"
 
 #, c-format
 msgid "Saving: %s"
-msgstr "Αποθηκεύω: %s"
+msgstr "Αποθήκευση: %s"
+
+msgid "Screenshot:"
+msgstr "Στιγμιότυπο:"
 
 msgid "Scroll:"
-msgstr ""
+msgstr "Scroll:"
+
+msgid "Search"
+msgstr "Αναζήτηση"
+
+msgid "Search for:"
+msgstr "Αναζήτηση για"
 
 msgid "Select Alternative .dol:"
 msgstr "Επιλέξτε Alternative .dol:"
@@ -1471,13 +1841,16 @@ msgid "Select WBFS device:"
 msgstr "Επιλέξτε μονάδα WBFS:"
 
 msgid "Select a different partition"
-msgstr "Διαλέξτε άλλο Partition"
+msgstr "Επιλέξτε άλλο Partition"
 
 msgid "Select a partition"
 msgstr "Επιλέξτε partition"
 
 msgid "Select all"
 msgstr "Επιλέξτε όλα"
+
+msgid "Select device:"
+msgstr "Επιλέξτε μονάδα"
 
 msgid "Select the game you want to boot"
 msgstr "Διαλέξτε το παιχνίδι που θέλετε να ξεκινήσετε"
@@ -1486,57 +1859,75 @@ msgid "Selected Game"
 msgstr "Παιχνίδι επιλογής"
 
 msgid "Settings"
-msgstr ""
+msgstr "Ρυθμίσεις"
 
 msgid "Shooter"
 msgstr "Shooter"
 
 msgid "Show All"
-msgstr ""
+msgstr "Επιδειξη όλων"
 
 msgid "Show cIOS info"
-msgstr ""
+msgstr "Επιδειξη πληροφοριών cIOS"
 
 msgid "Shutdown"
-msgstr ""
+msgstr "Τερματισμός λειτουργίας"
 
 msgid "Side:"
-msgstr ""
+msgstr "Side:"
+
+msgid "Sim Racing"
+msgstr "Προσομοίωση αγωνιστικών"
 
 msgid "Simulation"
 msgstr "Προσομοίωση"
 
 msgid "Size(GB) Type  Mount Used"
-msgstr ""
+msgstr "Size(GB) Type  Mount Used"
 
 #, c-format
 msgid "Size: %d bytes"
 msgstr "Μέγεθος: %d bytes"
 
+msgid "Skateboard"
+msgstr "Σκέιτμπορντ"
+
+msgid "Skateboarding"
+msgstr "Σκέιτμπορντινγκ"
+
+msgid "Skiing"
+msgstr "Skiing"
+
+msgid "Snowboarding"
+msgstr "Σνοουμπορντινγκ"
+
+msgid "Soccer"
+msgstr "Ποδόσφαιρο"
+
 msgid "Sort"
-msgstr ""
+msgstr "Ταξινόμηση"
 
 msgid "Sort Games"
 msgstr "Ταξινόμιση παιχνιδιών"
 
 msgid "Sort Order:"
-msgstr ""
+msgstr "Σειρά ταξινόμησης"
 
 msgid "Sort Type:"
-msgstr ""
+msgstr "Είδος ταξινόμησης"
 
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "Ταξινόμιση: %s-%s"
 
 msgid "Spanish"
-msgstr ""
+msgstr "Ισπανικά"
 
 msgid "Sports"
 msgstr "Σπορ"
 
 msgid "Start"
-msgstr ""
+msgstr "Έναρξη"
 
 msgid "Start Game"
 msgstr "Έναρξη παιχνιδιού"
@@ -1544,66 +1935,89 @@ msgstr "Έναρξη παιχνιδιού"
 msgid "Start this game?"
 msgstr "Έναρξη παιχνιδιού;"
 
+msgid "Stealth Action"
+msgstr "Stealth Action"
+
 msgid "Stopping DVD..."
-msgstr ""
+msgstr "Stopping DVD..."
 
 msgid "Strategy"
 msgstr "Στρατηγική"
 
 msgid "Style"
-msgstr ""
+msgstr "Στυλ"
 
 msgid "Style:"
-msgstr ""
+msgstr "Στυλ"
+
+msgid "Surfing"
+msgstr "Σερφάρισμα"
+
+msgid "Survival Horror"
+msgstr "Survival Horror"
 
 msgid "Sync FAT free space info?"
-msgstr ""
+msgstr "Sync FAT free space info?"
 
 msgid "Synchronizing, please wait."
-msgstr ""
+msgstr "Συγχρονισμός, παρακαλώ περιμένετε"
+
+msgid "Synopsis"
+msgstr "Synopsis"
+
+msgid "Synopsis Length"
+msgstr "Synopsis Length"
 
 msgid "System"
-msgstr ""
+msgstr "Σύστημα"
 
 msgid "System Def."
-msgstr ""
+msgstr "Ορισμός συστήματος"
 
 msgid "T. Chinese"
-msgstr ""
+msgstr "Π. Κινέζικα"
+
+msgid "Table Tennis"
+msgstr "Πινγκ πονγκ"
+
+msgid "Tennis"
+msgstr "Τένις"
 
 msgid "Theme"
-msgstr ""
+msgstr "Θέμα"
 
 msgid "Theme Info"
-msgstr ""
+msgstr "Πληροφορίες θέματος"
 
 msgid ""
 "Theme may be too large.\n"
 "Reboot of Cfg suggested.\n"
 msgstr ""
+"Το θέμα ίσως έχει μεγάλο μέγεθος.\n"
+"συνιστάται η επανεκκινηση του Cfg.\n"
 
 msgid "Theme:"
-msgstr "Theme:"
+msgstr "Θέμα:"
 
 #, c-format
 msgid "Theme: %s"
-msgstr "Theme: %s"
+msgstr "Θέμα: %s"
 
 msgid "Themes provided by wii.spiffy360.com"
-msgstr ""
+msgstr "Τα θέματα παρέχονται από wii.spiffy360.com"
 
 msgid "Themes to download"
-msgstr ""
+msgstr "Θέματα για κατέβασμα"
 
 msgid "Themes with updates"
-msgstr ""
+msgstr "Θέματα με αναβαθμίσεις"
 
 msgid "Title"
 msgstr "Τίτλος"
 
 #, c-format
 msgid "Too many cheats! (%d)"
-msgstr "Πολλά Cheats! (%d)"
+msgstr "Πολλά cheats! (%d)"
 
 msgid "Too many code lines!"
 msgstr "Πολλά code lines!"
@@ -1612,19 +2026,34 @@ msgstr "Πολλά code lines!"
 msgid "Too many fragments! %d"
 msgstr "Πολλά fragments! %d"
 
+msgid "Total Body Tracking"
+msgstr "Total Body Tracking"
+
+msgid "Train Simulation"
+msgstr "Προσομοίωση τρένων"
+
+msgid "Trivia"
+msgstr "Trivia"
+
+msgid "Truck Racing"
+msgstr "Αγώνες τρουκ"
+
 #, c-format
 msgid "Trying (url#%d) ..."
-msgstr "Προσπαθώ (url#%d)..."
+msgstr "Δοκιμή (url#%d)..."
+
+msgid "Turntable"
+msgstr "Turntable"
 
 msgid "UNUSED"
-msgstr ""
+msgstr "ΑΧΡΗΣΙΜΟΠΟΙΗΤΑ"
 
 msgid "UP"
-msgstr ""
+msgstr "ΠΑΝΩ"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
-msgstr "URL '%s' δεν ξεκινάει 'http://'"
+msgstr "URL '%s' δεν ξεκινάει με 'http://'"
 
 #, c-format
 msgid "URL '%s' has no PATH part"
@@ -1643,35 +2072,59 @@ msgid "Unknown syntax!"
 msgstr "Άγνωστο syntax!"
 
 msgid "Unplayed"
-msgstr ""
+msgstr "Άπαιχτο"
 
 msgid "Unplayed Games"
-msgstr "Άπεκτα παιχνίδια"
-
-msgid "Update WiiTDB Game Database"
-msgstr "Αναβ. τράπεζας πληροφωριών παιχνιδιών"
+msgstr "Άπαιχτα παιχνίδια"
 
 msgid "Update themes"
-msgstr ""
-
-msgid "Update titles.txt"
-msgstr "Αναβάθμιση titles.txt"
+msgstr "Αναβάθμιση θεμάτων"
 
 msgid "Updates"
-msgstr ""
+msgstr "Αναβάθμισεις"
 
 msgid "Updating database."
 msgstr "Αναβάθμιση τράπεζας πληροφωριών..."
+
+msgid "Updating devolution"
+msgstr "Αναβάθμιση devolution"
 
 #, c-format
 msgid "Used: %.1fGB Free: %.1fGB [%d]"
 msgstr "Χρησιμοποιείται: %.1fGB Ελεύθερα: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
-msgstr "χρησιμοποίηση αποθηκευμένο Alternative .dol:"
+msgstr "Χρησιμοποίηση αποθηκευμένο Alternative .dol:"
+
+msgid "VC-Arcade"
+msgstr "VC-Arcade"
+
+msgid "VC-Commodore 64"
+msgstr "VC-Commodore 64"
+
+msgid "VC-N64"
+msgstr "VC-N64"
+
+msgid "VC-NES"
+msgstr "VC-NES"
+
+msgid "VC-Neo Geo"
+msgstr "VC-Neo Geo"
+
+msgid "VC-SMS"
+msgstr "VC-SMS"
+
+msgid "VC-SNES"
+msgstr "VC-SNES"
+
+msgid "VC-Sega Genesis"
+msgstr "VC-Sega Genesis"
+
+msgid "VC-TurboGrafx-16"
+msgstr "VC-TurboGrafx-16"
 
 msgid "Version"
-msgstr ""
+msgstr "Εκδοχή"
 
 msgid "Video Patch:"
 msgstr "Video Patch:"
@@ -1680,10 +2133,16 @@ msgid "Video:"
 msgstr "Video:"
 
 msgid "View"
-msgstr ""
+msgstr "Θέα"
+
+msgid "Virtual Pet"
+msgstr "Virtual Pet"
 
 msgid "Vitality Sensor"
 msgstr "Vitality Sensor"
+
+msgid "Volleyball"
+msgstr "Βόλειμπολ"
 
 msgid "WARNING:"
 msgstr "ΠΡΟΣΟΧΗ:"
@@ -1692,28 +2151,43 @@ msgstr "ΠΡΟΣΟΧΗ:"
 msgid "WBFS: %.1fGB free of %.1fGB"
 msgstr "WBFS: %.1fGB ελεύθερα από %.1fGB"
 
+msgid "Watercraft Racing"
+msgstr "Watercraft Racing"
+
 msgid "Wheel"
 msgstr "Τιμόνι"
+
+msgid "Wide Screen:"
+msgstr "Ευρεία οθόνη"
+
+msgid "Wii"
+msgstr "Wii"
+
+msgid "Wii Channel"
+msgstr "Wii κανάλι"
 
 msgid "Wii Speak"
 msgstr "Wii Speak"
 
-msgid "WiiTDB Game Database"
-msgstr ""
+msgid "WiiWare"
+msgstr "WiiWare"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Wrestling"
+msgstr "Wrestling"
 
 msgid "Write Playlog:"
 msgstr "Γράφω Playlog:"
 
 #, c-format
 msgid "Writing to %s"
-msgstr "Γράφω στο %s"
+msgstr "Γράψιμο στο %s"
 
 #, c-format
 msgid "Writing: %s"
-msgstr "Γράφω: %s"
+msgstr "Γράψιμο: %s"
 
 #, c-format
 msgid "Wrong Size: %d (%d)"
@@ -1727,6 +2201,9 @@ msgid ""
 "and plugging back the device,\n"
 "or just wait some more"
 msgstr ""
+"Προσπαθήστε την επανασύνδεση\n"
+"της συσκευής,\n"
+"ή περιμένετε λίγο ακόμα"
 
 msgid "Zapper"
 msgstr "Zapper"
@@ -1741,26 +2218,26 @@ msgid "[ SAVED ]"
 msgstr "[ ΑΠΟΘΗΚΕΥΤΗΚΕ ]"
 
 msgid "[HOME]"
-msgstr ""
+msgstr "[HOME]"
 
 msgid "[No HQ]"
-msgstr ""
+msgstr "[No HQ]"
 
 msgid "[USED]"
 msgstr "[ΧΡΗΣΙΜΟΠΟΙΕΙΤΑΙ]"
 
 msgid "[default]"
-msgstr ""
+msgstr "[default]"
 
 msgid "[saved]"
-msgstr ""
+msgstr "[αποθηκεύτηκε]"
 
 #, c-format
 msgid "bad wbfs file: %s"
-msgstr "Άκυρο wbfs αρχείο: %s"
+msgstr "άκυρο wbfs αρχείο: %s"
 
 msgid "calculating space, please wait..."
-msgstr "Υπολογίζω ελεύθερο χώρο, παρακαλώ περιμένετε..."
+msgstr "υπολογισμός ελεύθερου χώρου, παρακαλώ περιμένετε..."
 
 msgid "delete"
 msgstr "διαγραφή"
@@ -1770,90 +2247,109 @@ msgid "dest: %p - %p"
 msgstr "dest: %p - %p"
 
 msgid "discard"
-msgstr ""
+msgstr "απόρριψη"
 
 #, c-format
 msgid "domain %s could not be resolved"
-msgstr "Ο τομέας ειδίκευσης %s δεν μπορούσε να διαλυθεί"
+msgstr "domain %s could not be resolved"
 
 #, c-format
 msgid "error reading: %s (%d)"
-msgstr "ΛΑΘΟΣ στην ανάγνωση: %s (%d)"
+msgstr "λάθος στην ανάγνωση: %s (%d)"
 
 #, c-format
 msgid "for %d players"
-msgstr "für %d Spieler"
+msgstr "για %d παίκτες"
 
 msgid "for 1 player"
-msgstr "für 1 Spieler"
+msgstr "για 1 παίκτη"
 
 msgid "format"
-msgstr "Μορφοποίηση"
+msgstr "μορφοποίηση"
 
 msgid "free"
-msgstr ""
+msgstr "ελεύθερα"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
-msgstr "Γραμμική ταχύτητα ανάγνωσης: %.2f mb/s"
+msgstr "ταχύτητα γραμμικής ανάγνωσης: %.2f mb/s"
 
 msgid "linear..."
-msgstr "Γραμμικά..."
+msgstr "γραμμικά..."
+
+#, c-format
+msgid "loader.bin size: %d"
+msgstr "loader.bin μέγεθος: %d"
 
 #, c-format
 msgid "music file too big (%d) %s"
-msgstr "Μουσκό αρχείο πολύ μεγάλο (%d) %s"
+msgstr "μουσκό αρχείο πολύ μεγάλο (%d) %s"
 
 msgid "music.mp3 or music.mod not found!"
 msgstr "musik.mp3 ή musik.mod δεν βρέθηκαν!"
 
 msgid "no file"
-msgstr "Δεν υπάρχει αρχείο"
+msgstr "δεν υπάρχει αρχείο"
 
 msgid "none"
 msgstr "τίποτα"
 
 msgid "or format a WBFS partition."
-msgstr "ή format a WBFS partition."
+msgstr "ή μορφοποιήστε ένα WBFS partition."
 
 msgid "page"
-msgstr "Σελίδα"
+msgstr "σελίδα"
 
 msgid "parse error"
-msgstr "Λάθος ανάλυσης"
+msgstr "λάθος ανάλυσης"
+
+msgid "r51-"
+msgstr "r51-"
+
+msgid "r52+"
+msgstr "r52+"
 
 #, c-format
 msgid "random read speed: %.2f mb/s"
-msgstr "Τυχαία ταχύτητα ανάγνωσης: %.2f mb/s"
+msgstr "ταχύτητα τυχαίας ανάγνωσης: %.2f mb/s"
 
 msgid "random..."
-msgstr "Τυχαία..."
+msgstr "τυχαία..."
 
 msgid "reset"
-msgstr ""
+msgstr "επαναφορά"
 
 msgid "revert"
-msgstr ""
+msgstr "επιστροφή "
 
 msgid "save"
-msgstr "Αποθήκευση"
+msgstr "αποθήκευση"
 
 #, c-format
 msgid "split error: %s"
-msgstr "Split λάθος: %s"
+msgstr "λάθος στο split: %s"
 
 msgid "uDraw GameTablet"
-msgstr ""
+msgstr "uDraw GameTablet"
 
 msgid "unable to open wii disc"
-msgstr "Το άνοιγμα της Wii Disk δεν είναι δυνατόν"
+msgstr "το άνοιγμα του Wii Disk δεν είναι δυνατόν"
 
 #, c-format
 msgid "used: %p - %p"
-msgstr "Χρησιμοποιείται: %p - %p"
+msgstr "χρησιμοποιείται: %p - %p"
+
+#~ msgid "Booting Wii game, please wait..."
+#~ msgstr "Έναρξη παιχνιδιού, παρακαλώ περιμένετε..."
 
 #~ msgid "Loading previous game list..."
-#~ msgstr "Φορτώνω προηγούμενη λίστα παιχνιδιών..."
+#~ msgstr "Φόρτωμα προηγούμενης λίστας παιχνιδιών..."
 
 #~ msgid "Remove Game"
-#~ msgstr "Διαγράφω παιχνίδι"
+#~ msgstr "Διαγραφή παιχνιδιού"
+
+#~ msgid "Update WiiTDB Game Database"
+#~ msgstr "Αναβ. τράπεζας πληροφωριών παιχνιδιών"
+
+#~ msgid "Update titles.txt"
+#~ msgstr "Αναβάθμιση titles.txt"

@@ -178,7 +178,7 @@ char *str_dml[8] =
 char *str_nand_emu[3] =
 {
 	gts("Off"),
-	gts("Partitial"),
+	gts("Partial"),
 	gts("Full")
 };
 
@@ -1255,13 +1255,13 @@ void __Menu_ShowList(void)
 		//}
 		printf_("");
 		if (CFG.gui && CFG.button_gui) {
-			printf("%s: GUI ", (button_names[CFG.button_gui]));
+			printf(gt("%s: GUI "), (button_names[CFG.button_gui]));
 		}
 		if (!CFG.disable_options && CFG.button_opt) {
-			printf("%s: Options ", (button_names[CFG.button_opt]));
+			printf(gt("%s: Options "), (button_names[CFG.button_opt]));
 		}
 		if (CFG.button_fav) {
-			printf("%s: Favorites", (button_names[CFG.button_fav]));
+			printf(gt("%s: Favorites"), (button_names[CFG.button_fav]));
 		}
 	}
 	if (CFG.db_show_info) {
@@ -2084,10 +2084,6 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_A(gt("Savegame:"), gt("Dump savegame"));
 		} else {
-			int num_nand_emu = map_get_num(map_nand_emu);
-			char *names_nand_emu[num_nand_emu];
-			num_nand_emu = map_to_list(map_nand_emu, num_nand_emu, names_nand_emu);
-			
 			menu_window_begin(&menu, win_size, NUM_OPT);
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
@@ -2130,7 +2126,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Clear Patches:"), gt(names_vpatch[game_cfg->clean]));
 			if (menu_window_mark(&menu))
-				PRINT_OPT_S(gt("NAND Emu:"), gt(names_nand_emu[opt_nand_emu]));
+				PRINT_OPT_S(gt("NAND Emu:"), gt(str_nand_emu[opt_nand_emu]));
 			if (menu_window_mark(&menu))
 				PRINT_OPT_A(gt("Savegame:"), gt("Dump savegame"));
 		}
@@ -4300,11 +4296,27 @@ void FmtGameInfoLong(u8 *id, int cols, char *game_desc, int size)
 	}
 	if (n) strappend(game_desc, "]", size);
 	strappend(game_desc, "\n", size);
+
 	// genre
 	if (strcmp(g->genre,"") != 0) {
-		strappend(game_desc, g->genre, size);
+		char tok[100], *p;
+		p = g->genre;
+		while (p) {
+			p = split_token(tok, p, ',', sizeof(tok));
+			for (i=0; i<genreCnt; i++) {
+				if (!strcmp(genreTypes[i][0],tok)) {		//if found right genre
+					strappend(game_desc, genreTypes[i][1], size);
+					break;
+				}
+				if (i == genreCnt -1)		//went through the whole list with no match
+					strappend(game_desc, tok, size);	//add the origonal token
+			}
+			if (p)
+				strappend(game_desc, ", ", size);	//add seperator
+		}
 		strappend(game_desc, "\n", size);
-		}	
+	}
+
 	// synopsis
 	if (g->synopsis) {
 		strappend(game_desc, "\n", size);

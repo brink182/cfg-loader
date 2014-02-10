@@ -1130,7 +1130,9 @@ void Download_Translation()
 	file = downloadfile_progress(url, 64);
 	printf("]\n");
 	
-	if (file.data == NULL || file.size < 30000) {
+	size_t old_file_size;
+	fsop_GetFileSizeBytes (destPath, &old_file_size);
+	if (file.data == NULL || file.size < 30000 || old_file_size > file.size) {
 		goto dl_err;
 	}
 

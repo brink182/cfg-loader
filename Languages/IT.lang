@@ -6,18 +6,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-07 23:40+0200\n"
-"PO-Revision-Date: 2011-04-08 23:59-0100\n"
+"POT-Creation-Date: 2014-02-10 11:11-0500\n"
+"PO-Revision-Date: 2014-01-25 23:59-0100\n"
 "Last-Translator: Cambo <cambiniric@gmail.com>\n"
 "Language-Team: ITALIAN <cambiniric@gmail.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
-msgstr "%.1fGB liberi di %.1fGB"
+msgstr "%.1fGB liberi su %.1fGB"
 
 #, c-format
 msgid "%.2f%% of %.2fGB (%c) ETA: %d:%02d:%02d"
@@ -44,6 +44,18 @@ msgid "%s, please wait..."
 msgstr "%s, attendere prego..."
 
 #, c-format
+msgid "%s: Favorites"
+msgstr ""
+
+#, c-format
+msgid "%s: GUI "
+msgstr ""
+
+#, c-format
+msgid "%s: Options "
+msgstr ""
+
+#, c-format
 msgid "(%d online)"
 msgstr "(%d online)"
 
@@ -57,8 +69,26 @@ msgstr "(Questo può richiedere un paio di minuti)"
 msgid ".dol too small"
 msgstr ".dol troppo piccolo"
 
+msgid "1.2+"
+msgstr "1.2+"
+
+msgid "1st-Person Shooter"
+msgstr "Sparat. 1a pers."
+
+msgid "2.0+"
+msgstr "2.0+"
+
+msgid "2.1+"
+msgstr "2.1+"
+
+msgid "2.2+"
+msgstr "2.2+"
+
 msgid "3D cover"
 msgstr "Copertina 3D"
+
+msgid "3rd-person Shooter"
+msgstr "Sparat. 3a pers."
 
 msgid "< ASC  >"
 msgstr "< CRES >"
@@ -93,11 +123,17 @@ msgstr "Avventura"
 msgid "All"
 msgstr "Tutti"
 
+msgid "All Channels"
+msgstr "Tutti i Canali"
+
 msgid "All Games"
-msgstr "Tutti Giochi"
+msgstr "Tutti i Giochi"
 
 msgid "All themes up to date."
 msgstr "Tutti i temi sono aggiornati."
+
+msgid "Alt Button Cfg:"
+msgstr "Pulsante Cfg Alt:"
 
 msgid "Alt dol:"
 msgstr "Alt dol"
@@ -111,6 +147,9 @@ msgstr "Correz. Anti 002:"
 #, c-format
 msgid "App. Path: %s"
 msgstr "Percorso App: %s"
+
+msgid "Arcade"
+msgstr "Arcade"
 
 #, c-format
 msgid ""
@@ -153,11 +192,26 @@ msgstr "Indietro"
 msgid "Balance Board"
 msgstr "Balance Board"
 
+msgid "Baseball"
+msgstr "Baseball"
+
 msgid "Basic"
 msgstr "Versione"
 
+msgid "Basketball"
+msgstr "Pallacanestro"
+
+msgid "Bike Racing"
+msgstr "Corse Bici"
+
+msgid "Billiards"
+msgstr "Biliardo"
+
 msgid "Block IOS Reload:"
 msgstr "No Ricaric. IOS:"
+
+msgid "Board Game"
+msgstr "Gioco da Tavolo"
 
 msgid "Boot Disc"
 msgstr "Carica Disco"
@@ -165,12 +219,30 @@ msgstr "Carica Disco"
 msgid "Boot disc"
 msgstr "Avvia DVD"
 
-msgid "Booting Wii game, please wait..."
-msgstr "Sto caricando il gioco, attendere prego..."
+msgid "Booting game, please wait..."
+msgstr "Avvio il gioco, attendere prego..."
+
+msgid "Bowling"
+msgstr "Bowling"
+
+msgid "Boxing"
+msgstr "Boxe"
+
+msgid "Business Sim"
+msgstr "Sim. Affari"
 
 #, c-format
 msgid "CFG base: %s"
 msgstr "CFG base: %s"
+
+msgid "Camera"
+msgstr "Telecamera"
+
+msgid "Can not dump GC savegames.\n"
+msgstr "Impossibile copiare salvataggi GC.\n"
+
+msgid "Can't install Wii games!"
+msgstr "Impossibile installare giochi Wii!"
 
 msgid "Cancelled."
 msgstr "Annullato."
@@ -178,6 +250,12 @@ msgstr "Annullato."
 #, c-format
 msgid "Cannot create dir: %s"
 msgstr "Impossibile creare cartella: %s"
+
+msgid "Cards"
+msgstr "Carte"
+
+msgid "Channel"
+msgstr "Canale"
 
 msgid "Cheat Codes:"
 msgstr "Codici Trucchi:"
@@ -194,6 +272,9 @@ msgstr "Sto controllando i temi…"
 msgid "Checking for updates..."
 msgstr "Sto verificando gli aggiornamenti..."
 
+msgid "Chess"
+msgstr "Scacchi"
+
 msgid "Choose a sorting method"
 msgstr "Scegli un criterio di ordinamento"
 
@@ -203,8 +284,20 @@ msgstr "Classico"
 msgid "Classic Controller"
 msgstr "Controller Classico"
 
+msgid "Clear"
+msgstr "Annulla"
+
 msgid "Clear Patches:"
 msgstr "Annulla Correzioni:"
+
+msgid "Coaching"
+msgstr "Allenamento"
+
+msgid "Compare Type"
+msgstr "Confronta Tipo"
+
+msgid "Compilation"
+msgstr "Collezione"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -224,11 +317,17 @@ msgstr "Errore di connessione da net_read()  Codice Errore: %i"
 msgid "Console"
 msgstr "Modo Testo"
 
-msgid "Console Def."
-msgstr "Predef. Console"
+msgid "Construction Sim"
+msgstr "Sim. Costruzioni"
+
+msgid "Contains"
+msgstr "Contiene"
 
 msgid "Controller"
 msgstr "Controller"
+
+msgid "Cooking"
+msgstr "Cucina"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -246,6 +345,9 @@ msgstr "Copertina:"
 msgid "Cover Style"
 msgstr "Stile Copertina"
 
+msgid "Covers Available"
+msgstr "Copertine Disponibili"
+
 msgid "Cover~~Back"
 msgstr "Retro"
 
@@ -257,6 +359,9 @@ msgstr "Crea"
 
 msgid "Creator"
 msgstr "Autore"
+
+msgid "Cricket"
+msgstr "Cricket"
 
 #, c-format
 msgid "Current Version: %s"
@@ -286,14 +391,23 @@ msgstr ""
 msgid "Custom IOS %s Loaded OK"
 msgstr "Custom IOS %s OK Caricamento"
 
+msgid "DEVO"
+msgstr "DEVO"
+
 msgid "DISC cover"
 msgstr "Imm. DISCO"
 
 msgid "DOWN"
 msgstr "GIU'"
 
+msgid "Dance"
+msgstr "Ballo"
+
 msgid "Dance Pad"
 msgstr "Dance Pad"
+
+msgid "Darts"
+msgstr "Freccette"
 
 msgid "Database update successful."
 msgstr "Database aggiornato con successo."
@@ -319,6 +433,12 @@ msgstr "La periferica non risponde!"
 msgid "Device:"
 msgstr "Periferica:"
 
+msgid "Devolution only accepts clean dumps!\n"
+msgstr "Devolution accetta solo copie valide!\n"
+
+msgid "Devolution:"
+msgstr "Devolution:"
+
 msgid "Disc"
 msgstr "Disco"
 
@@ -340,6 +460,9 @@ msgstr "Scarica Copertine Mancanti"
 msgid "Download Missing Covers"
 msgstr "Scarica Copertine Mancanti"
 
+msgid "Download Plugins"
+msgstr "Scarica Plugins"
+
 msgid "Download Themes"
 msgstr "Scarica Temi"
 
@@ -350,8 +473,8 @@ msgstr "Download completato."
 msgid "Download error on gamercard #%d."
 msgstr "Errore nel download della gamercard #%d."
 
-msgid "Download titles.txt"
-msgstr "Scarica titles.txt"
+msgid "Download game information"
+msgstr "Scarica informazioni sul gioco"
 
 msgid "Downloadable Content"
 msgstr "Contenuto Scaricabile"
@@ -379,8 +502,23 @@ msgstr "Sto scaricando i trucchi..."
 msgid "Downloading database."
 msgstr "Sto scaricando il database."
 
+msgid "Downloading devolution."
+msgstr "Sto scaricando devolution."
+
+msgid "Downloading mighty plugin."
+msgstr "Sto scaricando il mighty plugin."
+
+msgid "Downloading neek2o plugin."
+msgstr "Sto scaricando il neek2o plugin."
+
 msgid "Downloading titles.txt ..."
 msgstr "Sto scaricando titles.txt ..."
+
+msgid "Downloading translation file."
+msgstr "Sto scaricando i file delle traduzioni."
+
+msgid "Downloading unifont."
+msgstr "Sto scaricando unifont."
 
 #, c-format
 msgid "Downloading: %s"
@@ -393,8 +531,17 @@ msgstr "Sto scaricando: %s come %s"
 msgid "Downloads"
 msgstr "Num. Download"
 
+msgid "Drawing"
+msgstr "Disegno"
+
 msgid "Drums"
 msgstr "Tamburi"
+
+msgid "Dump savegame"
+msgstr "Copia salvataggi"
+
+msgid "Duplicate ID3"
+msgstr "Duplica ID3"
 
 msgid "Dutch"
 msgstr "Olandese"
@@ -501,6 +648,9 @@ msgstr "ERRORE: Setting SD mode"
 msgid "ERROR: USB init! (%d)"
 msgstr "ERRORE: USB init! (%d)"
 
+msgid "ERROR: WBFS not mounted!"
+msgstr "ERRORE: WBFS non caricata!"
+
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
 "cIOS223v4, cIOS224v5 or higher required\n"
@@ -552,11 +702,18 @@ msgid "ERROR: setting up fragments %d %d"
 msgstr "ERRORE: impostando frammenti %d %d"
 
 #, c-format
+msgid "ERROR: the drive or partition %s/ is not connected!!"
+msgstr "ERRORE: il disco o la partizione %s/ non è collegata!!"
+
+#, c-format
 msgid "ERROR: writing %s (%d)."
 msgstr "ERRORE: scrivendo %s (%d)."
 
 msgid "EXTEND"
 msgstr "ESTESA"
+
+msgid "Educational"
+msgstr "Istruzione"
 
 msgid "Ejecting DVD..."
 msgstr "Espulsione DVD..."
@@ -578,6 +735,10 @@ msgstr "Errore Inizializzazione Rete."
 
 msgid "Error adding disc!"
 msgstr "Errore aggiungendo disco!"
+
+#, c-format
+msgid "Error allocating buffer: %d"
+msgstr "Errore allocando il buffer: %d"
 
 msgid "Error creating directory..."
 msgstr "Errore creando la cartella…."
@@ -652,6 +813,9 @@ msgstr "Errore: nessun URL."
 msgid "Error: no data."
 msgstr "Errore: nessun dato."
 
+msgid "Exercise"
+msgstr "Esercizio"
+
 msgid "Exit"
 msgstr "Esci"
 
@@ -717,6 +881,9 @@ msgstr "Seleziona Giochi"
 msgid "Filter by Controller"
 msgstr "Seleziona per Controller"
 
+msgid "Filter by Game Type"
+msgstr "Seleziona per Tipo di Gioco"
+
 msgid "Filter by Genre"
 msgstr "Seleziona per Genere"
 
@@ -726,11 +893,35 @@ msgstr "Seleziona per Funzionalità Online"
 msgid "Filter:"
 msgstr "Filtro:"
 
+msgid "Fishing"
+msgstr "Pesca"
+
+msgid "Fitness"
+msgstr "Fitness"
+
 msgid "Fixing EXTEND partition..."
 msgstr "Sto correggendo partizione EXTEND..."
 
+msgid "Flight Sim"
+msgstr "Sim. Volo"
+
+msgid "Football"
+msgstr "Football"
+
+msgid "Force Devolution:"
+msgstr "Forza Devolution:"
+
 msgid "Force NTSC"
 msgstr "Forza NTSC"
+
+msgid "Force NTSC 480p"
+msgstr "Forza NTSC 480p"
+
+msgid "Force PAL"
+msgstr "Forza PAL"
+
+msgid "Force PAL 480p"
+msgstr "Forza PAL 480p"
 
 msgid "Force PAL50"
 msgstr "Forza PAL50"
@@ -751,11 +942,17 @@ msgstr "Francese"
 msgid "Full"
 msgstr "Completa"
 
+msgid "Futuristic Racing"
+msgstr "Corse Futuro"
+
 msgid "GB"
 msgstr "GB"
 
 msgid "Game Default"
 msgstr "Predef. Gioco"
+
+msgid "Game ID"
+msgstr "ID Gioco"
 
 msgid "Game Options"
 msgstr "Opzioni Gioco"
@@ -763,6 +960,12 @@ msgstr "Opzioni Gioco"
 #, c-format
 msgid "Game Options:  %s"
 msgstr "Opzioni Gioco:  %s"
+
+msgid "Game Type"
+msgstr "Tipo Gioco"
+
+msgid "GameCube"
+msgstr "GameCube"
 
 msgid "Gamecube"
 msgstr "Gamecube"
@@ -783,6 +986,9 @@ msgstr "Tedesco"
 msgid "Global Options"
 msgstr "Opzioni Generali"
 
+msgid "Golf"
+msgstr "Golf"
+
 msgid "Guitar"
 msgstr "Chitarra"
 
@@ -792,20 +998,35 @@ msgstr "Copertina HQ"
 msgid "HTTP Response was without a file"
 msgstr "HTTP Response senza file"
 
+msgid "Health"
+msgstr "Salute"
+
+msgid "Hidden Object"
+msgstr "Oggetto Nascosto"
+
 msgid "Hide"
 msgstr "Nascondi"
 
 msgid "Hide Game:"
 msgstr "Nascondi Gioco:"
 
+msgid "Hockey"
+msgstr "Hockey"
+
 msgid "Hold button B to cancel."
 msgstr "Tener premuto B per annullare."
+
+msgid "Home Menu"
+msgstr "Menu Home"
 
 msgid "Homebrew Channel"
 msgstr "Canale Homebrew"
 
 msgid "Hook Type:"
 msgstr "Aggancio Ocarina:"
+
+msgid "Hunting"
+msgstr "Caccia"
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -830,6 +1051,9 @@ msgstr ""
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr "Inconsistenza in LZ77 codificando %x"
+
+msgid "Infinity Base"
+msgstr "Infinity Base"
 
 msgid "Info"
 msgstr "Info"
@@ -876,11 +1100,23 @@ msgstr "Giapponese"
 msgid "Japanese Title"
 msgstr "Titolo Giapponese"
 
+msgid "Jump"
+msgstr "Salto"
+
+msgid "Karaoke"
+msgstr "Karaoke"
+
+msgid "Kart Racing"
+msgstr "Corse Kart"
+
 msgid "Keyboard"
 msgstr "Tastiera"
 
 msgid "Korean"
 msgstr "Coreano"
+
+msgid "LED:"
+msgstr "LED:"
 
 msgid "LEFT"
 msgstr "SINISTRA"
@@ -897,6 +1133,9 @@ msgstr "Caricamento Recente"
 msgid "Launch Methods"
 msgstr "Modalità Avvio"
 
+msgid "Life Simulation"
+msgstr "Sim. Sociale"
+
 msgid "Load OK!"
 msgstr "Caricamento OK!"
 
@@ -906,6 +1145,10 @@ msgstr "Versione Loader: %s"
 
 msgid "Loading ..."
 msgstr "Sto caricando ..."
+
+#, c-format
+msgid "Loading..%s\n"
+msgstr "Sto caricando..%s\n"
 
 msgid "Main"
 msgstr "Principale"
@@ -926,11 +1169,23 @@ msgstr "Gestisci"
 msgid "Manage Cheats"
 msgstr "Gestisci Trucchi"
 
+msgid "Management Sim"
+msgstr "Sim. Gestione"
+
+msgid "Martial Arts"
+msgstr "Arti Marziali"
+
 msgid "Microphone"
 msgstr "Microfono"
 
+msgid "Mighty Plugin"
+msgstr "Mighty Plugin"
+
 msgid "Motion+"
 msgstr "Motion Plus"
+
+msgid "Motorcycle Racing"
+msgstr "Corse Moto"
 
 msgid "Mounting device, please wait..."
 msgstr ""
@@ -972,6 +1227,20 @@ msgstr "Musica: Numero di %s file trovati: %i"
 
 msgid "Music: musicArray contents: "
 msgstr "Musica: contenuto musicArray: "
+
+#, c-format
+msgid ""
+"NAND Emu Path:\n"
+"%s\n"
+msgstr ""
+"Cartella Emu NAND:\n"
+"%s\n"
+
+msgid "NAND Emu:"
+msgstr "Emu NAND:"
+
+msgid "NMM:"
+msgstr "NMM:"
 
 msgid ""
 "NOTE: CIOS249 before rev10:\n"
@@ -1025,6 +1294,11 @@ msgstr ""
 "NOTA: è necessario riavviare il loader\n"
 "per rendere effettivo l'aggiornamento."
 
+msgid ""
+"NOTE: may loader restart is required\n"
+"for the settings to take effect."
+msgstr ""
+
 #, c-format
 msgid ""
 "NOTE: partition P#%d is type EXTEND but\n"
@@ -1042,6 +1316,12 @@ msgstr "compressione NTFS non supportata!"
 
 msgid "NTFS encryption not supported!"
 msgstr "criptazione NTFS non supportata!"
+
+msgid "NTSC-J patch:"
+msgstr "Patch NTSC-J:"
+
+msgid "Neek2o Plugin"
+msgstr "Plugin Neek2o"
 
 msgid "Network connection established."
 msgstr "Connessione di rete stabilita."
@@ -1077,8 +1357,14 @@ msgstr "Nessun tema trovato."
 msgid "No updates found."
 msgstr "Nessun aggiornamento trovato."
 
+msgid "NoDisc:"
+msgstr "NoDisco:"
+
 msgid "None found on disc"
 msgstr "Disco vuoto"
+
+msgid "Not Found boot.dol!"
+msgstr "boot.dol Non Trovato!"
 
 msgid "Not Found!"
 msgstr "Non Trovato!"
@@ -1124,6 +1410,9 @@ msgstr "Ocarina: Troppi codici"
 
 msgid "Off"
 msgstr "Disattivato"
+
+msgid "Off-Road Racing"
+msgstr "Corse Fuoristrada"
 
 msgid "On"
 msgstr "Attivato"
@@ -1171,8 +1460,21 @@ msgstr "Opzioni del gioco salvate."
 msgid "Out of memory"
 msgstr "Memoria terminata"
 
+#, c-format
+msgid "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+msgstr "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+
+msgid "PAD HOOK"
+msgstr "PAD HOOK"
+
+msgid "PAD HOOK:"
+msgstr "PAD HOOK:"
+
 msgid "Page:"
 msgstr "Pagina:"
+
+msgid "Partial"
+msgstr ""
 
 msgid "Partition:"
 msgstr "Partizione:"
@@ -1187,6 +1489,12 @@ msgstr "Party"
 msgid "Paused Start"
 msgstr "Avvio Sospeso"
 
+msgid "Petanque"
+msgstr "Bocce"
+
+msgid "Pinball"
+msgstr "Flipper"
+
 msgid "Platformer"
 msgstr "Platformer"
 
@@ -1198,6 +1506,15 @@ msgstr "Giocatori"
 
 msgid "Please insert a game disc..."
 msgstr "Inserire un disco..."
+
+msgid "Plugin:"
+msgstr "Plugin:"
+
+msgid "Poker"
+msgstr "Poker"
+
+msgid "Portal of Power"
+msgstr "Portale Potere"
 
 #, c-format
 msgid "Press %s button for options."
@@ -1327,17 +1644,23 @@ msgstr "Premere %s per aggiornare senza meta.xml"
 msgid "Press %s/%s to select device."
 msgstr "Premere DESTRA/SINISTRA per periferica"
 
+msgid "Press 1 to skip WBFS mounting"
+msgstr "Premere 1 per non caricare WBFS"
+
 msgid "Press 2 to reload IOS"
-msgstr "Premi 2 per ricaricare l'IOS"
+msgstr "Premere 2 per ricaricare l'IOS"
+
+msgid "Press A to continue without config.txt"
+msgstr "Premere A per continuare senza config.txt"
 
 msgid "Press A to select device"
-msgstr "Premi A per scegliere la periferica"
+msgstr "Premere A per scegliere la periferica"
 
 msgid "Press B to exit to HBC"
-msgstr "Premi B per uscire verso l'HBC"
+msgstr "Premere B per uscire verso l'HBC"
 
 msgid "Press HOME to reset"
-msgstr "Premi HOME per riavviare la Wii"
+msgstr "Premere HOME per riavviare la Wii"
 
 msgid "Press LEFT/RIGHT to select IOS"
 msgstr "Premere SINISTRA/DESTRA per scelta IOS"
@@ -1351,6 +1674,9 @@ msgstr "Premere un pulsante per uscire..."
 msgid "Press any button to restart..."
 msgstr "Premere un pulsante per riavviare..."
 
+msgid "Press any button.\n"
+msgstr "Premere un pulsante.\n"
+
 msgid "Press any button..."
 msgstr "Premere un pulsante..."
 
@@ -1361,6 +1687,9 @@ msgstr "Premere %s per scaricare le copertine."
 #, c-format
 msgid "Press button %s to eject DVD."
 msgstr "Premere %s per espellere il DVD"
+
+msgid "Priiloader"
+msgstr "Priiloader"
 
 msgid "Profile:"
 msgstr "Profilo:"
@@ -1393,6 +1722,9 @@ msgstr "Giochi Ruolo"
 msgid "Racing"
 msgstr "Corse"
 
+msgid "Rail Shooter"
+msgstr "Sparat. Rotaia"
+
 #, c-format
 msgid "Rated %s"
 msgstr "Età %s"
@@ -1408,6 +1740,9 @@ msgstr "Sto leggendo BCA..."
 
 msgid "Reboot"
 msgstr "Riavvia"
+
+msgid "Region"
+msgstr "Regione"
 
 msgid "Release Date"
 msgstr "Data di Rilascio"
@@ -1430,6 +1765,9 @@ msgstr "Ritmo"
 
 msgid "Rows:"
 msgstr "Righe:"
+
+msgid "Rugby"
+msgstr "Rugby"
 
 msgid "Running benchmark, please wait"
 msgstr "Eseguo benchmark, attendere prego"
@@ -1455,6 +1793,12 @@ msgstr "Salva Impost."
 msgid "Save debug.log"
 msgstr "Salva debug.log"
 
+msgid "Savegame not found.\n"
+msgstr "Savegame non trovato.\n"
+
+msgid "Savegame:"
+msgstr "Savegame:"
+
 msgid "Saving Settings... "
 msgstr "Salvataggio Impostazioni..."
 
@@ -1474,8 +1818,17 @@ msgstr "Sto salvando:"
 msgid "Saving: %s"
 msgstr "Salvataggio: %s"
 
+msgid "Screenshot:"
+msgstr "Screenshot:"
+
 msgid "Scroll:"
 msgstr "Scorrimento:"
+
+msgid "Search"
+msgstr "Cerca"
+
+msgid "Search for:"
+msgstr "Trova:"
 
 msgid "Select Alternative .dol:"
 msgstr "Scegli .dol Alternativo:"
@@ -1492,6 +1845,9 @@ msgstr "Scegli una partizione"
 msgid "Select all"
 msgstr "Seleziona tutto"
 
+msgid "Select device:"
+msgstr "Seleziona device:"
+
 msgid "Select the game you want to boot"
 msgstr "Scegli il gioco che vuoi caricare"
 
@@ -1502,7 +1858,7 @@ msgid "Settings"
 msgstr "Impostazioni"
 
 msgid "Shooter"
-msgstr "Spara Spara"
+msgstr "Sparatutto"
 
 msgid "Show All"
 msgstr "Mostra Tutto"
@@ -1516,6 +1872,9 @@ msgstr "Spegni"
 msgid "Side:"
 msgstr "Lato Copert.:"
 
+msgid "Sim Racing"
+msgstr "Sim. Corse"
+
 msgid "Simulation"
 msgstr "Simulazione"
 
@@ -1525,6 +1884,21 @@ msgstr "Dim.(GB) Tipo  Mount Usata"
 #, c-format
 msgid "Size: %d bytes"
 msgstr "Dimensione: %d bytes"
+
+msgid "Skateboard"
+msgstr "Skateboard"
+
+msgid "Skateboarding"
+msgstr "Skateboard"
+
+msgid "Skiing"
+msgstr "Sci"
+
+msgid "Snowboarding"
+msgstr "Snowboard"
+
+msgid "Soccer"
+msgstr "Calcio"
 
 msgid "Sort"
 msgstr "Ordina"
@@ -1557,6 +1931,9 @@ msgstr "Avvia Gioco"
 msgid "Start this game?"
 msgstr "Vuoi avviare questo gioco?"
 
+msgid "Stealth Action"
+msgstr "Spionaggio"
+
 msgid "Stopping DVD..."
 msgstr "Sto fermando il DVD..."
 
@@ -1569,11 +1946,23 @@ msgstr "Stile"
 msgid "Style:"
 msgstr "Stile:"
 
+msgid "Surfing"
+msgstr "Surf"
+
+msgid "Survival Horror"
+msgstr "Horror"
+
 msgid "Sync FAT free space info?"
 msgstr "Sincronizzare lo spazio libero nel disco FAT?"
 
 msgid "Synchronizing, please wait."
 msgstr "Sto sincronizzando, attendere prego."
+
+msgid "Synopsis"
+msgstr "Sommario"
+
+msgid "Synopsis Length"
+msgstr "Lunghezza Sommario"
 
 msgid "System"
 msgstr "Sistema"
@@ -1583,6 +1972,12 @@ msgstr "Predef. Sistema"
 
 msgid "T. Chinese"
 msgstr "Cinese Tradiz."
+
+msgid "Table Tennis"
+msgstr "Ping Pong"
+
+msgid "Tennis"
+msgstr "Tennis"
 
 msgid "Theme"
 msgstr "Tema"
@@ -1627,9 +2022,24 @@ msgstr "Troppe linee di codice!"
 msgid "Too many fragments! %d"
 msgstr "Troppi frammenti! %d"
 
+msgid "Total Body Tracking"
+msgstr "Palestra"
+
+msgid "Train Simulation"
+msgstr "Sim. Treno"
+
+msgid "Trivia"
+msgstr "Trivial"
+
+msgid "Truck Racing"
+msgstr "Corse Camion"
+
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "Sto provando (url#%d) ..."
+
+msgid "Turntable"
+msgstr "Tavola Girevole"
 
 msgid "UNUSED"
 msgstr "NON USATO"
@@ -1663,14 +2073,8 @@ msgstr "Non Giocati"
 msgid "Unplayed Games"
 msgstr "Giochi mai caricati"
 
-msgid "Update WiiTDB Game Database"
-msgstr "Aggiorna WiiTDB"
-
 msgid "Update themes"
 msgstr "Aggiorna temi"
-
-msgid "Update titles.txt"
-msgstr "Aggiorna titles.txt"
 
 msgid "Updates"
 msgstr "Aggiornamenti"
@@ -1678,12 +2082,42 @@ msgstr "Aggiornamenti"
 msgid "Updating database."
 msgstr "Sto aggiornando il database."
 
+msgid "Updating devolution"
+msgstr "Sto aggiornando devolution"
+
 #, c-format
 msgid "Used: %.1fGB Free: %.1fGB [%d]"
 msgstr "Usati: %.1fGB Liberi: %.1fGB [%d]"
 
 msgid "Using Saved Alternative .dol:"
 msgstr "Uso .dol Alternativo Salvato:"
+
+msgid "VC-Arcade"
+msgstr "VC-Arcade"
+
+msgid "VC-Commodore 64"
+msgstr "VC-Commodore 64"
+
+msgid "VC-N64"
+msgstr "VC-N64"
+
+msgid "VC-NES"
+msgstr "VC-NES"
+
+msgid "VC-Neo Geo"
+msgstr "VC-Neo Geo"
+
+msgid "VC-SMS"
+msgstr "VC-SMS"
+
+msgid "VC-SNES"
+msgstr "VC-SNES"
+
+msgid "VC-Sega Genesis"
+msgstr "VC-Sega Genesis"
+
+msgid "VC-TurboGrafx-16"
+msgstr "VC-TurboGrafx-16"
 
 msgid "Version"
 msgstr "Versione"
@@ -1697,8 +2131,14 @@ msgstr "Video:"
 msgid "View"
 msgstr "Vista"
 
+msgid "Virtual Pet"
+msgstr "Cuccioli Virtuali"
+
 msgid "Vitality Sensor"
 msgstr "Vitality Sensor"
+
+msgid "Volleyball"
+msgstr "Pallavolo"
 
 msgid "WARNING:"
 msgstr "ATTENZIONE:"
@@ -1707,17 +2147,32 @@ msgstr "ATTENZIONE:"
 msgid "WBFS: %.1fGB free of %.1fGB"
 msgstr "WBFS: %.1fGB liberi di %.1fGB"
 
+msgid "Watercraft Racing"
+msgstr "Corse Motoscafo"
+
 msgid "Wheel"
 msgstr "Ruota"
+
+msgid "Wide Screen:"
+msgstr "Schermo Wide"
+
+msgid "Wii"
+msgstr "Wii"
+
+msgid "Wii Channel"
+msgstr "canale Wii"
 
 msgid "Wii Speak"
 msgstr "Wii Speak"
 
-msgid "WiiTDB Game Database"
-msgstr "Scarica Database WiiTDB"
+msgid "WiiWare"
+msgstr "WiiWare"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Wrestling"
+msgstr "Wrestling"
 
 msgid "Write Playlog:"
 msgstr "Scrivi Log Giocate"
@@ -1819,6 +2274,10 @@ msgid "linear..."
 msgstr "lineare..."
 
 #, c-format
+msgid "loader.bin size: %d"
+msgstr "dimensione loader.bin: %d"
+
+#, c-format
 msgid "music file too big (%d) %s"
 msgstr "file musica troppo grosso (%d) %s"
 
@@ -1839,6 +2298,12 @@ msgstr "pagina"
 
 msgid "parse error"
 msgstr "errore parsing"
+
+msgid "r51-"
+msgstr "r51-"
+
+msgid "r52+"
+msgstr "r52+"
 
 #, c-format
 msgid "random read speed: %.2f mb/s"
@@ -1870,6 +2335,15 @@ msgstr "impossibile aprire disco Wii"
 msgid "used: %p - %p"
 msgstr "usati: %p - %p"
 
+#~ msgid "Booting Wii game, please wait..."
+#~ msgstr "Sto caricando il gioco, attendere prego..."
+
+#~ msgid "Console Def."
+#~ msgstr "Predef. Console"
+
+#~ msgid "Download titles.txt"
+#~ msgstr "Scarica titles.txt"
+
 #~ msgid "Front"
 #~ msgstr "Fronte"
 
@@ -1878,3 +2352,12 @@ msgstr "usati: %p - %p"
 
 #~ msgid "Remove Game"
 #~ msgstr "Elimina Gioco"
+
+#~ msgid "Update WiiTDB Game Database"
+#~ msgstr "Aggiorna WiiTDB"
+
+#~ msgid "Update titles.txt"
+#~ msgstr "Aggiorna titles.txt"
+
+#~ msgid "WiiTDB Game Database"
+#~ msgstr "Scarica Database WiiTDB"

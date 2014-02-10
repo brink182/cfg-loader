@@ -245,7 +245,7 @@ void action_OpenQuit(Widget *parent)
 	p = pos_auto;
 	p.x = POS_CENTER;
 	//p.w = dd->w * 2 / 3;
-	p.w = dd->w / 2;
+	p.w = dd->w * 46 / 100;		//any bigger messes up ES translation
 
 	if (CFG.home == CFG_HOME_REBOOT) p.h = H_LARGE; else p.h = H_NORMAL;
 	ww = wgui_add_button(dd, p, gt("Reboot"));
@@ -287,7 +287,7 @@ void action_OpenQuit(Widget *parent)
 	// priiloader 
 	// priiloader wii sys menu
 
-	p.w = dd->w / 2;
+	p.w = dd->w * 46 / 100;
 	p.y = POS_EDGE;
 	ww = wgui_add_button(dd, p, gt("Back"));
 	ww->action = action_close_parent_dialog;
@@ -1129,10 +1129,6 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			char *names_ios[num_ios];
 			num_ios = map_to_list(map_ios, num_ios, names_ios);
 			
-			int num_nand_emu = map_get_num(map_nand_emu);
-			char *names_nand_emu[num_nand_emu];
-			num_nand_emu = map_to_list(map_nand_emu, num_nand_emu, names_nand_emu);
-
 			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
 			BIND_OPT(language);
 
@@ -1186,7 +1182,7 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");
 			op->render = NULL;
 			
-			ww = wgui_add_game_opt(op, gt("NAND Emu:"), num_nand_emu, names_nand_emu);
+			ww = wgui_add_game_opt(op, gt("NAND Emu:"), 3, str_nand_emu);
 			BIND_OPT(nand_emu);
 
 			pos_move_to(pp, PAD0, -bh);
@@ -2677,9 +2673,9 @@ char about_str2[] =
 "Miigotu fishears pccfatman fig2k4 wiimm Xflak lustar"
 "\n\n"
 "TRANSLATORS: "
-"FIX94 Fox888 TyRaNtM JABE xxdimixx Cambo Hosigumayuugi "
+"FIX94 Fox888 TyRaNtM JABE Cambo xxdimixx Hosigumayuugi "
 "cherries4u Stigmatic mangojambo LeonLeao tarcis pplucky "
-"Geridian Clamis kavid nhlay WiiNero 19872001"
+"Geridian Clamis kavid nhlay WiiNero 19872001 MysTiCy"
 ;
 
 char about_str[sizeof(about_title) + sizeof(about_str2) * 2];

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-20 13:14-0500\n"
+"POT-Creation-Date: 2014-02-10 11:11-0500\n"
 "PO-Revision-Date: 2014-01-05 04:19+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
@@ -42,6 +42,18 @@ msgstr "%s Scindé: %d %s"
 #, c-format
 msgid "%s, please wait..."
 msgstr "%s, veuillez patienter..."
+
+#, c-format
+msgid "%s: Favorites"
+msgstr ""
+
+#, c-format
+msgid "%s: GUI "
+msgstr ""
+
+#, c-format
+msgid "%s: Options "
+msgstr ""
 
 #, c-format
 msgid "(%d online)"
@@ -1464,7 +1476,7 @@ msgstr "PAD HOOK :"
 msgid "Page:"
 msgstr "Page:"
 
-msgid "Partitial"
+msgid "Partial"
 msgstr "Partiel"
 
 msgid "Partition:"

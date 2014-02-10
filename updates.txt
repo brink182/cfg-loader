@@ -13,6 +13,13 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r70
+date = 2014-2-10
+-Added a check so if someone is working on a translation and does an online update it dosent overwrite their work in process
+-Added FI.lang (Thanks MysTiCy)
+-Updated ZH_CN.lang (Thanks Kavid) IT.lang (Thanks Cambo) ES.lang (Thanks TyRaNtM) GR.lang (Thanks xxdimixx) DK.lang (Thanks Fox888) NL.lang (Thanks wiiuser2)
+-Fixed several more spots ware translation wasnt working
+
 Unreleased = 70r69
 date = 2014-1-20
 -Added additional controllers to filter by controller

@@ -149,7 +149,7 @@ void build_arrays() {
 	genreTypes[8][1] = (char *)gt("Shooter");
 	genreTypes[9][0] = "simulation";
 	genreTypes[9][1] = (char *)gt("Simulation");
-	genreTypes[10][0] = "sport";
+	genreTypes[10][0] = "sports";
 	genreTypes[10][1] = (char *)gt("Sports");
 	genreTypes[11][0] = "strategy";
 	genreTypes[11][1] = (char *)gt("Strategy");

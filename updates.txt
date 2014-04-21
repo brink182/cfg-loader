@@ -13,6 +13,12 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r71
+date = 2014-4-21
+-Updated FR.lang (Thanks JABE)
+-Updated TR.lang (Thanks Tuzruhu)
+-Updated ZH_CN.lang (Thanks Kavid)
+
 Unreleased = 70r70
 date = 2014-2-10
 -Added a check so if someone is working on a translation and does an online update it dosent overwrite their work in process

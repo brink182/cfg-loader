@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-10 11:11-0500\n"
-"PO-Revision-Date: 2014-01-22 16:50+GMT+8\n"
+"PO-Revision-Date: 2014-04-20 16:50+GMT+8\n"
 "Last-Translator: kavid <kavid@sina.com>\n"
 "Language-Team: kavid <www.91wii.Com>\n"
 "MIME-Version: 2.0\n"
@@ -47,15 +47,15 @@ msgstr "%s，请稍候..."
 
 #, c-format
 msgid "%s: Favorites"
-msgstr ""
+msgstr "%s:收藏"
 
 #, c-format
 msgid "%s: GUI "
-msgstr ""
+msgstr "%s:界面 "
 
 #, c-format
 msgid "%s: Options "
-msgstr ""
+msgstr "%s:选项 "
 
 #, c-format
 msgid "(%d online)"

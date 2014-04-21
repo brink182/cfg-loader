@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-07 23:40+0200\n"
-"PO-Revision-Date: 2010-02-21 22:57+0100\n"
-"Last-Translator: Geridian\n"
+"POT-Creation-Date: 2014-02-10 11:11-0500\n"
+"PO-Revision-Date: 2014-03-01 22:57+0100\n"
+"Last-Translator: Wiidewii\n"
 "Language-Team: TURKISH <Tuzruhu, www.wiidewii.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #, c-format
 msgid "%.1fGB free of %.1fGB"
@@ -46,6 +46,18 @@ msgid "%s, please wait..."
 msgstr "%s, Lütfen bekleyin..."
 
 #, c-format
+msgid "%s: Favorites"
+msgstr "%s: Favoriler"
+
+#, c-format
+msgid "%s: GUI "
+msgstr "%s: GUI "
+
+#, c-format
+msgid "%s: Options "
+msgstr "%s: Seçenekler "
+
+#, c-format
 msgid "(%d online)"
 msgstr "(%d online)"
 
@@ -54,13 +66,31 @@ msgid "(%d seconds timeout)"
 msgstr "(%d saniye zaman aşımı)"
 
 msgid "(This can take a couple of minutes)"
-msgstr ""
+msgstr "Bu işlem birkaç dakika alabilir"
 
 msgid ".dol too small"
 msgstr ".dol çok küçük"
 
+msgid "1.2+"
+msgstr "1.2+"
+
+msgid "1st-Person Shooter"
+msgstr "1st-Person Shooter"
+
+msgid "2.0+"
+msgstr "2.0+"
+
+msgid "2.1+"
+msgstr "2.1+"
+
+msgid "2.2+"
+msgstr "2.2+"
+
 msgid "3D cover"
-msgstr ""
+msgstr "3D Kapak"
+
+msgid "3rd-person Shooter"
+msgstr "3rd-person Shooter"
 
 msgid "< ASC  >"
 msgstr "< ARTAN >"
@@ -72,7 +102,7 @@ msgid "< DOWNLOAD >"
 msgstr "< İNDİR >"
 
 msgid "About"
-msgstr ""
+msgstr "Hakkında"
 
 msgid "Action"
 msgstr "İşlem"
@@ -81,13 +111,13 @@ msgid "Additional config:"
 msgstr "Ek Yapılandırma:"
 
 msgid "Admin Lock:"
-msgstr ""
+msgstr "Yönetici Kilidi"
 
 msgid "Admin Unlock"
-msgstr ""
+msgstr "Yönetici Kilidi Aç"
 
 msgid "Adult"
-msgstr ""
+msgstr "Yetişkin"
 
 msgid "Adventure"
 msgstr "Macera"
@@ -95,11 +125,17 @@ msgstr "Macera"
 msgid "All"
 msgstr "Hepsi"
 
+msgid "All Channels"
+msgstr "Bütün Kanallar"
+
 msgid "All Games"
 msgstr "Tüm Oyunlar"
 
 msgid "All themes up to date."
-msgstr ""
+msgstr "Bugüne kadar bütün temalar"
+
+msgid "Alt Button Cfg:"
+msgstr "Alt Tuş Ayarı"
 
 msgid "Alt dol:"
 msgstr "Alt dol:"
@@ -113,6 +149,9 @@ msgstr "Anti 002 Fix:"
 #, c-format
 msgid "App. Path: %s"
 msgstr "Uygulama Yolu: %s"
+
+msgid "Arcade"
+msgstr "Arcade"
 
 #, c-format
 msgid ""
@@ -137,10 +176,10 @@ msgstr ""
 " emin misin?"
 
 msgid "Ascending"
-msgstr ""
+msgstr "Artan"
 
 msgid "Auto"
-msgstr ""
+msgstr "Otomatik"
 
 #, c-format
 msgid "Auto-start game: %.6s not found!"
@@ -150,29 +189,62 @@ msgid "Available Updates"
 msgstr "Kullanılabilir güncelleştirmeler"
 
 msgid "Back"
-msgstr ""
+msgstr "Geri"
 
 msgid "Balance Board"
 msgstr "Denge Tahtası"
 
+msgid "Baseball"
+msgstr "Beysbol"
+
 msgid "Basic"
-msgstr ""
+msgstr "Basit"
+
+msgid "Basketball"
+msgstr "Basketbol"
+
+msgid "Bike Racing"
+msgstr "Bisiklet Yarışı"
+
+msgid "Billiards"
+msgstr "Bilardo"
 
 msgid "Block IOS Reload:"
 msgstr "Block IOS Reload:"
+
+msgid "Board Game"
+msgstr "Board Game"
 
 msgid "Boot Disc"
 msgstr "Diski çalıştır"
 
 msgid "Boot disc"
-msgstr ""
+msgstr "Boot Disk"
 
-msgid "Booting Wii game, please wait..."
-msgstr "Wii oyunu başlatılıyor, lütfen bekleyin..."
+msgid "Booting game, please wait..."
+msgstr "Oyun yükleniyor, lütfen beleyin"
+
+msgid "Bowling"
+msgstr "Bovling"
+
+msgid "Boxing"
+msgstr "Boks"
+
+msgid "Business Sim"
+msgstr "İş Simülasyonu"
 
 #, c-format
 msgid "CFG base: %s"
 msgstr "CFG kök dizini: %s"
+
+msgid "Camera"
+msgstr "kamera"
+
+msgid "Can not dump GC savegames.\n"
+msgstr "GC oyun savelerini ekleyemiyorum"
+
+msgid "Can't install Wii games!"
+msgstr "Wii oyunları kurulamıyor!"
 
 msgid "Cancelled."
 msgstr "İptal."
@@ -180,6 +252,12 @@ msgstr "İptal."
 #, c-format
 msgid "Cannot create dir: %s"
 msgstr "Dizin oluşturulamıyor: %s"
+
+msgid "Cards"
+msgstr "Kart"
+
+msgid "Channel"
+msgstr "Kanal"
 
 msgid "Cheat Codes:"
 msgstr "Hile Kodları:"
@@ -196,17 +274,32 @@ msgstr ""
 msgid "Checking for updates..."
 msgstr "Güncellemeler kontrol ediliyor..."
 
+msgid "Chess"
+msgstr "Satranç"
+
 msgid "Choose a sorting method"
 msgstr "Sıralama şekli seçin"
 
 msgid "Classic"
-msgstr ""
+msgstr "Klasik"
 
 msgid "Classic Controller"
 msgstr "Klasik kumanda"
 
+msgid "Clear"
+msgstr "Temiz"
+
 msgid "Clear Patches:"
-msgstr ""
+msgstr "Temiz Yamalar"
+
+msgid "Coaching"
+msgstr "Antrenörlük"
+
+msgid "Compare Type"
+msgstr "Tip Karşılaştırın"
+
+msgid "Compilation"
+msgstr "Derleme"
 
 #, c-format
 msgid "Complete. Size: %d"
@@ -224,13 +317,19 @@ msgid "Connection error from net_read()  Errorcode: %i"
 msgstr "net_read() Hata kodu: %i yüzünden bağlantı hatası"
 
 msgid "Console"
-msgstr ""
+msgstr "Konsol"
 
-msgid "Console Def."
-msgstr ""
+msgid "Construction Sim"
+msgstr "İnşaat Simülasyonu"
+
+msgid "Contains"
+msgstr "İçeriyor"
 
 msgid "Controller"
-msgstr ""
+msgstr "Kontroller"
+
+msgid "Cooking"
+msgstr "Yemek Pişirme"
 
 #, c-format
 msgid "Could not initialize DIP module! (ret = %d)"
@@ -240,25 +339,31 @@ msgid "Country Fix:"
 msgstr "Ülke ayarı:"
 
 msgid "Cover"
-msgstr ""
+msgstr "Kapak"
 
 msgid "Cover Image:"
 msgstr "Kapak Resmi:"
 
 msgid "Cover Style"
-msgstr ""
+msgstr "kapak Sitili"
+
+msgid "Covers Available"
+msgstr "Mevcut Kapaklar"
 
 msgid "Cover~~Back"
-msgstr ""
+msgstr "Arka~~Kapak"
 
 msgid "Cover~~Front"
-msgstr ""
+msgstr "Ön~~Kapak"
 
 msgid "Create"
 msgstr "Oluştur"
 
 msgid "Creator"
-msgstr ""
+msgstr "yaratıcı"
+
+msgid "Cricket"
+msgstr "Kriket"
 
 #, c-format
 msgid "Current Version: %s"
@@ -269,6 +374,8 @@ msgid ""
 "Custom IOS %d could not be found!\n"
 "Please install it."
 msgstr ""
+"Custom IOS %d bulunamadı!\n"
+"Lütfen kurun."
 
 #, c-format
 msgid "Custom IOS %d could not be loaded! (ret = %d)"
@@ -279,49 +386,66 @@ msgid ""
 "Custom IOS %d is a stub!\n"
 "Please reinstall it."
 msgstr ""
+"Custom IOS %d çöp!\n"
+"Lütfen tekrar kurun."
 
 #, c-format
 msgid "Custom IOS %s Loaded OK"
 msgstr "CIOS %s yüklemesi OK"
 
+msgid "DEVO"
+msgstr "DEVO"
+
 msgid "DISC cover"
-msgstr ""
+msgstr "DISC Kapak"
 
 msgid "DOWN"
-msgstr ""
+msgstr "AŞAĞI"
+
+msgid "Dance"
+msgstr "Dans"
 
 msgid "Dance Pad"
 msgstr "Dans bezi"
+
+msgid "Darts"
+msgstr "Dart"
 
 msgid "Database update successful."
 msgstr "Veritabanı başarıyla güncellendi."
 
 msgid "Debug"
-msgstr ""
+msgstr "Hata Ayıklama"
 
 msgid "Delete Game"
-msgstr ""
+msgstr "Oyunu Sil"
 
 msgid "Deleting"
 msgstr "Siliniyor"
 
 msgid "Descending"
-msgstr ""
+msgstr "İnme"
 
 msgid "Developer"
 msgstr "Geliştirici"
 
 msgid "Device is not responding!"
-msgstr ""
+msgstr "Aygıt cevap vermiyor"
 
 msgid "Device:"
 msgstr "Aygıt:"
+
+msgid "Devolution only accepts clean dumps!\n"
+msgstr "Sadece temiz dökümler nakil ediliyor!"
+
+msgid "Devolution:"
+msgstr "Nakil"
 
 msgid "Disc"
 msgstr "Disk"
 
 msgid "Disc (Ask)"
-msgstr ""
+msgstr "Disk (Sor)"
 
 msgid "Done."
 msgstr "Tamam."
@@ -330,26 +454,29 @@ msgid "Download .txt"
 msgstr ".txt İndir"
 
 msgid "Download All Covers"
-msgstr ""
+msgstr "Bütün Kapakları İndir"
 
 msgid "Download All Missing Covers"
 msgstr "Bütün eksik kapakları indir"
 
 msgid "Download Missing Covers"
-msgstr ""
+msgstr "Eksik Kapakları İndir"
+
+msgid "Download Plugins"
+msgstr "Eklenti Yükle"
 
 msgid "Download Themes"
-msgstr ""
+msgstr "Temaları Yükle"
 
 msgid "Download complete."
 msgstr "İndirme tamamlandı."
 
 #, c-format
 msgid "Download error on gamercard #%d."
-msgstr ""
+msgstr "Gamercard #%d. indirme hatası"
 
-msgid "Download titles.txt"
-msgstr ""
+msgid "Download game information"
+msgstr "Oyun bilgilerini indir"
 
 msgid "Downloadable Content"
 msgstr "İndirilebilir içerik"
@@ -369,7 +496,7 @@ msgid "Downloading MISSING covers for %.6s"
 msgstr "EKSİK kapakların indirilmesi %.6s"
 
 msgid "Downloading Theme previews..."
-msgstr ""
+msgstr "Tema önzilemeleri indiriliyor..."
 
 msgid "Downloading cheats..."
 msgstr "Hileler indiriliyor..."
@@ -377,8 +504,23 @@ msgstr "Hileler indiriliyor..."
 msgid "Downloading database."
 msgstr "Veritabanı indiriliyor."
 
+msgid "Downloading devolution."
+msgstr ""
+
+msgid "Downloading mighty plugin."
+msgstr "Eklenti indiriliyor"
+
+msgid "Downloading neek2o plugin."
+msgstr "neek2o eklentisi indiriliyor"
+
 msgid "Downloading titles.txt ..."
 msgstr " titles.txt indiriliyor..."
+
+msgid "Downloading translation file."
+msgstr "Dil dosyası indiriliyor"
+
+msgid "Downloading unifont."
+msgstr "unifont indiriliyor"
 
 #, c-format
 msgid "Downloading: %s"
@@ -386,16 +528,25 @@ msgstr "İndirme: %s"
 
 #, c-format
 msgid "Downloading: %s as %s"
-msgstr ""
+msgstr "İndiriliyor: %s as %s"
 
 msgid "Downloads"
-msgstr ""
+msgstr "İndirmeler"
+
+msgid "Drawing"
+msgstr "Çizim"
 
 msgid "Drums"
 msgstr "Bateri"
 
+msgid "Dump savegame"
+msgstr "Oyun kayıtlarını dök"
+
+msgid "Duplicate ID3"
+msgstr "ID3 Çoğalt"
+
 msgid "Dutch"
-msgstr ""
+msgstr "Hollandaca"
 
 msgid "ERROR"
 msgstr "HATA"
@@ -462,6 +613,8 @@ msgid ""
 "ERROR: NTFS write disabled!\n"
 "(set ntfs_write=1)"
 msgstr ""
+"HATA: NTFS yazımı kapalı!\n"
+"(set ntfs_write=1)"
 
 #, c-format
 msgid "ERROR: No partitions found! (ret = %d)"
@@ -497,19 +650,24 @@ msgstr "HATA: SD moduna geçmede"
 msgid "ERROR: USB init! (%d)"
 msgstr "HATA: USB başlatmada! (%d)"
 
+msgid "ERROR: WBFS not mounted!"
+msgstr "HATA: WBFS mount edilemedi"
+
 msgid ""
 "ERROR: cIOS249rev18, cIOS222v4,\n"
 "cIOS223v4, cIOS224v5 or higher required\n"
 "for starting games from a FAT partition!\n"
 "Upgrade IOS249 or choose a different IOS."
 msgstr ""
+"cIOS223v4, cIOS224v5 veya daha üstü gerekiyor\n"
+"IOS249'u güncelleyin veya farklı bir IOS seçin."
 
 msgid "ERROR: cache: out of memory"
 msgstr "HATA: Önbellek: Bellek yetersiz"
 
 #, c-format
 msgid "ERROR: creating: %s"
-msgstr ""
+msgstr "HATA: oluşturuluyor: %s"
 
 #, c-format
 msgid "ERROR: get_frag_list: %d"
@@ -529,7 +687,7 @@ msgid "ERROR: not enough free space!!"
 msgstr "HATA: Yeterli yer yok!"
 
 msgid "ERROR: ntfs was not cleanly unmounted"
-msgstr ""
+msgstr "HATAİ ntfs unmount edilemedi"
 
 #, c-format
 msgid "ERROR: opening %.6s"
@@ -544,20 +702,27 @@ msgid "ERROR: setting up fragments %d %d"
 msgstr "HATA: parçalar ayarlanıyor %d %d"
 
 #, c-format
+msgid "ERROR: the drive or partition %s/ is not connected!!"
+msgstr "HATA: %s/ Sürücü veya bölüm bağlanamadı!!"
+
+#, c-format
 msgid "ERROR: writing %s (%d)."
 msgstr "HATA: yazma esnasında %s (%d)."
 
 msgid "EXTEND"
 msgstr "GENİŞLET"
 
+msgid "Educational"
+msgstr "Eğitici"
+
 msgid "Ejecting DVD..."
 msgstr "DVD çıkarılıyor..."
 
 msgid "English"
-msgstr ""
+msgstr "İngilizce"
 
 msgid "English Title"
-msgstr ""
+msgstr "İngilizce Başlık"
 
 msgid "Enter Code: "
 msgstr "Kod’u girin: "
@@ -571,20 +736,24 @@ msgstr "Ağ başlatma hatası."
 msgid "Error adding disc!"
 msgstr "Disk ekleme hatası!"
 
+#, c-format
+msgid "Error allocating buffer: %d"
+msgstr "Tampon ayırma hatası: %d"
+
 msgid "Error creating directory..."
-msgstr ""
+msgstr "Dizin oluşturma hatası"
 
 msgid "Error discarding options!"
 msgstr "Ayar iptali hatası!"
 
 msgid "Error downloading theme preview..."
-msgstr ""
+msgstr "Tema önizlemelerini indirme hatası..."
 
 msgid "Error downloading theme..."
-msgstr ""
+msgstr "Tema indirme hatası..."
 
 msgid "Error downloading themes..."
-msgstr ""
+msgstr "Temaları indirme hatası..."
 
 msgid "Error downloading update..."
 msgstr "Güncelleme indirme hatası..."
@@ -599,7 +768,7 @@ msgid "Error establishing connection"
 msgstr "Bağlantı kurma hatası"
 
 msgid "Error extracting theme..."
-msgstr ""
+msgstr "Tema ayıklama hatası..."
 
 msgid "Error opening database, update did not complete."
 msgstr "Veritabanı açılırken hata ile karşılaşıldı, güncelleme tamamlanamadı."
@@ -644,12 +813,15 @@ msgstr "HATA: URL yok."
 msgid "Error: no data."
 msgstr "HATA: Veri yok."
 
+msgid "Exercise"
+msgstr "Egzersiz"
+
 msgid "Exit"
-msgstr ""
+msgstr "Çıkış"
 
 #, c-format
 msgid "Extracting: %s"
-msgstr ""
+msgstr "Ayıklanıyor: %s"
 
 msgid "FAIL"
 msgstr "Başarısız"
@@ -667,22 +839,22 @@ msgid "FILL %d"
 msgstr "Dolduruluyor %d"
 
 msgid "FLAT cover"
-msgstr ""
+msgstr "FLAT Kapak"
 
 msgid "FULL cover"
-msgstr ""
+msgstr "FULL Kapak"
 
 msgid "Fav"
-msgstr ""
+msgstr "Fav"
 
 msgid "Fav: Off"
-msgstr ""
+msgstr "Fav: Off"
 
 msgid "Fav: On"
-msgstr ""
+msgstr "Fav: On"
 
 msgid "Favorite"
-msgstr ""
+msgstr "Favori"
 
 msgid "Favorite Games"
 msgstr "Favori oyunlar"
@@ -691,7 +863,7 @@ msgid "Favorite:"
 msgstr "Favori:"
 
 msgid "Favorites:"
-msgstr ""
+msgstr "Favoriler"
 
 msgid "Fighting"
 msgstr "Dövüş"
@@ -701,13 +873,16 @@ msgid "File not found! %s"
 msgstr "Dosya bulunamadı! %s"
 
 msgid "Filter"
-msgstr ""
+msgstr "Filtre"
 
 msgid "Filter Games"
 msgstr "Oyunları Filtrele"
 
 msgid "Filter by Controller"
 msgstr "Kumanda Filtresi"
+
+msgid "Filter by Game Type"
+msgstr "Oyun Tipine göre Filtrele"
 
 msgid "Filter by Genre"
 msgstr "Tür/çeşit filtresi"
@@ -716,38 +891,68 @@ msgid "Filter by Online Features"
 msgstr "Online Özellikler'e göre Filtre"
 
 msgid "Filter:"
-msgstr ""
+msgstr "Filtre"
+
+msgid "Fishing"
+msgstr "Balık Tutma"
+
+msgid "Fitness"
+msgstr "Fitness"
 
 msgid "Fixing EXTEND partition..."
 msgstr "Genişletilmiş bölüm/partition düzeltiliyor..."
 
+msgid "Flight Sim"
+msgstr "Uçuş Simülasyonu"
+
+msgid "Football"
+msgstr "Futbol"
+
+msgid "Force Devolution:"
+msgstr "Force Devolution:"
+
 msgid "Force NTSC"
-msgstr ""
+msgstr "NTSC zorla"
+
+msgid "Force NTSC 480p"
+msgstr "NTSC 480p Zorla"
+
+msgid "Force PAL"
+msgstr "PAL zorla"
+
+msgid "Force PAL 480p"
+msgstr "PAL 480p zorla"
 
 msgid "Force PAL50"
-msgstr ""
+msgstr "PAL50 zorla"
 
 msgid "Force PAL60"
-msgstr ""
+msgstr "PAL60 zorla"
 
 msgid "Formatting"
 msgstr "Biçimlendiriliyor"
 
 #, c-format
 msgid "Found %s"
-msgstr ""
+msgstr "Bulundu %s"
 
 msgid "French"
-msgstr ""
+msgstr "Fransızca"
 
 msgid "Full"
-msgstr ""
+msgstr "Full"
+
+msgid "Futuristic Racing"
+msgstr "Futuristik Yarış"
 
 msgid "GB"
 msgstr "GB"
 
 msgid "Game Default"
-msgstr ""
+msgstr "Oyun Varsayılanları"
+
+msgid "Game ID"
+msgstr "Oyun ID"
 
 msgid "Game Options"
 msgstr "Oyun Ayarları"
@@ -756,48 +961,72 @@ msgstr "Oyun Ayarları"
 msgid "Game Options:  %s"
 msgstr "Oyun Ayarları:  %s"
 
+msgid "Game Type"
+msgstr "Oyun Tipi"
+
+msgid "GameCube"
+msgstr "GameCube"
+
 msgid "Gamecube"
 msgstr "Gamecube"
 
 msgid "Gamer Card:"
-msgstr ""
+msgstr "Oyuncu Kartı"
 
 #, c-format
 msgid "Gamercard #%d reported: %.*s"
-msgstr ""
+msgstr "OyuncuKartı #%d bildirildi: %.*s"
 
 msgid "Genre"
-msgstr ""
+msgstr "Tür"
 
 msgid "German"
-msgstr ""
+msgstr "Alman"
 
 msgid "Global Options"
 msgstr "Genel Ayarlar"
+
+msgid "Golf"
+msgstr "Golf"
 
 msgid "Guitar"
 msgstr "Gitar"
 
 msgid "HQ cover"
-msgstr ""
+msgstr "HQ Kapak"
 
 msgid "HTTP Response was without a file"
 msgstr "HTTP karşılığı olan dosya yok"
 
+msgid "Health"
+msgstr "Sağlık"
+
+msgid "Hidden Object"
+msgstr "Gizli Nesne"
+
 msgid "Hide"
-msgstr ""
+msgstr "Gizli"
 
 msgid "Hide Game:"
 msgstr "Oyun Gizle:"
 
+msgid "Hockey"
+msgstr "Hokey"
+
 msgid "Hold button B to cancel."
 msgstr "İptal için B tuşuna basılı tutun."
 
+msgid "Home Menu"
+msgstr "Home Menü"
+
 msgid "Homebrew Channel"
-msgstr ""
+msgstr "Homebrew Channel"
 
 msgid "Hook Type:"
 msgstr "Hook Tipi:"
+
+msgid "Hunting"
+msgstr "Avcılık"
 
 #, c-format
 msgid "ID mismatch: [%.6s] [%.6s]"
@@ -815,13 +1044,19 @@ msgid ""
 "next time, copy boot.dol.bak over\n"
 "boot.dol and try again."
 msgstr ""
+"Cfg düzgün başlatılamazsa\n"
+"gelecek sefer, boot.dol.bak dosyasını\n"
+"boot.dol olarak değiştirip tekrar deneyin"
 
 #, c-format
 msgid "Inconsistency in LZ77 encoding %x"
 msgstr " LZ77 kodlamasında tutarsızlık %x"
 
+msgid "Infinity Base"
+msgstr "Sınırsız"
+
 msgid "Info"
-msgstr ""
+msgstr "Bilgi"
 
 #, c-format
 msgid "Info file: %s"
@@ -831,7 +1066,7 @@ msgid "Initializing Network..."
 msgstr "Ağ başlatılıyor..."
 
 msgid "Install"
-msgstr ""
+msgstr "Yükleme"
 
 msgid "Install Date"
 msgstr "Yükleme Tarihi"
@@ -857,22 +1092,34 @@ msgid "Invalid partition: '%s'"
 msgstr "Geçersiz bölüm/partition '%s'"
 
 msgid "Italian"
-msgstr ""
+msgstr "İtalyan"
 
 msgid "Japanese"
-msgstr ""
+msgstr "Japon"
 
 msgid "Japanese Title"
-msgstr ""
+msgstr "Japonca Başlık"
+
+msgid "Jump"
+msgstr "Zıplama"
+
+msgid "Karaoke"
+msgstr "Karaoke"
+
+msgid "Kart Racing"
+msgstr "Kart Yarışı"
 
 msgid "Keyboard"
 msgstr "Klavye"
 
 msgid "Korean"
-msgstr ""
+msgstr "Kore"
+
+msgid "LED:"
+msgstr "LED:"
 
 msgid "LEFT"
-msgstr ""
+msgstr "SOL"
 
 msgid "LOCKED!"
 msgstr "KİLİTLİ!"
@@ -886,6 +1133,9 @@ msgstr "Son oynama tarihi"
 msgid "Launch Methods"
 msgstr "Çalıştırma Yöntemleri"
 
+msgid "Life Simulation"
+msgstr "Yaşam Simülasyonu"
+
 msgid "Load OK!"
 msgstr "Yükleme OK!"
 
@@ -896,8 +1146,12 @@ msgstr "Yükleyici sürümü: %s"
 msgid "Loading ..."
 msgstr "Yükleniyor ..."
 
+#, c-format
+msgid "Loading..%s\n"
+msgstr "Yükleniyor..%s\n"
+
 msgid "Main"
-msgstr ""
+msgstr "Ana"
 
 msgid "Main Menu"
 msgstr "Ana Menü"
@@ -913,13 +1167,25 @@ msgid "Manage"
 msgstr "Yönet"
 
 msgid "Manage Cheats"
-msgstr ""
+msgstr "Hileleri Yönet"
+
+msgid "Management Sim"
+msgstr "Sim Yönetim"
+
+msgid "Martial Arts"
+msgstr "Dövüş Sanatları"
 
 msgid "Microphone"
 msgstr "Mikrofon"
 
+msgid "Mighty Plugin"
+msgstr "Mighty Plugin"
+
 msgid "Motion+"
 msgstr "Motion+"
+
+msgid "Motorcycle Racing"
+msgstr "Motorsiklet Yarışı"
 
 msgid "Mounting device, please wait..."
 msgstr "Aygıt bağlanıyor, lütfen bekleyin.."
@@ -959,6 +1225,20 @@ msgstr "Müzik: %s sayısında müzik dosyası bulundu: %i"
 
 msgid "Music: musicArray contents: "
 msgstr "Müzik: Kütüphane içeriği:"
+
+#, c-format
+msgid ""
+"NAND Emu Path:\n"
+"%s\n"
+msgstr ""
+"NAND Emu Yolu:\n"
+"%s\n"
+
+msgid "NAND Emu:"
+msgstr "NAND Emu:"
+
+msgid "NMM:"
+msgstr "NMM:"
 
 msgid ""
 "NOTE: CIOS249 before rev10:\n"
@@ -1010,6 +1290,13 @@ msgstr ""
 "NOT: Güncellemelerin geçerli\n"
 "olabilmesi için Restart etmeniz gerekmektedir."
 
+msgid ""
+"NOTE: may loader restart is required\n"
+"for the settings to take effect."
+msgstr ""
+"Ayarların etkin olabilmesi için\n"
+"Loader'in tekrar başlatılması gerekiyor"
+
 #, c-format
 msgid ""
 "NOTE: partition P#%d is type EXTEND but\n"
@@ -1023,19 +1310,25 @@ msgstr ""
 "türünü/partition değiştirmek için %s tuşuna basın."
 
 msgid "NTFS compression not supported!"
-msgstr ""
+msgstr "NTFS sıkıştırma desteklenmiyor!"
 
 msgid "NTFS encryption not supported!"
-msgstr ""
+msgstr "NTFS şifreleme desteklenmiyor!"
+
+msgid "NTSC-J patch:"
+msgstr "NTSC-J patch:"
+
+msgid "Neek2o Plugin"
+msgstr "Neek2o Eklentisi"
 
 msgid "Network connection established."
 msgstr "Ağ bağlantısı kuruldu."
 
 msgid "Network error. Can't update gamercards."
-msgstr ""
+msgstr "Network hatası. Gamecard'lar güncellenemiyor."
 
 msgid "New Themes"
-msgstr ""
+msgstr "Yeni Temalar"
 
 msgid "Nintendo DS"
 msgstr "Nintendo DS"
@@ -1051,19 +1344,25 @@ msgid "No domain part in URL '%s'"
 msgstr "Etki alanı olmayan URL '%s'"
 
 msgid "No games found!"
-msgstr ""
+msgstr "Oyun bulunamadı!"
 
 msgid "No partition selected!"
 msgstr "Bölüm/Partition seçilmedi!"
 
 msgid "No themes found."
-msgstr ""
+msgstr "Tema bulunamadı."
 
 msgid "No updates found."
 msgstr "Güncelleme bulunamadı."
 
+msgid "NoDisc:"
+msgstr "Disk Yok:"
+
 msgid "None found on disc"
 msgstr "Disk’te bir şey bulunamadı"
+
+msgid "Not Found boot.dol!"
+msgstr "boot.dol bulunamadı!"
 
 msgid "Not Found!"
 msgstr "Bulunamadı!"
@@ -1110,11 +1409,14 @@ msgstr "Ocarina: Çok fazla kod"
 msgid "Off"
 msgstr "Off"
 
+msgid "Off-Road Racing"
+msgstr "Off-Road Racing"
+
 msgid "On"
 msgstr "On"
 
 msgid "Online"
-msgstr ""
+msgstr "Online"
 
 msgid "Online Content"
 msgstr "Online İçerik "
@@ -1123,29 +1425,29 @@ msgid "Online Play"
 msgstr "Online Oynama"
 
 msgid "Online Players"
-msgstr ""
+msgstr "Online Players"
 
 msgid "Online Score List"
 msgstr "Online Skor Listesi "
 
 msgid "Online Updates"
-msgstr ""
+msgstr "Online Güncellemeler"
 
 msgid "Open Sort"
-msgstr ""
+msgstr "Sıralı Aç"
 
 msgid "Open Style"
-msgstr ""
+msgstr "Stil Aç"
 
 msgid "Opening DVD disc..."
 msgstr "DVD Disk açılıyor..."
 
 #, c-format
 msgid "Opening partition: %s"
-msgstr ""
+msgstr "Bölüm açılıyor: %s"
 
 msgid "Options"
-msgstr ""
+msgstr "Seçenekler"
 
 msgid "Options discarded for this game."
 msgstr "Bu oyun için seçenekler iptal edildi."
@@ -1156,8 +1458,21 @@ msgstr "Bu oyun için seçenekler kaydedildi."
 msgid "Out of memory"
 msgstr "Yetersiz Bellek"
 
+#, c-format
+msgid "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+msgstr "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
+
+msgid "PAD HOOK"
+msgstr "PAD HOOK"
+
+msgid "PAD HOOK:"
+msgstr "PAD HOOK:"
+
 msgid "Page:"
-msgstr ""
+msgstr "Sayfa:"
+
+msgid "Partial"
+msgstr "Partial"
 
 msgid "Partition:"
 msgstr "Bölüm:"
@@ -1170,7 +1485,13 @@ msgid "Party"
 msgstr "Parti"
 
 msgid "Paused Start"
-msgstr ""
+msgstr "Başlatma Durduruldu"
+
+msgid "Petanque"
+msgstr "Petank"
+
+msgid "Pinball"
+msgstr "Tilt"
 
 msgid "Platformer"
 msgstr "Platform"
@@ -1179,10 +1500,19 @@ msgid "Play Count"
 msgstr "Oynanma"
 
 msgid "Players"
-msgstr ""
+msgstr "Oyuncular"
 
 msgid "Please insert a game disc..."
 msgstr "Lütfen bir oyun diski yerleştirin..."
+
+msgid "Plugin:"
+msgstr "Eklenti"
+
+msgid "Poker"
+msgstr "Poker"
+
+msgid "Portal of Power"
+msgstr "Güç Geçidi"
 
 #, c-format
 msgid "Press %s button for options."
@@ -1246,11 +1576,11 @@ msgstr "Kodları atlamak için %s tuşuna basın"
 
 #, c-format
 msgid "Press %s button to sync FAT."
-msgstr ""
+msgstr "FAT senkronizasyonu için %s tuşuna basın."
 
 #, c-format
 msgid "Press %s for fullscreen preview"
-msgstr ""
+msgstr "Tam ekran önizleme için %s basın"
 
 #, c-format
 msgid "Press %s for game options"
@@ -1270,7 +1600,7 @@ msgstr "%s tuşuna basarak indirebilir ve güncelleyebilirsiniz"
 
 #, c-format
 msgid "Press %s to download this theme"
-msgstr ""
+msgstr "Bu temayı indirmek için %s basın"
 
 #, c-format
 msgid "Press %s to download, %s to return"
@@ -1316,20 +1646,26 @@ msgstr ""
 msgid "Press %s/%s to select device."
 msgstr "SOL/SAĞ tuşlarına basarak aygıtı seçin"
 
+msgid "Press 1 to skip WBFS mounting"
+msgstr "WBFS mount etmeyi iptal etmek için 1 tuşuna basın"
+
 msgid "Press 2 to reload IOS"
-msgstr ""
+msgstr "IOS'u tekrar yüklemek için 2 tuşuna basın"
+
+msgid "Press A to continue without config.txt"
+msgstr "config.txt olmadan devam etmek için A tuşuna basın"
 
 msgid "Press A to select device"
-msgstr ""
+msgstr "Aygıt seçmek için A tuşuna basın"
 
 msgid "Press B to exit to HBC"
-msgstr ""
+msgstr "HBC'den çıkmak için B tuşuna basın"
 
 msgid "Press HOME to reset"
-msgstr ""
+msgstr "Resetleme için HOME tuşuna basın"
 
 msgid "Press LEFT/RIGHT to select IOS"
-msgstr ""
+msgstr "IOS seçmek için SOL/SAĞ tuşlarına basın"
 
 msgid "Press any button to continue..."
 msgstr "Devam etmek için herhangi bir tuşa basın..."
@@ -1340,16 +1676,22 @@ msgstr "Çıkmak için herhangi bir tuşa basın..."
 msgid "Press any button to restart..."
 msgstr "Tekrar başlatmak için herhangi bir tuşa basın..."
 
+msgid "Press any button.\n"
+msgstr "Herhangi bir tuşa basın.\n"
+
 msgid "Press any button..."
 msgstr "Herhangi bir tuşa basın..."
 
 #, c-format
 msgid "Press button %s to download covers."
-msgstr ""
+msgstr "Kapakları indirmek için %S tuşuna basın."
 
 #, c-format
 msgid "Press button %s to eject DVD."
 msgstr "DVD’yi çıkarmak için %s tuşuna basın"
+
+msgid "Priiloader"
+msgstr "Priiloader"
 
 msgid "Profile:"
 msgstr "Profil:"
@@ -1359,7 +1701,7 @@ msgid "Profile: %s"
 msgstr "Profil: %s"
 
 msgid "Program Updates"
-msgstr ""
+msgstr "Program Güncellemeleri"
 
 msgid "Publisher"
 msgstr "Yayınlayan"
@@ -1368,13 +1710,13 @@ msgid "Puzzle"
 msgstr "Puzzle"
 
 msgid "Quit"
-msgstr ""
+msgstr "Çık"
 
 msgid "RAW"
 msgstr "RAW"
 
 msgid "RIGHT"
-msgstr ""
+msgstr "SAĞ"
 
 msgid "RPG"
 msgstr "RPG"
@@ -1382,12 +1724,15 @@ msgstr "RPG"
 msgid "Racing"
 msgstr "Yarış"
 
+msgid "Rail Shooter"
+msgstr "Rail Shhoter"
+
 #, c-format
 msgid "Rated %s"
 msgstr "Değerlendirme %s"
 
 msgid "Rating"
-msgstr ""
+msgstr "Derecelendirme"
 
 msgid "Read"
 msgstr "Oku"
@@ -1396,7 +1741,10 @@ msgid "Reading BCA..."
 msgstr "BCA okunuyor..."
 
 msgid "Reboot"
-msgstr ""
+msgstr "Tekrar Başlat"
+
+msgid "Region"
+msgstr "Bölge"
 
 msgid "Release Date"
 msgstr "Yayın Tarihi"
@@ -1418,13 +1766,16 @@ msgid "Rhythm"
 msgstr "Ritim"
 
 msgid "Rows:"
-msgstr ""
+msgstr "Sıralar:"
+
+msgid "Rugby"
+msgstr "Ragbi"
 
 msgid "Running benchmark, please wait"
 msgstr "Karşılaştırma değerleri yükleniyor, lütfen bekleyin"
 
 msgid "S. Chinese"
-msgstr ""
+msgstr "Basit Çince"
 
 msgid "SD/SDHC Card"
 msgstr "SD/SDHC kart"
@@ -1436,13 +1787,19 @@ msgid "Save .gct"
 msgstr ".gct kaydet"
 
 msgid "Save Debug"
-msgstr ""
+msgstr "Hata ayıklama kaydet"
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Ayarları kaydet"
 
 msgid "Save debug.log"
-msgstr ""
+msgstr "debug.log kaydet"
+
+msgid "Savegame not found.\n"
+msgstr "Save dosyası bulunamadı.\n"
+
+msgid "Savegame:"
+msgstr "Save Dosyası:"
 
 msgid "Saving Settings... "
 msgstr "Ayarlar kaydediliyor..."
@@ -1457,14 +1814,23 @@ msgid "Saving settings..."
 msgstr "Ayarlar kaydediliyor..."
 
 msgid "Saving:"
-msgstr ""
+msgstr "Kaydediliyor:"
 
 #, c-format
 msgid "Saving: %s"
 msgstr "%s kaydediliyor"
 
+msgid "Screenshot:"
+msgstr "Ekran görüntüsü:"
+
 msgid "Scroll:"
-msgstr ""
+msgstr "Scroll:"
+
+msgid "Search"
+msgstr "Arama"
+
+msgid "Search for:"
+msgstr "Aramak:"
 
 msgid "Select Alternative .dol:"
 msgstr "Alternatif .dol seçimi:"
@@ -1481,6 +1847,9 @@ msgstr "Bölüm/Partition seç"
 msgid "Select all"
 msgstr "Tümünü seç"
 
+msgid "Select device:"
+msgstr "Aygıt seç:"
+
 msgid "Select the game you want to boot"
 msgstr "Yüklenmesini istediğiniz oyunu seçin"
 
@@ -1488,57 +1857,75 @@ msgid "Selected Game"
 msgstr "Seçilen Oyun"
 
 msgid "Settings"
-msgstr ""
+msgstr "Ayarlar"
 
 msgid "Shooter"
 msgstr "Shooter"
 
 msgid "Show All"
-msgstr ""
+msgstr "Hepsini Göster"
 
 msgid "Show cIOS info"
-msgstr ""
+msgstr "cIOS bilgisini göster"
 
 msgid "Shutdown"
-msgstr ""
+msgstr "Kapat"
 
 msgid "Side:"
-msgstr ""
+msgstr "Bölüm:"
+
+msgid "Sim Racing"
+msgstr "Yarış Simülasyonu"
 
 msgid "Simulation"
 msgstr "Simulasyon"
 
 msgid "Size(GB) Type  Mount Used"
-msgstr ""
+msgstr "Size(GB) Type  Mount Used"
 
 #, c-format
 msgid "Size: %d bytes"
 msgstr "Boyut: %d bytes"
 
+msgid "Skateboard"
+msgstr "Kaykay"
+
+msgid "Skateboarding"
+msgstr "Kaykay"
+
+msgid "Skiing"
+msgstr "Kayakçılık"
+
+msgid "Snowboarding"
+msgstr "Snowboard"
+
+msgid "Soccer"
+msgstr "Futbol"
+
 msgid "Sort"
-msgstr ""
+msgstr "Sırala"
 
 msgid "Sort Games"
 msgstr "Oyunları Sırala"
 
 msgid "Sort Order:"
-msgstr ""
+msgstr "Basamakla:"
 
 msgid "Sort Type:"
-msgstr ""
+msgstr "Tipe göre sırala"
 
 #, c-format
 msgid "Sort: %s-%s"
 msgstr "Sırala: %s-%s"
 
 msgid "Spanish"
-msgstr ""
+msgstr "İspanyolca"
 
 msgid "Sports"
 msgstr "Spor"
 
 msgid "Start"
-msgstr ""
+msgstr "Başlat"
 
 msgid "Start Game"
 msgstr "Oyunu Başlat"
@@ -1546,43 +1933,66 @@ msgstr "Oyunu Başlat"
 msgid "Start this game?"
 msgstr "Bu oyunu çalıştırayım mı?"
 
+msgid "Stealth Action"
+msgstr "Stealth Action"
+
 msgid "Stopping DVD..."
-msgstr ""
+msgstr "DVD Durduruluyor..."
 
 msgid "Strategy"
 msgstr "Strateji"
 
 msgid "Style"
-msgstr ""
+msgstr "Stil"
 
 msgid "Style:"
-msgstr ""
+msgstr "Stil:"
+
+msgid "Surfing"
+msgstr "Sörf"
+
+msgid "Survival Horror"
+msgstr "Survival Horror"
 
 msgid "Sync FAT free space info?"
-msgstr ""
+msgstr "FAT boş alan bilgisi senkronize ediliyor?"
 
 msgid "Synchronizing, please wait."
-msgstr ""
+msgstr "Senkronize ediliyor, lütfen bekleyin"
+
+msgid "Synopsis"
+msgstr "Özet"
+
+msgid "Synopsis Length"
+msgstr "Sür özeti"
 
 msgid "System"
-msgstr ""
+msgstr "Sistem"
 
 msgid "System Def."
-msgstr ""
+msgstr "Sistem Ayarları"
 
 msgid "T. Chinese"
-msgstr ""
+msgstr "T. Çince"
+
+msgid "Table Tennis"
+msgstr "Masa Tenisi"
+
+msgid "Tennis"
+msgstr "Tenis"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Theme Info"
-msgstr ""
+msgstr "Tema Bilgisi"
 
 msgid ""
 "Theme may be too large.\n"
 "Reboot of Cfg suggested.\n"
 msgstr ""
+"Tema çok büyük olabilir.\n"
+"CFG'nin yeniden başlatılması öneriliyor.\n"
 
 msgid "Theme:"
 msgstr "Tema:"
@@ -1592,13 +2002,13 @@ msgid "Theme: %s"
 msgstr "Tema: %s"
 
 msgid "Themes provided by wii.spiffy360.com"
-msgstr ""
+msgstr "wii.spiffy360.com tarafından sağlanan temalar"
 
 msgid "Themes to download"
-msgstr ""
+msgstr "Temalar indirildi"
 
 msgid "Themes with updates"
-msgstr ""
+msgstr "Tema güncellemeleri"
 
 msgid "Title"
 msgstr "Başlık"
@@ -1614,15 +2024,30 @@ msgstr "Çok fazla kod satırı!"
 msgid "Too many fragments! %d"
 msgstr "Çok fazla parça! %d"
 
+msgid "Total Body Tracking"
+msgstr "Total Body Tracking"
+
+msgid "Train Simulation"
+msgstr "Tren Simülasyonu"
+
+msgid "Trivia"
+msgstr "Trivia"
+
+msgid "Truck Racing"
+msgstr "Kamyon Yarışı"
+
 #, c-format
 msgid "Trying (url#%d) ..."
 msgstr "Deneniyor (url#%d)..."
 
+msgid "Turntable"
+msgstr "Turntable"
+
 msgid "UNUSED"
-msgstr ""
+msgstr "KULLANILMAYAN"
 
 msgid "UP"
-msgstr ""
+msgstr "YUKARI"
 
 #, c-format
 msgid "URL '%s' doesn't start with 'http://'"
@@ -1645,25 +2070,22 @@ msgid "Unknown syntax!"
 msgstr "Bilinmeyen sözdizimi!"
 
 msgid "Unplayed"
-msgstr ""
+msgstr "Oynanmayan"
 
 msgid "Unplayed Games"
 msgstr "Oynanmamış Oyunlar"
 
-msgid "Update WiiTDB Game Database"
-msgstr "WiiTDB Oyun Veritabanı Güncelleştirme"
-
 msgid "Update themes"
-msgstr ""
-
-msgid "Update titles.txt"
-msgstr "titles.txt Güncelleştir"
+msgstr "Temaları güncelleştir"
 
 msgid "Updates"
-msgstr ""
+msgstr "Güncelleştirmeler"
 
 msgid "Updating database."
 msgstr "Veritabanı güncelleştiriliyor..."
+
+msgid "Updating devolution"
+msgstr "Devolution güncelleniyor"
 
 #, c-format
 msgid "Used: %.1fGB Free: %.1fGB [%d]"
@@ -1672,8 +2094,35 @@ msgstr "Kullanılan: %.1fGB Boş: %.1fGB [%d]"
 msgid "Using Saved Alternative .dol:"
 msgstr "Kaydedilmiş Alternatif .dol ile:"
 
+msgid "VC-Arcade"
+msgstr "VC-Arcade"
+
+msgid "VC-Commodore 64"
+msgstr "VC-Commodore 64"
+
+msgid "VC-N64"
+msgstr "VC-N64"
+
+msgid "VC-NES"
+msgstr "VC-NES"
+
+msgid "VC-Neo Geo"
+msgstr "VC-Neo Geo"
+
+msgid "VC-SMS"
+msgstr "VC-SMS"
+
+msgid "VC-SNES"
+msgstr "VC-SNES"
+
+msgid "VC-Sega Genesis"
+msgstr "VC-Sega Genesis"
+
+msgid "VC-TurboGrafx-16"
+msgstr "VC-TurboGrafx-16"
+
 msgid "Version"
-msgstr ""
+msgstr "Versiyon"
 
 msgid "Video Patch:"
 msgstr "Video Yaması:"
@@ -1682,10 +2131,16 @@ msgid "Video:"
 msgstr "Video:"
 
 msgid "View"
-msgstr ""
+msgstr "Görünüm"
+
+msgid "Virtual Pet"
+msgstr "Sanal Hayvan"
 
 msgid "Vitality Sensor"
 msgstr "Vitality Sensor "
+
+msgid "Volleyball"
+msgstr "Voleybol"
 
 msgid "WARNING:"
 msgstr "UYARI:"
@@ -1694,17 +2149,32 @@ msgstr "UYARI:"
 msgid "WBFS: %.1fGB free of %.1fGB"
 msgstr "WBFS: %.1fGB boş, tamamı %.1fGB"
 
+msgid "Watercraft Racing"
+msgstr "Watercraft Racing"
+
 msgid "Wheel"
 msgstr "Direksiyon"
+
+msgid "Wide Screen:"
+msgstr "Geniş Ekran"
+
+msgid "Wii"
+msgstr "Wii"
+
+msgid "Wii Channel"
+msgstr "Wii Channel"
 
 msgid "Wii Speak"
 msgstr "Wii Speak"
 
-msgid "WiiTDB Game Database"
-msgstr ""
+msgid "WiiWare"
+msgstr "WiiWare"
 
 msgid "Wiimote"
 msgstr "Wiimote"
+
+msgid "Wrestling"
+msgstr "Wrestling"
 
 msgid "Write Playlog:"
 msgstr "Playlog yazma:"
@@ -1729,6 +2199,8 @@ msgid ""
 "and plugging back the device,\n"
 "or just wait some more"
 msgstr ""
+"Cihazı prizden çıkarıp tekrar takabilirsiniz\n"
+"veya biraz daha bekleyebilirsiniz"
 
 msgid "Zapper"
 msgstr "Zapper"
@@ -1743,19 +2215,19 @@ msgid "[ SAVED ]"
 msgstr "[ KAYDEDİLDİ ]"
 
 msgid "[HOME]"
-msgstr ""
+msgstr "[HOME]"
 
 msgid "[No HQ]"
-msgstr ""
+msgstr "[HQ Değil]"
 
 msgid "[USED]"
 msgstr "[KULLANILAN]"
 
 msgid "[default]"
-msgstr ""
+msgstr "[varsayılan]"
 
 msgid "[saved]"
-msgstr ""
+msgstr "[kaydedildi]"
 
 #, c-format
 msgid "bad wbfs file: %s"
@@ -1772,7 +2244,7 @@ msgid "dest: %p - %p"
 msgstr "hedef: %p - %p"
 
 msgid "discard"
-msgstr ""
+msgstr "discard"
 
 #, c-format
 msgid "domain %s could not be resolved"
@@ -1793,7 +2265,7 @@ msgid "format"
 msgstr "biçimlendirme"
 
 msgid "free"
-msgstr ""
+msgstr "boş"
 
 #, c-format
 msgid "linear read speed: %.2f mb/s"
@@ -1801,6 +2273,10 @@ msgstr "Liner okuma hızı: %.2f mb/s"
 
 msgid "linear..."
 msgstr "liner..."
+
+#, c-format
+msgid "loader.bin size: %d"
+msgstr "loader.bin boyutu: %d"
 
 #, c-format
 msgid "music file too big (%d) %s"
@@ -1824,6 +2300,12 @@ msgstr "Sayfa"
 msgid "parse error"
 msgstr "Ayrıştırma Hatası"
 
+msgid "r51-"
+msgstr "r51-"
+
+msgid "r52+"
+msgstr "r52+"
+
 #, c-format
 msgid "random read speed: %.2f mb/s"
 msgstr "Rastgele okuma hızı: %.2f mb/s"
@@ -1832,10 +2314,10 @@ msgid "random..."
 msgstr "Rastgele..."
 
 msgid "reset"
-msgstr ""
+msgstr "Reset"
 
 msgid "revert"
-msgstr ""
+msgstr "Döndür"
 
 msgid "save"
 msgstr "kaydet"
@@ -1845,7 +2327,7 @@ msgid "split error: %s"
 msgstr "Ayırma hatası: %s"
 
 msgid "uDraw GameTablet"
-msgstr ""
+msgstr "uDraw GameTablet"
 
 msgid "unable to open wii disc"
 msgstr "Wii diski açılamıyor"
@@ -1856,6 +2338,9 @@ msgstr "kullanılıyor: %p - %p"
 
 #~ msgid "%s No games found!!"
 #~ msgstr "%s Hiçbir oyun bulunamadı!"
+
+#~ msgid "Booting Wii game, please wait..."
+#~ msgstr "Wii oyunu başlatılıyor, lütfen bekleyin..."
 
 #~ msgid "Download Game Database"
 #~ msgstr "Oyun Veritabanını İndir"
@@ -1949,6 +2434,12 @@ msgstr "kullanılıyor: %p - %p"
 
 #~ msgid "Switching to IOS222 for FAT support."
 #~ msgstr "FAT desteği için IOS222’yi ayarla."
+
+#~ msgid "Update WiiTDB Game Database"
+#~ msgstr "WiiTDB Oyun Veritabanı Güncelleştirme"
+
+#~ msgid "Update titles.txt"
+#~ msgstr "titles.txt Güncelleştir"
 
 #~ msgid "[ SD/SDHC Card ]"
 #~ msgstr "[ SD/SDHC Kart ]"

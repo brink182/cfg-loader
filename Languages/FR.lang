@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: CFG USB Loader\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-10 11:11-0500\n"
-"PO-Revision-Date: 2014-01-05 04:19+0100\n"
+"PO-Revision-Date: 2014-02-12 23:19+0100\n"
 "Last-Translator: JABE <wii64000@gmail.com>\n"
 "Language-Team: FRENCH <http://wii64.free.fr>\n"
 "MIME-Version: 1.0\n"
@@ -45,15 +45,15 @@ msgstr "%s, veuillez patienter..."
 
 #, c-format
 msgid "%s: Favorites"
-msgstr ""
+msgstr "%s: Favoris"
 
 #, c-format
 msgid "%s: GUI "
-msgstr ""
+msgstr "%s: interface graphique "
 
 #, c-format
 msgid "%s: Options "
-msgstr ""
+msgstr "%s: Options "
 
 #, c-format
 msgid "(%d online)"
@@ -236,7 +236,7 @@ msgid "CFG base: %s"
 msgstr "Base de CFG"
 
 msgid "Camera"
-msgstr ""
+msgstr "Appareil photo"
 
 msgid "Can not dump GC savegames.\n"
 msgstr "Dump de sauvegarde GC impossible.\n"
@@ -515,10 +515,10 @@ msgid "Downloading titles.txt ..."
 msgstr "Téléchargement de titles.txt ..."
 
 msgid "Downloading translation file."
-msgstr ""
+msgstr "Téléchargement du fichier de traduction."
 
 msgid "Downloading unifont."
-msgstr ""
+msgstr "Téléchargement d'unifont"
 
 #, c-format
 msgid "Downloading: %s"
@@ -1053,7 +1053,7 @@ msgid "Inconsistency in LZ77 encoding %x"
 msgstr "Incohérence dans l'encodage LZ77 %x"
 
 msgid "Infinity Base"
-msgstr ""
+msgstr "Lecteur Infinity"
 
 msgid "Info"
 msgstr "Info"
@@ -1465,7 +1465,7 @@ msgstr "Plus de mémoire disponible"
 
 #, c-format
 msgid "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
-msgstr ""
+msgstr "P1 %3u%% | P2 %3u%% | P3 %3u%% | P4 %3u%%"
 
 msgid "PAD HOOK"
 msgstr "PAD HOOK"
@@ -1517,7 +1517,7 @@ msgid "Poker"
 msgstr "Poker"
 
 msgid "Portal of Power"
-msgstr ""
+msgstr "Portail du Pouvoir"
 
 #, c-format
 msgid "Press %s button for options."
@@ -1893,7 +1893,7 @@ msgid "Size: %d bytes"
 msgstr "Taille: %d octets"
 
 msgid "Skateboard"
-msgstr ""
+msgstr "Skateboard"
 
 msgid "Skateboarding"
 msgstr "Skateboard"
@@ -1969,7 +1969,7 @@ msgid "Synopsis"
 msgstr "Synopsis"
 
 msgid "Synopsis Length"
-msgstr "Longueur synopsis"
+msgstr "Longueur du synopsis"
 
 msgid "System"
 msgstr "Système"
@@ -2030,7 +2030,7 @@ msgid "Too many fragments! %d"
 msgstr "Trop de fragments ! %d"
 
 msgid "Total Body Tracking"
-msgstr ""
+msgstr "Cardiofréquencemètre"
 
 msgid "Train Simulation"
 msgstr "Simulation train"
@@ -2046,7 +2046,7 @@ msgid "Trying (url#%d) ..."
 msgstr "Essai (url#%d) ..."
 
 msgid "Turntable"
-msgstr ""
+msgstr "Platine"
 
 msgid "UNUSED"
 msgstr "INUTILISÉ"

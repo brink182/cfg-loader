@@ -66,14 +66,14 @@ u32 IOSPATCH_Apply() {
 		disable_memory_protection();
 		ret = apply_patch("es_set_ahbprot", es_set_ahbprot_pattern, sizeof(es_set_ahbprot_pattern), es_set_ahbprot_patch, sizeof(es_set_ahbprot_patch), 25);
 	}
-	if (ret) {
-		IOS_ReloadIOS(IOS_GetVersion());
-	} else {
-		return 0;
-	}
+	//if (ret) {
+	//	IOS_ReloadIOS(IOS_GetVersion());
+	//} else {
+	//	return 0;
+	//}
 	
-    if (HAVE_AHBPROT) {
-        disable_memory_protection();
+    //if (HAVE_AHBPROT) {
+    //    disable_memory_protection();
         //count += apply_patch("di_readlimit", di_readlimit_old, sizeof(di_readlimit_old), di_readlimit_patch, sizeof(di_readlimit_patch), 12);
         //count += apply_patch("isfs_permissions", isfs_permissions_old, sizeof(isfs_permissions_old), isfs_permissions_patch, sizeof(isfs_permissions_patch), 0);
         //count += apply_patch("es_setuid", setuid_old, sizeof(setuid_old), setuid_patch, sizeof(setuid_patch), 0);
@@ -81,6 +81,6 @@ u32 IOSPATCH_Apply() {
         //count += apply_patch("hash_check", hash_old, sizeof(hash_old), hash_patch, sizeof(hash_patch), 1);
         //count += apply_patch("new_hash_check", new_hash_old, sizeof(new_hash_old), hash_patch, sizeof(hash_patch), 1);
 		//count += apply_patch("add ticket patch", addticket_vers_check, sizeof(addticket_vers_check), addticket_patch, sizeof(addticket_patch), 0);
-    }
+    //}
     return count;
 }

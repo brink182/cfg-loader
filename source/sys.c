@@ -626,8 +626,6 @@ int ReloadIOS(int subsys, int verbose)
 {
 	int ret = -1;
 	MountTable mnt;
-	
-	//IOSPATCH_Apply();
 
 	if (verbose) {
 		printf_("IOS(%d) ", CFG.ios);

@@ -6,6 +6,6 @@
 
 #include <gccore.h>
 
-//u32 IOSPATCH_Apply();
+u32 IOSPATCH_Apply();
 
 #endif /* _IOSPATCH_H */

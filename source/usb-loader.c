@@ -20,6 +20,7 @@
 #include "mload.h"
 #include "usbstorage.h"
 #include "console.h"
+#include "RuntimeIOSPatch.h"
 
 // libogc < 1.8.5 can hang if wiimote is initialized multiple times
 // (in case ios is reload 2x) so we delay wpad to later
@@ -70,6 +71,8 @@ void print_ios()
 int main(int argc, char **argv)
 {
 	s32 ret;
+	
+	IOSPATCH_Apply();
 
 	devoptab_list[STD_OUT] = &dotab_nopout;
 	devoptab_list[STD_ERR] = &dotab_nopout;

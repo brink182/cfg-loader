@@ -624,6 +624,9 @@ extern s32 wbfsDev;
 
 int ReloadIOS(int subsys, int verbose)
 {
+	
+	IOSPATCH_Apply();
+	
 	int ret = -1;
 	MountTable mnt;
 

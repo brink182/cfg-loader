@@ -13,6 +13,10 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r75
+date = 2014-5-5
+-Added missing NintendontConfig.h file it should compile now.
+
 Unreleased = 70r74
 date = 2014-5-5
 -Added Nintendont support

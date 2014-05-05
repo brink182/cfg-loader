@@ -721,6 +721,7 @@ extern struct TextMap map_gui_style[];
 extern struct TextMap map_ios[];
 extern struct TextMap map_nand_emu[];
 extern struct TextMap map_channel_boot[];
+extern struct TextMap map_gc_boot[];
 extern char *names_vpatch[CFG_VIDEO_PATCH_NUM];
 extern u8	  cIOS_base[];
 

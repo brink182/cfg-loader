@@ -84,7 +84,8 @@ u64 getDMLGameSize(struct discHdr *header);
 s32 copy_DML_Game_to_SD(struct discHdr *header);
 s32 delete_Old_Copied_DML_Game();
 char *get_DM_Game_Folder(char *path);
-bool is_gc_game_on_bootable_drive(struct discHdr *header, bool devo);
+bool is_gc_game_on_bootable_drive(struct discHdr *header);
+void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCheatPath);
 #endif //GC_H_
 
 #ifdef __cplusplus

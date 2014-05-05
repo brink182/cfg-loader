@@ -261,10 +261,30 @@ struct TextMap map_nand_emu[] =
 	{ NULL, -1 }
 };
 
+struct TextMap map_boot_method[] =	//combination of map_channel_boot and map_gc_boot
+{
+	{ "Mighty Plugin", 0 },
+	{ "Neek2o Plugin", 1  },
+	{ "Default", 0 },
+	{ "DIOS MIOS", 1  },
+	{ "Devolution", 2  },
+	{ "Nintendont", 3  },
+	{ NULL, -1 }
+};
+
 struct TextMap map_channel_boot[] =
 {
 	{ "Mighty Plugin", 0 },
 	{ "Neek2o Plugin", 1  },
+	{ NULL, -1 }
+};
+
+struct TextMap map_gc_boot[] =
+{
+	{ "Default", 0 },
+	{ "DIOS MIOS", 1  },
+	{ "Devolution", 2  },
+	{ "Nintendont", 3  },
 	{ NULL, -1 }
 };
 
@@ -2240,7 +2260,7 @@ void cfg_set_game(char *name, char *val, struct Game_CFG *game_cfg)
 
 	cfg_map_auto("video_patch", map_video_patch, &game_cfg->video_patch);
 	cfg_map_auto("nand_emu", map_nand_emu, &game_cfg->nand_emu);
-	cfg_map_auto("channel_boot", map_channel_boot, &game_cfg->channel_boot);
+	cfg_map_auto("channel_boot", map_boot_method, &game_cfg->channel_boot);
 
 	cfg_bool("vidtv", &game_cfg->vidtv);
 	cfg_bool("country_patch", &game_cfg->country_patch);
@@ -2965,7 +2985,10 @@ bool CFG_Save_Settings(int verbose)
 		SAVE_STR("video_patch", s);
 		s = map_get_name(map_nand_emu, game_cfg->nand_emu);
 		SAVE_STR("nand_emu", s);
-		s = map_get_name(map_channel_boot, game_cfg->channel_boot);
+		if (strlen((char*)cfg_game[i].id) == 4)
+			s = map_get_name(map_channel_boot, game_cfg->channel_boot);
+		else
+			s = map_get_name(map_gc_boot, game_cfg->channel_boot);
 		SAVE_STR("channel_boot", s);
 		SAVE_BOOL(vidtv);
 		SAVE_BOOL(wide_screen);

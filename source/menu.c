@@ -60,6 +60,7 @@
 #include "dol.h"
 #include "savegame.h"
 #include "channel.h"
+#include "RuntimeIOSPatch.h"
 
 void _unstub_start();
 
@@ -186,6 +187,14 @@ char *str_channel_boot[2] =
 {
 	gts("Mighty Plugin"),
 	gts("Neek2o Plugin")
+};
+
+char *str_gc_boot[4] =
+{
+	gts("Default"),
+	gts("DIOS MIOS")
+	gts("Devolution")
+	gts("Nintendont")
 };
 
 int Menu_Global_Options();
@@ -1988,6 +1997,10 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			PRINT_OPT_S(N,(V?gt("On"):gt("Off"))) 
 			
 		if (header->magic == GC_GAME_ON_DRIVE) {
+			int num_gc_boot = map_get_num(map_gc_boot);
+			char *names_gc_boot[num_gc_boot];
+			num_gc_boot = map_to_list(map_gc_boot, num_gc_boot, names_gc_boot);
+
 			menu_window_begin(&menu, win_size, NUM_OPT);
 			if (menu_window_mark(&menu))
 				PRINT_OPT_S(gt("Favorite:"), is_favorite(header->id) ? gt("Yes") : gt("No"));
@@ -2022,7 +2035,7 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			if (menu_window_mark(&menu))
 				PRINT_OPT_B(gt("PAD HOOK:"), opt_padhook);				
 			if (menu_window_mark(&menu))
-				PRINT_OPT_B(gt("Devolution:"), opt_anti_002);
+				PRINT_OPT_S(gt("Boot method:"), gt(names_gc_boot[game_cfg->channel_boot]));
 			if (menu_window_mark(&menu))
 				PRINT_OPT_B(gt("Screenshot:"), opt_screenshot);
 			if (menu_window_mark(&menu))
@@ -2214,8 +2227,8 @@ int Menu_Boot_Options(struct discHdr *header, bool disc) {
 			case 12: // PAD HOOK)
 				CHANGE(game_cfg->hooktype, 1);
 				break;	
-			case 13: // Devolution (fix_002)
-				CHANGE(game_cfg->fix_002, 1);
+			case 13: // gc Boot Method
+				CHANGE(game_cfg->channel_boot, 3);
 				break;
 			case 14: // Screenshot
 				CHANGE(game_cfg->screenshot, 1);
@@ -4724,7 +4737,8 @@ L_repaint:
 		return;
 	}
 	
-	if (header->magic == GC_GAME_ON_DRIVE && !is_gc_game_on_bootable_drive(header, (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0))) {
+	//if we need to copy GC file
+	if (header->magic == GC_GAME_ON_DRIVE && !is_gc_game_on_bootable_drive(header)) {
 		char gamePath[255];
 		char drive[255];
 		
@@ -4767,7 +4781,7 @@ L_repaint:
 		copy_DML_Game_to_SD(header);
 	}
 	
-	if (gc || (header->magic == GC_GAME_ON_DRIVE && is_gc_game_on_bootable_drive(header, (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0))))
+	if (gc || (header->magic == GC_GAME_ON_DRIVE && is_gc_game_on_bootable_drive(header)))
 	{
 		get_time(&TIME.playstat1);
 		setPlayStat(header->id); //I'd rather do this after the check, but now you unmount fat before that ;)
@@ -4822,7 +4836,24 @@ L_repaint:
 			}
 		}
 		
-		if (CFG.game.fix_002 > 0 || CFG.dml == CFG_MIOS || CFG.devo > 0)
+		if ((CFG.game.channel_boot == 3)	 ||	//Boot GC using Nintendont
+	        (CFG.game.channel_boot == 0 && CFG.devo == 2))
+		{
+			Nintendont_set_options(header, cheatPath, newCheatPath);
+
+			CFG.ios = 58;
+			CFG.game.ios_idx = 58;
+//			IOSPATCH_Apply();
+			char args[255][255] = {{"\0"}};
+			int i = 0;
+			Menu_Plugin(PLUGIN_NINTENDONT, args, i);
+			return;	// should never get here
+
+		}
+
+		if ((CFG.game.channel_boot == 2) || //boot GC using Devolution
+		    (CFG.game.channel_boot == 1 && CFG.dml == CFG_MIOS) ||
+	        (CFG.game.channel_boot == 0 && CFG.devo == 1))
 		{
 			if (getDMLDisk1Size(header) != GC_GAME_SIZE) {
 				printf_x(gt("Devolution only accepts clean dumps!\n"));
@@ -4869,6 +4900,7 @@ L_repaint:
 			LAUNCH();
 		} 
 		
+		//Start GC using DIOS MIOS
 		dbg_printf("Setting video mode...\n");
 		if(CFG.game.video == 0)
 		{
@@ -5568,6 +5600,9 @@ void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
 			break;
 		case PLUGIN_NEEK:
 			snprintf(fname, sizeof(fname), "%s/plugins/neek2o.dol", USBLOADER_PATH);
+			break;
+		case PLUGIN_NINTENDONT:
+			snprintf(fname, sizeof(fname), "/apps/nintendont/boot.dol");
 			break;
 		default:
 			return;

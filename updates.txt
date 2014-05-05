@@ -13,6 +13,18 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r74
+date = 2014-5-5
+-Added Nintendont support
+
+Unreleased = 70r73
+date = 2014-5-4
+-Changes for AHBProt support
+
+Unreleased = 70r72
+date = 2014-5-4
+-Changes for AHBProt support
+
 Unreleased = 70r71
 date = 2014-4-21
 -Updated FR.lang (Thanks JABE)

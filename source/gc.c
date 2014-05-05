@@ -21,6 +21,7 @@
 #include "disc.h"
 #include "fileOps.h"
 #include "cfg.h"
+#include "NintendontConfig.h"
 
 #define MAX_FAT_PATH 1024
 
@@ -622,10 +623,113 @@ char *get_DM_Game_Folder(char *path) {
 	return folder;
 }
 
-bool is_gc_game_on_bootable_drive(struct discHdr *header, bool devo) {
+bool is_gc_game_on_bootable_drive(struct discHdr *header) {
 	bool ret = false;
-	if (!devo) ret = strncmp(header->path, dm_boot_drive, strlen(dm_boot_drive)) == 0;
-	else ret = strncmp(header->path, "sd:", 3) == 0 || strncmp(header->path, "usb:", 4) == 0;
+
+	if ((CFG.game.channel_boot == 3) ||		//use nintendont
+	    (CFG.game.channel_boot == 0 && CFG.devo == 2))
+	{
+		ret = strncmp(header->path, "sd:", 3) == 0 || strncmp(header->path, "usb:", 4) == 0;
+	}
+	else
+	if ((CFG.game.channel_boot == 2) ||		//use devolution
+	    (CFG.game.channel_boot == 1 && CFG.dml == CFG_MIOS) ||
+	    (CFG.game.channel_boot == 0 && CFG.devo == 1))
+	{
+		ret = strncmp(header->path, "sd:", 3) == 0 || strncmp(header->path, "usb:", 4) == 0;
+	}
+	else	//use DIOS MIOS
+	{
+		ret = strncmp(header->path, dm_boot_drive, strlen(dm_boot_drive)) == 0;
+	}
 	
 	return ret;
+}
+
+void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCheatPath)
+{
+	NIN_CFG ncfg;
+	memset(&ncfg, 0, sizeof(NIN_CFG));
+
+	ncfg.Magicbytes = 0x01070CF6;
+	ncfg.Version = NIN_CFG_VERSION;
+
+	if (CFG.game.ocarina)
+		ncfg.Config |= NIN_CFG_CHEATS;
+	if (CFG.game.country_patch)		//country_patch contains NMM setting
+		ncfg.Config |= NIN_CFG_MEMCARDEMU;
+	if (CFG.game.ocarina)
+		ncfg.Config |= NIN_CFG_CHEAT_PATH;
+	if (CFG.game.wide_screen)
+		ncfg.Config |= NIN_CFG_FORCE_WIDE;
+	if (CFG.game.video == 4 ||CFG.game.video == 5)
+		ncfg.Config |= NIN_CFG_FORCE_PROG;
+	ncfg.Config |= NIN_CFG_AUTO_BOOT;
+	if (CFG.game.alt_controller_cfg)
+		ncfg.Config |= NIN_CFG_HID;
+	if (strncmp("sd:", header->path, 3))
+		ncfg.Config |= NIN_CFG_USB;
+
+	switch (CFG.game.video)
+	{
+		default:
+		case 0:
+			ncfg.VideoMode |= NIN_VID_AUTO;
+			break;
+		case 1:
+			ncfg.VideoMode |= NIN_VID_FORCE_PAL50 & NIN_VID_FORCE;
+			break;
+		case 2:
+			ncfg.VideoMode |= NIN_VID_FORCE_NTSC & NIN_VID_FORCE;
+			break;
+		case 3:
+			ncfg.VideoMode |= NIN_VID_FORCE_PAL60 & NIN_VID_FORCE;
+			break;
+		case 4:
+			ncfg.VideoMode |= NIN_VID_FORCE_NTSC & NIN_VID_FORCE & NIN_VID_PROG;
+			break;
+		case 5:
+			ncfg.VideoMode |= NIN_VID_FORCE_PAL60 & NIN_VID_FORCE & NIN_VID_PROG;
+			break;
+	}
+	
+	switch (CFG.game.language)
+	{
+		case CFG_LANG_CONSOLE:
+		default:
+			ncfg.Language = NIN_LAN_AUTO;
+			break;
+		case CFG_LANG_ENGLISH:
+			ncfg.Language = NIN_LAN_ENGLISH;
+			break;
+		case CFG_LANG_GERMAN:
+			ncfg.Language = NIN_LAN_GERMAN;
+			break;
+		case CFG_LANG_FRENCH:
+			ncfg.Language = NIN_LAN_FRENCH;
+			break;
+		case CFG_LANG_SPANISH:
+			ncfg.Language = NIN_LAN_SPANISH;
+			break;
+		case CFG_LANG_ITALIAN:
+			ncfg.Language = NIN_LAN_ITALIAN;
+			break;
+		case CFG_LANG_DUTCH:
+			ncfg.Language = NIN_LAN_DUTCH;
+			break;
+	}
+	
+	snprintf(ncfg.GamePath, sizeof(ncfg.GamePath), "%s/game.iso", strstr(header->path, "/"));
+
+	if(CFG.game.ocarina && strstr(CheatPath, NewCheatPath) == NULL)
+		fsop_CopyFile(CheatPath, NewCheatPath);
+	snprintf(ncfg.CheatPath, sizeof(ncfg.CheatPath), "%s", strstr(NewCheatPath, "/"));
+
+	ncfg.MaxPads = NIN_CFG_MAXPAD;
+	memcpy(&ncfg.GameID, header->id, 4);
+
+	FILE *f;
+	f = fopen("/nincfg.bin", "wb");
+	fwrite(&ncfg, 1, sizeof(NIN_CFG), f);
+	fclose(f);
 }

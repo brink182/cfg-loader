@@ -745,7 +745,7 @@ void update_gameopt_state()
 		gameopt_inactive(cond, wgame.video, CFG_VIDEO_GAME);
 		gameopt_inactive(cond, wgame.vidtv, 0);
 		gameopt_inactive(cond, wgame.country_patch, 0);
-		gameopt_inactive(cond, wgame.fix_002, 0);
+		gameopt_inactive(cond, wgame.channel_boot, 0);
 		gameopt_inactive(cond, wgame.ocarina, 0);
 		gameopt_inactive(cond, wgame.wide_screen, 0);		
 		gameopt_inactive(cond, wgame.nodisc, 0);
@@ -970,6 +970,10 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			//char *names_ios[num_ios];
 			//num_ios = map_to_list(map_ios, num_ios, names_ios);
 
+			int num_gc_boot = map_get_num(map_gc_boot);
+			char *names_gc_boot[num_gc_boot];
+			num_gc_boot = map_to_list(map_gc_boot, num_gc_boot, names_gc_boot);
+
 			ww = wgui_add_game_opt(op, gt("Language:"), CFG_LANG_NUM, languages);
 			BIND_OPT(language);
 
@@ -989,9 +993,9 @@ void InitGameOptionsPage(Widget *pp, int bh)
 			ww = wgui_add_game_opt(op, gt("Ocarina (cheats):"), 2, NULL);
 			BIND_OPT(ocarina);
 					
-			ww = wgui_add_game_opt(op, gt("Devolution:"), 2, NULL);
-			BIND_OPT(fix_002);
-			
+			ww = wgui_add_game_opt(op, gt("Boot Method:"), num_gc_boot, names_gc_boot);
+			BIND_OPT(channel_boot);
+
 			/////////////////
 					
 			op = wgui_add_page(pp, w_opt_page, pos_wh(SIZE_FULL, -bh), "opt");

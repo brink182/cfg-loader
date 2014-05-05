@@ -7,6 +7,7 @@
 
 #define PLUGIN_MIGHTY 0
 #define PLUGIN_NEEK 1
+#define PLUGIN_NINTENDONT 2
 
 extern char *videos[CFG_VIDEO_NUM];
 extern char *DML_videos[6];

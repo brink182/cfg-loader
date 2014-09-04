@@ -3,7 +3,7 @@ metaxml=<app version="1">
 metaxml=	<name>Configurable USB Loader MOD</name>
 metaxml=	<version>{VERSION}</version>
 metaxml=	<release_date>{DATE}</release_date>
-metaxml=	<coder>oggzee,usptactical,gannon,Clipper,R2-D2199,FIX94,airline38</coder>
+metaxml=	<coder>oggzee,usptactical,gannon,Clipper,R2-D2199,FIX94,airline38,Howard</coder>
 metaxml=	<short_description>Play from USB drive</short_description>
 metaxml=<long_description>
 metaxml=Play Wii Backups from USB harddrive
@@ -12,6 +12,11 @@ metaxml=Hermes cIOS 222/223 is supported.
 metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
+
+Unreleased = 70r76
+date = 2014-9-4
+-Changed "Force Devo" to "Default Gamecube loader". It can now be set to Nintendont
+-Added Nintendont LED support
 
 Unreleased = 70r75
 date = 2014-5-5

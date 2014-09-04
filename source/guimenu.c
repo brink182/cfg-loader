@@ -2548,8 +2548,8 @@ void Init_System_Dialog(Widget *dd)
 	ww->action = action_AdminLock;
 	
 	// Force devo
-	ww = wgui_add_opt(dd, gt("Force Devolution:"), 2, NULL);
-	ww->val_ptr = &CFG.devo;
+	ww = wgui_add_opt_a(dd, gt("Default Gamecube Loader:"), 3, gt("DIOS MIOS"),gt("Devolution"),gt("Nintendont"));
+	ww->val_ptr = &CFG.default_gc_loader;
 	ww->action = action_write_val_ptr_int;
 	
 

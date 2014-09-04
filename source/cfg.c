@@ -2306,7 +2306,7 @@ bool cfg_set_gbl(char *name, char *val)
 
 	if (cfg_map_auto("gui_style", map_gui_style, &CFG.gui_style)) return true;
 	//if (cfg_int_max("dml", &CFG.dml, 6)) return true;
-	cfg_bool("devo", &CFG.devo);
+	cfg_int_max("devo", &CFG.default_gc_loader,2);
 	cfg_bool("old_button_color", &CFG.old_button_color);
 
 	int rows = 0;
@@ -2536,7 +2536,7 @@ void cfg_set(char *name, char *val)
 	cfg_bool("disable_bca", &CFG.disable_bca);
 
 	//cfg_int_max("dml", &CFG.dml, 6);
-	cfg_bool("devo", &CFG.devo);
+	cfg_int_max("devo", &CFG.default_gc_loader,2);
 	cfg_bool("old_button_color", &CFG.old_button_color);
 
 	cfg_id_list("hide_game", CFG.hide_game, &CFG.num_hide_game, MAX_HIDE_GAME);
@@ -2935,7 +2935,7 @@ bool CFG_Save_Settings(int verbose)
 			SAVE_OPT("gui_rows = %d\n", CFG.saved_gui_rows);
 		}
 		//SAVE_OPT("dml = %d\n", CFG.dml);
-		SAVE_OPT("devo = %d\n", CFG.devo);
+		SAVE_OPT("devo = %d\n", CFG.default_gc_loader);
 		SAVE_OPT("old_button_color = %d", CFG.old_button_color);
 	}
 

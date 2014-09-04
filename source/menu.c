@@ -2628,7 +2628,7 @@ int Menu_Global_Options()
 		if (menu_window_mark(&menu))
 			printf("%s< %s >\n", con_align("WiiRD:",13), gt(str_wiird[CFG.wiird]));
 		if (menu_window_mark(&menu))
-			printf("%s< %s >\n", con_align("Force Devo:",13), CFG.devo ? gt("Yes") : gt("No"));
+			printf("%s< %s >\n", con_align(gt("Default Gamecube Loader:"),24), gt(map_get_name(map_gc_boot, CFG.default_gc_loader+1)));
 		if (menu_window_mark(&menu))
 			printf("<%s>\n", gt("Download All Missing Covers"));
 		if (menu_window_mark(&menu))
@@ -2704,7 +2704,7 @@ int Menu_Global_Options()
 				CHANGE(CFG.wiird, 2);
 				break;
 			case 6:
-				CHANGE(CFG.devo, 1);
+				CHANGE(CFG.default_gc_loader, 2);
 				break;
 			case 7:
 				//cache_wait_idle();
@@ -4837,7 +4837,7 @@ L_repaint:
 		}
 		
 		if ((CFG.game.channel_boot == 3)	 ||	//Boot GC using Nintendont
-	        (CFG.game.channel_boot == 0 && CFG.devo == 2))
+	        (CFG.game.channel_boot == 0 && CFG.default_gc_loader == 2))
 		{
 			Nintendont_set_options(header, cheatPath, newCheatPath);
 
@@ -4853,7 +4853,7 @@ L_repaint:
 
 		if ((CFG.game.channel_boot == 2) || //boot GC using Devolution
 		    (CFG.game.channel_boot == 1 && CFG.dml == CFG_MIOS) ||
-	        (CFG.game.channel_boot == 0 && CFG.devo == 1))
+	        (CFG.game.channel_boot == 0 && CFG.default_gc_loader == 1))
 		{
 			if (getDMLDisk1Size(header) != GC_GAME_SIZE) {
 				printf_x(gt("Devolution only accepts clean dumps!\n"));

@@ -627,14 +627,14 @@ bool is_gc_game_on_bootable_drive(struct discHdr *header) {
 	bool ret = false;
 
 	if ((CFG.game.channel_boot == 3) ||		//use nintendont
-	    (CFG.game.channel_boot == 0 && CFG.devo == 2))
+	    (CFG.game.channel_boot == 0 && CFG.default_gc_loader == 2))
 	{
 		ret = strncmp(header->path, "sd:", 3) == 0 || strncmp(header->path, "usb:", 4) == 0;
 	}
 	else
 	if ((CFG.game.channel_boot == 2) ||		//use devolution
 	    (CFG.game.channel_boot == 1 && CFG.dml == CFG_MIOS) ||
-	    (CFG.game.channel_boot == 0 && CFG.devo == 1))
+	    (CFG.game.channel_boot == 0 && CFG.default_gc_loader == 1))
 	{
 		ret = strncmp(header->path, "sd:", 3) == 0 || strncmp(header->path, "usb:", 4) == 0;
 	}
@@ -662,13 +662,15 @@ void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCh
 		ncfg.Config |= NIN_CFG_CHEAT_PATH;
 	if (CFG.game.wide_screen)
 		ncfg.Config |= NIN_CFG_FORCE_WIDE;
-	if (CFG.game.video == 4 ||CFG.game.video == 5)
+	if (CFG.game.video == 4 || CFG.game.video == 5)
 		ncfg.Config |= NIN_CFG_FORCE_PROG;
 	ncfg.Config |= NIN_CFG_AUTO_BOOT;
 	if (CFG.game.alt_controller_cfg)
 		ncfg.Config |= NIN_CFG_HID;
 	if (strncmp("sd:", header->path, 3))
 		ncfg.Config |= NIN_CFG_USB;
+	if (CFG.game.vidtv)			//vidtv contains gc led setting
+		ncfg.Config |= NIN_CFG_LED;
 
 	switch (CFG.game.video)
 	{

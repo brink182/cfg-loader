@@ -504,7 +504,7 @@ struct CFG
 	int disable_bca;
 	int disable_wip;
 	int dml;
-	int devo;
+	int default_gc_loader;
 	int old_button_color;
 	// int write_playlog;
 	// order of the following options (until specified point) is important

@@ -721,7 +721,10 @@ void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCh
 			break;
 	}
 	
-	snprintf(ncfg.GamePath, sizeof(ncfg.GamePath), "%s/game.iso", strstr(header->path, "/"));
+	if(DML_GameIsInstalled(header->path) == 2)	//if FST format
+		snprintf(ncfg.GamePath, sizeof(ncfg.GamePath), "%s/", strstr(header->path, "/"));
+	else
+		snprintf(ncfg.GamePath, sizeof(ncfg.GamePath), "%s/game.iso", strstr(header->path, "/"));
 
 	if(CFG.game.ocarina && strstr(CheatPath, NewCheatPath) == NULL)
 		fsop_CopyFile(CheatPath, NewCheatPath);

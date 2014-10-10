@@ -13,6 +13,10 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r77
+date = 2014-10-10
+-Fixed Starting FST files through Nintendont
+
 Unreleased = 70r76
 date = 2014-9-4
 -Changed "Force Devo" to "Default Gamecube loader". It can now be set to Nintendont

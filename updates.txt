@@ -13,6 +13,11 @@ metaxml=USE AT YOUR OWN RISK!
 metaxml=</long_description>
 metaxml=</app>
 
+Unreleased = 70r78
+date = 2014-11-02
+-Fixed downloading cheat files (Thanks pabloacurielz)
+-Fixed Forcing video modes for Nintendont
+
 Unreleased = 70r77
 date = 2014-10-10
 -Fixed Starting FST files through Nintendont

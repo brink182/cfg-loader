@@ -679,19 +679,19 @@ void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCh
 			ncfg.VideoMode |= NIN_VID_AUTO;
 			break;
 		case 1:
-			ncfg.VideoMode |= NIN_VID_FORCE_PAL50 & NIN_VID_FORCE;
+			ncfg.VideoMode |= NIN_VID_FORCE_PAL50 | NIN_VID_FORCE;
 			break;
 		case 2:
-			ncfg.VideoMode |= NIN_VID_FORCE_NTSC & NIN_VID_FORCE;
+			ncfg.VideoMode |= NIN_VID_FORCE_NTSC | NIN_VID_FORCE;
 			break;
 		case 3:
-			ncfg.VideoMode |= NIN_VID_FORCE_PAL60 & NIN_VID_FORCE;
+			ncfg.VideoMode |= NIN_VID_FORCE_PAL60 | NIN_VID_FORCE;
 			break;
 		case 4:
-			ncfg.VideoMode |= NIN_VID_FORCE_NTSC & NIN_VID_FORCE & NIN_VID_PROG;
+			ncfg.VideoMode |= NIN_VID_FORCE_NTSC | NIN_VID_FORCE | NIN_VID_PROG;
 			break;
 		case 5:
-			ncfg.VideoMode |= NIN_VID_FORCE_PAL60 & NIN_VID_FORCE & NIN_VID_PROG;
+			ncfg.VideoMode |= NIN_VID_FORCE_PAL60 | NIN_VID_FORCE | NIN_VID_PROG;
 			break;
 	}
 	

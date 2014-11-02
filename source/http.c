@@ -266,9 +266,13 @@ struct block downloadfile_fname(const char *url, const char *fname)
 	
 	//Form a nice request header to send to the webserver
 	extern char CFG_VERSION[];
-	char* headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nReferer: %s\r\nUser-Agent: CFG-Loader %s\r\n\r\n";
-	char header[strlen(headerformat) + strlen(domain) + strlen(path) + strlen(domain) + strlen(CFG_VERSION) + 16];
-	sprintf(header, headerformat, path, domain, domain, CFG_VERSION);
+//referer removed for compatability with geckocodes.org if it causes problems make it conditional
+//	char* headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nReferer: %s\r\nUser-Agent: CFG-Loader %s\r\n\r\n";
+//	char header[strlen(headerformat) + strlen(domain) + strlen(path) + strlen(domain) + strlen(CFG_VERSION) + 16];
+//	sprintf(header, headerformat, path, domain, domain, CFG_VERSION);
+	char* headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: CFG-Loader %s\r\n\r\n";
+	char header[strlen(headerformat) + strlen(path) + strlen(domain) + strlen(CFG_VERSION) + 16];
+	sprintf(header, headerformat, path, domain, CFG_VERSION);
 
 	//Do the request and get the response
 	send_message(connection, header);

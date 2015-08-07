@@ -5,9 +5,9 @@ install:
   - wget http://download.sourceforge.net/project/devkitpro/devkitPPC/previous/devkitPPC_r26-x86_64-linux.tar.bz2
   - tar -xvf devkitPPC_r26-x86_64-linux.tar.bz2
   - wget http://download.sourceforge.net/project/devkitpro/libogc/libogc-1.8.12.tar.bz2
-  - tar -xvf libogc-1.8.12.tar.bz2 -C libogc
+  - tar -xvf libogc-1.8.12.tar.bz2 -C ./libogc
   - wget http://download.sourceforge.net/project/devkitpro/libfat/1.0.14/libfat-ogc-1.0.14.tar.bz2
-  - tar -xvf libfat-ogc-1.0.14.tar.bz2 -C libogc
+  - tar -xvf libfat-ogc-1.0.14.tar.bz2 -C ./libogc
   - ls
   - export DEVKITPRO=$PWD
   - export DEVKITPPC=$PWD/devkitPPC

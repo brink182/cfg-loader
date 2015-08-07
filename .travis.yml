@@ -1,5 +1,5 @@
 language: c
-before_install:
+install:
 	- wget http://iweb.dl.sourceforge.net/project/devkitpro/devkitPPC/previous/devkitPPC_r26-x86_64-linux.tar.bz2
 	- tar -xvf devkitPPC_r26-x86_64-linux.tar.bz2
 	- export DEVKITPPC=$PWD/devkitPPC

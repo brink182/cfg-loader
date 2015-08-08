@@ -1,0 +1,12 @@
+# USBLoader config
+# lines starting with # are comments
+# see README-CFG.txt for help on options
+
+background = background.png
+wbackground = background_wide.png
+
+background_base = bg_base.png
+wbackground_base = bg_base.png
+
+layout = large3
+cover_style = 3d

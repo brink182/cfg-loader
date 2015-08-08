@@ -1,0 +1,22 @@
+# USBLoader config
+# lines starting with # are comments
+# see README-CFG.txt for help on options
+
+# theme
+theme = Glass
+
+# gui
+gui = start
+gui_transition = fade
+gui_style = flow
+gui_rows = 2
+
+# device
+device = usb
+
+# language related options:
+# translation = XX
+# db_language = XX
+
+# this is required for asian languages:
+# load_unifont = 1

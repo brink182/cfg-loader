@@ -1,0 +1,15 @@
+# USBLoader config
+# lines starting with # are comments
+# see README-CFG.txt for help on options
+
+# rename this file from sample_config.txt to config.txt if you want to use it.
+# all setting in this file (sd:/apps/USBLoader/config.txt)
+# will override the global config (sd:/usb-loader/config.txt)
+
+# background = background.png
+# wbackground = background_wide.png
+# layout = large3
+# covers = 1
+# hide_footer = 1
+# device = usb
+

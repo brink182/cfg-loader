@@ -1,0 +1,11 @@
+# by AXYPB
+
+background = bg_console.png
+wbackground = bg_console.png
+
+console_coords = 40,38,558,404
+wconsole_coords = 40,38,558,404
+
+console_transparent = 1
+
+covers = 0

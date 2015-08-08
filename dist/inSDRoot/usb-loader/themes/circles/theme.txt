@@ -1,0 +1,44 @@
+# circles theme by abdias
+
+background = bg.png
+wbackground = bg_w.png
+background_base = bg.png
+wbackground_base = bg_w.png
+background_gui = bg_gui.png
+wbackground_gui = bg_gui_w.png
+
+gui_bar = 0
+gui_button_quit = 20, 20, 48, 48, 0, icon_quit.png, icon, 5
+gui_button_main = 70, 28, 36, 36, 0, icon_main.png, icon, 5
+gui_button_favorites = 27, 404, 96, 76, 0, icon_fav.png, icon, 0
+gui_button_style = 125, 404, 96, 76, 0, icon_style.png, icon, 0
+gui_button_view = 223, 404, 96, 76, 0, icon_view.png, icon, 0
+gui_button_sort = 321, 404, 96, 76, 0, icon_sort.png, icon, 0
+gui_button_filter = 419, 404, 96, 76, 0, icon_filter.png, icon, 0
+gui_button_settings = 517, 404, 96, 76, 0, icon_settings.png, icon, 0
+gui_text_color_menu = 35beedff / 35beed00 / white
+gui_text_color_info = white / 35beed00 / 35beedaa
+gui_text_color = abababff
+gui_text_shadow = white
+gui_text_outline = FFFFFF00
+gui_text2_color = abababff
+gui_text2_shadow = white
+gui_text2_outline = FFFFFF00
+gui_cover_area = 20, 75, 600, 330
+gui_clock_pos = -1,-1
+gui_title_area = 120,30,400,30
+gui_page_pos = 555,48
+gui_window_color_base = FFFFFFDD
+gui_window_color_popup = FFFFFFDD
+
+cover_style = 3d
+
+console_transparent=1
+console_color = 8,15
+color_header = 7
+color_footer = 7
+color_selected_fg = 15
+color_selected_bg = 7
+color_inactive = 8
+color_help = 2
+

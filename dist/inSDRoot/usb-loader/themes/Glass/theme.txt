@@ -1,0 +1,37 @@
+#Glass
+#Created by The-Magician
+#June 2011
+#Configurable USB Loader v68 or higher
+
+background = bg.png
+background_gui = bg_gui.png
+covers = 1
+preview_coords = 42,52,160,120
+colors = bright
+console_color = 0,0
+color_header = 0
+color_footer = 0
+color_selected_fg = 11
+color_selected_bg = 0
+color_inactive = 15
+color_help = 2
+console_transparent = 1
+cover_style = 3d
+simple = 1
+hide_header = 1
+hide_footer = 1
+hide_hddinfo = 1
+gui_bar = 0
+gui_clock_pos = 291,31
+gui_title_area = 44,74,500,17
+gui_cover_area = 20,75,600,340
+gui_window_color_base = FFFFFFE0
+gui_window_color_popup = FFFFFFE0
+gui_button_main = 63, 18, 32, 32, 00000000/00000000/00000000, icon_main.png, icon, 10
+gui_button_settings = 460, 400, 64, 64, 00000000/00000000/00000000, icon_settings.png, icon, 10
+gui_button_quit = 20, 18, 32, 32, 00000000/00000000/00000000, icon_quit.png, icon, 10
+gui_button_style = 387, 400, 64, 64, 00000000/00000000/00000000, icon_style.png, icon, 10
+gui_button_view = 312, 400, 64, 64, 00000000/00000000/00000000, icon_view.png, icon, 10
+gui_button_sort = 164, 400, 64, 64, 00000000/00000000/00000000, icon_sort.png, icon, 10
+gui_button_filter = 238, 400, 64, 64, 00000000/00000000/00000000, icon_filter.png, icon, 10
+gui_button_favorites = 92, 400, 64, 64, 00000000/00000000/00000000, icon_fav.png, icon, 10

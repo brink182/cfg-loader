@@ -1,0 +1,30 @@
+# USBLoader config
+# AUTHOR: abdias <adbias@gmx.com>
+
+background = background.png
+wbackground = background.png
+
+background_base  = background.png
+wbackground_base = background.png
+background_gui   = background.png
+wbackground_gui  = background.png
+
+layout = large3
+console_transparent=1
+
+color_header = 14
+color_selected_fg = 0
+color_selected_bg = 7
+color_inactive = 8
+color_footer = 8
+color_help = 11
+
+hide_header=1 
+hide_footer=1
+
+cover_style=3d
+
+gui_text_color = white
+gui_text_shadow = black
+gui_text2_color = white
+gui_text2_shadow = black

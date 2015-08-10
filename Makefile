@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	70r78
+VERSION		:=	70.79.0-exp
 RELEASE		:=	release
 # to override RELEASE use: make announce RELEASE=beta
 ifeq ($(findstring compat,$(VERSION)),compat)
@@ -34,7 +34,7 @@ else ifeq ($(findstring x,$(VERSION)),x)
 	RELEASE := experimental
 endif
 
-BINBASE		:=	cfg$(VERSION)
+BINBASE		:=	cfg-$(VERSION)
 TARGET		:=	$(BINBASE)
 BUILD		:=	build
 SOURCES		:=	source source/pngu source/libwbfs source/unzip
@@ -43,7 +43,7 @@ INCLUDES	:=
 GETTEXT		:=	tools/gettext
 UPLOAD		:=  tools/googlecode_upload.py
 GAUTH		?=  -u username -w passwd
-INSTDIR		:=  ../Cfg_USB_Loader_$(VERSION)
+INSTDIR		:=  dist
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -270,7 +270,7 @@ install:
 	-rm $(INSTDIR)/*.dol
 	#cp $(BINBASE)-222.dol $(INSTDIR)/
 	cp README-CFG.txt $(INSTDIR)/
-	sed -i 's/<version>.*</<version>'$(VERSION)' (release)</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
+	sed -i 's/<version>.*</<version>'$(VERSION)' ('$(RELEASE)')</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
 	sed -i 's/<release_date>.*</<release_date>'`date +%Y%m%d000000`'</' $(INSTDIR)/inSDRoot/apps/USBLoader/meta.xml
 	cp Languages/*.lang $(INSTDIR)/inSDRoot/usb-loader/languages
 	-rm $(INSTDIR)/inSDRoot/usb-loader/languages/*_miss.lang

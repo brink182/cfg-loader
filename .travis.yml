@@ -35,8 +35,8 @@ deploy:
   api_key:
     secure: ugXGGJcQ2SV3QniBAIqroA7fgIB0laIFIK5XK2XZbsyIEgSseJNzfRxt1oCr5DrDoEeqQxgGvmAxkmyc8d1FMET0E2diHpM2BXCLQewDi5Br1rEgU8l4mn6c5S8BYFJy8DgCAERXCiofLo737o3K0EW2ysqGDHsNaSWBdxJEC4X5FseE3eyk3K36DfxpJHe4fkaLX8vu0SRY4VTHUQC7oP21wsT//ysU8FMNtOrhdC/cPTJ0b0tqXcCtggPaLzthhJtPma6w77TtHNiR4KHL0dyPBYCA1kmO7u6bNrblZwZAc/y3OuxwlUqNWwB0tSQC1pIzYO4U8vny2V4AbE389TCoLClz0BEdlOrkAd8WP0krxWE2GUF8SlTuqGM9Ezh2u/jCeBJCW14iZdOT92GJFhrMp0Lrxy4xDowl5Td2AC3DXLnml0twr/UL9LSnrXpQFBHeB+4Vh/rg/f9JyONQoSg8PTeTBN3TzzZk302zpowZ4VGNbo0io2U5B8xiz8UleQMKTKEeLuQM2wScZgrRi6ju7oRN2D01Dz6MMFqAVvtR6aO4cCOtJJPOdGarb+WGHLQnZ2uIme92wFtGlpLXKGrHyX6mjCyeQjrIwKngHgjaqnUdhF1VIMXOxcqHEi0Uy7uminGHXv01oT7rXkSOFyfBY480kLEPCgs+qKYBkeM=
   file:
-  - cfg*.zip
-  - cfg*.dol
+  - ${BINBASE}.zip
+  - ${BINBASE}.dol
   skip_cleanup: true
   on:
     repo: brink182/cfg-loader

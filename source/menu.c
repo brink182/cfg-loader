@@ -5573,26 +5573,46 @@ void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
 	struct __argv args;
 	bzero(&args, sizeof(args));
 	args.argvMagic = ARGV_MAGIC;
-	args.length = 1;
+	if (plugin == PLUGIN_NINTENDONT && argCnt == 0) {
+		//nintendont argsboot
+		//TODO keep NIN_CFG in memory to avoid file reading
+		file = fopen("/nincfg.bin", "rb");
+		if (file) {
+			fseek (file, 0, SEEK_END);
+
+			int len = ftell(file);
+			args.length = len + 2;
+			args.commandLine = (char*) allocate_memory(args.length);
+			if (!args.commandLine) dbg_printf("failed...\n");
+
+			fseek (file, 0, SEEK_SET);
+			//nintendont expects cfg at argv[1]
+			fread(args.commandLine + 1, 1, len, file); 
+
+			fclose(file);
+			file = NULL;
+		} else {
+			args.length = 1;
+			args.commandLine = "\0";
+		}
+	} else {
+		args.length = 1;
 	
-	for (i = 0; i < argCnt; i++) {
-		args.length += strlen(arguments[i]) + 1;
+		for (i = 0; i < argCnt; i++) {
+			args.length += strlen(arguments[i]) + 1;
+		}
+	
+		args.commandLine = (char*)allocate_memory(args.length);
+		if (!args.commandLine) dbg_printf("failed...\n");
+	
+		int pos = 0;
+	
+		for (i = 0; i < argCnt; i++) {
+			strcpy(args.commandLine+pos, arguments[i]);
+	        pos += strlen(arguments[i]) + 1;
+		}
 	}
-	
-	args.commandLine = (char*)allocate_memory(args.length);
-	if (!args.commandLine) dbg_printf("failed...\n");
-	
-	int pos = 0;
-	
-	for (i = 0; i < argCnt; i++) {
-		strcpy(args.commandLine+pos, arguments[i]);
-        pos += strlen(arguments[i]) + 1;
-	}
-	
-	args.argc = argCnt;
 	args.commandLine[args.length - 1] = '\0';
-	args.argv = &args.commandLine;
-	args.endARGV = args.argv + 1;
 	
 	switch (plugin) {
 		case PLUGIN_MIGHTY:

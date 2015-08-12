@@ -19,7 +19,7 @@ install:
 - export DEVKITPRO=$PWD
 - export DEVKITPPC=$PWD/devkitPPC
 - popd
-before_script: MAKE_PARAMS=`test -n "$TRAVIS_TAG" && echo $TRAVIS_TAG | sed 's/[^0-9]*/VERSION=/'`
+before_script: export MAKE_PARAMS=`test -n "$TRAVIS_TAG" && echo $TRAVIS_TAG | sed 's/[^0-9]*/VERSION=/'`
 script: make $MAKE_PARAMS
 cache:
   directories:

@@ -653,6 +653,9 @@ void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCh
 
 	ncfg.Magicbytes = 0x01070CF6;
 	ncfg.Version = NIN_CFG_VERSION;
+	ncfg.MemCardBlocks = 0x2; //251 blocks
+	ncfg.VideoScale = 0;
+	ncfg.VideoOffset = 0;
 
 	if (CFG.game.ocarina)
 		ncfg.Config |= NIN_CFG_CHEATS;
@@ -661,7 +664,7 @@ void Nintendont_set_options(struct discHdr *header, char *CheatPath, char *NewCh
 	if (CFG.game.ocarina)
 		ncfg.Config |= NIN_CFG_CHEAT_PATH;
 	if (CFG.game.wide_screen)
-		ncfg.Config |= NIN_CFG_FORCE_WIDE;
+		ncfg.Config |= NIN_CFG_FORCE_WIDE | NIN_CFG_WIIU_WIDE;
 	if (CFG.game.video == 4 || CFG.game.video == 5)
 		ncfg.Config |= NIN_CFG_FORCE_PROG;
 	ncfg.Config |= NIN_CFG_AUTO_BOOT;

@@ -40,4 +40,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: brink182/cfg-loader
-	tags: true
+    tags: true

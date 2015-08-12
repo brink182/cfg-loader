@@ -1,25 +1,43 @@
 language: c
 install:
 # Core
-  - mkdir ~/devkitPro || true
-  - pushd ~/devkitPro
-  - wget -N http://download.sourceforge.net/project/devkitpro/devkitPPC/previous/devkitPPC_r26-x86_64-linux.tar.bz2
-  - tar -xvf devkitPPC_r26-x86_64-linux.tar.bz2
-  - mkdir libogc || true
-  - wget -N http://download.sourceforge.net/project/devkitpro/libogc/libogc-1.8.12.tar.bz2
-  - tar -xvf libogc-1.8.12.tar.bz2 -C libogc
-  - wget -N http://download.sourceforge.net/project/devkitpro/libfat/1.0.14/libfat-ogc-1.0.14.tar.bz2
-  - tar -xvf libfat-ogc-1.0.14.tar.bz2 -C libogc
+- mkdir ~/devkitPro || true
+- pushd ~/devkitPro
+- wget -N http://download.sourceforge.net/project/devkitpro/devkitPPC/previous/devkitPPC_r26-x86_64-linux.tar.bz2
+- tar -xvf devkitPPC_r26-x86_64-linux.tar.bz2
+- mkdir libogc || true
+- wget -N http://download.sourceforge.net/project/devkitpro/libogc/libogc-1.8.12.tar.bz2
+- tar -xvf libogc-1.8.12.tar.bz2 -C libogc
+- wget -N http://download.sourceforge.net/project/devkitpro/libfat/1.0.14/libfat-ogc-1.0.14.tar.bz2
+- tar -xvf libfat-ogc-1.0.14.tar.bz2 -C libogc
 # Portlibs
-  - mkdir portlibs || true
-  - mkdir portlibs/ppc || true
-  - wget -N http://download.sourceforge.net/project/devkitpro/portlibs/ppc/zlib-1.2.5-ppc.tar.bz2
-  - tar -xvf zlib-1.2.5-ppc.tar.bz2 -C portlibs/ppc
+- mkdir portlibs || true
+- mkdir portlibs/ppc || true
+- wget -N http://download.sourceforge.net/project/devkitpro/portlibs/ppc/zlib-1.2.5-ppc.tar.bz2
+- tar -xvf zlib-1.2.5-ppc.tar.bz2 -C portlibs/ppc
 # Env
-  - export DEVKITPRO=$PWD
-  - export DEVKITPPC=$PWD/devkitPPC
-  - popd
-script: make
+- export DEVKITPRO=$PWD
+- export DEVKITPPC=$PWD/devkitPPC
+- popd
+before_script: MAKE_PARAMS=`test -n "$TRAVIS_TAG" && echo $TRAVIS_TAG | sed 's/[^0-9]*/VERSION=/'`
+script: make $MAKE_PARAMS
 cache:
   directories:
-    - $HOME/devkitPro
+  - "$HOME/devkitPro"
+before_deploy:
+- make install $MAKE_PARAMS
+- BINBASE=`basename cfg*.dol .dol` 
+- pushd dist
+- zip -r9 ../${BINBASE}.zip *
+- popd
+deploy:
+  provider: releases
+  api_key:
+    secure: ugXGGJcQ2SV3QniBAIqroA7fgIB0laIFIK5XK2XZbsyIEgSseJNzfRxt1oCr5DrDoEeqQxgGvmAxkmyc8d1FMET0E2diHpM2BXCLQewDi5Br1rEgU8l4mn6c5S8BYFJy8DgCAERXCiofLo737o3K0EW2ysqGDHsNaSWBdxJEC4X5FseE3eyk3K36DfxpJHe4fkaLX8vu0SRY4VTHUQC7oP21wsT//ysU8FMNtOrhdC/cPTJ0b0tqXcCtggPaLzthhJtPma6w77TtHNiR4KHL0dyPBYCA1kmO7u6bNrblZwZAc/y3OuxwlUqNWwB0tSQC1pIzYO4U8vny2V4AbE389TCoLClz0BEdlOrkAd8WP0krxWE2GUF8SlTuqGM9Ezh2u/jCeBJCW14iZdOT92GJFhrMp0Lrxy4xDowl5Td2AC3DXLnml0twr/UL9LSnrXpQFBHeB+4Vh/rg/f9JyONQoSg8PTeTBN3TzzZk302zpowZ4VGNbo0io2U5B8xiz8UleQMKTKEeLuQM2wScZgrRi6ju7oRN2D01Dz6MMFqAVvtR6aO4cCOtJJPOdGarb+WGHLQnZ2uIme92wFtGlpLXKGrHyX6mjCyeQjrIwKngHgjaqnUdhF1VIMXOxcqHEi0Uy7uminGHXv01oT7rXkSOFyfBY480kLEPCgs+qKYBkeM=
+  file:
+  - cfg*.zip
+  - cfg*.dol
+  skip_cleanup: true
+  on:
+    repo: brink182/cfg-loader
+	tags: true

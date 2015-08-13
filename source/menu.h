@@ -50,6 +50,7 @@ int get_button_action(int buttons);
 char get_unlock_buttons(int buttons);
 void Admin_Unlock(bool unlock);
 void Menu_Plugin(int plugin, char arguments[255][255], int argCnt);
+void Menu_Plugin_Direct(int plugin, struct __argv *args);
  
 void __Menu_ShowGameInfo(bool showfullinfo, u8 *id); // Lustar
 char *skip_sort_ignore(char *s);

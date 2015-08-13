@@ -4839,14 +4839,15 @@ L_repaint:
 		if ((CFG.game.channel_boot == 3)	 ||	//Boot GC using Nintendont
 	        (CFG.game.channel_boot == 0 && CFG.default_gc_loader == 2))
 		{
-			Nintendont_set_options(header, cheatPath, newCheatPath);
+			struct __argv args;
+			bzero(&args, sizeof(args));
+
+			Nintendont_set_options(&args, header, cheatPath, newCheatPath);
 
 			CFG.ios = 58;
 			CFG.game.ios_idx = 58;
 //			IOSPATCH_Apply();
-			char args[255][255] = {{"\0"}};
-			int i = 0;
-			Menu_Plugin(PLUGIN_NINTENDONT, args, i);
+			Menu_Plugin_Direct(PLUGIN_NINTENDONT, &args);
 			return;	// should never get here
 
 		}
@@ -5563,58 +5564,37 @@ bool Menu_Confirm(const char *msg)
 }
 
 void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
-	FILE* file;
-	u32 entryPoint;
 	int i = 0;
-	void *buffer = (void *)0x92000000;
-		
-	char fname[128];
 	
 	struct __argv args;
 	bzero(&args, sizeof(args));
 	args.argvMagic = ARGV_MAGIC;
-	if (plugin == PLUGIN_NINTENDONT && argCnt == 0) {
-		//nintendont argsboot
-		//TODO keep NIN_CFG in memory to avoid file reading
-		file = fopen("/nincfg.bin", "rb");
-		if (file) {
-			fseek (file, 0, SEEK_END);
+	args.length = 1;
+	
+	for (i = 0; i < argCnt; i++) {
+		args.length += strlen(arguments[i]) + 1;
+	}
 
-			int len = ftell(file);
-			args.length = len + 2;
-			args.commandLine = (char*) allocate_memory(args.length);
-			if (!args.commandLine) dbg_printf("failed...\n");
+	args.commandLine = (char*)allocate_memory(args.length);
+	if (!args.commandLine) dbg_printf("failed...\n");
 
-			fseek (file, 0, SEEK_SET);
-			//nintendont expects cfg at argv[1]
-			fread(args.commandLine + 1, 1, len, file); 
+	int pos = 0;
 
-			fclose(file);
-			file = NULL;
-		} else {
-			args.length = 1;
-			args.commandLine = "\0";
-		}
-	} else {
-		args.length = 1;
-	
-		for (i = 0; i < argCnt; i++) {
-			args.length += strlen(arguments[i]) + 1;
-		}
-	
-		args.commandLine = (char*)allocate_memory(args.length);
-		if (!args.commandLine) dbg_printf("failed...\n");
-	
-		int pos = 0;
-	
-		for (i = 0; i < argCnt; i++) {
-			strcpy(args.commandLine+pos, arguments[i]);
-	        pos += strlen(arguments[i]) + 1;
-		}
+	for (i = 0; i < argCnt; i++) {
+		strcpy(args.commandLine+pos, arguments[i]);
+        pos += strlen(arguments[i]) + 1;
 	}
 	args.commandLine[args.length - 1] = '\0';
-	
-	switch (plugin) {
+    Menu_Plugin_Direct(plugin, &args);
+}
+
+void Menu_Plugin_Direct(int plugin, struct __argv *args) {
+    FILE* file;
+	u32 entryPoint;
+	void *buffer = (void *)0x92000000;
+	char fname[128];	
+
+    switch (plugin) {
 		case PLUGIN_MIGHTY:
 			snprintf(fname, sizeof(fname), "%s/plugins/mighty.dol", USBLOADER_PATH);
 			break;
@@ -5646,7 +5626,7 @@ void Menu_Plugin(int plugin, char arguments[255][255], int argCnt) {
 	fread(buffer, 1, len, file);
 	fclose (file);
 	
-	entryPoint = load_dol_image_args(buffer, &args);
+	entryPoint = load_dol_image_args(buffer, args);
 	
 	ReloadIOS(1,1);
 	d2x_return_to_channel();

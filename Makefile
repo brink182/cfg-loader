@@ -15,7 +15,7 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-VERSION		:=	70.79.0-exp
+VERSION		:=	70.79.1-exp
 RELEASE		:=	release
 # to override RELEASE use: make announce RELEASE=beta
 ifeq ($(findstring compat,$(VERSION)),compat)
@@ -39,7 +39,7 @@ TARGET		:=	$(BINBASE)
 BUILD		:=	build
 SOURCES		:=	source source/pngu source/libwbfs source/unzip
 DATA		:=	data
-INCLUDES	:=	
+INCLUDES	:=
 GETTEXT		:=	tools/gettext
 UPLOAD		:=  tools/googlecode_upload.py
 GAUTH		?=  -u username -w passwd
@@ -90,7 +90,7 @@ ifneq ($(strip $(LIBAESND)),)
 LAESND  := -laesnd
 endif
 
-LIBS	:=	-lgrrlib -lfat -lntfs -lext2fs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz
+LIBS	:=	-lgrrlib -lfat -lntfs -lext2fs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodplay -lasnd -logc -lm -lz -lwiidrc
 
 
 #---------------------------------------------------------------------------------
@@ -98,7 +98,9 @@ LIBS	:=	-lgrrlib -lfat -lntfs -lext2fs -lpng -ljpeg -lwiiuse -lbte -lmad -lmodpl
 # include and lib
 #---------------------------------------------------------------------------------
 #LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/freetype $(CURDIR)/lib/libfat
-LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs $(CURDIR)/lib/libext2fs $(CURDIR)/lib/jpeg $(CURDIR)/lib/grrlib $(PORTLIBS)
+LIBDIRS	:=	$(DEVKITPPC)/lib $(CURDIR) $(CURDIR)/lib/png $(CURDIR)/lib/libfat $(CURDIR)/lib/libntfs $(CURDIR)/lib/libext2fs \
+	$(CURDIR)/lib/jpeg $(CURDIR)/lib/grrlib $(PORTLIBS) \
+	$(CURDIR)/lib/libdrc
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -194,7 +196,7 @@ cleanall: clean
 
 
 #---------------------------------------------------------------------------------
-run: 
+run:
 	wiiload $(OUTPUT).dol debug=0 simple=0 home=exit gui=coverflow3d gui_style=grid gui_antialias=4 gui_compress_covers=1 music=sd://mp3 button_2=random
 #	wiiload $(OUTPUT).dol simple=0 device=usb cover_style=3d widescreen=1 covers_size=100,100 debug=1 music=sd://mp3 gui_font=Vera_Mono_12_Bold.png hide_game=RB7E admin_lock=1 wpreview_coords=10,100,200,0
 # widescreen = [auto], 0, 1

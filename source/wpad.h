@@ -18,6 +18,8 @@ u32  Wpad_HeldButtons();
 void Wpad_getIRx(int n, struct ir_t *ir);
 void Wpad_getIR(struct ir_t *ir);
 bool Wpad_set_pos(struct ir_t *ir, float x, float y);
+bool Wpad_isUPad();
+bool Wpad_ScanUPad();
 
 #define WPAD_BUTTON_Z					(0x0001<<16)
 #define WPAD_BUTTON_C					(0x0002<<16)
@@ -51,9 +53,10 @@ bool Wpad_set_pos(struct ir_t *ir, float x, float y);
 #define GUITAR	3
 #define NUNCHUK	4
 #define MASTER  5
+#define WIIUPAD 6
 
 const char *button_names[MAX_BUTTONS];
 void makeButtonMap(void);
-u32 buttonmap[6][MAX_BUTTONS];
+u32 buttonmap[7][MAX_BUTTONS];
 
 #endif
